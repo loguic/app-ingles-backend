@@ -1,0 +1,12 @@
+# Entornos virtuales
+venv/
+
+# Caché de Python
+__pycache__/
+*.pyc
+
+# Archivos de entorno
+.env
+
+# Docker
+*.log
