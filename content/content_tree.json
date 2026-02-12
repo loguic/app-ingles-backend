@@ -1,0 +1,18 @@
+{
+  "levels": [
+    {
+      "code": "A1",
+      "units": [
+        {
+          "id": "a1-u1",
+          "title": "Basics: Greetings & Introductions",
+          "lessons": [
+            { "id": "a1-u1-l1", "title": "Hello / Goodbye" },
+            { "id": "a1-u1-l2", "title": "Introducing yourself" }
+          ]
+        }
+      ]
+    },
+    { "code": "A2", "units": [] }
+  ]
+}
