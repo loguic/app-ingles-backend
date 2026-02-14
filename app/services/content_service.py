@@ -34,3 +34,12 @@ def get_unit_by_id(unit_id: str):
             if unit.id == unit_id:
                 return unit
     return None
+
+def get_lesson_by_id(lesson_id: str):
+    tree = build_content_tree()
+    for level in tree.levels:
+        for unit in level.units:
+            for lesson in unit.lessons:
+                if lesson.id == lesson_id:
+                    return lesson
+    return None
