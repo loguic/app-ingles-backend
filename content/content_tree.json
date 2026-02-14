@@ -7,8 +7,21 @@
           "id": "a1-u1",
           "title": "Basics: Greetings & Introductions",
           "lessons": [
-            { "id": "a1-u1-l1", "title": "Hello / Goodbye" },
-            { "id": "a1-u1-l2", "title": "Introducing yourself" }
+            {
+              "id": "a1-u1-l1",
+              "title": "Hello / Goodbye",
+              "objective": "Learn basic greetings and farewells in English.",
+              "vocabulary": ["hello", "hi", "goodbye", "bye"],
+              "grammar": ["Subject + verb 'to be' (I am, You are)"],
+              "examples": [
+                { "en": "Hello, I am John.", "es": "Hola, soy John." },
+                { "en": "Goodbye! See you later.", "es": "¡Adiós! Hasta luego." }
+              ]
+            },
+            {
+              "id": "a1-u1-l2",
+              "title": "Introducing yourself"
+            }
           ]
         }
       ]
