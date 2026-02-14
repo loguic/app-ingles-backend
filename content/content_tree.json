@@ -16,6 +16,15 @@
               "examples": [
                 { "en": "Hello, I am John.", "es": "Hola, soy John." },
                 { "en": "Goodbye! See you later.", "es": "¡Adiós! Hasta luego." }
+              ],
+              "exercises": [
+                {
+                  "id": "a1-u1-l1-q1",
+                  "type": "mcq",
+                  "prompt": "Choose the best greeting:",
+                  "options": ["Goodbye", "Hello", "Thanks", "Sorry"],
+                  "answer_index": 1
+                }
               ]
             },
             {
