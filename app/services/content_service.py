@@ -19,3 +19,18 @@ def build_content_tree() -> ContentTreeResponse:
             Level(code="A2", units=[]),
         ]
     )
+
+def get_level_by_code(level_code: str):
+    tree = build_content_tree()
+    for level in tree.levels:
+        if level.code.upper() == level_code.upper():
+            return level
+    return None
+
+def get_unit_by_id(unit_id: str):
+    tree = build_content_tree()
+    for level in tree.levels:
+        for unit in level.units:
+            if unit.id == unit_id:
+                return unit
+    return None
