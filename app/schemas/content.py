@@ -32,3 +32,9 @@ class Level(BaseModel):
 
 class ContentTreeResponse(BaseModel):
     levels: List[Level]
+
+class ExerciseSubmission(BaseModel):
+    selected_index: int
+
+class ExerciseResult(BaseModel):
+    correct: bool
