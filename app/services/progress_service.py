@@ -31,3 +31,23 @@ def get_progress_by_user(user_id: str) -> list[ProgressRecord]:
 
     records = json.loads(file_path.read_text(encoding="utf-8"))
     return [ProgressRecord.model_validate(record) for record in records]
+
+from app.schemas.progress import ProgressStats
+
+def get_progress_stats(user_id: str) -> ProgressStats:
+    records = get_progress_by_user(user_id)
+
+    total_attempts = len(records)
+    correct_attempts = sum(1 for r in records if r.correct)
+
+    accuracy = (
+        correct_attempts / total_attempts
+        if total_attempts > 0 else 0.0
+    )
+
+    return ProgressStats(
+        user_id=user_id,
+        total_attempts=total_attempts,
+        correct_attempts=correct_attempts,
+        accuracy=round(accuracy, 2),
+    )
