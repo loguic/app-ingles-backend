@@ -1,44 +1,46 @@
-import json
-from pathlib import Path
-from app.schemas.progress import ProgressRecord
+from sqlalchemy.orm import Session
 
-PROGRESS_DIR = Path(__file__).resolve().parents[2] / "data" / "progress"
+from app.db.models import UserProgress
+from app.schemas.progress import ProgressRecord, ProgressStats
 
-def save_progress(record: ProgressRecord) -> ProgressRecord:
-    PROGRESS_DIR.mkdir(parents=True, exist_ok=True)
 
-    file_path = PROGRESS_DIR / f"{record.user_id}.json"
-
-    if file_path.exists():
-        records = json.loads(file_path.read_text(encoding="utf-8"))
-    else:
-        records = []
-
-    records.append(record.model_dump())
-
-    file_path.write_text(
-        json.dumps(records, ensure_ascii=False, indent=2),
-        encoding="utf-8"
+def save_progress(record: ProgressRecord, db: Session) -> ProgressRecord:
+    item = UserProgress(
+        user_id=record.user_id,
+        exercise_id=record.exercise_id,
+        selected_index=record.selected_index,
+        correct=record.correct,
     )
+
+    db.add(item)
+    db.commit()
 
     return record
 
-def get_progress_by_user(user_id: str) -> list[ProgressRecord]:
-    file_path = PROGRESS_DIR / f"{user_id}.json"
 
-    if not file_path.exists():
-        return []
+def get_progress_by_user(user_id: str, db: Session) -> list[ProgressRecord]:
+    records = (
+        db.query(UserProgress)
+        .filter(UserProgress.user_id == user_id)
+        .all()
+    )
 
-    records = json.loads(file_path.read_text(encoding="utf-8"))
-    return [ProgressRecord.model_validate(record) for record in records]
+    return [
+        ProgressRecord(
+            user_id=record.user_id,
+            exercise_id=record.exercise_id,
+            selected_index=record.selected_index,
+            correct=record.correct,
+        )
+        for record in records
+    ]
 
-from app.schemas.progress import ProgressStats
 
-def get_progress_stats(user_id: str) -> ProgressStats:
-    records = get_progress_by_user(user_id)
+def get_progress_stats(user_id: str, db: Session) -> ProgressStats:
+    records = get_progress_by_user(user_id, db)
 
     total_attempts = len(records)
-    correct_attempts = sum(1 for r in records if r.correct)
+    correct_attempts = sum(1 for record in records if record.correct)
 
     accuracy = (
         correct_attempts / total_attempts
