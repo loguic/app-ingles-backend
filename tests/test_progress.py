@@ -36,3 +36,25 @@ def test_read_progress_returns_user_records():
 
     assert response.status_code == 200
     assert payload in response.json()
+
+
+def test_read_progress_stats_returns_user_statistics():
+    """Verify that progress statistics are calculated from saved records."""
+    payload = {
+        "user_id": "test-user-b31",
+        "exercise_id": "a1-u1-l1-q1",
+        "selected_index": 1,
+        "correct": True,
+    }
+
+    client.post("/api/v1/progress", json=payload)
+
+    response = client.get("/api/v1/progress/test-user-b31/stats")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "user_id": "test-user-b31",
+        "total_attempts": 1,
+        "correct_attempts": 1,
+        "accuracy": 1.0,
+    }
