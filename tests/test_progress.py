@@ -19,3 +19,20 @@ def test_create_progress_saves_record():
 
     assert response.status_code == 200
     assert response.json() == payload
+
+
+def test_read_progress_returns_user_records():
+    """Verify that saved progress records can be read by user ID."""
+    payload = {
+        "user_id": "test-user-b30",
+        "exercise_id": "a1-u1-l1-q1",
+        "selected_index": 1,
+        "correct": True,
+    }
+
+    client.post("/api/v1/progress", json=payload)
+
+    response = client.get("/api/v1/progress/test-user-b30")
+
+    assert response.status_code == 200
+    assert payload in response.json()
