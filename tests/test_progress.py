@@ -1,9 +1,32 @@
+import pytest
 from fastapi.testclient import TestClient
 
+from app.db.database import SessionLocal
+from app.db.models import UserProgress
 from app.main import app
 
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def clean_test_progress_records():
+    """Clean test progress records before and after each test."""
+    db = SessionLocal()
+    try:
+        db.query(UserProgress).filter(
+            UserProgress.user_id.like("test-user-%")
+        ).delete(synchronize_session=False)
+        db.commit()
+
+        yield
+
+        db.query(UserProgress).filter(
+            UserProgress.user_id.like("test-user-%")
+        ).delete(synchronize_session=False)
+        db.commit()
+    finally:
+        db.close()
 
 
 def test_create_progress_saves_record():
