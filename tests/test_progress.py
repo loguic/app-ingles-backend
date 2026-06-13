@@ -90,3 +90,27 @@ def test_read_progress_stats_returns_user_statistics():
         "correct_attempts": 1,
         "accuracy": 1.0,
     }
+
+
+def test_read_progress_recommendation_returns_message():
+    """Verify that a basic learning recommendation is returned for a user."""
+    payload = {
+        "user_id": "test-user-b44",
+        "level_id": "A1",
+        "unit_id": "a1-u1",
+        "lesson_id": "a1-u1-l1",
+        "exercise_id": "a1-u1-l1-q1",
+        "selected_index": 1,
+        "correct": True,
+    }
+
+    client.post("/api/v1/progress", json=payload)
+
+    response = client.get("/api/v1/progress/test-user-b44/recommendation")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "user_id": "test-user-b44",
+        "accuracy": 1.0,
+        "message": "Good progress. Continue with the next lesson.",
+    }

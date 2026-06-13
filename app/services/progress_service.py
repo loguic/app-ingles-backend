@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app.db.models import UserProgress
-from app.schemas.progress import ProgressRecord, ProgressStats
+from app.schemas.progress import ProgressRecommendation, ProgressRecord, ProgressStats
 
 
 def save_progress(record: ProgressRecord, db: Session) -> ProgressRecord:
@@ -58,4 +58,22 @@ def get_progress_stats(user_id: str, db: Session) -> ProgressStats:
         total_attempts=total_attempts,
         correct_attempts=correct_attempts,
         accuracy=round(accuracy, 2),
+    )
+
+
+def get_progress_recommendation(user_id: str, db: Session) -> ProgressRecommendation:
+    """Generate a basic learning recommendation from user accuracy."""
+    stats = get_progress_stats(user_id, db)
+
+    if stats.total_attempts == 0:
+        message = "Start with the first lesson to generate your learning progress."
+    elif stats.accuracy < 0.70:
+        message = "Review previous exercises before moving forward."
+    else:
+        message = "Good progress. Continue with the next lesson."
+
+    return ProgressRecommendation(
+        user_id=user_id,
+        accuracy=stats.accuracy,
+        message=message,
     )

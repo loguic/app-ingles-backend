@@ -14,3 +14,9 @@ class ProgressStats(BaseModel):
     total_attempts: int
     correct_attempts: int
     accuracy: float
+
+
+class ProgressRecommendation(BaseModel):
+    user_id: str
+    accuracy: float
+    message: str

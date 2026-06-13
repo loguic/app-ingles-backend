@@ -166,3 +166,19 @@
   - content/content_tree.json
   - docs/arquitectura.md
 - Resultado parcial: los ejercicios ya pueden declarar qué habilidades entrenan.
+
+## B44 — Recomendaciones básicas de progreso
+
+- Objetivo: preparar una recomendación básica basada en la precisión del usuario.
+- Endpoint creado:
+  - GET /api/v1/progress/{user_id}/recommendation
+- Lógica inicial:
+  - Sin intentos: recomendar iniciar la primera lección.
+  - Accuracy menor a 0.70: recomendar repasar.
+  - Accuracy igual o mayor a 0.70: recomendar continuar.
+- Archivos modificados:
+  - app/api/v1/endpoints/progress.py
+  - app/schemas/progress.py
+  - app/services/progress_service.py
+  - tests/test_progress.py
+- Tests: 13 passed.

@@ -4,9 +4,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.schemas.progress import ProgressRecord, ProgressStats
+from app.schemas.progress import ProgressRecommendation, ProgressRecord, ProgressStats
 from app.services.progress_service import (
     get_progress_by_user,
+    get_progress_recommendation,
     get_progress_stats,
     save_progress,
 )
@@ -39,3 +40,13 @@ def read_progress_stats(
 ) -> ProgressStats:
     """Calculate user progress statistics from PostgreSQL records."""
     return get_progress_stats(user_id, db)
+
+
+
+@router.get("/progress/{user_id}/recommendation", response_model=ProgressRecommendation)
+def read_progress_recommendation(
+    user_id: str,
+    db: Session = Depends(get_db),
+) -> ProgressRecommendation:
+    """Return a basic learning recommendation for a user."""
+    return get_progress_recommendation(user_id, db)
