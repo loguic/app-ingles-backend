@@ -33,6 +33,9 @@ def test_create_progress_saves_record():
     """Verify that a progress record can be saved through the API."""
     payload = {
         "user_id": "test-user-b29",
+        "level_id": "A1",
+        "unit_id": "a1-u1",
+        "lesson_id": "a1-u1-l1",
         "exercise_id": "a1-u1-l1-q1",
         "selected_index": 1,
         "correct": True,
@@ -48,6 +51,9 @@ def test_read_progress_returns_user_records():
     """Verify that saved progress records can be read by user ID."""
     payload = {
         "user_id": "test-user-b30",
+        "level_id": "A1",
+        "unit_id": "a1-u1",
+        "lesson_id": "a1-u1-l1",
         "exercise_id": "a1-u1-l1-q1",
         "selected_index": 1,
         "correct": True,
@@ -65,6 +71,9 @@ def test_read_progress_stats_returns_user_statistics():
     """Verify that progress statistics are calculated from saved records."""
     payload = {
         "user_id": "test-user-b31",
+        "level_id": "A1",
+        "unit_id": "a1-u1",
+        "lesson_id": "a1-u1-l1",
         "exercise_id": "a1-u1-l1-q1",
         "selected_index": 1,
         "correct": True,

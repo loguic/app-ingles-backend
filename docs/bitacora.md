@@ -131,3 +131,23 @@
   - docs/arquitectura.md
   - docs/decisiones-tecnicas.md
 - Resultado parcial: relación pedagógica documentada antes de implementar código.
+
+## B42 — Registro de intentos reales del usuario
+
+- Objetivo: enriquecer el registro de progreso con contexto pedagógico.
+- Campos añadidos:
+  - level_id
+  - unit_id
+  - lesson_id
+- Archivos modificados:
+  - app/db/models.py
+  - app/schemas/progress.py
+  - app/services/progress_service.py
+  - tests/test_progress.py
+  - docs/arquitectura.md
+- Error encontrado:
+  - PostgreSQL no tenía todavía las columnas nuevas.
+- Corrección aplicada:
+  - Se añadieron las columnas faltantes a la tabla user_progress.
+- Resultado:
+  - Tests: 12 passed.

@@ -129,3 +129,24 @@ En bloques posteriores podrá implementarse como:
 - lista de `skill_ids` dentro de cada ejercicio en el JSON;
 - tabla relacional `exercise_skills` en PostgreSQL;
 - endpoint para consultar habilidades asociadas a ejercicios.
+
+## Diseño técnico — B42 Registro de intentos reales
+
+El registro de progreso debe evolucionar desde una respuesta aislada hacia un intento con contexto pedagógico.
+
+### Campos mínimos del intento
+
+- `user_id`: usuario que realiza el intento.
+- `level_id`: nivel asociado al ejercicio.
+- `unit_id`: unidad asociada al ejercicio.
+- `lesson_id`: lección asociada al ejercicio.
+- `exercise_id`: ejercicio respondido.
+- `selected_index`: opción elegida por el usuario.
+- `correct`: resultado de la evaluación.
+- `created_at`: fecha y hora del intento.
+
+### Decisión inicial
+
+En B42 se añadirá contexto de contenido al progreso: `level_id`, `unit_id` y `lesson_id`.
+
+La asociación con `skill_id` se dejará para una fase posterior, después de implementar la relación `Exercise-Skill`.

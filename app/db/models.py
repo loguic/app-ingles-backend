@@ -8,6 +8,9 @@ class UserProgress(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String, index=True, nullable=False)
+    level_id = Column(String, index=True, nullable=False)
+    unit_id = Column(String, index=True, nullable=False)
+    lesson_id = Column(String, index=True, nullable=False)
     exercise_id = Column(String, index=True, nullable=False)
     selected_index = Column(Integer, nullable=False)
     correct = Column(Boolean, nullable=False)

@@ -7,6 +7,9 @@ from app.schemas.progress import ProgressRecord, ProgressStats
 def save_progress(record: ProgressRecord, db: Session) -> ProgressRecord:
     item = UserProgress(
         user_id=record.user_id,
+        level_id=record.level_id,
+        unit_id=record.unit_id,
+        lesson_id=record.lesson_id,
         exercise_id=record.exercise_id,
         selected_index=record.selected_index,
         correct=record.correct,
@@ -28,6 +31,9 @@ def get_progress_by_user(user_id: str, db: Session) -> list[ProgressRecord]:
     return [
         ProgressRecord(
             user_id=record.user_id,
+            level_id=record.level_id,
+            unit_id=record.unit_id,
+            lesson_id=record.lesson_id,
             exercise_id=record.exercise_id,
             selected_index=record.selected_index,
             correct=record.correct,
