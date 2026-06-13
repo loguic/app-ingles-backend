@@ -89,3 +89,43 @@ No equivale a una lección completa. Una lección puede trabajar varias habilida
 ### Decisión inicial
 
 La entidad `Skill` se diseñará primero a nivel documental. Luego se convertirá en schema, modelo de base de datos y endpoint cuando el diseño esté claro.
+
+## Diseño pedagógico — B41 Relación Exercise-Skill
+
+Un `Exercise` representa una actividad concreta que el estudiante debe resolver.
+
+Una `Skill` representa la habilidad pedagógica que ese ejercicio entrena o evalúa.
+
+### Relación propuesta
+
+La relación entre `Exercise` y `Skill` será de muchos a muchos:
+
+- Un ejercicio puede entrenar una o varias habilidades.
+- Una habilidad puede aparecer en varios ejercicios.
+
+### Ejemplo
+
+El ejercicio `a1-u1-l1-q1` puede estar relacionado con:
+
+- `a1_greetings_basic`
+- `a1_vocabulary_greetings`
+
+### Justificación pedagógica
+
+Esta relación permite medir el progreso del estudiante no solo por ejercicios correctos o incorrectos, sino por habilidades específicas.
+
+Ejemplo:
+
+- El estudiante puede fallar varios ejercicios relacionados con `a1_greetings_basic`.
+- El sistema podrá detectar que necesita reforzar saludos básicos.
+- Más adelante, esta información permitirá calcular dominio y recomendar repasos.
+
+### Decisión inicial
+
+La relación `Exercise-Skill` se documenta primero como diseño conceptual.
+
+En bloques posteriores podrá implementarse como:
+
+- lista de `skill_ids` dentro de cada ejercicio en el JSON;
+- tabla relacional `exercise_skills` en PostgreSQL;
+- endpoint para consultar habilidades asociadas a ejercicios.

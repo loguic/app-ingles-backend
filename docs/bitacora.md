@@ -122,3 +122,12 @@
   - docs/decisiones-tecnicas.md
   - docs/roadmap.md
 - Resultado parcial: `Skill` fue documentada como entidad pedagógica antes de implementarla en código.
+
+## B41 — Diseño conceptual de relación Exercise-Skill
+
+- Objetivo: definir cómo los ejercicios se conectan con habilidades medibles.
+- Decisión principal: la relación `Exercise-Skill` será de muchos a muchos.
+- Archivos modificados:
+  - docs/arquitectura.md
+  - docs/decisiones-tecnicas.md
+- Resultado parcial: relación pedagógica documentada antes de implementar código.
