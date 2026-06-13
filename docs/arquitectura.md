@@ -54,3 +54,38 @@ La arquitectura actual del backend está organizada de forma modular:
 - Evolucionar los schemas de progreso hacia `ProgressCreate` y `ProgressRead`.
 - Usar `Field(default_factory=list)` en listas de schemas Pydantic.
 - Diseñar entidades pedagógicas futuras: `Skill`, `Attempt` y `Mastery`.
+
+## Diseño pedagógico — B40 Skill
+
+Una `Skill` representa una habilidad concreta que el estudiante debe desarrollar.
+
+No equivale a una lección completa. Una lección puede trabajar varias habilidades, y una habilidad puede aparecer en varias lecciones.
+
+### Ejemplos de Skills
+
+- `a1_greetings_basic`: saludos básicos.
+- `a1_introduce_yourself`: presentarse de forma simple.
+- `a1_verb_to_be_basic`: uso básico del verbo to be.
+- `a1_basic_farewells`: despedidas básicas.
+
+### Campos propuestos
+
+- `id`: identificador único de la habilidad.
+- `name`: nombre visible de la habilidad.
+- `level`: nivel asociado, por ejemplo A1.
+- `category`: tipo de habilidad.
+- `description`: explicación breve de la habilidad.
+
+### Categorías iniciales
+
+- vocabulary
+- grammar
+- listening
+- speaking
+- reading
+- writing
+- pronunciation
+
+### Decisión inicial
+
+La entidad `Skill` se diseñará primero a nivel documental. Luego se convertirá en schema, modelo de base de datos y endpoint cuando el diseño esté claro.

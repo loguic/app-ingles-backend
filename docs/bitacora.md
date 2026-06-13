@@ -104,3 +104,21 @@
 - Mejora aplicada: se agregó .pytest_cache/ a .gitignore.
 - Tests: 12 passed.
 - Commit: 37fffbd
+
+## B39 — Documentación de hallazgos arquitectónicos
+
+- Objetivo: registrar en documentación los hallazgos de la revisión arquitectónica.
+- Archivos modificados:
+  - docs/arquitectura.md
+  - docs/bitacora.md
+- Resultado: hallazgos de B38 documentados y bitácora reordenada.
+- Commit: 8b29402
+
+## B40 — Diseño conceptual de Skill
+
+- Objetivo: definir `Skill` como unidad pedagógica medible.
+- Archivos modificados:
+  - docs/arquitectura.md
+  - docs/decisiones-tecnicas.md
+  - docs/roadmap.md
+- Resultado parcial: `Skill` fue documentada como entidad pedagógica antes de implementarla en código.

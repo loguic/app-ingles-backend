@@ -19,3 +19,11 @@ Se usa pytest para validar endpoints y evitar regresiones conforme crece el back
 ## DT-005 — Documentación dentro del repositorio
 
 La documentación se mantiene en la carpeta docs/ para que pueda versionarse con Git y abrirse desde Obsidian.
+
+## DT-006 — Skill como unidad pedagógica medible
+
+Se define `Skill` como una habilidad concreta que el estudiante debe desarrollar y que podrá medirse con ejercicios, intentos y estadísticas.
+
+Esta decisión permite que el sistema evolucione desde una app basada solo en lecciones hacia una plataforma adaptativa capaz de identificar fortalezas, debilidades y recomendaciones personalizadas.
+
+Inicialmente `Skill` se documenta a nivel conceptual. En bloques posteriores se implementará como schema, modelo de base de datos y endpoint.

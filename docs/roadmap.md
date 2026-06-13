@@ -18,11 +18,11 @@ Objetivo: pasar de lecciones simples a habilidades medibles.
 Próximos bloques sugeridos:
 
 - B38: revisar arquitectura actual del backend.
-- B39: diseñar entidad Skill.
-- B40: diseñar relación Exercise-Skill.
-- B41: registrar intentos reales del usuario.
-- B42: calcular dominio por habilidad.
-- B43: preparar recomendaciones básicas.
+- B40: diseñar entidad Skill.
+- B41: diseñar relación Exercise-Skill.
+- B42: registrar intentos reales del usuario.
+- B43: calcular dominio por habilidad.
+- B44: preparar recomendaciones básicas.
 
 ## Fase 3 — Sistema adaptativo
 
