@@ -23,7 +23,8 @@
                   "type": "mcq",
                   "prompt": "Choose the best greeting:",
                   "options": ["Goodbye", "Hello", "Thanks", "Sorry"],
-                  "answer_index": 1
+                  "answer_index": 1,
+                  "skill_ids": ["a1_greetings_basic", "a1_vocabulary_greetings"]
                 }
               ]
             },

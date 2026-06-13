@@ -11,6 +11,7 @@ class ExerciseMCQ(BaseModel):
     prompt: str
     options: List[str]
     answer_index: int
+    skill_ids: List[str] = []
 
 class Lesson(BaseModel):
     id: str

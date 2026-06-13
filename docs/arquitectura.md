@@ -150,3 +150,29 @@ El registro de progreso debe evolucionar desde una respuesta aislada hacia un in
 En B42 se añadirá contexto de contenido al progreso: `level_id`, `unit_id` y `lesson_id`.
 
 La asociación con `skill_id` se dejará para una fase posterior, después de implementar la relación `Exercise-Skill`.
+
+## Diseño técnico — B43 Dominio por habilidad
+
+Para calcular el dominio por habilidad, cada ejercicio debe indicar qué habilidades entrena o evalúa.
+
+### Cambio inicial
+
+Se agrega el campo `skill_ids` a los ejercicios de tipo `ExerciseMCQ`.
+
+Ejemplo:
+
+- `a1-u1-l1-q1` entrena:
+  - `a1_greetings_basic`
+  - `a1_vocabulary_greetings`
+
+### Fórmula inicial de dominio
+
+El dominio por habilidad se calculará inicialmente como:
+
+`mastery_score = aciertos relacionados con la skill / intentos relacionados con la skill`
+
+### Decisión inicial
+
+En B43 primero se crea la base de datos pedagógica mínima: ejercicios asociados a habilidades.
+
+El cálculo completo de dominio podrá implementarse después usando los intentos guardados en `user_progress`.

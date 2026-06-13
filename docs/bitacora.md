@@ -151,3 +151,18 @@
   - Se añadieron las columnas faltantes a la tabla user_progress.
 - Resultado:
   - Tests: 12 passed.
+
+## B43 — Base para calcular dominio por habilidad
+
+- Objetivo: preparar el contenido para calcular dominio por habilidad.
+- Cambios realizados:
+  - Se agregó `skill_ids` al schema `ExerciseMCQ`.
+  - Se asociaron habilidades al ejercicio `a1-u1-l1-q1`.
+- Skills asociadas:
+  - a1_greetings_basic
+  - a1_vocabulary_greetings
+- Archivos modificados:
+  - app/schemas/content.py
+  - content/content_tree.json
+  - docs/arquitectura.md
+- Resultado parcial: los ejercicios ya pueden declarar qué habilidades entrenan.
