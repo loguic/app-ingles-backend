@@ -328,3 +328,18 @@
   - GET /progress/{user_id}/next-action
 - Resultado:
   - El frontend ya tiene un contrato API inicial para consultar el backend.
+
+## B55 — Ejemplos JSON del contrato API para frontend
+
+- Objetivo: ampliar el contrato API inicial con ejemplos de respuesta.
+- Documento actualizado:
+  - docs/api-frontend.md
+- Ejemplos agregados:
+  - GET /progress/{user_id}/stats
+  - GET /progress/{user_id}/recommendation
+  - GET /progress/{user_id}/skills/{skill_id}/mastery
+  - GET /progress/{user_id}/skills/{skill_id}/review
+  - GET /progress/{user_id}/dashboard
+  - GET /progress/{user_id}/next-action
+- Resultado:
+  - El frontend ya tiene ejemplos JSON para construir pantallas iniciales.
