@@ -262,3 +262,18 @@
   - El backend ya puede exponer dominio por habilidad mediante API.
   - El backend ya puede recomendar repaso básico por habilidad.
   - La Fase 3 queda completada a nivel inicial.
+
+## B51 — Revisión de estado y decisión de siguiente fase
+
+- Objetivo: revisar el estado posterior al cierre de la fase adaptativa inicial y decidir la siguiente fase.
+- Estado confirmado:
+  - Fase 1: backend base completado a nivel inicial.
+  - Fase 2: modelo pedagógico completado a nivel inicial.
+  - Fase 3: sistema adaptativo completado a nivel inicial.
+- Decisión:
+  - No avanzar todavía a IA controlada.
+  - Crear primero una fase de preparación para frontend.
+- Motivo:
+  - El backend debe entregar respuestas claras, estables y útiles antes de conectar una app visual o agregar IA.
+- Siguiente fase:
+  - Fase 4: Preparación para frontend.

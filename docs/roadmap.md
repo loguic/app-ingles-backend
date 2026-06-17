@@ -47,10 +47,24 @@ Resultado de fase:
 - El backend ya puede recomendar repaso básico por habilidad.
 - El backend ya tiene una primera base adaptativa simple.
 
-## Fase 4 — IA controlada
+## Fase 4 — Preparación para frontend
 
-Objetivo: usar IA para feedback, generación de ejercicios y personalización.
+Estado: siguiente fase.
+
+Objetivo: preparar respuestas claras, estables y útiles para una aplicación visual.
+
+Próximos bloques sugeridos:
+
+- B52: diseñar dashboard inicial del estudiante.
+- B53: crear endpoint de resumen del estudiante.
+- B54: crear endpoint de siguiente acción recomendada.
+- B55: documentar contrato API para frontend.
+- B56: cierre de preparación inicial para frontend.
 
 ## Fase 5 — Frontend
 
 Objetivo: conectar el backend con una aplicación visual.
+
+## Fase 6 — IA controlada
+
+Objetivo: usar IA para feedback, generación de ejercicios y personalización.
