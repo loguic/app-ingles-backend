@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.db.models import UserProgress
 from app.services.content_service import get_skill_ids_by_exercise_id
-from app.schemas.progress import ProgressRecommendation, ProgressRecord, ProgressStats, SkillMastery
+from app.schemas.progress import ProgressRecommendation, ProgressRecord, ProgressStats, ReviewRecommendation, SkillMastery
 
 
 def save_progress(record: ProgressRecord, db: Session) -> ProgressRecord:
@@ -104,4 +104,29 @@ def get_skill_mastery(user_id: str, skill_id: str, db: Session) -> SkillMastery:
         total_attempts=total_attempts,
         correct_attempts=correct_attempts,
         mastery_score=round(mastery_score, 2),
+    )
+
+
+
+def get_review_recommendation(
+    user_id: str,
+    skill_id: str,
+    db: Session,
+) -> ReviewRecommendation:
+    """Return whether a user should review a specific skill."""
+    mastery = get_skill_mastery(user_id, skill_id, db)
+
+    should_review = mastery.mastery_score < 0.70
+
+    if should_review:
+        message = "Review this skill before moving forward."
+    else:
+        message = "This skill is ready. Continue with the next lesson."
+
+    return ReviewRecommendation(
+        user_id=user_id,
+        skill_id=skill_id,
+        mastery_score=mastery.mastery_score,
+        should_review=should_review,
+        message=message,
     )

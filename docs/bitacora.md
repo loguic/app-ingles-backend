@@ -232,3 +232,18 @@
   - Review weak skills before moving forward.
 - Resultado:
   - Tests: 14 passed.
+
+## B49 — Sistema básico de repaso
+
+- Objetivo: preparar una base simple para recomendar repaso por habilidad.
+- Schema creado:
+  - ReviewRecommendation
+- Servicio creado:
+  - get_review_recommendation()
+- Endpoint creado:
+  - GET /api/v1/progress/{user_id}/skills/{skill_id}/review
+- Regla inicial:
+  - Si mastery_score < 0.70, la habilidad debe repasarse.
+  - Si mastery_score >= 0.70, puede continuar.
+- Resultado:
+  - Tests: 15 passed.

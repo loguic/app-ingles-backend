@@ -4,11 +4,12 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.schemas.progress import ProgressRecommendation, ProgressRecord, ProgressStats, SkillMastery
+from app.schemas.progress import ProgressRecommendation, ProgressRecord, ProgressStats, ReviewRecommendation, SkillMastery
 from app.services.progress_service import (
     get_progress_by_user,
     get_progress_recommendation,
     get_progress_stats,
+    get_review_recommendation,
     get_skill_mastery,
     save_progress,
 )
@@ -62,3 +63,14 @@ def read_skill_mastery(
 ) -> SkillMastery:
     """Return the user's mastery score for a specific skill."""
     return get_skill_mastery(user_id, skill_id, db)
+
+
+
+@router.get("/progress/{user_id}/skills/{skill_id}/review", response_model=ReviewRecommendation)
+def read_review_recommendation(
+    user_id: str,
+    skill_id: str,
+    db: Session = Depends(get_db),
+) -> ReviewRecommendation:
+    """Return whether a user should review a specific skill."""
+    return get_review_recommendation(user_id, skill_id, db)

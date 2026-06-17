@@ -142,3 +142,31 @@ def test_read_skill_mastery_returns_score():
         "correct_attempts": 1,
         "mastery_score": 1.0,
     }
+
+
+def test_read_review_recommendation_returns_decision():
+    """Verify that review recommendation is generated for a specific skill."""
+    payload = {
+        "user_id": "test-user-b49",
+        "level_id": "A1",
+        "unit_id": "a1-u1",
+        "lesson_id": "a1-u1-l1",
+        "exercise_id": "a1-u1-l1-q1",
+        "selected_index": 0,
+        "correct": False,
+    }
+
+    client.post("/api/v1/progress", json=payload)
+
+    response = client.get(
+        "/api/v1/progress/test-user-b49/skills/a1_greetings_basic/review"
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "user_id": "test-user-b49",
+        "skill_id": "a1_greetings_basic",
+        "mastery_score": 0.0,
+        "should_review": True,
+        "message": "Review this skill before moving forward.",
+    }

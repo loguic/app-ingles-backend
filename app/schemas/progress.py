@@ -28,3 +28,11 @@ class SkillMastery(BaseModel):
     total_attempts: int
     correct_attempts: int
     mastery_score: float
+
+
+class ReviewRecommendation(BaseModel):
+    user_id: str
+    skill_id: str
+    mastery_score: float
+    should_review: bool
+    message: str
