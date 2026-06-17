@@ -114,3 +114,31 @@ def test_read_progress_recommendation_returns_message():
         "accuracy": 1.0,
         "message": "Good progress. Continue with the next lesson.",
     }
+
+
+def test_read_skill_mastery_returns_score():
+    """Verify that mastery score is calculated for a specific skill."""
+    payload = {
+        "user_id": "test-user-b47",
+        "level_id": "A1",
+        "unit_id": "a1-u1",
+        "lesson_id": "a1-u1-l1",
+        "exercise_id": "a1-u1-l1-q1",
+        "selected_index": 1,
+        "correct": True,
+    }
+
+    client.post("/api/v1/progress", json=payload)
+
+    response = client.get(
+        "/api/v1/progress/test-user-b47/skills/a1_greetings_basic/mastery"
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "user_id": "test-user-b47",
+        "skill_id": "a1_greetings_basic",
+        "total_attempts": 1,
+        "correct_attempts": 1,
+        "mastery_score": 1.0,
+    }

@@ -211,3 +211,14 @@
   - El backend ya puede calcular dominio de una habilidad a nivel de servicio.
 - Siguiente paso:
   - B47: exponer el cálculo mediante un endpoint.
+
+## B47 — Endpoint de dominio por habilidad
+
+- Objetivo: exponer por API el cálculo de mastery_score creado en B46.
+- Endpoint creado:
+  - GET /api/v1/progress/{user_id}/skills/{skill_id}/mastery
+- Cambios realizados:
+  - Se agregó el endpoint read_skill_mastery().
+  - Se agregó una prueba automática para validar el cálculo.
+- Resultado:
+  - Tests: 14 passed.
