@@ -358,3 +358,19 @@
   - El frontend ya cuenta con un contrato API inicial.
   - El contrato API ya incluye ejemplos JSON.
   - La Fase 4 queda completada a nivel inicial.
+
+## B57 — Revisión de estado y decisión de inicio de frontend
+
+- Objetivo: revisar el estado del backend y decidir cómo iniciar la fase de frontend.
+- Estado confirmado:
+  - Backend FastAPI en WSL2.
+  - Fase 4 completada a nivel inicial.
+  - Contrato API inicial disponible para frontend.
+- Decisión:
+  - Usar Flutter en Ubuntu VMware.
+  - Mantener FastAPI en WSL2.
+  - Conectar Flutter con el backend mediante API HTTP.
+- Motivo:
+  - Flutter ya funciona en Ubuntu VMware.
+  - Evita instalar Flutter desde cero en WSL2.
+  - Reduce fricción con Android SDK, emuladores, permisos y rutas.

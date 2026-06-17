@@ -70,7 +70,15 @@ Resultado de fase:
 
 ## Fase 5 — Frontend
 
+Estado: siguiente fase.
+
 Objetivo: conectar el backend con una aplicación visual.
+
+Decisión técnica inicial:
+
+- El backend FastAPI se mantendrá en WSL2.
+- El frontend Flutter se trabajará en Ubuntu VMware.
+- La comunicación entre frontend y backend será mediante API HTTP.
 
 ## Fase 6 — IA controlada
 
