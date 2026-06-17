@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.db.models import UserProgress
 from app.services.content_service import get_skill_ids_by_exercise_id
-from app.schemas.progress import ProgressRecommendation, ProgressRecord, ProgressStats, ReviewRecommendation, SkillMastery
+from app.schemas.progress import ProgressRecommendation, ProgressRecord, ProgressStats, ReviewRecommendation, SkillMastery, StudentDashboard
 
 
 def save_progress(record: ProgressRecord, db: Session) -> ProgressRecord:
@@ -129,4 +129,19 @@ def get_review_recommendation(
         mastery_score=mastery.mastery_score,
         should_review=should_review,
         message=message,
+    )
+
+
+
+def get_student_dashboard(user_id: str, db: Session) -> StudentDashboard:
+    """Return the basic dashboard data for a student."""
+    stats = get_progress_stats(user_id, db)
+    recommendation = get_progress_recommendation(user_id, db)
+
+    return StudentDashboard(
+        user_id=user_id,
+        total_attempts=stats.total_attempts,
+        correct_attempts=stats.correct_attempts,
+        accuracy=stats.accuracy,
+        recommendation=recommendation.message,
     )

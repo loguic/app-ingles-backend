@@ -277,3 +277,21 @@
   - El backend debe entregar respuestas claras, estables y útiles antes de conectar una app visual o agregar IA.
 - Siguiente fase:
   - Fase 4: Preparación para frontend.
+
+## B52 — Dashboard inicial del estudiante
+
+- Objetivo: preparar una primera respuesta simple para el frontend.
+- Schema creado:
+  - StudentDashboard
+- Servicio creado:
+  - get_student_dashboard()
+- Endpoint creado:
+  - GET /api/v1/progress/{user_id}/dashboard
+- Datos incluidos:
+  - user_id
+  - total_attempts
+  - correct_attempts
+  - accuracy
+  - recommendation
+- Resultado:
+  - Tests: 16 passed.

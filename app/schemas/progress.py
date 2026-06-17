@@ -36,3 +36,11 @@ class ReviewRecommendation(BaseModel):
     mastery_score: float
     should_review: bool
     message: str
+
+
+class StudentDashboard(BaseModel):
+    user_id: str
+    total_attempts: int
+    correct_attempts: int
+    accuracy: float
+    recommendation: str

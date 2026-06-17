@@ -170,3 +170,29 @@ def test_read_review_recommendation_returns_decision():
         "should_review": True,
         "message": "Review this skill before moving forward.",
     }
+
+
+def test_read_student_dashboard_returns_summary():
+    """Verify that the student dashboard returns progress summary data."""
+    payload = {
+        "user_id": "test-user-b52",
+        "level_id": "A1",
+        "unit_id": "a1-u1",
+        "lesson_id": "a1-u1-l1",
+        "exercise_id": "a1-u1-l1-q1",
+        "selected_index": 1,
+        "correct": True,
+    }
+
+    client.post("/api/v1/progress", json=payload)
+
+    response = client.get("/api/v1/progress/test-user-b52/dashboard")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "user_id": "test-user-b52",
+        "total_attempts": 1,
+        "correct_attempts": 1,
+        "accuracy": 1.0,
+        "recommendation": "Good progress. Continue with the next lesson.",
+    }
