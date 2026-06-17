@@ -343,3 +343,18 @@
   - GET /progress/{user_id}/next-action
 - Resultado:
   - El frontend ya tiene ejemplos JSON para construir pantallas iniciales.
+
+## B56 — Cierre de preparación inicial para frontend
+
+- Objetivo: cerrar formalmente la fase de preparación inicial para frontend.
+- Bloques incluidos:
+  - B52: dashboard inicial del estudiante.
+  - B53: endpoint de siguiente acción recomendada.
+  - B54: contrato API inicial para frontend.
+  - B55: ejemplos JSON del contrato API para frontend.
+- Resultado:
+  - El backend ya ofrece un dashboard inicial para el frontend.
+  - El backend ya indica la siguiente acción recomendada.
+  - El frontend ya cuenta con un contrato API inicial.
+  - El contrato API ya incluye ejemplos JSON.
+  - La Fase 4 queda completada a nivel inicial.
