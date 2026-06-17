@@ -374,3 +374,27 @@
   - Flutter ya funciona en Ubuntu VMware.
   - Evita instalar Flutter desde cero en WSL2.
   - Reduce fricción con Android SDK, emuladores, permisos y rutas.
+
+## B58 — Conexión entre Flutter VMware y backend WSL2
+
+- Objetivo: preparar la comunicación entre Ubuntu VMware y FastAPI en WSL2.
+- Entornos:
+  - Backend FastAPI: WSL2.
+  - Frontend Flutter: Ubuntu VMware.
+- IP detectadas:
+  - WSL2: 172.24.0.128.
+  - Windows Wi-Fi: 192.168.1.33.
+  - Ubuntu VMware: 192.168.1.41.
+- Problema detectado:
+  - Ubuntu VMware no podía acceder directamente a 172.24.0.128:8000.
+  - Ubuntu VMware tampoco podía acceder inicialmente a 192.168.1.33:8000.
+- Correcciones aplicadas:
+  - FastAPI se levantó con --host 0.0.0.0 --port 8000.
+  - Se creó una regla de firewall en Windows para permitir TCP 8000.
+  - Se creó un portproxy de Windows:
+    - 192.168.1.33:8000 -> 172.24.0.128:8000.
+- Resultado:
+  - Ubuntu VMware accede correctamente al backend con:
+    - curl http://192.168.1.33:8000/api/v1/health
+  - Respuesta confirmada:
+    - {"status":"ok"}
