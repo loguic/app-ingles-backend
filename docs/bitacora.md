@@ -182,3 +182,17 @@
   - app/services/progress_service.py
   - tests/test_progress.py
 - Tests: 13 passed.
+
+## B45 — Revisión de estado y orden del modelo adaptativo
+
+- Objetivo: revisar el estado actual del proyecto y ordenar la siguiente fase.
+- Resultado:
+  - Fase 1 marcada como completada a nivel inicial.
+  - Fase 2 marcada como completada a nivel inicial.
+  - Fase 3 definida como siguiente fase del sistema adaptativo.
+- Próximos bloques:
+  - B46: diseñar mastery_score por habilidad.
+  - B47: crear endpoint de dominio por habilidad.
+  - B48: mejorar recomendaciones usando habilidades débiles.
+  - B49: preparar sistema básico de repaso.
+  - B50: documentar cierre de fase adaptativa inicial.

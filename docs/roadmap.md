@@ -2,7 +2,7 @@
 
 ## Fase 1 — Backend base
 
-Estado: en progreso avanzado.
+Estado: completada a nivel inicial.
 
 - FastAPI modular.
 - PostgreSQL activo.
@@ -13,20 +13,32 @@ Estado: en progreso avanzado.
 
 ## Fase 2 — Modelo pedagógico
 
+Estado: completada a nivel inicial.
+
 Objetivo: pasar de lecciones simples a habilidades medibles.
 
-Próximos bloques sugeridos:
+Bloques completados:
 
-- B38: revisar arquitectura actual del backend.
-- B40: diseñar entidad Skill.
-- B41: diseñar relación Exercise-Skill.
-- B42: registrar intentos reales del usuario.
-- B43: calcular dominio por habilidad.
-- B44: preparar recomendaciones básicas.
+- B40: diseño conceptual de Skill.
+- B41: diseño de relación Exercise-Skill.
+- B42: registro de intentos reales con contexto pedagógico.
+- B43: base para calcular dominio por habilidad mediante skill_ids.
+- B44: recomendaciones básicas de progreso.
 
 ## Fase 3 — Sistema adaptativo
 
+Estado: siguiente fase.
+
 Objetivo: recomendar repasos y rutas según rendimiento.
+
+Próximos bloques sugeridos:
+
+- B45: revisar estado actual y ordenar el modelo adaptativo.
+- B46: diseñar mastery_score por habilidad.
+- B47: crear endpoint de dominio por habilidad.
+- B48: mejorar recomendaciones usando habilidades débiles.
+- B49: preparar sistema básico de repaso.
+- B50: documentar cierre de fase adaptativa inicial.
 
 ## Fase 4 — IA controlada
 
