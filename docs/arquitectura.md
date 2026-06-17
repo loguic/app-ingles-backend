@@ -176,3 +176,36 @@ El dominio por habilidad se calculará inicialmente como:
 En B43 primero se crea la base de datos pedagógica mínima: ejercicios asociados a habilidades.
 
 El cálculo completo de dominio podrá implementarse después usando los intentos guardados en `user_progress`.
+
+## Diseño técnico — B46 mastery_score por habilidad
+
+`mastery_score` representa el nivel de dominio del usuario sobre una habilidad concreta.
+
+### Fórmula inicial
+
+`mastery_score = correct_attempts / total_attempts`
+
+Donde:
+
+- `correct_attempts`: número de intentos correctos relacionados con una habilidad.
+- `total_attempts`: número total de intentos relacionados con una habilidad.
+
+### Ejemplo
+
+Si el usuario tiene 3 respuestas correctas de 4 intentos relacionados con `a1_greetings_basic`:
+
+`mastery_score = 3 / 4 = 0.75`
+
+### Campos propuestos
+
+- `user_id`: usuario evaluado.
+- `skill_id`: habilidad evaluada.
+- `total_attempts`: total de intentos asociados a la habilidad.
+- `correct_attempts`: total de intentos correctos asociados a la habilidad.
+- `mastery_score`: valor entre 0.0 y 1.0.
+
+### Decisión inicial
+
+El cálculo se hará primero de forma simple usando los intentos guardados y los `skill_ids` definidos en el contenido.
+
+Más adelante se podrá mejorar con repetición espaciada, ponderación por dificultad y fecha del intento.

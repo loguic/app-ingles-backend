@@ -196,3 +196,18 @@
   - B48: mejorar recomendaciones usando habilidades débiles.
   - B49: preparar sistema básico de repaso.
   - B50: documentar cierre de fase adaptativa inicial.
+
+## B46 — Diseño y lógica base de mastery_score por habilidad
+
+- Objetivo: diseñar y preparar el cálculo de dominio por habilidad.
+- Fórmula inicial:
+  - mastery_score = correct_attempts / total_attempts
+- Cambios realizados:
+  - Se documentó el diseño de mastery_score en arquitectura.
+  - Se agregó el schema SkillMastery.
+  - Se creó get_skill_ids_by_exercise_id().
+  - Se creó get_skill_mastery().
+- Resultado parcial:
+  - El backend ya puede calcular dominio de una habilidad a nivel de servicio.
+- Siguiente paso:
+  - B47: exponer el cálculo mediante un endpoint.

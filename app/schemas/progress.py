@@ -20,3 +20,11 @@ class ProgressRecommendation(BaseModel):
     user_id: str
     accuracy: float
     message: str
+
+
+class SkillMastery(BaseModel):
+    user_id: str
+    skill_id: str
+    total_attempts: int
+    correct_attempts: int
+    mastery_score: float

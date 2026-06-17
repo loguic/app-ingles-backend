@@ -41,3 +41,17 @@ def evaluate_exercise(exercise_id: str, selected_index: int):
                     if exercise.id == exercise_id:
                         return selected_index == exercise.answer_index
     return None
+
+
+def get_skill_ids_by_exercise_id(exercise_id: str) -> list[str]:
+    """Return the skill IDs associated with an exercise."""
+    tree = build_content_tree()
+
+    for level in tree.levels:
+        for unit in level.units:
+            for lesson in unit.lessons:
+                for exercise in lesson.exercises:
+                    if exercise.id == exercise_id:
+                        return exercise.skill_ids
+
+    return []
