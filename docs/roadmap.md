@@ -27,18 +27,25 @@ Bloques completados:
 
 ## Fase 3 — Sistema adaptativo
 
-Estado: siguiente fase.
+Estado: completada a nivel inicial.
 
 Objetivo: recomendar repasos y rutas según rendimiento.
 
-Próximos bloques sugeridos:
+Bloques completados:
 
-- B45: revisar estado actual y ordenar el modelo adaptativo.
-- B46: diseñar mastery_score por habilidad.
-- B47: crear endpoint de dominio por habilidad.
-- B48: mejorar recomendaciones usando habilidades débiles.
-- B49: preparar sistema básico de repaso.
-- B50: documentar cierre de fase adaptativa inicial.
+- B45: revisión del estado actual y orden del modelo adaptativo.
+- B46: diseño de mastery_score por habilidad.
+- B47: endpoint de dominio por habilidad.
+- B48: mejora de recomendaciones usando habilidades débiles.
+- B49: sistema básico de repaso por habilidad.
+- B50: cierre documental de la fase adaptativa inicial.
+
+Resultado de fase:
+
+- El backend ya puede calcular dominio por habilidad.
+- El backend ya puede exponer dominio por habilidad mediante API.
+- El backend ya puede recomendar repaso básico por habilidad.
+- El backend ya tiene una primera base adaptativa simple.
 
 ## Fase 4 — IA controlada
 

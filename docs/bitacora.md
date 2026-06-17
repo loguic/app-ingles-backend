@@ -247,3 +247,18 @@
   - Si mastery_score >= 0.70, puede continuar.
 - Resultado:
   - Tests: 15 passed.
+
+## B50 — Cierre de fase adaptativa inicial
+
+- Objetivo: cerrar formalmente la fase adaptativa inicial.
+- Bloques incluidos:
+  - B45: orden del modelo adaptativo.
+  - B46: mastery_score por habilidad.
+  - B47: endpoint de dominio por habilidad.
+  - B48: mejora inicial de recomendaciones usando habilidades débiles.
+  - B49: sistema básico de repaso por habilidad.
+- Resultado:
+  - El backend ya puede calcular dominio por habilidad.
+  - El backend ya puede exponer dominio por habilidad mediante API.
+  - El backend ya puede recomendar repaso básico por habilidad.
+  - La Fase 3 queda completada a nivel inicial.
