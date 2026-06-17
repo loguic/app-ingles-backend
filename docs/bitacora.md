@@ -311,3 +311,20 @@
   - continue_lesson
 - Resultado:
   - Tests: 17 passed.
+
+## B54 — Contrato API inicial para frontend
+
+- Objetivo: documentar los endpoints que podrá consumir una aplicación visual.
+- Documento creado:
+  - docs/api-frontend.md
+- Endpoints documentados:
+  - POST /progress
+  - GET /progress/{user_id}
+  - GET /progress/{user_id}/stats
+  - GET /progress/{user_id}/recommendation
+  - GET /progress/{user_id}/skills/{skill_id}/mastery
+  - GET /progress/{user_id}/skills/{skill_id}/review
+  - GET /progress/{user_id}/dashboard
+  - GET /progress/{user_id}/next-action
+- Resultado:
+  - El frontend ya tiene un contrato API inicial para consultar el backend.
