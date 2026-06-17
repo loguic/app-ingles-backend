@@ -222,3 +222,13 @@
   - Se agregó una prueba automática para validar el cálculo.
 - Resultado:
   - Tests: 14 passed.
+
+## B48 — Mejora inicial de recomendaciones con habilidades débiles
+
+- Objetivo: mejorar el mensaje de recomendación usando lenguaje pedagógico basado en habilidades.
+- Cambio realizado:
+  - Cuando la precisión general es menor a 0.70, el sistema recomienda revisar habilidades débiles.
+- Mensaje actualizado:
+  - Review weak skills before moving forward.
+- Resultado:
+  - Tests: 14 passed.

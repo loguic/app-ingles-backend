@@ -69,7 +69,7 @@ def get_progress_recommendation(user_id: str, db: Session) -> ProgressRecommenda
     if stats.total_attempts == 0:
         message = "Start with the first lesson to generate your learning progress."
     elif stats.accuracy < 0.70:
-        message = "Review previous exercises before moving forward."
+        message = "Review weak skills before moving forward."
     else:
         message = "Good progress. Continue with the next lesson."
 
