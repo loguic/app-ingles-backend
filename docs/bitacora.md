@@ -295,3 +295,19 @@
   - recommendation
 - Resultado:
   - Tests: 16 passed.
+
+## B53 — Endpoint de siguiente acción recomendada
+
+- Objetivo: indicar al frontend qué debe hacer el estudiante después.
+- Schema creado:
+  - NextAction
+- Servicio creado:
+  - get_next_action()
+- Endpoint creado:
+  - GET /api/v1/progress/{user_id}/next-action
+- Acciones iniciales:
+  - start_first_lesson
+  - review_skill
+  - continue_lesson
+- Resultado:
+  - Tests: 17 passed.

@@ -44,3 +44,10 @@ class StudentDashboard(BaseModel):
     correct_attempts: int
     accuracy: float
     recommendation: str
+
+
+class NextAction(BaseModel):
+    user_id: str
+    action_type: str
+    target_id: str
+    message: str

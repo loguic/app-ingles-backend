@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.db.models import UserProgress
 from app.services.content_service import get_skill_ids_by_exercise_id
-from app.schemas.progress import ProgressRecommendation, ProgressRecord, ProgressStats, ReviewRecommendation, SkillMastery, StudentDashboard
+from app.schemas.progress import NextAction, ProgressRecommendation, ProgressRecord, ProgressStats, ReviewRecommendation, SkillMastery, StudentDashboard
 
 
 def save_progress(record: ProgressRecord, db: Session) -> ProgressRecord:
@@ -144,4 +144,33 @@ def get_student_dashboard(user_id: str, db: Session) -> StudentDashboard:
         correct_attempts=stats.correct_attempts,
         accuracy=stats.accuracy,
         recommendation=recommendation.message,
+    )
+
+
+
+def get_next_action(user_id: str, db: Session) -> NextAction:
+    """Return the next recommended action for a student."""
+    stats = get_progress_stats(user_id, db)
+
+    if stats.total_attempts == 0:
+        return NextAction(
+            user_id=user_id,
+            action_type="start_first_lesson",
+            target_id="a1-u1-l1",
+            message="Start with the first lesson.",
+        )
+
+    if stats.accuracy < 0.70:
+        return NextAction(
+            user_id=user_id,
+            action_type="review_skill",
+            target_id="a1_greetings_basic",
+            message="Review weak skills before moving forward.",
+        )
+
+    return NextAction(
+        user_id=user_id,
+        action_type="continue_lesson",
+        target_id="a1-u1-l2",
+        message="Continue with the next lesson.",
     )

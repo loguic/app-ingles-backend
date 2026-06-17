@@ -196,3 +196,28 @@ def test_read_student_dashboard_returns_summary():
         "accuracy": 1.0,
         "recommendation": "Good progress. Continue with the next lesson.",
     }
+
+
+def test_read_next_action_returns_continue_lesson():
+    """Verify that the next action endpoint returns a recommended action."""
+    payload = {
+        "user_id": "test-user-b53",
+        "level_id": "A1",
+        "unit_id": "a1-u1",
+        "lesson_id": "a1-u1-l1",
+        "exercise_id": "a1-u1-l1-q1",
+        "selected_index": 1,
+        "correct": True,
+    }
+
+    client.post("/api/v1/progress", json=payload)
+
+    response = client.get("/api/v1/progress/test-user-b53/next-action")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "user_id": "test-user-b53",
+        "action_type": "continue_lesson",
+        "target_id": "a1-u1-l2",
+        "message": "Continue with the next lesson.",
+    }

@@ -4,8 +4,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.schemas.progress import ProgressRecommendation, ProgressRecord, ProgressStats, ReviewRecommendation, SkillMastery, StudentDashboard
+from app.schemas.progress import NextAction, ProgressRecommendation, ProgressRecord, ProgressStats, ReviewRecommendation, SkillMastery, StudentDashboard
 from app.services.progress_service import (
+    get_next_action,
     get_progress_by_user,
     get_progress_recommendation,
     get_progress_stats,
@@ -85,3 +86,13 @@ def read_student_dashboard(
 ) -> StudentDashboard:
     """Return the basic dashboard data for a student."""
     return get_student_dashboard(user_id, db)
+
+
+
+@router.get("/progress/{user_id}/next-action", response_model=NextAction)
+def read_next_action(
+    user_id: str,
+    db: Session = Depends(get_db),
+) -> NextAction:
+    """Return the next recommended action for a student."""
+    return get_next_action(user_id, db)
