@@ -398,3 +398,25 @@
     - curl http://192.168.1.33:8000/api/v1/health
   - Respuesta confirmada:
     - {"status":"ok"}
+## B70 — Migración del backend a Ubuntu VMware
+
+- Objetivo: migrar el backend desde WSL2 hacia Ubuntu VMware para unificar el entorno de desarrollo.
+- Ruta nueva:
+  - ~/projects/app_ingles_backend/app-ingles-backend
+- Cambios realizados:
+  - Se clonó el backend desde GitHub.
+  - Se creó el entorno virtual .venv.
+  - Se instalaron dependencias desde requirements.txt.
+  - Se instaló PostgreSQL local en Ubuntu VMware.
+  - Se creó la base de datos app_ingles_db.
+  - Se creó el usuario PostgreSQL appIngles.
+  - Se creó el archivo .env local con DATABASE_URL.
+  - Se ejecutó app.db.create_tables para crear la tabla user_progress.
+  - Se agregó .venv/ al .gitignore.
+- Validaciones realizadas:
+  - pytest: 17 tests passed.
+  - Backend levantado con Uvicorn.
+  - Endpoint /api/v1/health respondió {"status":"ok"}.
+- Decisión técnica:
+  - Ubuntu VMware local queda como entorno principal del proyecto.
+  - WSL2 deja de ser el entorno principal para app-ingles.
