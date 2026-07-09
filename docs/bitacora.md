@@ -420,3 +420,26 @@
 - Decisión técnica:
   - Ubuntu VMware local queda como entorno principal del proyecto.
   - WSL2 deja de ser el entorno principal para app-ingles.
+
+## B93 — Contrato backend para pronunciaciones regionales
+
+- Objetivo:
+  - ampliar el contenido pedagógico para que cada frase pueda ofrecer pronunciaciones regionales con IPA y audio.
+- Cambios realizados:
+  - se creó el modelo `Pronunciation` en `app/schemas/content.py`;
+  - cada pronunciación contiene `locale`, `ipa` y `audio_asset`;
+  - las variantes actuales están limitadas a `en-US` y `en-GB`;
+  - `Example` ahora admite una lista opcional `pronunciations`;
+  - se añadió a `content/content_tree.json` la pronunciación estadounidense y británica de `Hello, I am John.`;
+  - se actualizaron las pruebas de detalle de lección para validar ambas variantes, sus IPA y sus rutas de audio.
+- Decisión técnica:
+  - se utiliza una lista escalable de pronunciaciones en lugar de campos independientes como `ipa_us` o `ipa_uk`;
+  - esta estructura permite incorporar futuras variantes regionales sin rediseñar el contrato;
+  - las referencias de audio apuntan a recursos locales administrados por el frontend.
+- Validaciones realizadas:
+  - `pytest tests/test_content_lessons.py -q` → prueba superada;
+  - `pytest -q` → 17 pruebas superadas en 0.64 segundos;
+  - `GET http://127.0.0.1:8001/api/v1/health` → `{"status":"ok"}`.
+- Entorno local:
+  - CNAPP-Lite conserva el puerto `8000`;
+  - App Inglés utiliza el puerto `8001` para evitar conflictos.

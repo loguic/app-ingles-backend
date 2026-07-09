@@ -14,7 +14,7 @@
               "vocabulary": ["hello", "hi", "goodbye", "bye"],
               "grammar": ["Subject + verb 'to be' (I am, You are)"],
               "examples": [
-                { "en": "Hello, I am John.", "es": "Hola, soy John." },
+                { "en": "Hello, I am John.", "es": "Hola, soy John.", "pronunciations": [{ "locale": "en-US", "ipa": "/həˈloʊ, aɪ æm dʒɑːn/", "audio_asset": "audio/a1_u1_l1_hello_us.wav" }, { "locale": "en-GB", "ipa": "/həˈləʊ, aɪ æm dʒɒn/", "audio_asset": "audio/a1_u1_l1_hello_uk.wav" }] },
                 { "en": "Goodbye! See you later.", "es": "¡Adiós! Hasta luego." }
               ],
               "exercises": [

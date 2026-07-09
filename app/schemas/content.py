@@ -1,9 +1,27 @@
 from pydantic import BaseModel
 from typing import List, Optional, Literal
 
+class Pronunciation(BaseModel):
+    # English locale represented by this pronunciation variant.
+    # Variante regional de inglés representada por esta pronunciación.
+    locale: Literal["en-US", "en-GB"]
+
+    # IPA transcription for the selected English variant.
+    # Transcripción IPA correspondiente a la variante de inglés seleccionada.
+    ipa: str
+
+    # Local audio asset matching the locale and IPA transcription.
+    # Recurso de audio local coherente con la variante y su transcripción IPA.
+    audio_asset: str
+
+
 class Example(BaseModel):
     en: str
     es: Optional[str] = None
+
+    # Available pronunciation variants for this example sentence.
+    # Variantes de pronunciación disponibles para esta frase de ejemplo.
+    pronunciations: List[Pronunciation] = []
 
 class ExerciseMCQ(BaseModel):
     id: str
