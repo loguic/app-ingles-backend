@@ -22,3 +22,25 @@ def test_get_existing_lesson_returns_lesson_data():
     assert pronunciations[0]["audio_asset"] == "audio/a1_u1_l1_hello_us.wav"
     assert pronunciations[1]["ipa"] == "/həˈləʊ, aɪ æm dʒɒn/"
     assert pronunciations[1]["audio_asset"] == "audio/a1_u1_l1_hello_uk.wav"
+    # Verify the first scalable guided conversation contract.
+    # Verifica el primer contrato escalable de conversación guiada.
+    conversation = response.json()["conversations"][0]
+
+    assert conversation["id"] == "a1-u1-l1-c1"
+    assert conversation["mode"] == "guided"
+    assert [turn["speaker"] for turn in conversation["turns"]] == [
+        "partner",
+        "learner",
+        "partner",
+        "learner",
+    ]
+    assert conversation["turns"][1]["en"] == "Hello, I am John."
+    assert len(conversation["turns"][1]["pronunciations"]) == 2
+
+
+def test_lesson_without_conversations_remains_compatible():
+    """Verify that older lessons return an empty conversation list."""
+    response = client.get("/api/v1/content/lessons/a1-u1-l2")
+
+    assert response.status_code == 200
+    assert response.json()["conversations"] == []

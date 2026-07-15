@@ -11,20 +11,99 @@
               "id": "a1-u1-l1",
               "title": "Hello / Goodbye",
               "objective": "Learn basic greetings and farewells in English.",
-              "vocabulary": ["hello", "hi", "goodbye", "bye"],
-              "grammar": ["Subject + verb 'to be' (I am, You are)"],
+              "vocabulary": [
+                "hello",
+                "hi",
+                "goodbye",
+                "bye"
+              ],
+              "grammar": [
+                "Subject + verb 'to be' (I am, You are)"
+              ],
               "examples": [
-                { "en": "Hello, I am John.", "es": "Hola, soy John.", "pronunciations": [{ "locale": "en-US", "ipa": "/həˈloʊ, aɪ æm dʒɑːn/", "audio_asset": "audio/a1_u1_l1_hello_us.wav" }, { "locale": "en-GB", "ipa": "/həˈləʊ, aɪ æm dʒɒn/", "audio_asset": "audio/a1_u1_l1_hello_uk.wav" }] },
-                { "en": "Goodbye! See you later.", "es": "¡Adiós! Hasta luego." }
+                {
+                  "en": "Hello, I am John.",
+                  "es": "Hola, soy John.",
+                  "pronunciations": [
+                    {
+                      "locale": "en-US",
+                      "ipa": "/həˈloʊ, aɪ æm dʒɑːn/",
+                      "audio_asset": "audio/a1_u1_l1_hello_us.wav"
+                    },
+                    {
+                      "locale": "en-GB",
+                      "ipa": "/həˈləʊ, aɪ æm dʒɒn/",
+                      "audio_asset": "audio/a1_u1_l1_hello_uk.wav"
+                    }
+                  ]
+                },
+                {
+                  "en": "Goodbye! See you later.",
+                  "es": "¡Adiós! Hasta luego."
+                }
+              ],
+              "conversations": [
+                {
+                  "id": "a1-u1-l1-c1",
+                  "title": "Meeting someone",
+                  "context": "Greet someone, introduce yourself and respond politely.",
+                  "mode": "guided",
+                  "turns": [
+                    {
+                      "id": "a1-u1-l1-c1-t1",
+                      "speaker": "partner",
+                      "en": "Hello! What is your name?",
+                      "es": "¡Hola! ¿Cómo te llamas?"
+                    },
+                    {
+                      "id": "a1-u1-l1-c1-t2",
+                      "speaker": "learner",
+                      "en": "Hello, I am John.",
+                      "es": "Hola, soy John.",
+                      "pronunciations": [
+                        {
+                          "locale": "en-US",
+                          "ipa": "/həˈloʊ, aɪ æm dʒɑːn/",
+                          "audio_asset": "audio/a1_u1_l1_hello_us.wav"
+                        },
+                        {
+                          "locale": "en-GB",
+                          "ipa": "/həˈləʊ, aɪ æm dʒɒn/",
+                          "audio_asset": "audio/a1_u1_l1_hello_uk.wav"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "a1-u1-l1-c1-t3",
+                      "speaker": "partner",
+                      "en": "Nice to meet you, John.",
+                      "es": "Encantado de conocerte, John."
+                    },
+                    {
+                      "id": "a1-u1-l1-c1-t4",
+                      "speaker": "learner",
+                      "en": "Nice to meet you too.",
+                      "es": "Encantado de conocerte también."
+                    }
+                  ]
+                }
               ],
               "exercises": [
                 {
                   "id": "a1-u1-l1-q1",
                   "type": "mcq",
                   "prompt": "Choose the best greeting:",
-                  "options": ["Goodbye", "Hello", "Thanks", "Sorry"],
+                  "options": [
+                    "Goodbye",
+                    "Hello",
+                    "Thanks",
+                    "Sorry"
+                  ],
                   "answer_index": 1,
-                  "skill_ids": ["a1_greetings_basic", "a1_vocabulary_greetings"]
+                  "skill_ids": [
+                    "a1_greetings_basic",
+                    "a1_vocabulary_greetings"
+                  ]
                 }
               ]
             },
@@ -36,6 +115,9 @@
         }
       ]
     },
-    { "code": "A2", "units": [] }
+    {
+      "code": "A2",
+      "units": []
+    }
   ]
 }
