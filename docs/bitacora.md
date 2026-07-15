@@ -443,3 +443,104 @@
 - Entorno local:
   - CNAPP-Lite conserva el puerto `8000`;
   - App Inglés utiliza el puerto `8001` para evitar conflictos.
+
+## Continuidad B94–B98 — Capacidades desarrolladas en frontend
+
+Los bloques B94 a B98 corresponden al repositorio frontend y están documentados en `docs/bitacora-frontend.md`.
+
+Resumen:
+
+- B94 — Escuchar, grabar y comparar.
+- B95 — Repetición guiada de una frase.
+- B96 — Autoevaluación guiada de pronunciación.
+- B97 — Resumen local de finalización de una lección.
+- B98 — Indicador persistente de avance por lección.
+
+Estos bloques no requirieron cambios funcionales en el backend.
+
+La numeración de bloques es global para App Inglés, aunque la documentación se distribuya entre los repositorios backend y frontend.
+
+
+## B99 — Contrato backend escalable para práctica conversacional
+
+### Objetivo
+
+Preparar el contenido pedagógico para incorporar prácticas conversacionales guiadas sin reescribir posteriormente el modelo de lecciones.
+
+### Implementación realizada
+
+- Se añadió `ConversationTurn` en `app/schemas/content.py`.
+- Cada turno contiene:
+  - identificador estable;
+  - rol `partner` o `learner`;
+  - texto en inglés;
+  - traducción opcional;
+  - pronunciaciones regionales opcionales.
+- Se añadió `Conversation` con:
+  - identificador estable;
+  - título;
+  - contexto opcional;
+  - modo de interacción;
+  - lista ordenada de turnos.
+- El contrato admite los modos `guided`, `branching` y `free`.
+- Solo `guided` tiene contenido implementado actualmente.
+- `Lesson` incorpora una lista opcional `conversations`.
+- Las lecciones antiguas siguen siendo compatibles y devuelven una lista vacía.
+
+### Contenido inicial
+
+- Se añadió `a1-u1-l1-c1` a la lección `a1-u1-l1`.
+- La conversación contiene cuatro turnos alternados entre interlocutor y estudiante.
+- Todos los turnos tienen identificadores estables.
+- `Hello, I am John.` reutiliza las pronunciaciones `en-US` y `en-GB`.
+
+### Escalabilidad
+
+El contrato permitirá incorporar progresivamente:
+
+- conversaciones ramificadas;
+- respuestas alternativas;
+- conversación libre;
+- reconocimiento de voz y palabras;
+- puntuación automática;
+- retroalimentación pedagógica;
+- persistencia de sesiones;
+- analítica;
+- interlocutores con inteligencia artificial;
+- generación dinámica de respuestas.
+
+La evaluación, persistencia, inteligencia artificial y reconocimiento permanecerán separados del contenido pedagógico base.
+
+### Documentación
+
+- Se añadió `DT-008 — Contrato escalable para prácticas conversacionales`.
+- Se actualizó `docs/roadmap.md` con:
+  - el entorno Ubuntu local;
+  - conversación guiada y libre;
+  - IA controlada;
+  - lectura guiada interactiva.
+
+### Pruebas y validaciones
+
+- Se amplió `tests/test_content_lessons.py`.
+- Se validan conversación, modo, roles, pronunciaciones y compatibilidad.
+- Prueba específica → `2 passed`.
+- Suite completa backend → `18 passed`.
+- `git diff --check` → sin errores.
+
+### Estado
+
+El contrato backend está implementado y validado.
+
+Pendiente:
+
+- commit y push del backend;
+- modelo e interfaz conversacional en Flutter;
+- implementación visual basada en el prototipo maestro de `LOGUIC English`.
+
+### Cierre backend de B99
+
+- Commit funcional: `08e4070`.
+- Mensaje funcional: `B99 añadir contrato backend para práctica conversacional`.
+- Documentación técnica completada en `docs/bitacora.md`, `docs/decisiones-tecnicas.md` y `docs/roadmap.md`.
+- Cierre documental y sincronización registrados mediante Git.

@@ -37,3 +37,41 @@ Un ejercicio podrá entrenar o evaluar varias habilidades, y una habilidad podr�
 Esta decisión permite calcular progreso por habilidad, detectar debilidades específicas y preparar futuras recomendaciones personalizadas.
 
 La implementación podrá iniciar de forma simple con `skill_ids` dentro del contenido JSON y evolucionar más adelante hacia una tabla relacional `exercise_skills` en PostgreSQL.
+
+## DT-008 — Contrato escalable para prácticas conversacionales
+
+Las prácticas conversacionales se incorporan al contenido pedagógico mediante una lista opcional `conversations` dentro de cada lección.
+
+Cada conversación contiene:
+
+- un identificador estable;
+- título y contexto;
+- un modo de interacción;
+- una secuencia ordenada de turnos.
+
+Cada turno contiene:
+
+- un identificador estable;
+- el rol `partner` o `learner`;
+- texto en inglés;
+- traducción opcional;
+- pronunciaciones regionales opcionales.
+
+La primera implementación utiliza el modo `guided`.
+
+Los modos `branching` y `free` quedan reservados en el contrato para evolución posterior, pero todavía no implementan lógica ramificada, conversación libre ni inteligencia artificial.
+
+Los identificadores estables permitirán asociar posteriormente:
+
+- progreso conversacional;
+- sesiones persistidas;
+- reconocimiento de voz y palabras;
+- puntuación automática;
+- evaluación pedagógica;
+- analítica;
+- respuestas alternativas;
+- generación dinámica mediante IA.
+
+La lógica futura de reconocimiento, evaluación, persistencia e IA se mantendrá separada del contenido base. Se añadirá mediante contratos y servicios específicos, evitando convertir `Lesson` o `ConversationTurn` en modelos con responsabilidades mezcladas.
+
+Esta decisión permite comenzar con conversación guiada determinista y evolucionar de forma aditiva sin reescribir las lecciones existentes.
