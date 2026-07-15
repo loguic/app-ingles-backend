@@ -544,3 +544,26 @@ Pendiente:
 - Mensaje funcional: `B99 añadir contrato backend para práctica conversacional`.
 - Documentación técnica completada en `docs/bitacora.md`, `docs/decisiones-tecnicas.md` y `docs/roadmap.md`.
 - Cierre documental y sincronización registrados mediante Git.
+
+### Ajuste de soporte auditivo para B99 frontend
+
+Durante la preparación de la interfaz conversacional se detectó que el recorrido pedagógico aprobado exige escuchar al interlocutor, pero los turnos `partner` no incluían referencias de audio.
+
+Cambios realizados:
+
+- Se añadieron pronunciaciones `en-US` y `en-GB` a los turnos `a1-u1-l1-c1-t1` y `a1-u1-l1-c1-t3`.
+- Cada pronunciación incorpora IPA normalizado y una ruta estable de `audio_asset`.
+- Se generaron cuatro audios WAV provisionales en el repositorio frontend mediante voces masculinas `en-us` y `en-gb` de eSpeak NG, con velocidad `145`.
+- eSpeak NG continúa limitado a prototipo local y respaldo offline.
+- Se amplió `tests/test_content_lessons.py` para validar variantes, rutas de audio e IPA no vacíos en ambos turnos `partner`.
+
+Validaciones:
+
+- Prueba específica backend → `2 passed`.
+- Suite completa backend → `18 passed`.
+- `git diff --check` → sin errores.
+
+Estado:
+
+- Ajuste funcional y documental pendiente de commit y push.
+- La implementación visual de B99 continúa en el frontend.
