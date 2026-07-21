@@ -59,7 +59,16 @@ Cada turno contiene:
 
 La primera implementación utiliza el modo `guided`.
 
-Los modos `branching` y `free` quedan reservados en el contrato para evolución posterior, pero todavía no implementan lógica ramificada, conversación libre ni inteligencia artificial.
+B100 activa el modo `branching` mediante un contrato aditivo y compatible con las conversaciones guiadas existentes. El modo `free` continúa reservado para una evolución posterior y no incorpora todavía conversación libre ni inteligencia artificial.
+
+Una conversación ramificada puede declarar:
+
+- `start_turn_id` como punto de entrada estable;
+- `next_turn_id` para transiciones deterministas;
+- `ConversationChoice` para respuestas alternativas del estudiante;
+- destinos diferentes, unión posterior de ramas y cierre explícito.
+
+La integridad del grafo se valida al cargar el contenido con Pydantic. Se rechazan identificadores duplicados, referencias inexistentes, turnos inaccesibles, opciones en turnos que no pertenecen al estudiante, ramas con una sola opción, combinaciones ambiguas de `next_turn_id` y `choices`, y ciclos alcanzables.
 
 Los identificadores estables permitirán asociar posteriormente:
 

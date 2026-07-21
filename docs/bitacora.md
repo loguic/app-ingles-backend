@@ -567,3 +567,81 @@ Estado:
 
 - Ajuste funcional y documental pendiente de commit y push.
 - La implementación visual de B99 continúa en el frontend.
+
+## B100 — Contrato backend profesional para conversaciones ramificadas
+
+### Objetivo
+
+Ampliar el contrato conversacional de forma aditiva para soportar conversaciones ramificadas reales, sin romper B99 ni mezclar persistencia, reconocimiento de voz, puntuación o inteligencia artificial con el contenido pedagógico base.
+
+### Implementación realizada
+
+- Se añadió `ConversationChoice` con:
+  - identificador estable;
+  - texto en inglés;
+  - traducción opcional;
+  - pronunciaciones regionales opcionales;
+  - `next_turn_id` opcional.
+- `ConversationTurn` admite:
+  - `next_turn_id` para transiciones deterministas;
+  - `choices` para respuestas alternativas.
+- `Conversation` admite `start_turn_id`.
+- Se añadió `validate_conversation_graph` mediante `model_validator` de Pydantic.
+- La validación se ejecuta al cargar `content_tree.json` mediante `ContentTreeResponse.model_validate`.
+- Las conversaciones `guided` existentes continúan siendo compatibles sin declarar grafo explícito.
+
+### Reglas de integridad
+
+El contrato rechaza:
+
+- identificadores duplicados de turnos u opciones;
+- `start_turn_id` inexistente;
+- transiciones hacia turnos inexistentes;
+- turnos inaccesibles;
+- opciones definidas en turnos que no pertenecen al estudiante;
+- una sola opción en un punto de ramificación;
+- uso simultáneo de `next_turn_id` y `choices`;
+- conversaciones ramificadas sin punto de inicio;
+- conversaciones ramificadas sin opciones;
+- ciclos alcanzables, incluso cuando otra rama sí puede terminar.
+
+### Contenido ramificado
+
+- Se añadió `a1-u1-l1-c2`.
+- La conversación comienza en `a1-u1-l1-c2-t1`.
+- El estudiante dispone de dos respuestas alternativas.
+- Cada respuesta conduce a una reacción diferente del interlocutor.
+- Las rutas se unen posteriormente en `a1-u1-l1-c2-t5`.
+- El último turno finaliza sin transición adicional.
+
+### Pruebas y validaciones
+
+- `tests/test_content_lessons.py` valida el contrato expuesto por la API.
+- `tests/test_conversation_schema.py` valida grafos correctos e incorrectos.
+- Prueba específica de contenido y esquema → `5 passed`.
+- Suite completa backend → `28 passed`.
+- `git diff --check` → sin errores.
+
+### Límites del bloque
+
+B100 no incorpora todavía:
+
+- interfaz Flutter para recorrer las ramas;
+- persistencia de sesiones conversacionales;
+- reconocimiento de voz o palabras;
+- puntuación automática;
+- analítica;
+- inteligencia artificial.
+
+Estas capacidades se mantendrán en contratos y servicios separados para conservar responsabilidades claras.
+
+### Estado
+
+Implementación backend, pruebas y documentación completadas.
+
+Pendiente:
+
+- validación final después de documentar;
+- revisión de `git status`;
+- commit y push;
+- implementación frontend de las conversaciones ramificadas.

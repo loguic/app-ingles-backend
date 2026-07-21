@@ -94,14 +94,17 @@ Capacidades desarrolladas:
 - resumen local de lección;
 - avance persistente por lección.
 
-Capacidad actual:
+Capacidades conversacionales desarrolladas:
 
-- conversación guiada mediante conversaciones y turnos con identificadores estables.
+- conversación guiada mediante conversaciones y turnos con identificadores estables;
+- contrato backend para conversaciones ramificadas;
+- respuestas alternativas con destinos estables;
+- separación, unión y cierre de rutas;
+- validación automática de integridad del grafo.
 
 Evolución prevista:
 
-- conversaciones ramificadas;
-- respuestas alternativas;
+- interfaz Flutter para recorrer conversaciones ramificadas;
 - persistencia de sesiones conversacionales;
 - reconocimiento de voz y palabras;
 - puntuación automática;

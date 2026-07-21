@@ -110,6 +110,62 @@
                       "es": "Encantado de conocerte también."
                     }
                   ]
+                },
+                {
+                  "id": "a1-u1-l1-c2",
+                  "title": "How are you today?",
+                  "context": "Choose a natural response and continue through the matching route.",
+                  "mode": "branching",
+                  "start_turn_id": "a1-u1-l1-c2-t1",
+                  "turns": [
+                    {
+                      "id": "a1-u1-l1-c2-t1",
+                      "speaker": "partner",
+                      "en": "Hello! How are you today?",
+                      "es": "¡Hola! ¿Cómo estás hoy?",
+                      "next_turn_id": "a1-u1-l1-c2-t2"
+                    },
+                    {
+                      "id": "a1-u1-l1-c2-t2",
+                      "speaker": "learner",
+                      "en": "Choose how you want to answer.",
+                      "es": "Elige cómo quieres responder.",
+                      "choices": [
+                        {
+                          "id": "a1-u1-l1-c2-choice-fine",
+                          "en": "I'm fine, thank you.",
+                          "es": "Estoy bien, gracias.",
+                          "next_turn_id": "a1-u1-l1-c2-t3"
+                        },
+                        {
+                          "id": "a1-u1-l1-c2-choice-tired",
+                          "en": "I'm tired today.",
+                          "es": "Estoy cansado hoy.",
+                          "next_turn_id": "a1-u1-l1-c2-t4"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "a1-u1-l1-c2-t3",
+                      "speaker": "partner",
+                      "en": "I'm glad to hear that.",
+                      "es": "Me alegra escuchar eso.",
+                      "next_turn_id": "a1-u1-l1-c2-t5"
+                    },
+                    {
+                      "id": "a1-u1-l1-c2-t4",
+                      "speaker": "partner",
+                      "en": "I'm sorry to hear that. Get some rest.",
+                      "es": "Siento escuchar eso. Descansa un poco.",
+                      "next_turn_id": "a1-u1-l1-c2-t5"
+                    },
+                    {
+                      "id": "a1-u1-l1-c2-t5",
+                      "speaker": "learner",
+                      "en": "Thank you. See you later.",
+                      "es": "Gracias. Hasta luego."
+                    }
+                  ]
                 }
               ],
               "exercises": [
