@@ -645,3 +645,108 @@ Pendiente:
 - revisión de `git status`;
 - commit y push;
 - implementación frontend de las conversaciones ramificadas.
+
+## B101 — Persistencia del progreso conversacional
+
+### Objetivo
+
+Guardar cada conversación completada como un intento persistente e independiente del progreso de ejercicios, conservando el recorrido real, las opciones elegidas y la fecha de finalización.
+
+### Diseño de persistencia
+
+- Se creó la tabla independiente `conversation_attempts`.
+- No se modificó la tabla `user_progress`.
+- Cada intento almacena:
+  - usuario, nivel, unidad y lección;
+  - identificador de conversación;
+  - modo `guided` o `branching`;
+  - identificadores de los turnos recorridos;
+  - identificadores de las opciones seleccionadas;
+  - fecha de finalización.
+- Las listas se almacenan mediante columnas SQLAlchemy `JSON`.
+- No se guardan grabaciones, rutas de archivos de audio ni contenido sensible.
+- Repetir una conversación crea un intento nuevo y no sobrescribe el anterior.
+
+### Contrato y servicios
+
+- Se añadieron `ConversationAttemptCreate` y `ConversationAttemptRecord`.
+- `visited_turn_ids` exige al menos un turno.
+- El modo queda limitado actualmente a `guided` y `branching`.
+- Se añadió búsqueda contextual de conversaciones mediante nivel, unidad y lección.
+- Se creó un servicio independiente para:
+  - validar recorridos completados;
+  - guardar intentos;
+  - recuperar intentos por usuario en orden cronológico.
+
+### Validación de recorridos
+
+El backend rechaza:
+
+- conversaciones inexistentes;
+- jerarquías de nivel, unidad o lección incorrectas;
+- modos que no coinciden con la conversación;
+- conversaciones guiadas incompletas o fuera de orden;
+- opciones dentro de conversaciones guiadas;
+- rutas ramificadas sin la opción requerida;
+- opciones que no pertenecen al turno activo;
+- turnos que no coinciden con la rama seleccionada;
+- opciones adicionales o inventadas;
+- recorridos que no alcanzan el cierre real de la ruta.
+
+### API
+
+- `POST /api/v1/conversation-attempts` guarda un intento completado y validado.
+- `GET /api/v1/conversation-attempts/{user_id}` recupera los intentos del usuario.
+- Los recorridos inválidos devuelven estado HTTP `400` con el motivo correspondiente.
+
+### Separación del progreso de ejercicios
+
+- Los intentos conversacionales no se incluyen en `UserProgress`.
+- No modifican `total_attempts`, `correct_attempts` ni `accuracy`.
+- No afectan dominio por habilidad, recomendaciones ni siguiente acción.
+- La evaluación oral futura permanecerá separada del registro básico de finalización.
+
+### Base de datos
+
+- El proyecto todavía no utiliza Alembic.
+- La tabla fue creada mediante `python3 -m app.db.create_tables`, siguiendo el mecanismo actual.
+- `create_all()` permite añadir esta tabla independiente sin alterar las existentes.
+- La incorporación futura de migraciones versionadas continúa siendo una mejora pendiente del sistema.
+
+### Pruebas y validaciones
+
+- Se creó `tests/test_conversation_attempts.py`.
+- Las siete pruebas específicas validan:
+  - guardado y lectura de conversación guiada;
+  - guardado de una ruta ramificada válida;
+  - rechazo de una ruta incompatible con la opción elegida;
+  - rechazo y ausencia de persistencia de un intento incompleto;
+  - rechazo de jerarquía incorrecta;
+  - separación respecto a estadísticas de ejercicios;
+  - intentos repetidos independientes.
+- Pruebas específicas B101 → `7 passed`.
+- Suite completa backend → `35 passed`.
+- `git diff --check` → sin errores.
+
+### Archivos principales
+
+- `app/db/models.py`
+- `app/schemas/conversation_attempt.py`
+- `app/services/content_service.py`
+- `app/services/conversation_attempt_service.py`
+- `app/api/v1/endpoints/conversation_attempts.py`
+- `app/api/v1/router.py`
+- `tests/test_conversation_attempts.py`
+
+### Estado
+
+Implementación y validación automatizada del backend completadas.
+
+Pendiente:
+
+- validación final después de documentar;
+- revisión de código y seguridad;
+- commit y push del backend;
+- integración del guardado desde Flutter;
+- validación manual del flujo completo;
+- cierre frontend de B101.

@@ -32,6 +32,30 @@ def get_lesson_by_id(lesson_id: str):
                     return lesson
     return None
 
+def get_conversation_context_by_id(conversation_id: str):
+    """Return the hierarchy and conversation associated with one stable ID.
+    Devuelve la jerarquía y conversación asociadas a un identificador estable.
+    """
+    tree = build_content_tree()
+
+    for level in tree.levels:
+        for unit in level.units:
+            for lesson in unit.lessons:
+                for conversation in lesson.conversations:
+                    if conversation.id == conversation_id:
+                        return level.code, unit.id, lesson.id, conversation
+
+    return None
+
+
+def get_conversation_by_id(conversation_id: str):
+    """Return a conversation by its stable ID.
+    Devuelve una conversación mediante su identificador estable.
+    """
+    context = get_conversation_context_by_id(conversation_id)
+    return context[3] if context is not None else None
+
+
 def evaluate_exercise(exercise_id: str, selected_index: int):
     tree = build_content_tree()
     for level in tree.levels:
