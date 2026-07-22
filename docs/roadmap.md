@@ -100,12 +100,24 @@ Capacidades conversacionales desarrolladas:
 - contrato backend para conversaciones ramificadas;
 - respuestas alternativas con destinos estables;
 - separación, unión y cierre de rutas;
-- validación automática de integridad del grafo.
+- validación automática de integridad del grafo;
+- interfaz Flutter para recorrer conversaciones ramificadas;
+- persistencia de intentos conversacionales;
+- historial y resumen del progreso conversacional;
+- identificadores estables para ejemplos de pronunciación.
+
+Estado pedagógico actual:
+
+- 2 niveles declarados: A1 y A2;
+- 1 unidad disponible;
+- 2 lecciones, de las cuales una todavía no tiene contenido;
+- 2 ejemplos;
+- 1 ejercicio;
+- 2 conversaciones con 9 turnos;
+- el contenido actual todavía no constituye una versión pedagógica suficientemente utilizable.
 
 Evolución prevista:
 
-- interfaz Flutter para recorrer conversaciones ramificadas;
-- persistencia de sesiones conversacionales;
 - reconocimiento de voz y palabras;
 - puntuación automática;
 - retroalimentación pedagógica;
