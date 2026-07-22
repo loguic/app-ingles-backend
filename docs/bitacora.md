@@ -738,15 +738,54 @@ El backend rechaza:
 - `app/api/v1/router.py`
 - `tests/test_conversation_attempts.py`
 
-### Estado
+### Cierre de B101
 
-Implementación y validación automatizada del backend completadas.
+- Validación backend completa: `35 passed`.
+- Commit backend: `0f66c68` — `B101 añadir persistencia conversacional`.
+- Push completado a `origin/master`.
+- Integración y validación manual desde Flutter completadas posteriormente.
+- Backend confirmado limpio y sincronizado al cerrar B101.
 
-Pendiente:
+## B103 — Identificadores estables para ejemplos de pronunciación
+
+### Objetivo
+
+Incorporar identificadores persistentes y estables a las frases de ejemplo antes de guardar autoevaluaciones de pronunciación, analítica o repetición inteligente.
+
+### Decisión técnica
+
+- No se utilizarán índices como identificadores persistentes.
+- Un índice como `example:0` puede cambiar si el contenido pedagógico se reordena.
+- Cada ejemplo debe declarar un `id` estable dentro del contrato de contenido.
+- Este cambio crea una base segura para futuras evaluaciones `good`, `almost` y `repeat`.
+- B103 todavía no persiste autoevaluaciones ni grabaciones.
+
+### Implementación backend
+
+- El esquema Pydantic `Example` requiere ahora el campo `id`.
+- Se añadieron identificadores estables a los ejemplos actuales:
+  - `a1-u1-l1-e1` para `Hello, I am John.`;
+  - `a1-u1-l1-e2` para `Goodbye! See you later.`.
+- El cambio es aditivo respecto al contenido funcional existente.
+- No se modificaron conversaciones, ejercicios ni progreso persistido.
+
+### Pruebas y validaciones
+
+- `tests/test_content_lessons.py` valida los dos identificadores.
+- Pruebas específicas de contenido: `5 passed`.
+- Suite backend completa: `35 passed`.
+- valida los dos `git diff --check`: sin errores.
+
+### Archivos principales
+
+- `app/schemas/content.py`
+- `content/content_tree.json`
+- `tests/test_content_lessons.py`
+
+### Pendiente para cerrar B103 backend
 
 - validación final después de documentar;
 - revisión de código y seguridad;
-- commit y push del backend;
-- integración del guardado desde Flutter;
-- validación manual del flujo completo;
-- cierre frontend de B101.
+- commit y push;
+- confirmación de Git limpio;
+- actualización compatible del modelo Flutter.

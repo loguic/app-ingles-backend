@@ -16,6 +16,11 @@ def test_get_existing_lesson_returns_lesson_data():
     assert response.json()["id"] == "a1-u1-l1"
     assert response.json()["title"] == "Hello / Goodbye"
 
+    # Verify stable example identifiers for persisted learning activity.
+    # Verifica identificadores estables para actividad de aprendizaje persistida.
+    example_ids = [item["id"] for item in response.json()["examples"]]
+    assert example_ids == ["a1-u1-l1-e1", "a1-u1-l1-e2"]
+
     # Verify both regional pronunciation variants and their audio assets.
     # Verifica ambas variantes regionales de pronunciación y sus audios.
     pronunciations = response.json()["examples"][0]["pronunciations"]

@@ -35,11 +35,13 @@
                       "ipa": "/həˈləʊ, aɪ æm dʒɒn/",
                       "audio_asset": "audio/a1_u1_l1_hello_uk.wav"
                     }
-                  ]
+                  ],
+                  "id": "a1-u1-l1-e1"
                 },
                 {
                   "en": "Goodbye! See you later.",
-                  "es": "¡Adiós! Hasta luego."
+                  "es": "¡Adiós! Hasta luego.",
+                  "id": "a1-u1-l1-e2"
                 }
               ],
               "conversations": [

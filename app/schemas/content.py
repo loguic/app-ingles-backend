@@ -17,6 +17,9 @@ class Pronunciation(BaseModel):
 
 
 class Example(BaseModel):
+    # Stable identifier for progress, analytics, and future assessments.
+    # Identificador estable para progreso, analítica y evaluaciones futuras.
+    id: str
     en: str
     es: Optional[str] = None
 
