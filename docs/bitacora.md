@@ -790,3 +790,36 @@ Incorporar identificadores persistentes y estables a las frases de ejemplo antes
 - Push del cambio técnico completado a `origin/master`.
 - Adaptación compatible del modelo Flutter completada y validada.
 - Backend confirmado limpio y sincronizado después del commit documental.
+
+## B104 — Punto de control y sincronización de la Fase 5
+
+Fecha: 2026-07-22
+
+### Objetivo
+
+- Confirmar el rumbo real del producto sin desviarse del roadmap aprobado.
+- Sincronizar la Fase 5 con las capacidades ya terminadas.
+- Medir el contenido pedagógico disponible antes de iniciar otro bloque técnico.
+
+### Estado confirmado
+
+- La infraestructura de práctica oral y conversacional está avanzada.
+- La interfaz conversacional ramificada, la persistencia de intentos y el historial ya están completados.
+- El contenido actual contiene 2 niveles declarados, 1 unidad, 2 lecciones, 2 ejemplos, 1 ejercicio, 2 conversaciones y 9 turnos.
+- `a1-u1-l2` existe únicamente como marcador de contenido.
+- A2 todavía no contiene unidades.
+- El contenido pedagógico actual aún no constituye una versión suficientemente utilizable.
+
+### Cambio realizado
+
+- Se actualizó `docs/roadmap.md`.
+- No se añadieron nuevas fases ni se modificó el orden del roadmap.
+- Las capacidades B100–B103 se trasladaron al estado desarrollado.
+- Reconocimiento de voz, puntuación automática, retroalimentación pedagógica y conversación libre permanecen como evolución prevista.
+
+### Cierre de B104
+
+- Commit principal: `dbf99c0` — `B104 sincronizar roadmap de fase 5`.
+- Push completado a `origin/master`.
+- Repositorio confirmado limpio y sincronizado antes del commit documental.
+- No se modificó código ni contenido pedagógico.
