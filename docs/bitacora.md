@@ -823,3 +823,46 @@ Fecha: 2026-07-22
 - Push completado a `origin/master`.
 - Repositorio confirmado limpio y sincronizado antes del commit documental.
 - No se modificó código ni contenido pedagógico.
+
+## B105 — Arquitectura del Constructor Pedagógico de Unidades
+
+Fecha: 2026-07-22
+
+### Objetivo
+
+- Sustituir el trabajo pedagógico fragmentado por la construcción controlada de unidades completas.
+- Diseñar una capacidad reutilizable desde A1 hasta C2 sin alterar el roadmap aprobado.
+- Mantener los Skills medibles como núcleo de la progresión y la evaluación.
+
+### Diseño aprobado
+
+- Se creó `docs/pedagogical-unit-builder.md`.
+- Se definieron contratos versionables de entrada y salida.
+- El constructor producirá paquetes candidatos aislados del contenido activo.
+- Cada unidad deberá incluir una matriz de cobertura de Skills.
+- Las validaciones deterministas se ejecutarán antes de la revisión mediante agentes o personas.
+- Se utilizará inicialmente un único agente orquestador controlado.
+- El agente no podrá modificar contenido activo, aprobar su propio resultado ni omitir validaciones.
+- MCP queda preparado como evolución futura, pero no se implementa en B105.
+- Toda integración requerirá aprobación humana, pruebas y revisión visual.
+
+### Alcance y límites
+
+- B105 aprueba únicamente la arquitectura del constructor.
+- La implementación determinista pertenecerá a un bloque posterior.
+- El agente orquestador se incorporará después de validar el núcleo determinista.
+- La especificación y construcción de `A1-U1` se realizarán en bloques separados.
+- No se modificó código ni contenido pedagógico activo.
+
+### Cierre técnico principal
+
+- Documento revisado mediante diff completo.
+- `git diff --check`: sin errores.
+- Commit principal: `248e5cd` — `B105 diseñar constructor pedagogico de unidades`.
+- Push del documento arquitectónico completado a `origin/master`.
+
+### Pendiente para cerrar B105
+
+- validar esta entrada documental;
+- crear y publicar el commit de bitácora;
+- confirmar el repositorio limpio y sincronizado.
