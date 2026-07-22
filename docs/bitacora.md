@@ -774,7 +774,7 @@ Incorporar identificadores persistentes y estables a las frases de ejemplo antes
 - `tests/test_content_lessons.py` valida los dos identificadores.
 - Pruebas específicas de contenido: `5 passed`.
 - Suite backend completa: `35 passed`.
-- valida los dos `git diff --check`: sin errores.
+- `git diff --check`: sin errores.
 
 ### Archivos principales
 
@@ -782,10 +782,11 @@ Incorporar identificadores persistentes y estables a las frases de ejemplo antes
 - `content/content_tree.json`
 - `tests/test_content_lessons.py`
 
-### Pendiente para cerrar B103 backend
+### Cierre de B103
 
-- validación final después de documentar;
-- revisión de código y seguridad;
-- commit y push;
-- confirmación de Git limpio;
-- actualización compatible del modelo Flutter.
+- Validación backend completa: `35 passed`.
+- Revisión de código y seguridad completada sin cambios inesperados ni datos sensibles.
+- Commit backend principal: `b8b6b36` — `B103 añadir identificadores estables a ejemplos`.
+- Push del cambio técnico completado a `origin/master`.
+- Adaptación compatible del modelo Flutter completada y validada.
+- Backend confirmado limpio y sincronizado después del commit documental.
