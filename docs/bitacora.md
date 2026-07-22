@@ -861,8 +861,50 @@ Fecha: 2026-07-22
 - Commit principal: `248e5cd` — `B105 diseñar constructor pedagogico de unidades`.
 - Push del documento arquitectónico completado a `origin/master`.
 
-### Pendiente para cerrar B105
+### Cierre final de B105
 
-- validar esta entrada documental;
-- crear y publicar el commit de bitácora;
-- confirmar el repositorio limpio y sincronizado.
+- Entrada documental validada.
+- Commit documental: `f2127cb` — `docs cerrar B105 en bitacora`.
+- Push completado a `origin/master`.
+- Repositorio confirmado limpio y sincronizado.
+
+## B106 — Núcleo determinista del Constructor Pedagógico
+
+Fecha: 2026-07-22
+
+### Objetivo
+
+- Implementar los contratos deterministas definidos por la arquitectura de B105.
+- Separar las especificaciones y paquetes candidatos del contenido pedagógico activo.
+- Validar automáticamente Skills, cobertura, unidades candidatas e informes antes de cualquier agente o revisión humana.
+
+### Implementación
+
+- Se creó `app/schemas/pedagogical_unit.py`.
+- Se definió `SkillSpecification` con identificador estable, descripción observable y etapas pedagógicas.
+- Se definió `SkillCoverage` con introducción, práctica, aplicación, evaluación, consolidación y modalidades.
+- Se creó `PedagogicalUnitSpecification` como contrato obligatorio de entrada.
+- Se validó la coherencia entre `unit_id` y nivel CEFR.
+- Se añadieron `ValidationFinding` y `ValidationReport` con estados y severidades coherentes.
+- Se creó `PedagogicalUnitCandidate` reutilizando el contrato vigente `Unit`.
+- El paquete candidato valida identidad de unidad, cobertura única, Skills ausentes y Skills desconocidos.
+- No se modificó el contenido pedagógico activo ni se implementaron agentes o MCP.
+
+### Pruebas y validaciones
+
+- Se creó `tests/test_pedagogical_unit_schema.py`.
+- Pruebas contractuales nuevas: `21 passed`.
+- Suite backend completa: `56 passed`.
+- `git diff --check`: sin errores después de normalizar los finales de archivo.
+
+### Cierre técnico principal
+
+- Commit técnico: `42db89c` — `B106 implementar contratos pedagogicos deterministas`.
+- Push completado a `origin/master`.
+- Repositorio técnico confirmado limpio y sincronizado antes del cierre documental.
+
+### Cierre documental de B106
+
+- La entrada documental y la corrección final de B105 fueron revisadas.
+- Esta bitácora se versionará mediante un commit documental separado.
+- El cierre definitivo requerirá publicar ese commit y confirmar el repositorio limpio y sincronizado.
