@@ -1133,3 +1133,56 @@ Fecha: 2026-07-23
 - El contrato y la validación determinista de límites cuantitativos quedaron implementados, probados y publicados.
 - Esta entrada constituye el cierre documental de B110.
 - La publicación de esta documentación y la verificación de Git limpio forman parte del cierre operativo del bloque.
+
+## B111 — Integridad determinista de identificadores de contenido
+
+Fecha: 2026-07-23
+
+### Objetivo
+
+- Validar formatos jerárquicos y unicidad de los identificadores del contenido candidato.
+- Impedir identificadores incoherentes con sus unidades, lecciones o conversaciones padre.
+- Mantener esta validación separada de los esquemas generales y de la integridad de grafos.
+
+### Implementación
+
+- Se creó `app/services/pedagogical_identifier_validation.py`.
+- Se validan identificadores de lecciones, ejemplos, conversaciones y ejercicios.
+- Se validan identificadores de turnos y elecciones conversacionales.
+- Se comprueba el prefijo jerárquico exacto del elemento padre.
+- Se comprueba la unicidad de lecciones, ejemplos, conversaciones y ejercicios.
+- Los números comienzan en `1`, pero no se exige que sean consecutivos.
+- Los incumplimientos generan `content_identifier_integrity` con severidad `error`.
+- El validador se integró en `validate_pedagogical_candidate`.
+- El candidato no se modifica durante la validación.
+
+### Pruebas y validaciones
+
+- Se creó `tests/test_pedagogical_identifier_validation.py`.
+- Pruebas específicas de B111: `13 passed`.
+- Pruebas del motor pedagógico: `56 passed`.
+- Suite backend completa: `133 passed`.
+- Compilación Python de servicios y pruebas: correcta.
+- Control de separaciones excesivas: correcto.
+- `git diff --check`: sin errores.
+
+### Cierre técnico
+
+- Commit técnico: `fbddef2` — `B111 validar integridad de identificadores`.
+- Push completado a `origin/master`.
+- Repositorio técnico confirmado limpio y sincronizado antes del cierre documental.
+
+### Límites respetados
+
+- No se modificaron los esquemas generales de `content.py`.
+- No se reformaron los validadores anteriores.
+- No se duplicaron las validaciones de grafos ni referencias internas.
+- No se exigieron numeraciones consecutivas.
+- No se modificó el contenido pedagógico activo.
+- No se incorporaron agentes, MCP ni herramientas externas.
+
+### Cierre de B111
+
+- La integridad determinista de identificadores quedó implementada, probada y publicada.
+- Esta entrada constituye el cierre documental de B111.
+- La publicación de esta documentación y la verificación de Git limpio forman parte del cierre operativo del bloque.
