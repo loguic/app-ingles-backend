@@ -134,6 +134,49 @@ def validate_internal_references(
     return findings
 
 
+def validate_evaluation_skill_links(
+    candidate: PedagogicalUnitCandidate,
+) -> list[ValidationFinding]:
+    """Require evaluation exercises to reference the evaluated Skill.
+
+    Exige que los ejercicios de evaluación referencien el Skill evaluado.
+    """
+    exercises_by_id = {
+        exercise.id: exercise
+        for lesson in candidate.candidate_unit.lessons
+        for exercise in lesson.exercises
+    }
+    findings: list[ValidationFinding] = []
+
+    for coverage in candidate.skill_coverage:
+        for evidence_id in coverage.evaluation_evidence_ids:
+            exercise = exercises_by_id.get(evidence_id)
+
+            # Unknown references are reported by the integrity validator.
+            # Las referencias desconocidas se informan en el validador de integridad.
+            if exercise is None:
+                continue
+            if coverage.skill_id in exercise.skill_ids:
+                continue
+
+            findings.append(
+                ValidationFinding(
+                    validator_id="evaluation_skill_link",
+                    severity="error",
+                    message=(
+                        f"Evaluation evidence {evidence_id} does not "
+                        f"reference Skill {coverage.skill_id}."
+                    ),
+                    reference_ids=[
+                        coverage.skill_id,
+                        evidence_id,
+                    ],
+                )
+            )
+
+    return findings
+
+
 def validate_skill_stage_coverage(
     candidate: PedagogicalUnitCandidate,
 ) -> list[ValidationFinding]:
@@ -178,6 +221,7 @@ def validate_pedagogical_candidate(
     findings = [
         *validate_skill_stage_coverage(candidate),
         *validate_internal_references(candidate),
+        *validate_evaluation_skill_links(candidate),
     ]
     status = "failed" if findings else "passed"
 

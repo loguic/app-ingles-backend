@@ -210,6 +210,55 @@ def test_unknown_internal_reference_fails_validation(
         f"{field}: {reference_id}."
     )
 
+def test_evaluation_evidence_requires_skill_link():
+    """Reject evaluation evidence not linked to the evaluated Skill.
+
+    Rechaza evidencia de evaluación no vinculada con el Skill evaluado.
+    """
+    payload = deepcopy(build_candidate_payload())
+    payload["candidate_unit"]["lessons"][0]["exercises"][0][
+        "skill_ids"
+    ] = ["a1_other_skill"]
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    report = validate_pedagogical_candidate(candidate)
+
+    assert report.status == "failed"
+    assert len(report.findings) == 1
+
+    finding = report.findings[0]
+    assert finding.validator_id == "evaluation_skill_link"
+    assert finding.severity == "error"
+    assert finding.reference_ids == [
+        "a1_introduce_yourself",
+        "a1-u1-l1-q1",
+    ]
+    assert finding.message == (
+        "Evaluation evidence a1-u1-l1-q1 does not reference "
+        "Skill a1_introduce_yourself."
+    )
+
+
+def test_unknown_evaluation_evidence_is_not_reported_twice():
+    """Avoid duplicate findings for one unknown evaluation reference.
+
+    Evita hallazgos duplicados para una referencia de evaluación desconocida.
+    """
+    payload = deepcopy(build_candidate_payload())
+    payload["skill_coverage"][0]["evaluation_evidence_ids"] = [
+        "a1-u1-l1-q9"
+    ]
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    report = validate_pedagogical_candidate(candidate)
+
+    assert report.status == "failed"
+    assert len(report.findings) == 1
+    assert report.findings[0].validator_id == (
+        "internal_reference_integrity"
+    )
+
+
 def test_validation_recalculates_candidate_report():
     """Return a new report instead of trusting the stored candidate report.
 
