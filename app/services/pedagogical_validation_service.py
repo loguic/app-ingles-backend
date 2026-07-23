@@ -5,6 +5,9 @@ from app.schemas.pedagogical_unit import (
     ValidationFinding,
     ValidationReport,
 )
+from app.services.pedagogical_duplicate_validation import (
+    validate_duplicate_exercise_options,
+)
 
 
 def _has_required_stage(
@@ -328,6 +331,7 @@ def validate_pedagogical_candidate(
         *validate_evaluation_skill_links(candidate),
         *validate_skill_coverage_status(candidate),
         *validate_required_resource_inventory(candidate),
+        *validate_duplicate_exercise_options(candidate),
     ]
 
     if any(finding.severity == "error" for finding in findings):
