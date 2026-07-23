@@ -960,3 +960,57 @@ Fecha: 2026-07-23
 - El motor determinista quedó implementado, probado y publicado.
 - Esta entrada constituye el cierre documental de B107.
 - La publicación de esta documentación y la verificación de Git limpio forman parte del cierre operativo del bloque.
+
+## B108 — Validación determinista del inventario de recursos
+
+Fecha: 2026-07-23
+
+### Objetivo
+
+- Validar de forma determinista el inventario lógico de recursos de los paquetes candidatos.
+- Mantener desacopladas las referencias del backend y los archivos físicos administrados por Flutter.
+- Impedir que un candidato omita audios referenciados o declare identificadores duplicados.
+
+### Decisiones técnicas
+
+- El backend conserva rutas lógicas como `audio/a1_u1_l1_hello_us.wav`.
+- Flutter recibe esas rutas sin transformación y las reproduce mediante `AssetSource(audioAsset)`.
+- Los archivos físicos permanecen en `assets/audio/` del frontend.
+- El backend no accede al sistema de archivos del frontend ni utiliza rutas absolutas.
+- `required_resource_ids` representa el inventario lógico del paquete candidato.
+
+### Implementación
+
+- Se amplió `app/services/pedagogical_validation_service.py`.
+- Se recopilan los `audio_asset` de ejemplos, turnos y elecciones conversacionales.
+- Se detectan audios referenciados ausentes de `required_resource_ids`.
+- Se detectan identificadores duplicados dentro del inventario.
+- Los recursos adicionales no utilizados no se rechazan todavía porque el contrato podrá incluir otros tipos de recurso.
+- Se actualizó la fixture candidata con audios inventariados de ejemplo y conversación.
+
+### Pruebas y validaciones
+
+- Pruebas específicas del motor ampliadas: `20 passed`.
+- Suite backend completa: `76 passed`.
+- Compilación Python de servicio y pruebas: correcta.
+- Control de separaciones excesivas: correcto.
+- `git diff --check`: sin errores.
+
+### Cierre técnico
+
+- Commit técnico: `d23d396` — `B108 validar inventario logico de recursos`.
+- Push completado a `origin/master`.
+- Repositorio técnico confirmado limpio y sincronizado.
+
+### Límites respetados
+
+- No se modificó el contenido pedagógico activo.
+- No se comprobaron archivos físicos desde el backend.
+- No se implementaron generación de audios, agentes ni MCP.
+- La validación física entre repositorios requerirá un flujo posterior explícito y desacoplado.
+
+### Cierre de B108
+
+- El inventario lógico de recursos quedó implementado, probado y publicado.
+- Esta entrada constituye el cierre documental de B108.
+- La publicación de esta documentación y la verificación de Git limpio forman parte del cierre operativo del bloque.
