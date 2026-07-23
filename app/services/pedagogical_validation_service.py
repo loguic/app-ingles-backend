@@ -22,6 +22,9 @@ from app.services.pedagogical_exercise_integrity_validation import (
 from app.services.pedagogical_content_text_integrity_validation import (
     validate_content_text_integrity,
 )
+from app.services.pedagogical_unit_lesson_structure_validation import (
+    validate_unit_lesson_structure,
+)
 
 
 def _has_required_stage(
@@ -340,6 +343,7 @@ def validate_pedagogical_candidate(
     Ejecuta los validadores deterministas implementados para el candidato.
     """
     findings = [
+        *validate_unit_lesson_structure(candidate),
         *validate_skill_stage_coverage(candidate),
         *validate_internal_references(candidate),
         *validate_evaluation_skill_links(candidate),
