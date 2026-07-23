@@ -2,6 +2,10 @@ from app.services.pedagogical_content_limits_validation import (
     validate_content_limits,
 )
 
+from app.services.pedagogical_identifier_validation import (
+    validate_content_identifiers,
+)
+
 from app.schemas.pedagogical_unit import (
     PedagogicalUnitCandidate,
     SkillCoverage,
@@ -337,6 +341,7 @@ def validate_pedagogical_candidate(
         *validate_required_resource_inventory(candidate),
         *validate_duplicate_exercise_options(candidate),
         *validate_content_limits(candidate),
+        *validate_content_identifiers(candidate),
     ]
 
     if any(finding.severity == "error" for finding in findings):
