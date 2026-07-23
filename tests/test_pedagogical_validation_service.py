@@ -65,13 +65,40 @@ def build_candidate_payload() -> dict:
                         {
                             "id": "a1-u1-l1-e1",
                             "en": "Hello, I am Ana.",
+                            "pronunciations": [
+                                {
+                                    "locale": "en-US",
+                                    "ipa": "/həˈloʊ aɪ æm ˈænə/",
+                                    "audio_asset": (
+                                        "audio/a1_u1_l1_example_us.wav"
+                                    ),
+                                }
+                            ],
                         }
                     ],
                     "conversations": [
                         {
                             "id": "a1-u1-l1-c1",
                             "title": "Meeting someone",
-                            "turns": [],
+                            "turns": [
+                                {
+                                    "id": "a1-u1-l1-c1-t1",
+                                    "speaker": "partner",
+                                    "en": "Hello! What is your name?",
+                                    "pronunciations": [
+                                        {
+                                            "locale": "en-US",
+                                            "ipa": (
+                                                "/həˈloʊ wʌt ɪz jʊr neɪm/"
+                                            ),
+                                            "audio_asset": (
+                                                "audio/"
+                                                "a1_u1_l1_partner_us.wav"
+                                            ),
+                                        }
+                                    ],
+                                }
+                            ],
                         }
                     ],
                     "exercises": [
@@ -106,6 +133,10 @@ def build_candidate_payload() -> dict:
                 "modalities": ["listening", "speaking"],
                 "status": "complete",
             }
+        ],
+        "required_resource_ids": [
+            "audio/a1_u1_l1_example_us.wav",
+            "audio/a1_u1_l1_partner_us.wav",
         ],
         "validation_report": {
             "status": "pending",
@@ -311,6 +342,60 @@ def test_validation_error_has_priority_over_warning():
         "error",
         "warning",
     ]
+
+@pytest.mark.parametrize(
+    "missing_resource_id",
+    [
+        "audio/a1_u1_l1_example_us.wav",
+        "audio/a1_u1_l1_partner_us.wav",
+    ],
+)
+def test_missing_referenced_audio_fails_validation(
+    missing_resource_id,
+):
+    """Reject referenced audio absent from the logical inventory.
+
+    Rechaza audio referenciado ausente del inventario lógico.
+    """
+    payload = deepcopy(build_candidate_payload())
+    payload["required_resource_ids"].remove(missing_resource_id)
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    report = validate_pedagogical_candidate(candidate)
+
+    assert report.status == "failed"
+    assert len(report.findings) == 1
+
+    finding = report.findings[0]
+    assert finding.validator_id == "resource_inventory_complete"
+    assert finding.severity == "error"
+    assert finding.reference_ids == [missing_resource_id]
+    assert finding.message == (
+        "Referenced audio resource is missing from the inventory: "
+        f"{missing_resource_id}."
+    )
+
+
+def test_duplicate_required_resource_id_fails_validation():
+    """Reject duplicated identifiers in the logical resource inventory.
+
+    Rechaza identificadores duplicados en el inventario lógico de recursos.
+    """
+    payload = deepcopy(build_candidate_payload())
+    duplicate_id = payload["required_resource_ids"][0]
+    payload["required_resource_ids"].append(duplicate_id)
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    report = validate_pedagogical_candidate(candidate)
+
+    assert report.status == "failed"
+    assert len(report.findings) == 1
+
+    finding = report.findings[0]
+    assert finding.validator_id == "resource_inventory_unique"
+    assert finding.severity == "error"
+    assert finding.reference_ids == payload["required_resource_ids"]
+    assert finding.message == "Required resource IDs must be unique."
 
 def test_validation_recalculates_candidate_report():
     """Return a new report instead of trusting the stored candidate report.

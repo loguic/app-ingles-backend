@@ -243,6 +243,78 @@ def validate_skill_stage_coverage(
     return findings
 
 
+def _collect_referenced_audio_assets(
+    candidate: PedagogicalUnitCandidate,
+) -> set[str]:
+    """Collect logical audio paths referenced by candidate content.
+
+    Recopila las rutas lógicas de audio referenciadas por el candidato.
+    """
+    return {
+        pronunciation.audio_asset
+        for lesson in candidate.candidate_unit.lessons
+        for pronunciation in [
+            *[
+                item
+                for example in lesson.examples
+                for item in example.pronunciations
+            ],
+            *[
+                item
+                for conversation in lesson.conversations
+                for turn in conversation.turns
+                for item in turn.pronunciations
+            ],
+            *[
+                item
+                for conversation in lesson.conversations
+                for turn in conversation.turns
+                for choice in turn.choices
+                for item in choice.pronunciations
+            ],
+        ]
+    }
+
+
+def validate_required_resource_inventory(
+    candidate: PedagogicalUnitCandidate,
+) -> list[ValidationFinding]:
+    """Validate the logical inventory of referenced audio resources.
+
+    Valida el inventario lógico de los recursos de audio referenciados.
+    """
+    findings: list[ValidationFinding] = []
+    inventory = candidate.required_resource_ids
+
+    if len(inventory) != len(set(inventory)):
+        findings.append(
+            ValidationFinding(
+                validator_id="resource_inventory_unique",
+                severity="error",
+                message="Required resource IDs must be unique.",
+                reference_ids=inventory,
+            )
+        )
+
+    missing_ids = sorted(
+        _collect_referenced_audio_assets(candidate) - set(inventory)
+    )
+    for resource_id in missing_ids:
+        findings.append(
+            ValidationFinding(
+                validator_id="resource_inventory_complete",
+                severity="error",
+                message=(
+                    f"Referenced audio resource is missing from the "
+                    f"inventory: {resource_id}."
+                ),
+                reference_ids=[resource_id],
+            )
+        )
+
+    return findings
+
+
 def validate_pedagogical_candidate(
     candidate: PedagogicalUnitCandidate,
 ) -> ValidationReport:
@@ -255,6 +327,7 @@ def validate_pedagogical_candidate(
         *validate_internal_references(candidate),
         *validate_evaluation_skill_links(candidate),
         *validate_skill_coverage_status(candidate),
+        *validate_required_resource_inventory(candidate),
     ]
 
     if any(finding.severity == "error" for finding in findings):
