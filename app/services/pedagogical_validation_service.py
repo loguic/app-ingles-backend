@@ -19,6 +19,9 @@ from app.services.pedagogical_duplicate_validation import (
 from app.services.pedagogical_exercise_integrity_validation import (
     validate_exercise_integrity,
 )
+from app.services.pedagogical_lesson_metadata_validation import (
+    validate_lesson_metadata_integrity,
+)
 from app.services.pedagogical_content_text_integrity_validation import (
     validate_content_text_integrity,
 )
@@ -344,6 +347,7 @@ def validate_pedagogical_candidate(
     """
     findings = [
         *validate_unit_lesson_structure(candidate),
+        *validate_lesson_metadata_integrity(candidate),
         *validate_skill_stage_coverage(candidate),
         *validate_internal_references(candidate),
         *validate_evaluation_skill_links(candidate),
