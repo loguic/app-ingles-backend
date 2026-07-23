@@ -1239,3 +1239,57 @@ Fecha: 2026-07-23
 
 - La integridad determinista de ejercicios quedó implementada, probada y publicada.
 - La publicación de esta documentación y la verificación final de Git forman parte del cierre operativo.
+
+## B113 — Integridad determinista textual y de pronunciaciones
+
+Fecha: 2026-07-23
+
+### Objetivo
+
+- Validar la integridad mínima de los textos pedagógicos y de las pronunciaciones del contenido candidato.
+
+### Implementación
+
+- Se creó `app/services/pedagogical_content_text_integrity_validation.py`.
+- Se implementó `validate_content_text_integrity(candidate)` sin modificar el candidato.
+- `Example.en` no puede estar vacío ni contener únicamente espacios.
+- `Conversation.title` no puede estar vacío ni contener únicamente espacios.
+- `ConversationTurn.en` no puede estar vacío ni contener únicamente espacios.
+- `ConversationChoice.en` no puede estar vacío ni contener únicamente espacios.
+- Toda pronunciación debe contener `ipa` y `audio_asset` no vacíos.
+- No puede repetirse un mismo `locale` dentro de las pronunciaciones de un ejemplo, turno o elección.
+- Los hallazgos usan `validator_id="content_text_integrity"`, severidad `error` y referencia al elemento propietario.
+- El validador se integró en `validate_pedagogical_candidate`.
+
+### Pruebas y validaciones
+
+- Se creó `tests/test_pedagogical_content_text_integrity_validation.py` con 12 pruebas.
+- Se cubrieron ejemplos, conversaciones, turnos, elecciones y pronunciaciones válidas e inválidas.
+- Se validaron `ipa`, `audio_asset` y locales duplicados.
+- Se comprobó que la validación no modifica el candidato.
+- Se añadió una prueba de integración con el agregador principal.
+- Suite backend completa: `156 passed`.
+- Compilación Python: correcta.
+- Control de separaciones excesivas: correcto.
+- `git diff --check`: sin errores.
+
+### Límites respetados
+
+- El esquema conversacional conserva la responsabilidad sobre rutas, ciclos, destinos y estructura del grafo.
+- B108 conserva la responsabilidad sobre la existencia de recursos de audio.
+- B111 conserva la responsabilidad sobre formatos y jerarquía de identificadores.
+- No se validaron todavía traducciones opcionales `es` ni `context`.
+- No se modificaron los esquemas generales de contenido.
+- No se modificó el contenido pedagógico activo.
+- No se incorporaron agentes, MCP ni herramientas externas.
+
+### Cierre técnico
+
+- Commit técnico: `abc4455` — `B113 validar integridad textual y pronunciaciones`.
+- Push completado a `origin/master`.
+- Repositorio técnico confirmado limpio y sincronizado antes del cierre documental.
+
+### Cierre de B113
+
+- La integridad determinista textual y de pronunciaciones quedó implementada, probada y publicada.
+- La publicación de esta documentación y la verificación final de Git forman parte del cierre operativo.
