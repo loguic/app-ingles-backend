@@ -1344,3 +1344,58 @@ Fecha: 2026-07-23
 
 - La integridad estructural determinista de unidad y lecciones quedó implementada, probada y publicada.
 - La publicación de esta documentación y la verificación final de Git forman parte del cierre operativo.
+
+## B115 — Integridad de metadatos de lección
+
+Fecha: 2026-07-23
+
+### Objetivo
+
+- Validar de forma determinista la integridad de `objective`, `vocabulary` y `grammar` en cada lección candidata.
+
+### Implementación
+
+- Se creó `app/services/pedagogical_lesson_metadata_validation.py`.
+- Se implementó `validate_lesson_metadata_integrity(candidate)` sin modificar el candidato.
+- `Lesson.objective` continúa siendo opcional.
+- Si `objective` está presente, no puede estar vacío ni contener únicamente espacios.
+- `vocabulary` y `grammar` pueden continuar como listas vacías.
+- Sus entradas no pueden estar vacías ni contener únicamente espacios.
+- No se permiten entradas equivalentes duplicadas dentro de cada lista.
+- La comparación reutiliza `normalize_candidate_text`, ignorando mayúsculas, espacios exteriores y espacios internos repetidos.
+- Los hallazgos usan `validator_id="lesson_metadata_integrity"`, severidad `error` y referencia a la lección afectada.
+- El validador se integró en `validate_pedagogical_candidate`.
+
+### Pruebas y validaciones
+
+- Se creó `tests/test_pedagogical_lesson_metadata_validation.py`.
+- Se añadieron 9 pruebas específicas.
+- Se cubrieron objetivo ausente, objetivo vacío, entradas vacías y duplicadas de vocabulario y gramática.
+- Se comprobó que la validación no modifica el candidato.
+- Se añadió una prueba de integración con el agregador principal.
+- Pruebas específicas B115: `9 passed`.
+- Suite backend completa: `171 passed`.
+- Compilación Python: correcta.
+- Control de separaciones excesivas: correcto.
+- `git diff --check`: sin errores.
+
+### Límites respetados
+
+- No se hizo obligatorio `Lesson.objective`.
+- No se exigió que `vocabulary` ni `grammar` tengan elementos.
+- No se evaluó la corrección lingüística o pedagógica de sus textos.
+- No se implementó comparación semántica.
+- No se modificaron los esquemas Pydantic.
+- No se modificó el contenido pedagógico activo.
+- No se incorporaron agentes, inteligencia artificial ni MCP.
+
+### Cierre técnico
+
+- Commit técnico: `d3d6e3f` — `B115 validar metadatos de lecciones`.
+- Push completado a `origin/master`.
+- Repositorio técnico confirmado limpio y sincronizado antes del cierre documental.
+
+### Cierre de B115
+
+- La integridad determinista de metadatos de lección quedó implementada, probada y publicada.
+- La publicación de esta documentación y la verificación final de Git forman parte del cierre operativo.
