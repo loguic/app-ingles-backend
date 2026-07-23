@@ -903,8 +903,60 @@ Fecha: 2026-07-22
 - Push completado a `origin/master`.
 - Repositorio técnico confirmado limpio y sincronizado antes del cierre documental.
 
-### Cierre documental de B106
+### Cierre final de B106
 
 - La entrada documental y la corrección final de B105 fueron revisadas.
-- Esta bitácora se versionará mediante un commit documental separado.
-- El cierre definitivo requerirá publicar ese commit y confirmar el repositorio limpio y sincronizado.
+- Commit documental: `35b1c99` — `docs cerrar B106 en bitacora`.
+- Push completado a `origin/master`.
+- Repositorio confirmado limpio y sincronizado.
+
+## B107 — Motor determinista de validación pedagógica
+
+Fecha: 2026-07-23
+
+### Objetivo
+
+- Implementar validadores pedagógicos automáticos y reproducibles sobre paquetes candidatos.
+- Reutilizar los contratos de B106 sin duplicar las validaciones estructurales de Pydantic.
+- Rechazar o dejar pendiente cualquier candidato con cobertura, referencias o evidencias incoherentes.
+
+### Implementación
+
+- Se creó `app/services/pedagogical_validation_service.py` siguiendo el patrón funcional de `app/services/`.
+- Se implementó la validación de etapas obligatorias por Skill: introducción, práctica, aplicación, evaluación y consolidación.
+- Se implementó la validación de referencias internas contra lecciones, ejemplos, conversaciones y ejercicios del candidato.
+- Se comprobó que cada ejercicio usado como evidencia incluya el Skill evaluado en `skill_ids`.
+- Se evitó duplicar hallazgos cuando una evidencia de evaluación referencia un elemento inexistente.
+- Se validaron los estados de cobertura `complete`, `incomplete` y `pending_approval`.
+- El informe global devuelve `passed`, `pending` o `failed`, dando prioridad a los errores sobre las advertencias.
+- El servicio no lee ni escribe archivos y no modifica el contenido pedagógico activo.
+
+### Pruebas y validaciones
+
+- Se creó `tests/test_pedagogical_validation_service.py`.
+- Pruebas específicas del motor: `17 passed`.
+- Suite backend completa: `73 passed`.
+- Compilación Python de servicio y pruebas: correcta.
+- Control de separaciones excesivas: correcto.
+- `git diff --check`: sin errores.
+
+### Commits técnicos
+
+- `39b51b9` — `B107 validar cobertura de etapas pedagogicas`.
+- `58a00ea` — `B107 validar referencias internas pedagogicas`.
+- `bd278ad` — `B107 validar vinculo entre evaluacion y Skill`.
+- `507e86f` — `B107 validar estado de cobertura pedagogica`.
+- Todos los commits fueron publicados en `origin/master`.
+
+### Límites respetados
+
+- No se modificó `content/content_tree.json`.
+- No se generó ni integró contenido para A1-U1.
+- No se implementaron agentes, MCP ni acceso a herramientas externas.
+- Los validadores adicionales de recursos, duplicados y límites de contenido quedan para bloques posteriores separados.
+
+### Cierre de B107
+
+- El motor determinista quedó implementado, probado y publicado.
+- Esta entrada constituye el cierre documental de B107.
+- La publicación de esta documentación y la verificación de Git limpio forman parte del cierre operativo del bloque.
