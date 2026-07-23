@@ -1072,3 +1072,64 @@ Fecha: 2026-07-23
 - La detección determinista de opciones equivalentes quedó implementada, probada y publicada.
 - Esta entrada constituye el cierre documental de B109.
 - La publicación de esta documentación y la verificación de Git limpio forman parte del cierre operativo del bloque.
+
+## B110 — Validación determinista de límites cuantitativos de contenido
+
+Fecha: 2026-07-23
+
+### Objetivo
+
+- Representar límites cuantitativos aprobados mediante un contrato estructurado.
+- Validar de forma determinista las cantidades del contenido candidato.
+- Aplicar únicamente los límites declarados por cada especificación pedagógica.
+
+### Decisiones técnicas
+
+- Se creó `ContentLimits` con campos opcionales para mínimos y máximos.
+- No existen umbrales universales codificados por nivel CEFR.
+- Cada mínimo declarado debe ser menor o igual que su máximo correspondiente.
+- Los límites narrativos de dificultad continúan en `content_constraints` y no se interpretan automáticamente.
+- El validador cuantitativo se implementó en un módulo aislado.
+
+### Implementación
+
+- Se amplió `PedagogicalUnitSpecification` con `content_limits` y un valor vacío compatible con especificaciones anteriores.
+- Se validan cantidades mínimas y máximas de lecciones por unidad.
+- Se validan ejemplos, conversaciones y ejercicios por lección.
+- Se validan opciones por ejercicio y turnos por conversación.
+- Cada incumplimiento genera un hallazgo `content_limits` con severidad `error` y referencia al elemento afectado.
+- El validador se integró en `validate_pedagogical_candidate`.
+- El candidato no se modifica durante la validación.
+
+### Pruebas y validaciones
+
+- Se creó `tests/test_pedagogical_content_limits_schema.py`.
+- Se creó `tests/test_pedagogical_content_limits_validation.py`.
+- Pruebas del contrato: `21 passed`.
+- Pruebas del contrato y esquema pedagógico: `42 passed`.
+- Pruebas específicas e integradas de B110: `56 passed`.
+- Suite backend completa: `120 passed`.
+- Compilación Python de esquemas, servicios y pruebas: correcta.
+- Control de separaciones excesivas: correcto.
+- `git diff --check`: sin errores.
+
+### Cierre técnico
+
+- Commit técnico: `8c8f1dc` — `B110 validar limites cuantitativos de contenido`.
+- Push completado a `origin/master`.
+- Repositorio técnico confirmado limpio y sincronizado antes del cierre documental.
+
+### Límites respetados
+
+- No se implementó análisis de dificultad lingüística.
+- No se validó longitud de frases ni cantidad de palabras.
+- No se añadió similitud semántica ni repetición entre contextos pedagógicos.
+- No se definieron umbrales universales por nivel CEFR.
+- No se modificó el contenido pedagógico activo.
+- No se incorporaron agentes, MCP ni herramientas externas.
+
+### Cierre de B110
+
+- El contrato y la validación determinista de límites cuantitativos quedaron implementados, probados y publicados.
+- Esta entrada constituye el cierre documental de B110.
+- La publicación de esta documentación y la verificación de Git limpio forman parte del cierre operativo del bloque.
