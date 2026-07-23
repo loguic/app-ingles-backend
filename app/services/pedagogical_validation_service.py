@@ -19,6 +19,9 @@ from app.services.pedagogical_duplicate_validation import (
 from app.services.pedagogical_exercise_integrity_validation import (
     validate_exercise_integrity,
 )
+from app.services.pedagogical_content_text_integrity_validation import (
+    validate_content_text_integrity,
+)
 
 
 def _has_required_stage(
@@ -344,6 +347,7 @@ def validate_pedagogical_candidate(
         *validate_required_resource_inventory(candidate),
         *validate_duplicate_exercise_options(candidate),
         *validate_exercise_integrity(candidate),
+        *validate_content_text_integrity(candidate),
         *validate_content_limits(candidate),
         *validate_content_identifiers(candidate),
     ]
