@@ -1186,3 +1186,56 @@ Fecha: 2026-07-23
 - La integridad determinista de identificadores quedó implementada, probada y publicada.
 - Esta entrada constituye el cierre documental de B111.
 - La publicación de esta documentación y la verificación de Git limpio forman parte del cierre operativo del bloque.
+
+## B112 — Integridad determinista de ejercicios
+
+Fecha: 2026-07-23
+
+### Objetivo
+
+- Validar que cada ejercicio de opción múltiple sea utilizable, resoluble y esté vinculado con Skills declarados.
+
+### Implementación
+
+- Se creó `app/services/pedagogical_exercise_integrity_validation.py`.
+- Se implementó `validate_exercise_integrity(candidate)` sin modificar el candidato.
+- El `prompt` no puede estar vacío ni contener únicamente espacios.
+- Cada ejercicio debe contener al menos dos opciones.
+- Ninguna opción puede estar vacía ni contener únicamente espacios.
+- `answer_index` debe pertenecer al rango real de `options`.
+- `skill_ids` debe contener al menos un Skill.
+- No se permiten `skill_ids` duplicados dentro del mismo ejercicio.
+- Todos los `skill_ids` deben existir en `candidate.specification.skills`.
+- Los hallazgos usan `validator_id="exercise_integrity"`, severidad `error` y referencia al ejercicio.
+- El validador se integró en `validate_pedagogical_candidate`.
+
+### Pruebas y compatibilidad
+
+- Se creó `tests/test_pedagogical_exercise_integrity_validation.py` con 11 pruebas.
+- Se cubrieron ejercicios válidos, prompts vacíos, opciones insuficientes o vacías, índices inválidos y relaciones con Skills.
+- Se comprobó que la validación no modifica el candidato.
+- Se añadió una prueba de integración con el agregador principal.
+- Se adaptó una prueba anterior para filtrar su hallazgo `evaluation_skill_link` sin asumir que el informe completo contiene un único error.
+- Suite backend completa: `144 passed`.
+- Compilación Python: correcta.
+- Control de separaciones excesivas: correcto.
+- `git diff --check`: sin errores.
+
+### Límites respetados
+
+- B109 conserva la responsabilidad sobre opciones textualmente equivalentes.
+- B110 conserva la responsabilidad sobre límites cuantitativos configurables.
+- No se modificaron los esquemas generales de contenido.
+- No se modificó el contenido pedagógico activo.
+- No se incorporaron agentes, MCP ni herramientas externas.
+
+### Cierre técnico
+
+- Commit técnico: `7f82778` — `B112 validar integridad de ejercicios`.
+- Push completado a `origin/master`.
+- Repositorio técnico confirmado limpio y sincronizado antes del cierre documental.
+
+### Cierre de B112
+
+- La integridad determinista de ejercicios quedó implementada, probada y publicada.
+- La publicación de esta documentación y la verificación final de Git forman parte del cierre operativo.
