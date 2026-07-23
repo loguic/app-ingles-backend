@@ -1293,3 +1293,54 @@ Fecha: 2026-07-23
 
 - La integridad determinista textual y de pronunciaciones quedó implementada, probada y publicada.
 - La publicación de esta documentación y la verificación final de Git forman parte del cierre operativo.
+
+## B114 — Integridad estructural de unidad y lecciones
+
+Fecha: 2026-07-23
+
+### Objetivo
+
+- Detectar de forma determinista estructuras inválidas en la unidad candidata y sus lecciones.
+
+### Implementación
+
+- Se creó `app/services/pedagogical_unit_lesson_structure_validation.py`.
+- Se implementó `validate_unit_lesson_structure(candidate)` sin modificar el candidato.
+- `Unit.title` no puede estar vacío ni contener únicamente espacios.
+- La unidad candidata debe contener al menos una lección.
+- `Lesson.title` no puede estar vacío ni contener únicamente espacios.
+- Los hallazgos usan `validator_id="unit_lesson_structure_integrity"`, severidad `error` y referencias a la unidad o lección afectada.
+- El validador se integró en `validate_pedagogical_candidate`.
+
+### Pruebas y validaciones
+
+- Se creó `tests/test_pedagogical_unit_lesson_structure_validation.py` con 6 pruebas.
+- Se cubrieron unidad válida, título de unidad vacío, unidad sin lecciones y título de lección vacío.
+- Se comprobó que la validación no modifica el candidato.
+- Se añadió una prueba de integración con el agregador principal.
+- Pruebas específicas B114: `6 passed`.
+- Suite backend completa: `162 passed`.
+- Compilación Python: correcta.
+- Control de separaciones excesivas: correcto.
+- `git diff --check`: sin errores.
+
+### Límites respetados
+
+- No se hizo obligatorio `Lesson.objective`.
+- No se exigió contenido en `vocabulary` ni `grammar`.
+- No se implementó validación semántica de `learner_outcome` ni de los campos `*_scope`.
+- No se modificaron los esquemas Pydantic.
+- No se modificó el contenido pedagógico activo.
+- Los hallazgos existentes de referencias internas se conservaron.
+- No se incorporaron agentes, MCP ni herramientas externas.
+
+### Cierre técnico
+
+- Commit técnico: `1db6c6e` — `B114 validar estructura de unidad y lecciones`.
+- Push completado a `origin/master`.
+- Repositorio técnico confirmado limpio y sincronizado antes del cierre documental.
+
+### Cierre de B114
+
+- La integridad estructural determinista de unidad y lecciones quedó implementada, probada y publicada.
+- La publicación de esta documentación y la verificación final de Git forman parte del cierre operativo.
