@@ -104,6 +104,48 @@ class SkillSpecification(BaseModel):
     # Etapas explícitas que deberá cubrir la unidad generada.
     required_stages: list[SkillStage] = Field(min_length=1)
 
+class ContentLimits(BaseModel):
+    """Define optional quantitative limits for candidate content.
+
+    Define límites cuantitativos opcionales para el contenido candidato.
+    """
+
+    min_lessons: int | None = Field(default=None, ge=0)
+    max_lessons: int | None = Field(default=None, ge=0)
+    min_examples_per_lesson: int | None = Field(default=None, ge=0)
+    max_examples_per_lesson: int | None = Field(default=None, ge=0)
+    min_conversations_per_lesson: int | None = Field(default=None, ge=0)
+    max_conversations_per_lesson: int | None = Field(default=None, ge=0)
+    min_exercises_per_lesson: int | None = Field(default=None, ge=0)
+    max_exercises_per_lesson: int | None = Field(default=None, ge=0)
+    min_options_per_exercise: int | None = Field(default=None, ge=0)
+    max_options_per_exercise: int | None = Field(default=None, ge=0)
+    min_turns_per_conversation: int | None = Field(default=None, ge=0)
+    max_turns_per_conversation: int | None = Field(default=None, ge=0)
+
+    @model_validator(mode="after")
+    def validate_limit_pairs(self) -> "ContentLimits":
+        """Keep every declared minimum below its maximum.
+
+        Mantiene cada mínimo declarado por debajo de su máximo.
+        """
+        pairs = [
+            ("min_lessons", "max_lessons"),
+            ("min_examples_per_lesson", "max_examples_per_lesson"),
+            ("min_conversations_per_lesson", "max_conversations_per_lesson"),
+            ("min_exercises_per_lesson", "max_exercises_per_lesson"),
+            ("min_options_per_exercise", "max_options_per_exercise"),
+            ("min_turns_per_conversation", "max_turns_per_conversation"),
+        ]
+
+        for minimum_field, maximum_field in pairs:
+            minimum = getattr(self, minimum_field)
+            maximum = getattr(self, maximum_field)
+            if minimum is not None and maximum is not None and minimum > maximum:
+                raise ValueError("minimum cannot exceed maximum")
+
+        return self
+
 class PedagogicalUnitSpecification(BaseModel):
     """Define the approved input contract for one complete unit.
 
@@ -125,6 +167,7 @@ class PedagogicalUnitSpecification(BaseModel):
     language_scope: list[str] = Field(min_length=1)
     pronunciation_scope: list[str] = Field(min_length=1)
     content_constraints: list[str] = Field(min_length=1)
+    content_limits: ContentLimits = Field(default_factory=ContentLimits)
     technical_constraints: list[str] = Field(min_length=1)
     acceptance_criteria: list[str] = Field(min_length=1)
 
