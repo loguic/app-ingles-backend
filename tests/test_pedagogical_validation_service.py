@@ -259,6 +259,59 @@ def test_unknown_evaluation_evidence_is_not_reported_twice():
     )
 
 
+@pytest.mark.parametrize(
+    ("coverage_status", "expected_status", "severity"),
+    [
+        ("incomplete", "failed", "error"),
+        ("pending_approval", "pending", "warning"),
+    ],
+)
+def test_non_complete_coverage_status_changes_report(
+    coverage_status,
+    expected_status,
+    severity,
+):
+    """Reflect non-complete Skill coverage in the validation report.
+
+    Refleja coberturas no completas en el informe de validación.
+    """
+    payload = deepcopy(build_candidate_payload())
+    payload["skill_coverage"][0]["status"] = coverage_status
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    report = validate_pedagogical_candidate(candidate)
+
+    assert report.status == expected_status
+    assert len(report.findings) == 1
+
+    finding = report.findings[0]
+    assert finding.validator_id == "skill_coverage_status"
+    assert finding.severity == severity
+    assert finding.reference_ids == ["a1_introduce_yourself"]
+    assert finding.message == (
+        "Skill a1_introduce_yourself coverage status is "
+        f"{coverage_status}."
+    )
+
+
+def test_validation_error_has_priority_over_warning():
+    """Keep the global report failed when errors and warnings coexist.
+
+    Mantiene el informe en failed cuando coexisten errores y advertencias.
+    """
+    payload = deepcopy(build_candidate_payload())
+    payload["skill_coverage"][0]["status"] = "pending_approval"
+    payload["skill_coverage"][0]["practice_activity_ids"] = []
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    report = validate_pedagogical_candidate(candidate)
+
+    assert report.status == "failed"
+    assert [finding.severity for finding in report.findings] == [
+        "error",
+        "warning",
+    ]
+
 def test_validation_recalculates_candidate_report():
     """Return a new report instead of trusting the stored candidate report.
 

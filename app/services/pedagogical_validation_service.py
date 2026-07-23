@@ -29,7 +29,6 @@ def _has_required_stage(
     raise AssertionError(f"Unsupported Skill stage: {stage}")
 
 
-
 def _collect_candidate_reference_ids(
     candidate: PedagogicalUnitCandidate,
 ) -> tuple[set[str], set[str], set[str], set[str]]:
@@ -177,6 +176,39 @@ def validate_evaluation_skill_links(
     return findings
 
 
+def validate_skill_coverage_status(
+    candidate: PedagogicalUnitCandidate,
+) -> list[ValidationFinding]:
+    """Validate the declared status of every Skill coverage record.
+
+    Valida el estado declarado de cada registro de cobertura de Skill.
+    """
+    findings: list[ValidationFinding] = []
+
+    for coverage in candidate.skill_coverage:
+        if coverage.status == "complete":
+            continue
+
+        severity = (
+            "error"
+            if coverage.status == "incomplete"
+            else "warning"
+        )
+        findings.append(
+            ValidationFinding(
+                validator_id="skill_coverage_status",
+                severity=severity,
+                message=(
+                    f"Skill {coverage.skill_id} coverage status is "
+                    f"{coverage.status}."
+                ),
+                reference_ids=[coverage.skill_id],
+            )
+        )
+
+    return findings
+
+
 def validate_skill_stage_coverage(
     candidate: PedagogicalUnitCandidate,
 ) -> list[ValidationFinding]:
@@ -222,7 +254,14 @@ def validate_pedagogical_candidate(
         *validate_skill_stage_coverage(candidate),
         *validate_internal_references(candidate),
         *validate_evaluation_skill_links(candidate),
+        *validate_skill_coverage_status(candidate),
     ]
-    status = "failed" if findings else "passed"
+
+    if any(finding.severity == "error" for finding in findings):
+        status = "failed"
+    elif any(finding.severity == "warning" for finding in findings):
+        status = "pending"
+    else:
+        status = "passed"
 
     return ValidationReport(status=status, findings=findings)
