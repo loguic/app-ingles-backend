@@ -254,11 +254,16 @@ def test_evaluation_evidence_requires_skill_link():
 
     report = validate_pedagogical_candidate(candidate)
 
-    assert report.status == "failed"
-    assert len(report.findings) == 1
+    evaluation_findings = [
+        finding
+        for finding in report.findings
+        if finding.validator_id == "evaluation_skill_link"
+    ]
 
-    finding = report.findings[0]
-    assert finding.validator_id == "evaluation_skill_link"
+    assert report.status == "failed"
+    assert len(evaluation_findings) == 1
+
+    finding = evaluation_findings[0]
     assert finding.severity == "error"
     assert finding.reference_ids == [
         "a1_introduce_yourself",

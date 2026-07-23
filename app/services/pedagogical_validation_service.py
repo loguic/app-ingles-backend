@@ -16,6 +16,9 @@ from app.schemas.pedagogical_unit import (
 from app.services.pedagogical_duplicate_validation import (
     validate_duplicate_exercise_options,
 )
+from app.services.pedagogical_exercise_integrity_validation import (
+    validate_exercise_integrity,
+)
 
 
 def _has_required_stage(
@@ -340,6 +343,7 @@ def validate_pedagogical_candidate(
         *validate_skill_coverage_status(candidate),
         *validate_required_resource_inventory(candidate),
         *validate_duplicate_exercise_options(candidate),
+        *validate_exercise_integrity(candidate),
         *validate_content_limits(candidate),
         *validate_content_identifiers(candidate),
     ]
