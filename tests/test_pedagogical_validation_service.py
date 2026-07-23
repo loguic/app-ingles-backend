@@ -57,7 +57,43 @@ def build_candidate_payload() -> dict:
         "candidate_unit": {
             "id": "a1-u1",
             "title": "Meeting people",
-            "lessons": [],
+            "lessons": [
+                {
+                    "id": "a1-u1-l1",
+                    "title": "Introduce yourself",
+                    "examples": [
+                        {
+                            "id": "a1-u1-l1-e1",
+                            "en": "Hello, I am Ana.",
+                        }
+                    ],
+                    "conversations": [
+                        {
+                            "id": "a1-u1-l1-c1",
+                            "title": "Meeting someone",
+                            "turns": [],
+                        }
+                    ],
+                    "exercises": [
+                        {
+                            "id": "a1-u1-l1-q1",
+                            "prompt": "Choose the introduction.",
+                            "options": [
+                                "Hello, I am Ana.",
+                                "Goodbye.",
+                            ],
+                            "answer_index": 0,
+                            "skill_ids": [
+                                "a1_introduce_yourself"
+                            ],
+                        }
+                    ],
+                },
+                {
+                    "id": "a1-u1-l2",
+                    "title": "Consolidate introductions",
+                },
+            ],
         },
         "skill_coverage": [
             {
@@ -66,7 +102,7 @@ def build_candidate_payload() -> dict:
                 "practice_activity_ids": ["a1-u1-l1-e1"],
                 "application_activity_ids": ["a1-u1-l1-c1"],
                 "evaluation_evidence_ids": ["a1-u1-l1-q1"],
-                "consolidation_activity_ids": ["a1-u1-l2-c1"],
+                "consolidation_activity_ids": ["a1-u1-l2"],
                 "modalities": ["listening", "speaking"],
                 "status": "complete",
             }
@@ -133,6 +169,46 @@ def test_missing_required_stage_fails_validation(
         f"lacks required stage: {stage}."
     )
 
+
+@pytest.mark.parametrize(
+    ("field", "unknown_value", "reference_id"),
+    [
+        ("introduced_in_lesson_id", "a1-u1-l9", "a1-u1-l9"),
+        ("practice_activity_ids", ["a1-u1-l1-e9"], "a1-u1-l1-e9"),
+        ("application_activity_ids", ["a1-u1-l1-c9"], "a1-u1-l1-c9"),
+        ("evaluation_evidence_ids", ["a1-u1-l1-q9"], "a1-u1-l1-q9"),
+        ("consolidation_activity_ids", ["a1-u1-l9"], "a1-u1-l9"),
+    ],
+)
+def test_unknown_internal_reference_fails_validation(
+    field,
+    unknown_value,
+    reference_id,
+):
+    """Reject references absent from the isolated candidate unit.
+
+    Rechaza referencias ausentes en la unidad candidata aislada.
+    """
+    payload = deepcopy(build_candidate_payload())
+    payload["skill_coverage"][0][field] = unknown_value
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    report = validate_pedagogical_candidate(candidate)
+
+    assert report.status == "failed"
+    assert len(report.findings) == 1
+
+    finding = report.findings[0]
+    assert finding.validator_id == "internal_reference_integrity"
+    assert finding.severity == "error"
+    assert finding.reference_ids == [
+        "a1_introduce_yourself",
+        reference_id,
+    ]
+    assert finding.message == (
+        "Skill a1_introduce_yourself references unknown "
+        f"{field}: {reference_id}."
+    )
 
 def test_validation_recalculates_candidate_report():
     """Return a new report instead of trusting the stored candidate report.

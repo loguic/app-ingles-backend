@@ -29,6 +29,111 @@ def _has_required_stage(
     raise AssertionError(f"Unsupported Skill stage: {stage}")
 
 
+
+def _collect_candidate_reference_ids(
+    candidate: PedagogicalUnitCandidate,
+) -> tuple[set[str], set[str], set[str], set[str]]:
+    """Collect stable references available inside the candidate unit.
+
+    Recopila las referencias estables disponibles en la unidad candidata.
+    """
+    lesson_ids = {
+        lesson.id
+        for lesson in candidate.candidate_unit.lessons
+    }
+    example_ids = {
+        example.id
+        for lesson in candidate.candidate_unit.lessons
+        for example in lesson.examples
+    }
+    conversation_ids = {
+        conversation.id
+        for lesson in candidate.candidate_unit.lessons
+        for conversation in lesson.conversations
+    }
+    exercise_ids = {
+        exercise.id
+        for lesson in candidate.candidate_unit.lessons
+        for exercise in lesson.exercises
+    }
+
+    return lesson_ids, example_ids, conversation_ids, exercise_ids
+
+
+def validate_internal_references(
+    candidate: PedagogicalUnitCandidate,
+) -> list[ValidationFinding]:
+    """Reject Skill coverage references absent from the candidate unit.
+
+    Rechaza referencias de cobertura ausentes en la unidad candidata.
+    """
+    (
+        lesson_ids,
+        example_ids,
+        conversation_ids,
+        exercise_ids,
+    ) = _collect_candidate_reference_ids(candidate)
+
+    activity_ids = example_ids | conversation_ids | exercise_ids
+    consolidation_ids = lesson_ids | activity_ids
+    findings: list[ValidationFinding] = []
+
+    for coverage in candidate.skill_coverage:
+        reference_groups = [
+            (
+                "introduced_in_lesson_id",
+                (
+                    [coverage.introduced_in_lesson_id]
+                    if coverage.introduced_in_lesson_id is not None
+                    else []
+                ),
+                lesson_ids,
+            ),
+            (
+                "practice_activity_ids",
+                coverage.practice_activity_ids,
+                activity_ids,
+            ),
+            (
+                "application_activity_ids",
+                coverage.application_activity_ids,
+                conversation_ids,
+            ),
+            (
+                "evaluation_evidence_ids",
+                coverage.evaluation_evidence_ids,
+                exercise_ids,
+            ),
+            (
+                "consolidation_activity_ids",
+                coverage.consolidation_activity_ids,
+                consolidation_ids,
+            ),
+        ]
+
+        for field_name, reference_ids, available_ids in reference_groups:
+            for reference_id in reference_ids:
+                if reference_id in available_ids:
+                    continue
+
+                findings.append(
+                    ValidationFinding(
+                        validator_id="internal_reference_integrity",
+                        severity="error",
+                        message=(
+                            f"Skill {coverage.skill_id} references unknown "
+                            f"{field_name}: {reference_id}."
+                        ),
+                        reference_ids=[
+                            coverage.skill_id,
+                            reference_id,
+                        ],
+                    )
+                )
+
+    return findings
+
+
 def validate_skill_stage_coverage(
     candidate: PedagogicalUnitCandidate,
 ) -> list[ValidationFinding]:
@@ -70,7 +175,10 @@ def validate_pedagogical_candidate(
 
     Ejecuta los validadores deterministas implementados para el candidato.
     """
-    findings = validate_skill_stage_coverage(candidate)
+    findings = [
+        *validate_skill_stage_coverage(candidate),
+        *validate_internal_references(candidate),
+    ]
     status = "failed" if findings else "passed"
 
     return ValidationReport(status=status, findings=findings)
