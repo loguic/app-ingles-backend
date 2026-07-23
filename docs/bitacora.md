@@ -1014,3 +1014,61 @@ Fecha: 2026-07-23
 - El inventario lógico de recursos quedó implementado, probado y publicado.
 - Esta entrada constituye el cierre documental de B108.
 - La publicación de esta documentación y la verificación de Git limpio forman parte del cierre operativo del bloque.
+
+## B109 — Detección determinista de duplicados exactos
+
+Fecha: 2026-07-23
+
+### Objetivo
+
+- Detectar opciones equivalentes dentro de un mismo ejercicio de selección.
+- Aplicar una comparación determinista sin modificar el paquete candidato.
+- Evitar falsos positivos entre ejercicios distintos y entre contextos pedagógicos diferentes.
+
+### Decisiones técnicas
+
+- El primer incremento de B109 se limita a duplicados inequívocos dentro del mismo ejercicio.
+- No se detecta todavía similitud semántica porque no existe un umbral aprobado.
+- Una frase repetida entre ejemplos y conversaciones no se considera automáticamente duplicada.
+- La normalización utiliza `casefold()` y la reducción de espacios adicionales.
+- El validador se implementó en un módulo aislado para no ampliar innecesariamente el servicio principal.
+
+### Implementación
+
+- Se creó `app/services/pedagogical_duplicate_validation.py`.
+- Se implementó `normalize_candidate_text(value)`.
+- Se implementó `validate_duplicate_exercise_options(candidate)`.
+- Cada grupo equivalente genera un único hallazgo con los índices de las opciones afectadas.
+- El hallazgo utiliza `validator_id="duplicate_exercise_options"`, severidad `error` y referencia al ejercicio.
+- El nuevo validador se integró en `validate_pedagogical_candidate`.
+- El candidato no se modifica durante la validación.
+
+### Pruebas y validaciones
+
+- Se creó `tests/test_pedagogical_duplicate_validation.py`.
+- Pruebas específicas de B109: `8 passed`.
+- Pruebas conjuntas del motor pedagógico: `27 passed`.
+- Suite backend completa: `84 passed`.
+- Compilación Python de módulos y pruebas: correcta.
+- Control de separaciones excesivas: correcto.
+- `git diff --check`: sin errores.
+
+### Cierre técnico
+
+- Commit técnico: `90a2311` — `B109 detectar opciones duplicadas exactas`.
+- Push completado a `origin/master`.
+- Repositorio técnico confirmado limpio y sincronizado antes del cierre documental.
+
+### Límites respetados
+
+- No se modificó el contenido pedagógico activo.
+- No se implementó detección de similitud semántica.
+- No se compararon automáticamente ejemplos y conversaciones.
+- No se reformaron ni movieron los validadores anteriores.
+- No se incorporaron agentes, MCP ni herramientas externas.
+
+### Cierre de B109
+
+- La detección determinista de opciones equivalentes quedó implementada, probada y publicada.
+- Esta entrada constituye el cierre documental de B109.
+- La publicación de esta documentación y la verificación de Git limpio forman parte del cierre operativo del bloque.
