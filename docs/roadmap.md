@@ -116,6 +116,15 @@ Estado pedagógico actual:
 - 2 conversaciones con 9 turnos;
 - el contenido actual todavía no constituye una versión pedagógica suficientemente utilizable.
 
+Constructor Pedagógico de Unidades:
+
+- B105 cerrado: arquitectura profesional, contratos de entrada y salida, matriz de cobertura, revisión humana y preparación futura para MCP.
+- B106 cerrado: contratos deterministas para Skills, especificaciones, cobertura, paquetes candidatos e informes de validación.
+- B107 cerrado: motor determinista para etapas obligatorias, referencias internas, vínculo entre evaluación y `skill_ids`, y estados de cobertura.
+- El contenido candidato permanece separado del contenido pedagógico activo.
+- Los validadores de recursos, duplicados y límites de contenido se implementarán en bloques posteriores separados y trazables.
+- El agente orquestador y MCP no están implementados y no se incorporarán antes de confirmar una necesidad real.
+
 Evolución prevista:
 
 - reconocimiento de voz y palabras;
