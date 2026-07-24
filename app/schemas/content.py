@@ -353,6 +353,204 @@ class LessonExperience(BaseModel):
     evidence_definitions: List[EvidenceDefinition] = Field(min_length=1)
     completion_policy: CompletionPolicy
 
+    @model_validator(mode="after")
+    def validate_internal_integrity(self) -> "LessonExperience":
+        # Validate the relationships owned by this aggregate.
+        # Valida las relaciones pertenecientes a este agregado.
+
+        def reject_duplicates(label: str, values: List[str]) -> None:
+            seen: set[str] = set()
+            duplicates: set[str] = set()
+
+            for value in values:
+                if value in seen:
+                    duplicates.add(value)
+                else:
+                    seen.add(value)
+
+            if duplicates:
+                raise ValueError(
+                    label
+                    + " must be unique: "
+                    + ", ".join(sorted(duplicates))
+                )
+
+        reject_duplicates(
+            "LessonExperience skill_ids",
+            self.skill_ids,
+        )
+
+        stage_ids = [stage.id for stage in self.stages]
+        support_ids = [item.id for item in self.language_support]
+        evidence_ids = [
+            evidence.id
+            for evidence in self.evidence_definitions
+        ]
+
+        reject_duplicates(
+            "LessonExperience stage IDs",
+            stage_ids,
+        )
+        reject_duplicates(
+            "Language support IDs",
+            support_ids,
+        )
+        reject_duplicates(
+            "Evidence definition IDs",
+            evidence_ids,
+        )
+
+        stage_id_set = set(stage_ids)
+        skill_id_set = set(self.skill_ids)
+        evidence_id_set = set(evidence_ids)
+        stages_by_id = {
+            stage.id: stage
+            for stage in self.stages
+        }
+
+        for item in self.language_support:
+            reject_duplicates(
+                "Language support "
+                + item.id
+                + " stage_ids",
+                item.stage_ids,
+            )
+
+            unknown_stage_ids = sorted(
+                set(item.stage_ids) - stage_id_set
+            )
+            if unknown_stage_ids:
+                raise ValueError(
+                    "Language support "
+                    + item.id
+                    + " references unknown stages: "
+                    + ", ".join(unknown_stage_ids)
+                )
+
+        for evidence in self.evidence_definitions:
+            reject_duplicates(
+                "Evidence "
+                + evidence.id
+                + " skill_ids",
+                evidence.skill_ids,
+            )
+
+            unknown_skill_ids = sorted(
+                set(evidence.skill_ids) - skill_id_set
+            )
+            if unknown_skill_ids:
+                raise ValueError(
+                    "Evidence "
+                    + evidence.id
+                    + " references unknown Skills: "
+                    + ", ".join(unknown_skill_ids)
+                )
+
+            if evidence.stage_id not in stage_id_set:
+                raise ValueError(
+                    "Evidence "
+                    + evidence.id
+                    + " references unknown stage: "
+                    + evidence.stage_id
+                )
+
+            stage = stages_by_id[evidence.stage_id]
+            if evidence.activity_id not in stage.activity_ids:
+                raise ValueError(
+                    "Evidence "
+                    + evidence.id
+                    + " activity_id must be declared by stage "
+                    + evidence.stage_id
+                    + ": "
+                    + evidence.activity_id
+                )
+
+        practiced_stage_ids = (
+            self.completion_policy.practiced_stage_ids
+        )
+        required_evidence_ids = (
+            self.completion_policy.required_evidence_ids
+        )
+
+        reject_duplicates(
+            "Completion policy practiced_stage_ids",
+            practiced_stage_ids,
+        )
+        reject_duplicates(
+            "Completion policy required_evidence_ids",
+            required_evidence_ids,
+        )
+
+        unknown_practiced_stage_ids = sorted(
+            set(practiced_stage_ids) - stage_id_set
+        )
+        if unknown_practiced_stage_ids:
+            raise ValueError(
+                "Completion policy references unknown practiced stages: "
+                + ", ".join(unknown_practiced_stage_ids)
+            )
+
+        unknown_required_evidence_ids = sorted(
+            set(required_evidence_ids) - evidence_id_set
+        )
+        if unknown_required_evidence_ids:
+            raise ValueError(
+                "Completion policy references unknown required evidence: "
+                + ", ".join(unknown_required_evidence_ids)
+            )
+
+        declared_required_ids = {
+            evidence.id
+            for evidence in self.evidence_definitions
+            if evidence.required
+        }
+        policy_required_ids = set(required_evidence_ids)
+
+        if declared_required_ids != policy_required_ids:
+            missing_ids = sorted(
+                declared_required_ids - policy_required_ids
+            )
+            unexpected_ids = sorted(
+                policy_required_ids - declared_required_ids
+            )
+            details: List[str] = []
+
+            if missing_ids:
+                details.append(
+                    "missing " + ", ".join(missing_ids)
+                )
+            if unexpected_ids:
+                details.append(
+                    "unexpected " + ", ".join(unexpected_ids)
+                )
+
+            raise ValueError(
+                "Completion policy required_evidence_ids must match "
+                "required evidence definitions: "
+                + "; ".join(details)
+            )
+
+        activity_conditions = {
+            "any_activity_completed",
+            "all_activities_completed",
+            "evidence_recorded",
+        }
+
+        for stage in self.stages:
+            if (
+                stage.completion_condition in activity_conditions
+                and not stage.activity_ids
+            ):
+                raise ValueError(
+                    "Stage "
+                    + stage.id
+                    + " with completion_condition "
+                    + stage.completion_condition
+                    + " requires at least one activity"
+                )
+
+        return self
+
 
 class ExerciseMCQ(BaseModel):
     id: str
