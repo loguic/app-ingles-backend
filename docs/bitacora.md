@@ -1799,3 +1799,76 @@ Esta separación evita que el contrato público sustituya prematuramente al proc
 La integridad externa inicial de `LessonExperience` quedó implementada, probada y publicada.
 
 El cierre operativo requiere versionar esta documentación y confirmar nuevamente Git limpio y sincronizado.
+
+## B120 — Validación de Skills de `LessonExperience`
+
+### Objetivo
+
+Validar que las Skills declaradas por `LessonExperience` existan en la especificación pedagógica aprobada de la unidad.
+
+### Fuente de verdad
+
+La fuente de verdad es `PedagogicalUnitSpecification.skills`.
+
+`Lesson`, los ejercicios y `LessonExperience` solo almacenan referencias mediante `skill_ids`; no poseen por sí mismos el catálogo aprobado.
+
+### Implementación
+
+- Se creó `pedagogical_lesson_experience_skill_validation.py`.
+- Se añadió `validate_lesson_experience_skills(candidate)`.
+- El validador recorre las lecciones candidatas que contienen `LessonExperience`.
+- Cada `experience.skill_id` se compara con las Skills declaradas en la especificación.
+- Cada Skill desconocida genera un `ValidationFinding` reproducible de severidad `error`.
+- El hallazgo usa `validator_id="lesson_experience_skills"`.
+- `reference_ids` incluye el identificador de la lección y la Skill desconocida.
+- El validador quedó integrado en `validate_pedagogical_candidate`.
+
+### Explicación técnica didáctica
+
+Esta regla pertenece al Constructor Pedagógico y no al modelo público `Lesson`.
+
+El modelo `Lesson` no dispone de la especificación completa y no puede confirmar por sí solo si una Skill existe en el catálogo aprobado.
+
+Los validadores deterministas comparan el contenido candidato con su especificación y producen `findings` que pueden revisarse antes de aprobar el contenido.
+
+B118 ya garantiza que las Skills de cada evidencia pertenezcan a `LessonExperience.skill_ids`.
+
+Por ello, validar nuevamente cada evidencia contra la especificación produciría hallazgos duplicados sin añadir detección nueva.
+
+### Pruebas
+
+- Candidato heredado sin experiencia: sin hallazgos.
+- Experiencia con Skills válidas: sin hallazgos.
+- Experiencia con Skill desconocida: un hallazgo de error.
+- Integración en el orquestador principal: informe con estado `failed`.
+- La fase roja confirmó `2 failed, 2 passed`.
+- Las pruebas específicas finales quedaron en `4 passed`.
+- La suite backend completa quedó en `206 passed`.
+
+### Validaciones finales
+
+- Compilación Python: correcta.
+- Pruebas específicas B120: `4 passed`.
+- Suite backend completa: `206 passed`.
+- `git diff --check`: correcto.
+
+### Límites respetados
+
+- No se modificó `Lesson` ni sus validadores Pydantic.
+- No se modificó `SkillSpecification`.
+- No se modificó `content_tree.json`.
+- No se modificó Flutter.
+- No se modificaron endpoints, progreso ni persistencia.
+- No se duplicó la validación de Skills de las evidencias.
+
+### Cierre técnico
+
+- Commit técnico: `1a25fda` — `B120 validar Skills de LessonExperience`.
+- Push completado a `origin/master`.
+- Repositorio confirmado limpio y sincronizado después de la publicación.
+
+### Estado de B120
+
+La validación de Skills de `LessonExperience` contra su fuente de verdad quedó implementada, probada y publicada.
+
+El cierre operativo requiere versionar esta documentación y confirmar nuevamente Git limpio y sincronizado.
