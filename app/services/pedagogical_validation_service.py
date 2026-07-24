@@ -57,7 +57,13 @@ def _has_required_stage(
 
 def _collect_candidate_reference_ids(
     candidate: PedagogicalUnitCandidate,
-) -> tuple[set[str], set[str], set[str], set[str]]:
+) -> tuple[
+    set[str],
+    set[str],
+    set[str],
+    set[str],
+    set[str],
+]:
     """Collect stable references available inside the candidate unit.
 
     Recopila las referencias estables disponibles en la unidad candidata.
@@ -81,8 +87,20 @@ def _collect_candidate_reference_ids(
         for lesson in candidate.candidate_unit.lessons
         for exercise in lesson.exercises
     }
+    evidence_definition_ids = {
+        evidence.id
+        for lesson in candidate.candidate_unit.lessons
+        if lesson.experience is not None
+        for evidence in lesson.experience.evidence_definitions
+    }
 
-    return lesson_ids, example_ids, conversation_ids, exercise_ids
+    return (
+        lesson_ids,
+        example_ids,
+        conversation_ids,
+        exercise_ids,
+        evidence_definition_ids,
+    )
 
 
 def validate_internal_references(
@@ -97,9 +115,11 @@ def validate_internal_references(
         example_ids,
         conversation_ids,
         exercise_ids,
+        evidence_definition_ids,
     ) = _collect_candidate_reference_ids(candidate)
 
     activity_ids = example_ids | conversation_ids | exercise_ids
+    evaluation_ids = exercise_ids | evidence_definition_ids
     consolidation_ids = lesson_ids | activity_ids
     findings: list[ValidationFinding] = []
 
@@ -127,7 +147,7 @@ def validate_internal_references(
             (
                 "evaluation_evidence_ids",
                 coverage.evaluation_evidence_ids,
-                exercise_ids,
+                evaluation_ids,
             ),
             (
                 "consolidation_activity_ids",
@@ -162,26 +182,41 @@ def validate_internal_references(
 def validate_evaluation_skill_links(
     candidate: PedagogicalUnitCandidate,
 ) -> list[ValidationFinding]:
-    """Require evaluation exercises to reference the evaluated Skill.
+    """Require evaluation evidence to reference the evaluated Skill.
 
-    Exige que los ejercicios de evaluación referencien el Skill evaluado.
+    Exige que la evidencia de evaluación referencie la Skill evaluada.
     """
     exercises_by_id = {
         exercise.id: exercise
         for lesson in candidate.candidate_unit.lessons
         for exercise in lesson.exercises
     }
+    evidence_definitions_by_id = {
+        evidence.id: evidence
+        for lesson in candidate.candidate_unit.lessons
+        if lesson.experience is not None
+        for evidence in lesson.experience.evidence_definitions
+    }
     findings: list[ValidationFinding] = []
 
     for coverage in candidate.skill_coverage:
         for evidence_id in coverage.evaluation_evidence_ids:
             exercise = exercises_by_id.get(evidence_id)
+            evidence_definition = evidence_definitions_by_id.get(
+                evidence_id
+            )
 
             # Unknown references are reported by the integrity validator.
             # Las referencias desconocidas se informan en el validador de integridad.
-            if exercise is None:
+            if exercise is None and evidence_definition is None:
                 continue
-            if coverage.skill_id in exercise.skill_ids:
+
+            linked_skill_ids = (
+                exercise.skill_ids
+                if exercise is not None
+                else evidence_definition.skill_ids
+            )
+            if coverage.skill_id in linked_skill_ids:
                 continue
 
             findings.append(

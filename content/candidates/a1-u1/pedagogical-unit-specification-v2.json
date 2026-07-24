@@ -1,0 +1,67 @@
+{
+  "unit_id": "a1-u1",
+  "level": "A1",
+  "title": "Meeting people",
+  "learner_outcome": "Introduce yourself in a short guided exchange by stating your name and where you are from.",
+  "skills": [
+    {
+      "id": "a1_introduce_yourself",
+      "description": "Introduce yourself using your name and origin.",
+      "required_stages": [
+        "introduce",
+        "practice",
+        "apply",
+        "evaluate",
+        "consolidate"
+      ]
+    }
+  ],
+  "required_evidence": [
+    "Produce an introduction containing both the learner\u0027s name and origin.",
+    "Complete a short guided introduction exchange."
+  ],
+  "lesson_scope": [
+    "Basic greetings.",
+    "Asking and answering a person\u0027s name.",
+    "Saying where someone is from.",
+    "Responding politely when meeting someone."
+  ],
+  "language_scope": [
+    "Hello.",
+    "What is your name?",
+    "My name is...",
+    "I am...",
+    "Where are you from?",
+    "I am from...",
+    "Nice to meet you.",
+    "Nice to meet you too."
+  ],
+  "pronunciation_scope": [
+    "Sentence stress in short introductions.",
+    "Clear production of I am and I am from.",
+    "Listening comparison with en-US and en-GB references.",
+    "Voice recording is practice evidence, not automatic proof of pronunciation accuracy."
+  ],
+  "content_constraints": [
+    "Use only language appropriate for A1.",
+    "Keep learner responses short and reusable.",
+    "Do not introduce unrelated topics such as mood, work or detailed personal information.",
+    "Every required phrase must appear in meaningful context.",
+    "Do not declare the Skill complete through a recognition-only multiple-choice exercise."
+  ],
+  "technical_constraints": [
+    "Reuse the current Conversation contracts.",
+    "Use LessonExperience as the v2 pedagogical orchestrator.",
+    "Keep the candidate isolated from content_tree.json.",
+    "Preserve stable existing identifiers only when their pedagogical meaning remains valid.",
+    "Do not modify Flutter, progress persistence or active content during candidate construction."
+  ],
+  "acceptance_criteria": [
+    "The learner states both a name and an origin.",
+    "The learner completes an applied guided conversation.",
+    "The required evidence is linked to the Skill.",
+    "Every required Skill stage has an explicit activity or evidence reference.",
+    "The candidate passes all deterministic backend validations.",
+    "Coverage remains pending_approval until human pedagogical review."
+  ]
+}

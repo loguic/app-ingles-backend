@@ -140,4 +140,88 @@ def validate_content_identifiers(
                         )
                     )
 
+
+    # Validate hierarchical v2 identifiers across the complete unit.
+    # Valida identificadores jerárquicos v2 en toda la unidad.
+    seen_experience_ids: dict[str, set[str]] = {
+        "mission": set(),
+        "stage": set(),
+        "language support": set(),
+        "evidence": set(),
+    }
+
+    for lesson in unit.lessons:
+        experience = lesson.experience
+        if experience is None:
+            continue
+
+        experience_identifier_rules = [
+            (
+                "mission",
+                [experience.mission],
+                re.compile(
+                    rf"^{re.escape(lesson.id)}-m[1-9][0-9]*$"
+                ),
+            ),
+            (
+                "stage",
+                experience.stages,
+                re.compile(
+                    rf"^{re.escape(lesson.id)}-s[1-9][0-9]*$"
+                ),
+            ),
+            (
+                "language support",
+                experience.language_support,
+                re.compile(
+                    rf"^{re.escape(lesson.id)}-ls[1-9][0-9]*$"
+                ),
+            ),
+            (
+                "evidence",
+                experience.evidence_definitions,
+                re.compile(
+                    rf"^{re.escape(lesson.id)}-ev[1-9][0-9]*$"
+                ),
+            ),
+        ]
+
+        for content_type, elements, pattern in (
+            experience_identifier_rules
+        ):
+            for element in elements:
+                if pattern.fullmatch(element.id) is None:
+                    findings.append(
+                        ValidationFinding(
+                            validator_id=(
+                                "content_identifier_integrity"
+                            ),
+                            severity="error",
+                            message=(
+                                "Candidate contains invalid "
+                                f"{content_type} identifier: "
+                                f"{element.id}."
+                            ),
+                            reference_ids=[element.id],
+                        )
+                    )
+
+                if element.id in seen_experience_ids[content_type]:
+                    findings.append(
+                        ValidationFinding(
+                            validator_id=(
+                                "content_identifier_integrity"
+                            ),
+                            severity="error",
+                            message=(
+                                "Candidate contains duplicate "
+                                f"{content_type} identifier: "
+                                f"{element.id}."
+                            ),
+                            reference_ids=[element.id],
+                        )
+                    )
+                else:
+                    seen_experience_ids[content_type].add(element.id)
+
     return findings

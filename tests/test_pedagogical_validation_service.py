@@ -4,6 +4,7 @@ import pytest
 
 from app.schemas.pedagogical_unit import PedagogicalUnitCandidate
 from app.services.pedagogical_validation_service import (
+    validate_evaluation_skill_links,
     validate_pedagogical_candidate,
 )
 
@@ -416,3 +417,127 @@ def test_validation_recalculates_candidate_report():
     assert candidate.validation_report.status == "pending"
     assert report.status == "passed"
     assert report is not candidate.validation_report
+
+def _add_v2_evaluation_evidence(
+    payload: dict,
+    evidence_skill_ids: list[str] | None = None,
+) -> str:
+    """Add one valid v2 evaluation evidence to the first lesson.
+
+    Añade una evidencia de evaluación v2 válida a la primera lección.
+    """
+    lesson = payload["candidate_unit"]["lessons"][0]
+    lesson_id = lesson["id"]
+    stage_id = lesson_id + "-s1"
+    evidence_id = lesson_id + "-ev1"
+    activity_id = lesson_id + "-gp1"
+    skill_ids = evidence_skill_ids or ["a1_introduce_yourself"]
+
+    lesson["experience"] = {
+        "contract_version": "2.0",
+        "mission": {
+            "id": lesson_id + "-m1",
+            "title": "Introduce yourself",
+            "situation": "Meet someone for the first time.",
+            "observable_outcome": "State your name and origin.",
+            "success_criteria": [
+                "The learner gives a name.",
+                "The learner gives an origin.",
+            ],
+        },
+        "skill_ids": list(
+            dict.fromkeys(
+                ["a1_introduce_yourself", *skill_ids]
+            )
+        ),
+        "stages": [
+            {
+                "id": stage_id,
+                "type": "evidence",
+                "instruction": "Produce your short introduction.",
+                "activity_ids": [activity_id],
+                "mode": "required",
+                "completion_condition": "evidence_recorded",
+            }
+        ],
+        "language_support": [],
+        "evidence_definitions": [
+            {
+                "id": evidence_id,
+                "skill_ids": skill_ids,
+                "stage_id": stage_id,
+                "activity_id": activity_id,
+                "evidence_type": "guided_production",
+                "measurement_mode": "completion",
+                "required": True,
+            }
+        ],
+        "completion_policy": {
+            "practiced_stage_ids": [stage_id],
+            "required_evidence_ids": [evidence_id],
+            "reinforcement_on_failure": True,
+            "allow_retry": True,
+        },
+    }
+
+    payload["skill_coverage"][0]["evaluation_evidence_ids"] = [
+        evidence_id
+    ]
+    return evidence_id
+
+
+def test_v2_evaluation_evidence_passes_validation():
+    """Accept a valid v2 evidence reference in Skill coverage.
+
+    Acepta una referencia de evidencia v2 válida en la cobertura.
+    """
+    payload = deepcopy(build_candidate_payload())
+    _add_v2_evaluation_evidence(payload)
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    report = validate_pedagogical_candidate(candidate)
+
+    assert report.status == "passed"
+    assert report.findings == []
+
+
+def test_v2_evaluation_evidence_requires_skill_link():
+    """Reject v2 evidence not linked to the evaluated Skill.
+
+    Rechaza evidencia v2 no vinculada con la Skill evaluada.
+    """
+    payload = deepcopy(build_candidate_payload())
+    payload["specification"]["skills"].append(
+        {
+            "id": "a1_other_skill",
+            "description": "Provide another simple personal detail.",
+            "required_stages": ["evaluate"],
+        }
+    )
+    payload["skill_coverage"].append(
+        {
+            "skill_id": "a1_other_skill",
+            "evaluation_evidence_ids": ["a1-u1-l1-ev1"],
+            "modalities": ["speaking"],
+            "status": "complete",
+        }
+    )
+    evidence_id = _add_v2_evaluation_evidence(
+        payload,
+        evidence_skill_ids=["a1_other_skill"],
+    )
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    findings = validate_evaluation_skill_links(candidate)
+
+    assert len(findings) == 1
+    finding = findings[0]
+    assert finding.validator_id == "evaluation_skill_link"
+    assert finding.reference_ids == [
+        "a1_introduce_yourself",
+        evidence_id,
+    ]
+    assert finding.message == (
+        f"Evaluation evidence {evidence_id} does not reference "
+        "Skill a1_introduce_yourself."
+    )

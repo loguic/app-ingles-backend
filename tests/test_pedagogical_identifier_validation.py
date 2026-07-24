@@ -178,3 +178,170 @@ def test_main_validator_rejects_invalid_content_identifier():
         finding.validator_id == "content_identifier_integrity"
         for finding in report.findings
     )
+
+def _build_minimal_experience(lesson_id: str) -> dict:
+    """Build one valid minimal v2 experience for identifier tests.
+
+    Construye una experiencia v2 mínima válida para probar identificadores.
+    """
+    stage_id = lesson_id + "-s1"
+    evidence_id = lesson_id + "-ev1"
+    activity_id = lesson_id + "-gp1"
+
+    return {
+        "contract_version": "2.0",
+        "mission": {
+            "id": lesson_id + "-m1",
+            "title": "Introduce yourself",
+            "situation": "Meet someone for the first time.",
+            "observable_outcome": "State your name and origin.",
+            "success_criteria": [
+                "The learner gives a name.",
+                "The learner gives an origin.",
+            ],
+        },
+        "skill_ids": ["a1_introduce_yourself"],
+        "stages": [
+            {
+                "id": stage_id,
+                "type": "guided_production",
+                "instruction": "Produce a short introduction.",
+                "activity_ids": [activity_id],
+                "mode": "required",
+                "completion_condition": "evidence_recorded",
+            }
+        ],
+        "language_support": [
+            {
+                "id": lesson_id + "-ls1",
+                "type": "reference_expression",
+                "en": "I am Ana. I am from Spain.",
+                "stage_ids": [stage_id],
+            }
+        ],
+        "evidence_definitions": [
+            {
+                "id": evidence_id,
+                "skill_ids": ["a1_introduce_yourself"],
+                "stage_id": stage_id,
+                "activity_id": activity_id,
+                "evidence_type": "guided_production",
+                "measurement_mode": "completion",
+                "required": True,
+            }
+        ],
+        "completion_policy": {
+            "practiced_stage_ids": [stage_id],
+            "required_evidence_ids": [evidence_id],
+            "reinforcement_on_failure": True,
+            "allow_retry": True,
+        },
+    }
+
+
+@pytest.mark.parametrize(
+    ("element_type", "invalid_id", "message"),
+    [
+        (
+            "mission",
+            "a1-u1-l1-mission-1",
+            "invalid mission identifier",
+        ),
+        (
+            "stage",
+            "a1-u1-l1-stage-1",
+            "invalid stage identifier",
+        ),
+        (
+            "support",
+            "a1-u1-l1-support-1",
+            "invalid language support identifier",
+        ),
+        (
+            "evidence",
+            "a1-u1-l1-evidence-1",
+            "invalid evidence identifier",
+        ),
+    ],
+)
+def test_malformed_lesson_experience_identifier_generates_finding(
+    element_type,
+    invalid_id,
+    message,
+):
+    payload = deepcopy(build_candidate_payload())
+    experience = _build_minimal_experience("a1-u1-l1")
+
+    if element_type == "mission":
+        experience["mission"]["id"] = invalid_id
+    elif element_type == "stage":
+        experience["stages"][0]["id"] = invalid_id
+        experience["language_support"][0]["stage_ids"] = [invalid_id]
+        experience["evidence_definitions"][0]["stage_id"] = invalid_id
+        experience["completion_policy"]["practiced_stage_ids"] = [
+            invalid_id
+        ]
+    elif element_type == "support":
+        experience["language_support"][0]["id"] = invalid_id
+    else:
+        experience["evidence_definitions"][0]["id"] = invalid_id
+        experience["completion_policy"]["required_evidence_ids"] = [
+            invalid_id
+        ]
+
+    payload["candidate_unit"]["lessons"][0]["experience"] = experience
+    candidate = build_candidate(payload)
+
+    findings = validate_content_identifiers(candidate)
+
+    assert len(findings) == 1
+    assert findings[0].validator_id == "content_identifier_integrity"
+    assert findings[0].reference_ids == [invalid_id]
+    assert message in findings[0].message
+
+
+@pytest.mark.parametrize(
+    ("element_type", "message"),
+    [
+        ("mission", "duplicate mission identifier"),
+        ("stage", "duplicate stage identifier"),
+        ("support", "duplicate language support identifier"),
+        ("evidence", "duplicate evidence identifier"),
+    ],
+)
+def test_duplicate_lesson_experience_identifier_across_lessons(
+    element_type,
+    message,
+):
+    payload = deepcopy(build_candidate_payload())
+    first = _build_minimal_experience("a1-u1-l1")
+    second = _build_minimal_experience("a1-u1-l2")
+
+    if element_type == "mission":
+        second["mission"]["id"] = first["mission"]["id"]
+    elif element_type == "stage":
+        duplicate_id = first["stages"][0]["id"]
+        second["stages"][0]["id"] = duplicate_id
+        second["language_support"][0]["stage_ids"] = [duplicate_id]
+        second["evidence_definitions"][0]["stage_id"] = duplicate_id
+        second["completion_policy"]["practiced_stage_ids"] = [
+            duplicate_id
+        ]
+    elif element_type == "support":
+        second["language_support"][0]["id"] = (
+            first["language_support"][0]["id"]
+        )
+    else:
+        duplicate_id = first["evidence_definitions"][0]["id"]
+        second["evidence_definitions"][0]["id"] = duplicate_id
+        second["completion_policy"]["required_evidence_ids"] = [
+            duplicate_id
+        ]
+
+    payload["candidate_unit"]["lessons"][0]["experience"] = first
+    payload["candidate_unit"]["lessons"][1]["experience"] = second
+    candidate = build_candidate(payload)
+
+    findings = validate_content_identifiers(candidate)
+
+    assert any(message in finding.message for finding in findings)
