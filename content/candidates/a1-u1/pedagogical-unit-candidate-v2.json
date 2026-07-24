@@ -1,0 +1,659 @@
+{
+  "specification": {
+    "unit_id": "a1-u1",
+    "level": "A1",
+    "title": "Meeting people",
+    "learner_outcome": "Introduce yourself in a short guided exchange by stating your name and where you are from.",
+    "prerequisites": [],
+    "skills": [
+      {
+        "id": "a1_introduce_yourself",
+        "description": "Introduce yourself using your name and origin.",
+        "required_stages": [
+          "introduce",
+          "practice",
+          "apply",
+          "evaluate",
+          "consolidate"
+        ]
+      }
+    ],
+    "required_evidence": [
+      "Produce an introduction containing both the learner's name and origin.",
+      "Complete a short guided introduction exchange."
+    ],
+    "lesson_scope": [
+      "Basic greetings.",
+      "Asking and answering a person's name.",
+      "Saying where someone is from.",
+      "Responding politely when meeting someone."
+    ],
+    "language_scope": [
+      "Hello.",
+      "What is your name?",
+      "My name is...",
+      "I am...",
+      "Where are you from?",
+      "I am from...",
+      "Nice to meet you.",
+      "Nice to meet you too."
+    ],
+    "pronunciation_scope": [
+      "Sentence stress in short introductions.",
+      "Clear production of I am and I am from.",
+      "Listening comparison with en-US and en-GB references.",
+      "Voice recording is practice evidence, not automatic proof of pronunciation accuracy."
+    ],
+    "content_constraints": [
+      "Use only language appropriate for A1.",
+      "Keep learner responses short and reusable.",
+      "Do not introduce unrelated topics such as mood, work or detailed personal information.",
+      "Every required phrase must appear in meaningful context.",
+      "Do not declare the Skill complete through a recognition-only multiple-choice exercise."
+    ],
+    "content_limits": {
+      "min_lessons": null,
+      "max_lessons": null,
+      "min_examples_per_lesson": null,
+      "max_examples_per_lesson": null,
+      "min_conversations_per_lesson": null,
+      "max_conversations_per_lesson": null,
+      "min_exercises_per_lesson": null,
+      "max_exercises_per_lesson": null,
+      "min_options_per_exercise": null,
+      "max_options_per_exercise": null,
+      "min_turns_per_conversation": null,
+      "max_turns_per_conversation": null
+    },
+    "technical_constraints": [
+      "Reuse the current Conversation contracts.",
+      "Use LessonExperience as the v2 pedagogical orchestrator.",
+      "Keep the candidate isolated from content_tree.json.",
+      "Preserve stable existing identifiers only when their pedagogical meaning remains valid.",
+      "Do not modify Flutter, progress persistence or active content during candidate construction.",
+      "Completing the pilot lesson must not automatically declare the Skill mastered or retained."
+    ],
+    "acceptance_criteria": [
+      "The learner states both a name and an origin.",
+      "The learner completes an applied guided conversation.",
+      "The required evidence is linked to the Skill.",
+      "Every required Skill stage has an explicit activity or evidence reference.",
+      "The candidate passes all deterministic backend validations.",
+      "Coverage remains pending_approval until human pedagogical review.",
+      "The candidate distinguishes lesson completion from Skill mastery and retention."
+    ]
+  },
+  "candidate_unit": {
+    "id": "a1-u1",
+    "title": "Meeting people",
+    "lessons": [
+      {
+        "id": "a1-u1-l1",
+        "title": "Introduce yourself",
+        "objective": "State your name and origin in a short exchange.",
+        "experience": {
+          "contract_version": "2.0",
+          "mission": {
+            "id": "a1-u1-l1-m1",
+            "title": "Introduce yourself",
+            "situation": "Meet a new classmate for the first time.",
+            "observable_outcome": "State your name and where you are from in a short exchange.",
+            "success_criteria": [
+              "The learner states a name.",
+              "The learner states an origin.",
+              "The learner responds politely."
+            ]
+          },
+          "skill_ids": [
+            "a1_introduce_yourself"
+          ],
+          "stages": [
+            {
+              "id": "a1-u1-l1-s1",
+              "type": "encounter",
+              "instruction": "Listen to the complete model exchange.",
+              "activity_ids": [
+                "a1-u1-l1-c1"
+              ],
+              "mode": "required",
+              "completion_condition": "any_activity_completed"
+            },
+            {
+              "id": "a1-u1-l1-s2",
+              "type": "comprehension",
+              "instruction": "Check one detail from the model exchange.",
+              "activity_ids": [
+                "a1-u1-l1-q1"
+              ],
+              "mode": "required",
+              "completion_condition": "all_activities_completed"
+            },
+            {
+              "id": "a1-u1-l1-s3",
+              "type": "language_support",
+              "instruction": "Review the useful introduction expressions.",
+              "activity_ids": [],
+              "mode": "required",
+              "completion_condition": "acknowledged"
+            },
+            {
+              "id": "a1-u1-l1-s4",
+              "type": "guided_production",
+              "instruction": "Practice the complete guided introduction.",
+              "activity_ids": [
+                "a1-u1-l1-c2"
+              ],
+              "mode": "required",
+              "completion_condition": "all_activities_completed"
+            },
+            {
+              "id": "a1-u1-l1-s5",
+              "type": "assisted_response",
+              "instruction": "Choose the complete contextual response.",
+              "activity_ids": [
+                "a1-u1-l1-q2"
+              ],
+              "mode": "required",
+              "completion_condition": "all_activities_completed"
+            },
+            {
+              "id": "a1-u1-l1-s6",
+              "type": "applied_conversation",
+              "instruction": "Complete the exchange with personal information.",
+              "activity_ids": [
+                "a1-u1-l1-c3"
+              ],
+              "mode": "required",
+              "completion_condition": "all_activities_completed"
+            },
+            {
+              "id": "a1-u1-l1-s7",
+              "type": "adaptive_feedback",
+              "instruction": "Review and repeat the parts that need reinforcement.",
+              "activity_ids": [
+                "a1-u1-l1-c2",
+                "a1-u1-l1-c3"
+              ],
+              "mode": "adaptive",
+              "completion_condition": "any_activity_completed"
+            },
+            {
+              "id": "a1-u1-l1-s8",
+              "type": "evidence",
+              "instruction": "Record the observable evidence from this lesson.",
+              "activity_ids": [
+                "a1-u1-l1-q1",
+                "a1-u1-l1-c2",
+                "a1-u1-l1-c3"
+              ],
+              "mode": "required",
+              "completion_condition": "evidence_recorded"
+            },
+            {
+              "id": "a1-u1-l1-s9",
+              "type": "closure",
+              "instruction": "Finish the lesson and continue reinforcing this Skill later.",
+              "activity_ids": [],
+              "mode": "required",
+              "completion_condition": "acknowledged"
+            }
+          ],
+          "language_support": [
+            {
+              "id": "a1-u1-l1-ls1",
+              "type": "reference_expression",
+              "en": "Hello.",
+              "es": "Hola.",
+              "pronunciations": [],
+              "usage_note": null,
+              "stage_ids": [
+                "a1-u1-l1-s3",
+                "a1-u1-l1-s4",
+                "a1-u1-l1-s5",
+                "a1-u1-l1-s6"
+              ]
+            },
+            {
+              "id": "a1-u1-l1-ls2",
+              "type": "reference_expression",
+              "en": "My name is...",
+              "es": "Me llamo...",
+              "pronunciations": [],
+              "usage_note": null,
+              "stage_ids": [
+                "a1-u1-l1-s3",
+                "a1-u1-l1-s4",
+                "a1-u1-l1-s5",
+                "a1-u1-l1-s6"
+              ]
+            },
+            {
+              "id": "a1-u1-l1-ls3",
+              "type": "reference_expression",
+              "en": "I am...",
+              "es": "Soy...",
+              "pronunciations": [],
+              "usage_note": null,
+              "stage_ids": [
+                "a1-u1-l1-s3",
+                "a1-u1-l1-s4",
+                "a1-u1-l1-s5",
+                "a1-u1-l1-s6"
+              ]
+            },
+            {
+              "id": "a1-u1-l1-ls4",
+              "type": "reference_expression",
+              "en": "What is your name?",
+              "es": "¿Cómo te llamas?",
+              "pronunciations": [],
+              "usage_note": null,
+              "stage_ids": [
+                "a1-u1-l1-s3",
+                "a1-u1-l1-s4",
+                "a1-u1-l1-s5",
+                "a1-u1-l1-s6"
+              ]
+            },
+            {
+              "id": "a1-u1-l1-ls5",
+              "type": "reference_expression",
+              "en": "Where are you from?",
+              "es": "¿De dónde eres?",
+              "pronunciations": [],
+              "usage_note": null,
+              "stage_ids": [
+                "a1-u1-l1-s3",
+                "a1-u1-l1-s4",
+                "a1-u1-l1-s5",
+                "a1-u1-l1-s6"
+              ]
+            },
+            {
+              "id": "a1-u1-l1-ls6",
+              "type": "reference_expression",
+              "en": "I am from...",
+              "es": "Soy de...",
+              "pronunciations": [],
+              "usage_note": null,
+              "stage_ids": [
+                "a1-u1-l1-s3",
+                "a1-u1-l1-s4",
+                "a1-u1-l1-s5",
+                "a1-u1-l1-s6"
+              ]
+            },
+            {
+              "id": "a1-u1-l1-ls7",
+              "type": "reference_expression",
+              "en": "Nice to meet you.",
+              "es": "Encantado de conocerte.",
+              "pronunciations": [],
+              "usage_note": null,
+              "stage_ids": [
+                "a1-u1-l1-s3",
+                "a1-u1-l1-s4",
+                "a1-u1-l1-s5",
+                "a1-u1-l1-s6"
+              ]
+            },
+            {
+              "id": "a1-u1-l1-ls8",
+              "type": "reference_expression",
+              "en": "Nice to meet you too.",
+              "es": "Encantado de conocerte también.",
+              "pronunciations": [],
+              "usage_note": null,
+              "stage_ids": [
+                "a1-u1-l1-s3",
+                "a1-u1-l1-s4",
+                "a1-u1-l1-s5",
+                "a1-u1-l1-s6"
+              ]
+            }
+          ],
+          "evidence_definitions": [
+            {
+              "id": "a1-u1-l1-ev1",
+              "skill_ids": [
+                "a1_introduce_yourself"
+              ],
+              "stage_id": "a1-u1-l1-s8",
+              "activity_id": "a1-u1-l1-q1",
+              "evidence_type": "exercise_result",
+              "measurement_mode": "binary",
+              "success_threshold": null,
+              "required": false
+            },
+            {
+              "id": "a1-u1-l1-ev2",
+              "skill_ids": [
+                "a1_introduce_yourself"
+              ],
+              "stage_id": "a1-u1-l1-s8",
+              "activity_id": "a1-u1-l1-c2",
+              "evidence_type": "guided_production",
+              "measurement_mode": "completion",
+              "success_threshold": null,
+              "required": true
+            },
+            {
+              "id": "a1-u1-l1-ev3",
+              "skill_ids": [
+                "a1_introduce_yourself"
+              ],
+              "stage_id": "a1-u1-l1-s8",
+              "activity_id": "a1-u1-l1-c3",
+              "evidence_type": "conversation_completion",
+              "measurement_mode": "completion",
+              "success_threshold": null,
+              "required": true
+            }
+          ],
+          "completion_policy": {
+            "practiced_stage_ids": [
+              "a1-u1-l1-s1",
+              "a1-u1-l1-s2",
+              "a1-u1-l1-s3",
+              "a1-u1-l1-s4",
+              "a1-u1-l1-s5",
+              "a1-u1-l1-s6",
+              "a1-u1-l1-s7"
+            ],
+            "required_evidence_ids": [
+              "a1-u1-l1-ev2",
+              "a1-u1-l1-ev3"
+            ],
+            "reinforcement_on_failure": true,
+            "allow_retry": true
+          }
+        },
+        "vocabulary": [],
+        "grammar": [],
+        "examples": [],
+        "conversations": [
+          {
+            "id": "a1-u1-l1-c1",
+            "title": "Meeting a new classmate",
+            "context": "Listen to a complete model introduction.",
+            "mode": "guided",
+            "start_turn_id": "a1-u1-l1-c1-t1",
+            "turns": [
+              {
+                "id": "a1-u1-l1-c1-t1",
+                "speaker": "partner",
+                "en": "Hello! My name is Emma. I am from the UK.",
+                "es": "¡Hola! Me llamo Emma. Soy del Reino Unido.",
+                "pronunciations": [],
+                "next_turn_id": "a1-u1-l1-c1-t2",
+                "choices": []
+              },
+              {
+                "id": "a1-u1-l1-c1-t2",
+                "speaker": "partner",
+                "en": "What is your name?",
+                "es": "¿Cómo te llamas?",
+                "pronunciations": [],
+                "next_turn_id": "a1-u1-l1-c1-t3",
+                "choices": []
+              },
+              {
+                "id": "a1-u1-l1-c1-t3",
+                "speaker": "learner",
+                "en": "My name is Leo.",
+                "es": "Me llamo Leo.",
+                "pronunciations": [],
+                "next_turn_id": "a1-u1-l1-c1-t4",
+                "choices": []
+              },
+              {
+                "id": "a1-u1-l1-c1-t4",
+                "speaker": "partner",
+                "en": "Where are you from?",
+                "es": "¿De dónde eres?",
+                "pronunciations": [],
+                "next_turn_id": "a1-u1-l1-c1-t5",
+                "choices": []
+              },
+              {
+                "id": "a1-u1-l1-c1-t5",
+                "speaker": "learner",
+                "en": "I am from Spain.",
+                "es": "Soy de España.",
+                "pronunciations": [],
+                "next_turn_id": "a1-u1-l1-c1-t6",
+                "choices": []
+              },
+              {
+                "id": "a1-u1-l1-c1-t6",
+                "speaker": "partner",
+                "en": "Nice to meet you.",
+                "es": "Encantado de conocerte.",
+                "pronunciations": [],
+                "next_turn_id": "a1-u1-l1-c1-t7",
+                "choices": []
+              },
+              {
+                "id": "a1-u1-l1-c1-t7",
+                "speaker": "learner",
+                "en": "Nice to meet you too.",
+                "es": "Encantado de conocerte también.",
+                "pronunciations": [],
+                "next_turn_id": null,
+                "choices": []
+              }
+            ]
+          },
+          {
+            "id": "a1-u1-l1-c2",
+            "title": "Guided introduction practice",
+            "context": "Practice a complete introduction with model answers.",
+            "mode": "guided",
+            "start_turn_id": "a1-u1-l1-c2-t1",
+            "turns": [
+              {
+                "id": "a1-u1-l1-c2-t1",
+                "speaker": "partner",
+                "en": "Hello! What is your name?",
+                "es": "¡Hola! ¿Cómo te llamas?",
+                "pronunciations": [],
+                "next_turn_id": "a1-u1-l1-c2-t2",
+                "choices": []
+              },
+              {
+                "id": "a1-u1-l1-c2-t2",
+                "speaker": "learner",
+                "en": "My name is Ana.",
+                "es": "Me llamo Ana.",
+                "pronunciations": [],
+                "next_turn_id": "a1-u1-l1-c2-t3",
+                "choices": []
+              },
+              {
+                "id": "a1-u1-l1-c2-t3",
+                "speaker": "partner",
+                "en": "Where are you from?",
+                "es": "¿De dónde eres?",
+                "pronunciations": [],
+                "next_turn_id": "a1-u1-l1-c2-t4",
+                "choices": []
+              },
+              {
+                "id": "a1-u1-l1-c2-t4",
+                "speaker": "learner",
+                "en": "I am from Ecuador.",
+                "es": "Soy de Ecuador.",
+                "pronunciations": [],
+                "next_turn_id": "a1-u1-l1-c2-t5",
+                "choices": []
+              },
+              {
+                "id": "a1-u1-l1-c2-t5",
+                "speaker": "partner",
+                "en": "Nice to meet you.",
+                "es": "Encantado de conocerte.",
+                "pronunciations": [],
+                "next_turn_id": "a1-u1-l1-c2-t6",
+                "choices": []
+              },
+              {
+                "id": "a1-u1-l1-c2-t6",
+                "speaker": "learner",
+                "en": "Nice to meet you too.",
+                "es": "Encantado de conocerte también.",
+                "pronunciations": [],
+                "next_turn_id": null,
+                "choices": []
+              }
+            ]
+          },
+          {
+            "id": "a1-u1-l1-c3",
+            "title": "Applied introduction",
+            "context": "Complete the exchange using personal information.",
+            "mode": "free",
+            "start_turn_id": "a1-u1-l1-c3-t1",
+            "turns": [
+              {
+                "id": "a1-u1-l1-c3-t1",
+                "speaker": "partner",
+                "en": "Hello! What is your name?",
+                "es": "¡Hola! ¿Cómo te llamas?",
+                "pronunciations": [],
+                "next_turn_id": "a1-u1-l1-c3-t2",
+                "choices": []
+              },
+              {
+                "id": "a1-u1-l1-c3-t2",
+                "speaker": "learner",
+                "en": "Say your name.",
+                "es": "Di tu nombre.",
+                "pronunciations": [],
+                "next_turn_id": "a1-u1-l1-c3-t3",
+                "choices": []
+              },
+              {
+                "id": "a1-u1-l1-c3-t3",
+                "speaker": "partner",
+                "en": "Where are you from?",
+                "es": "¿De dónde eres?",
+                "pronunciations": [],
+                "next_turn_id": "a1-u1-l1-c3-t4",
+                "choices": []
+              },
+              {
+                "id": "a1-u1-l1-c3-t4",
+                "speaker": "learner",
+                "en": "Say where you are from.",
+                "es": "Di de dónde eres.",
+                "pronunciations": [],
+                "next_turn_id": "a1-u1-l1-c3-t5",
+                "choices": []
+              },
+              {
+                "id": "a1-u1-l1-c3-t5",
+                "speaker": "partner",
+                "en": "Nice to meet you.",
+                "es": "Encantado de conocerte.",
+                "pronunciations": [],
+                "next_turn_id": "a1-u1-l1-c3-t6",
+                "choices": []
+              },
+              {
+                "id": "a1-u1-l1-c3-t6",
+                "speaker": "learner",
+                "en": "Respond politely.",
+                "es": "Responde de forma educada.",
+                "pronunciations": [],
+                "next_turn_id": null,
+                "choices": []
+              }
+            ]
+          }
+        ],
+        "exercises": [
+          {
+            "id": "a1-u1-l1-q1",
+            "type": "mcq",
+            "prompt": "Where is Emma from?",
+            "options": [
+              "The UK.",
+              "Spain.",
+              "France.",
+              "Italy."
+            ],
+            "answer_index": 0,
+            "skill_ids": [
+              "a1_introduce_yourself"
+            ]
+          },
+          {
+            "id": "a1-u1-l1-q2",
+            "type": "mcq",
+            "prompt": "Choose the response that gives both a name and an origin.",
+            "options": [
+              "My name is Ana. I am from Ecuador.",
+              "Hello.",
+              "I am fine.",
+              "Goodbye."
+            ],
+            "answer_index": 0,
+            "skill_ids": [
+              "a1_introduce_yourself"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "skill_coverage": [
+    {
+      "skill_id": "a1_introduce_yourself",
+      "introduced_in_lesson_id": "a1-u1-l1",
+      "practice_activity_ids": [
+        "a1-u1-l1-c2"
+      ],
+      "application_activity_ids": [
+        "a1-u1-l1-c3"
+      ],
+      "evaluation_evidence_ids": [
+        "a1-u1-l1-ev2",
+        "a1-u1-l1-ev3"
+      ],
+      "consolidation_activity_ids": [
+        "a1-u1-l1-c3"
+      ],
+      "modalities": [
+        "listening",
+        "speaking"
+      ],
+      "status": "pending_approval"
+    }
+  ],
+  "required_resource_ids": [],
+  "validation_report": {
+    "status": "pending",
+    "findings": [
+      {
+        "validator_id": "skill_coverage_status",
+        "severity": "warning",
+        "message": "Skill a1_introduce_yourself coverage status is pending_approval.",
+        "reference_ids": [
+          "a1_introduce_yourself"
+        ]
+      }
+    ]
+  },
+  "pending_human_decisions": [
+    "Review every English and Spanish text pedagogically and linguistically.",
+    "Approve the use of free mode for the applied conversation.",
+    "Review or produce en-US and en-GB pronunciation references.",
+    "Confirm whether completion evidence is sufficient for this pilot before semantic or phonetic evaluation exists."
+  ],
+  "proposed_change_summary": [
+    "Add one isolated v2 pilot lesson for a1-u1.",
+    "Do not modify content/content_tree.json.",
+    "Keep Skill coverage pending until human review.",
+    "Do not treat lesson completion as Skill mastery or retention."
+  ]
+}
