@@ -214,6 +214,146 @@ class Conversation(BaseModel):
         return self
 
 
+class Mission(BaseModel):
+    """Define the communicative mission presented to the learner.
+
+    Define la misión comunicativa presentada al estudiante.
+    """
+
+    id: str
+    title: str
+    situation: str
+    observable_outcome: str
+    success_criteria: List[str] = Field(min_length=1)
+
+
+class LanguageSupportItem(BaseModel):
+    """Provide contextual language support for one or more stages.
+
+    Proporciona apoyo lingüístico contextual para una o varias etapas.
+    """
+
+    id: str
+    type: Literal[
+        "word",
+        "expression",
+        "pattern",
+        "reference_expression",
+        "hint",
+    ]
+    en: str
+    es: Optional[str] = None
+    pronunciations: List[Pronunciation] = Field(default_factory=list)
+    usage_note: Optional[str] = None
+    stage_ids: List[str] = Field(min_length=1)
+
+
+class LessonStage(BaseModel):
+    """Declare one ordered and executable pedagogical stage.
+
+    Declara una etapa pedagógica ordenada y ejecutable.
+    """
+
+    id: str
+    type: Literal[
+        "encounter",
+        "comprehension",
+        "language_support",
+        "guided_production",
+        "assisted_response",
+        "applied_conversation",
+        "adaptive_feedback",
+        "evidence",
+        "closure",
+    ]
+    instruction: str
+    activity_ids: List[str] = Field(default_factory=list)
+    mode: Literal["required", "adaptive"] = "required"
+    completion_condition: Literal[
+        "acknowledged",
+        "any_activity_completed",
+        "all_activities_completed",
+        "evidence_recorded",
+    ]
+
+
+class EvidenceDefinition(BaseModel):
+    """Define measurable evidence without storing learner results.
+
+    Define una evidencia medible sin almacenar resultados del estudiante.
+    """
+
+    id: str
+    skill_ids: List[str] = Field(min_length=1)
+    stage_id: str
+    activity_id: str
+    evidence_type: Literal[
+        "comprehension_result",
+        "contextual_response",
+        "conversation_completion",
+        "guided_production",
+        "exercise_result",
+    ]
+    measurement_mode: Literal["completion", "binary", "score"]
+    success_threshold: Optional[float] = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+    )
+    required: bool = True
+
+    @model_validator(mode="after")
+    def validate_success_threshold(self) -> "EvidenceDefinition":
+        """Keep score thresholds consistent with the measurement mode.
+
+        Mantiene los umbrales coherentes con el modo de medición.
+        """
+        if (
+            self.measurement_mode == "score"
+            and self.success_threshold is None
+        ):
+            raise ValueError("Score evidence requires success_threshold")
+
+        if (
+            self.measurement_mode != "score"
+            and self.success_threshold is not None
+        ):
+            raise ValueError(
+                "Only score evidence can define success_threshold"
+            )
+
+        return self
+
+
+class CompletionPolicy(BaseModel):
+    """Define practiced, completed and reinforcement requirements.
+
+    Define los requisitos de práctica, finalización y refuerzo.
+    """
+
+    practiced_stage_ids: List[str] = Field(min_length=1)
+    required_evidence_ids: List[str] = Field(min_length=1)
+    reinforcement_on_failure: bool = True
+    allow_retry: bool = True
+
+
+class LessonExperience(BaseModel):
+    """Orchestrate the public professional lesson experience.
+
+    Orquesta la experiencia profesional pública de la lección.
+    """
+
+    contract_version: Literal["2.0"] = "2.0"
+    mission: Mission
+    skill_ids: List[str] = Field(min_length=1)
+    stages: List[LessonStage] = Field(min_length=1)
+    language_support: List[LanguageSupportItem] = Field(
+        default_factory=list
+    )
+    evidence_definitions: List[EvidenceDefinition] = Field(min_length=1)
+    completion_policy: CompletionPolicy
+
+
 class ExerciseMCQ(BaseModel):
     id: str
     # Multiple Choice Question / Pregunta de opción múltiple
@@ -228,6 +368,7 @@ class Lesson(BaseModel):
     id: str
     title: str
     objective: Optional[str] = None
+    experience: Optional[LessonExperience] = None
     vocabulary: List[str] = []
     grammar: List[str] = []
     examples: List[Example] = []
