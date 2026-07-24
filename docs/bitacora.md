@@ -1633,3 +1633,77 @@ La implementación se repitió utilizando explícitamente el entorno virtual del
 El contrato backend aditivo inicial quedó implementado, probado y publicado.
 
 El cierre operativo requiere versionar esta documentación y confirmar nuevamente Git limpio y sincronizado.
+
+## B118 — Integridad interna de `LessonExperience`
+
+### Objetivo
+
+Proteger las relaciones internas del contrato `LessonExperience` para impedir que una experiencia incoherente llegue a la API o a Flutter.
+
+### Implementación
+
+- Se añadió `validate_internal_integrity` como `model_validator` de `LessonExperience`.
+- Se validan identificadores duplicados de Skills, etapas, apoyos lingüísticos y evidencias.
+- Los apoyos lingüísticos solo pueden referenciar etapas existentes.
+- Las evidencias solo pueden referenciar Skills declaradas por la experiencia.
+- Cada evidencia debe referenciar una etapa existente.
+- La actividad de cada evidencia debe estar declarada por su etapa.
+- La política de finalización solo puede referenciar etapas y evidencias existentes.
+- Las evidencias obligatorias deben coincidir exactamente con `required_evidence_ids`.
+- Las condiciones de finalización basadas en actividad exigen al menos una actividad.
+
+### Explicación técnica didáctica
+
+`LessonExperience` actúa como responsable de las reglas que relacionan sus componentes internos.
+
+La validación de tipo confirma, por ejemplo, que `stage_id` es texto.
+
+La validación de integridad confirma que ese `stage_id` corresponde realmente a una etapa declarada.
+
+Este comportamiento se aproxima al principio de raíz de agregado: una entidad principal protege la coherencia de los elementos que administra. No implica todavía una adopción completa de Domain-Driven Design.
+
+### Pruebas
+
+- Se creó `tests/test_lesson_experience_integrity.py`.
+- Se añadieron 19 casos específicos mediante pruebas parametrizadas.
+- Las cinco pruebas de contrato de B117 continúan correctas.
+- Pruebas específicas combinadas: `24 passed`.
+- Suite backend completa: `195 passed`.
+
+### Corrección del método
+
+- Dos intentos de transportar código extenso dentro de `python3 -c` fallaron por delimitadores y comillas anidadas.
+- Un comando posterior de diagnóstico también falló por escape incorrecto.
+- Ninguno de esos errores modificó el repositorio.
+- Se volvió al último estado estable confirmado.
+- Se abandonó el transporte de bloques extensos mediante cadenas anidadas.
+- La implementación se dividió en un validador pequeño y un archivo de pruebas aislado.
+- El script temporal fue eliminado después de confirmar la implementación.
+
+### Validaciones finales
+
+- Compilación Python: correcta.
+- Suite backend completa: `195 passed`.
+- `git diff --check`: correcto.
+- Control de separaciones excesivas y espacios finales: correcto.
+
+### Límites respetados
+
+- No se modificó `content_tree.json`.
+- No se modificó Flutter.
+- No se modificaron endpoints ni persistencia.
+- No se validó todavía la existencia externa de conversaciones, ejercicios o Skills.
+- No se impuso todavía un orden obligatorio de tipos de etapa.
+- No se evaluó calidad pedagógica o lingüística.
+
+### Cierre técnico
+
+- Commit técnico: `e2b9307` — `B118 validar integridad interna LessonExperience`.
+- Push completado a `origin/master`.
+- Repositorio confirmado limpio y sincronizado después de la publicación.
+
+### Estado de B118
+
+La integridad interna de `LessonExperience` quedó implementada, probada y publicada.
+
+El cierre operativo requiere versionar esta documentación y confirmar nuevamente Git limpio y sincronizado.
