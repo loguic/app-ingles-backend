@@ -1515,3 +1515,121 @@ Vocabulario, gramática, traducción y frases de referencia quedarán subordinad
 - Estrategia de sustitución paralela aprobada.
 - Contrato canónico preparado para revisión final y versionado.
 - El cierre operativo requiere revisar el diff, realizar commit y push y confirmar Git limpio y sincronizado.
+
+## B117 — Contrato backend aditivo `LessonExperience` v2
+
+### Objetivo
+
+Crear el contrato público inicial de la experiencia profesional de lección sin eliminar ni modificar todavía el flujo heredado.
+
+### Implementación
+
+Se añadieron a `app/schemas/content.py` los siguientes esquemas Pydantic:
+
+- `Mission`;
+- `LanguageSupportItem`;
+- `LessonStage`;
+- `EvidenceDefinition`;
+- `CompletionPolicy`;
+- `LessonExperience`.
+
+`Lesson` recibió el campo aditivo:
+
+`experience: Optional[LessonExperience] = None`
+
+Las lecciones heredadas continúan siendo válidas cuando no incluyen `experience`.
+
+### Contrato inicial
+
+`LessonExperience` declara:
+
+- versión de contrato `2.0`;
+- misión comunicativa;
+- referencias a Skills;
+- etapas pedagógicas ordenadas;
+- apoyos lingüísticos contextuales;
+- definiciones de evidencia;
+- política de práctica, finalización y refuerzo.
+
+### Validaciones iniciales
+
+- Solo se admite la versión `2.0`.
+- Una evidencia con medición `score` exige `success_threshold`.
+- El umbral debe encontrarse entre `0.0` y `1.0`.
+- Las evidencias no basadas en puntuación no pueden declarar umbral.
+- Las listas pedagógicas obligatorias utilizan límites mínimos Pydantic.
+- Todavía no se implementaron referencias cruzadas entre etapas, actividades, Skills y evidencias.
+
+### Explicación técnica didáctica
+
+Estas clases son principalmente esquemas o contratos de datos Pydantic.
+
+Un contrato de datos define:
+
+- qué campos existen;
+- qué tipos acepta cada campo;
+- qué información es obligatoria;
+- qué valores son válidos;
+- qué estructuras puede recibir o devolver la API.
+
+No constituyen por sí solas un patrón de diseño.
+
+La ampliación es aditiva porque incorpora `experience` sin eliminar los campos heredados. Esta estrategia permite construir el núcleo v2 en paralelo, conservar compatibilidad y reducir el riesgo de regresiones.
+
+### Pruebas
+
+Se creó `tests/test_lesson_experience_schema.py` con cinco pruebas:
+
+- compatibilidad de una lección heredada sin `experience`;
+- deserialización correcta del contrato v2;
+- rechazo de versiones no soportadas;
+- obligación de umbral para medición por puntuación;
+- rechazo de umbral en otros modos de medición.
+
+### Incidencia controlada
+
+La primera automatización ejecutó pytest mediante `/usr/bin/python3` en lugar del entorno virtual.
+
+El mecanismo de reversión restauró automáticamente todos los cambios.
+
+Se confirmó después:
+
+- `.venv/bin/python3`;
+- Pydantic `2.12.5`;
+- pytest `9.0.3`;
+- repositorio limpio.
+
+La implementación se repitió utilizando explícitamente el entorno virtual del proyecto.
+
+### Validaciones finales
+
+- Cinco pruebas específicas: correctas.
+- Suite backend completa: `176 passed`.
+- Compilación Python: correcta.
+- Validación estructural AST: correcta.
+- Se confirmaron seis clases v2.
+- `Lesson` conserva nueve campos con `experience` aditivo.
+- `git diff --check`: correcto.
+- Control de separaciones excesivas: correcto.
+
+### Límites respetados
+
+- No se modificó `content_tree.json`.
+- No se publicó una lección v2.
+- No se modificó Flutter.
+- No se modificaron endpoints.
+- No se modificó persistencia.
+- No se eliminaron `Example`, `vocabulary`, `grammar` ni `LessonDetailCard`.
+- No se implementaron todavía referencias cruzadas ni progreso v2.
+
+### Cierre técnico
+
+- Commit técnico: `d2c4f60` — `B117 añadir contrato LessonExperience v2`.
+- Push completado a `origin/master`.
+- Repositorio confirmado limpio y sincronizado después de la publicación.
+
+### Estado de B117
+
+El contrato backend aditivo inicial quedó implementado, probado y publicado.
+
+El cierre operativo requiere versionar esta documentación y confirmar nuevamente Git limpio y sincronizado.
