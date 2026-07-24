@@ -1399,3 +1399,119 @@ Fecha: 2026-07-23
 
 - La integridad determinista de metadatos de lección quedó implementada, probada y publicada.
 - La publicación de esta documentación y la verificación final de Git forman parte del cierre operativo.
+
+## B116 — Diseño profesional de la experiencia de lección
+
+### Problema detectado
+
+- El contrato público `Lesson` y `LessonDetailCard` organizaban la experiencia mediante una secuencia tradicional fija.
+- `vocabulary`, `grammar` y `examples` actuaban como bloques principales.
+- La finalización de la lección dependía exclusivamente de completar ejercicios.
+- La experiencia pedagógica, las evidencias y la política de finalización no habían sido formalizadas antes de reforzar el flujo provisional.
+- Se reconoció el riesgo real de retrabajo, coste y pérdida de tiempo en un producto profesional.
+
+### Corrección del método
+
+- Se pausó cualquier cambio técnico de B116.
+- Se volvió al último estado estable confirmado.
+- Se realizó una auditoría arquitectónica de impacto en backend y Flutter.
+- Se prohibió ampliar `Example` o convertir progresivamente el flujo heredado en el núcleo definitivo.
+- Se aprobó construir un reemplazo profesional en paralelo.
+- Se adoptó un método compacto: agrupar trabajo siempre que existan precondiciones, pruebas, reversibilidad y validación suficientes.
+
+### Contrato profesional aprobado
+
+Se creó `docs/lesson-experience-contract.md` como fuente canónica para:
+
+- `LessonExperience`;
+- `Mission`;
+- `LessonStage`;
+- `LanguageSupportItem`;
+- `EvidenceDefinition`;
+- `CompletionPolicy`;
+- responsabilidades de entidades;
+- evidencias y finalización;
+- sustitución paralela;
+- auditoría de impacto;
+- automatización controlada;
+- riesgos y medidas preventivas;
+- criterios de aceptación;
+- Definition of Done.
+
+### Flujo pedagógico objetivo
+
+La experiencia de lección v2 seguirá esta secuencia:
+
+1. misión comunicativa;
+2. encuentro inicial;
+3. comprensión guiada;
+4. lenguaje útil en contexto;
+5. escucha y producción guiada;
+6. respuesta asistida;
+7. conversación aplicada;
+8. retroalimentación y repetición adaptativa;
+9. evidencia observable;
+10. cierre y siguiente acción.
+
+Vocabulario, gramática, traducción y frases de referencia quedarán subordinados a la misión comunicativa.
+
+### Decisión sobre el legado
+
+- `Example` queda congelado como compatibilidad heredada.
+- No recibirá nuevas capacidades.
+- No pertenecerá al contrato v2.
+- `LessonDetailCard` permanecerá temporalmente como renderizador heredado.
+- Flutter incorporará posteriormente un renderizador independiente para `LessonExperience`.
+- La selección entre ambos recorridos será explícita y verificable.
+- El legado solo podrá retirarse después de migración completa, pruebas y reversión comprobada.
+
+### Evidencias y aprendizaje
+
+- Se diferenciaron práctica, aplicación, evidencia, finalización y dominio.
+- Completar una conversación no demostrará automáticamente fluidez.
+- Grabar una frase no demostrará automáticamente pronunciación correcta.
+- El dominio actual basado únicamente en ejercicios queda clasificado como cálculo heredado.
+- La finalización v2 dependerá de evidencias obligatorias declaradas.
+
+### Automatización e innovación con IA
+
+- La IA generará candidatos, pruebas, informes, documentación y propuestas de migración.
+- Los scripts críticos serán deterministas, con precondiciones y resultados revisables.
+- Ningún agente o herramienta podrá publicar contenido activo, elegir Skills, aprobar sus propios resultados o cambiar identificadores silenciosamente.
+- Se priorizará la máxima reducción de tiempo compatible con estabilidad, trazabilidad y revisión humana.
+- La innovación deberá mejorar de manera demostrable velocidad, calidad, seguridad, aprendizaje o capacidad del producto.
+
+### Documentación didáctica
+
+- El manual técnico comenzará como documentación modular versionada.
+- Cada concepto nuevo explicará propósito, problema resuelto, ubicación, relaciones, ejemplo aplicado, alternativas, riesgos y límites.
+- Se diferenciarán claramente contratos, clases, patrones, Skills, agentes, herramientas, adaptadores y MCP.
+- El manual de usuario se elaborará a partir de la primera experiencia v2 estable y se validará mediante un recorrido real.
+
+### Validaciones
+
+- Documento canónico completo: validado.
+- Secciones obligatorias: 11 de 11.
+- Sin secciones pendientes.
+- Sin encabezados duplicados.
+- Sin separaciones excesivas.
+- Sin espacios finales.
+- `git diff --check`: correcto durante su construcción.
+
+### Límites respetados
+
+- No se modificó código backend.
+- No se modificó Flutter.
+- No se modificó la API.
+- No se modificó `content_tree.json`.
+- No se migró contenido activo.
+- No se alteró persistencia ni progreso.
+- No se implementaron todavía las entidades v2.
+
+### Estado de B116
+
+- Diseño arquitectónico aprobado.
+- Auditoría de impacto completada.
+- Estrategia de sustitución paralela aprobada.
+- Contrato canónico preparado para revisión final y versionado.
+- El cierre operativo requiere revisar el diff, realizar commit y push y confirmar Git limpio y sincronizado.
