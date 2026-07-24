@@ -114,23 +114,33 @@ Estado pedagógico actual:
 - 2 ejemplos;
 - 1 ejercicio;
 - 2 conversaciones con 9 turnos;
-- el contenido actual todavía no constituye una versión pedagógica suficientemente utilizable.
+- el contenido activo todavía no constituye una versión pedagógica suficientemente utilizable;
+- existe una primera candidata piloto v2 aislada, no publicada y en estado `pending_approval`.
 
 Constructor Pedagógico de Unidades:
 
 - B105 cerrado: arquitectura profesional, contratos de entrada y salida, matriz de cobertura, revisión humana y preparación futura para MCP.
 - B106 cerrado: contratos deterministas para Skills, especificaciones, cobertura, paquetes candidatos e informes de validación.
 - B107 cerrado: motor determinista para etapas obligatorias, referencias internas, vínculo entre evaluación y `skill_ids`, y estados de cobertura.
+- B116 cerrado: contrato profesional de `LessonExperience` y recorrido pedagógico v2.
+- B117 cerrado: schemas aditivos para misión, etapas, apoyos, evidencias y política de finalización.
+- B118 cerrado: integridad interna de `LessonExperience`.
+- B119 cerrado: integridad externa entre la experiencia y los recursos de `Lesson`.
+- B120 cerrado: validación de Skills de `LessonExperience` contra la especificación aprobada.
+- B121 en cierre: especificación versionada y candidata piloto `a1-u1-l1` aislada, validada y revisada humanamente.
+- La candidata permanece en `pending_approval` porque completar conversaciones todavía no demuestra una producción personal correcta.
 - El contenido candidato permanece separado del contenido pedagógico activo.
-- Los validadores de recursos, duplicados y límites de contenido se implementarán en bloques posteriores separados y trazables.
 - El agente orquestador y MCP no están implementados y no se incorporarán antes de confirmar una necesidad real.
 
 Evolución prevista:
 
+- captura de una respuesta personal mediante texto o voz;
+- evidencia diferenciada entre recorrer una actividad y producir el resultado observable;
 - reconocimiento de voz y palabras;
-- puntuación automática;
-- retroalimentación pedagógica;
-- conversación libre.
+- evaluación semántica y fonética gradual;
+- retroalimentación pedagógica adaptativa;
+- conversación libre;
+- consolidación y comprobación diferida de retención por Skill.
 
 ## Fase 6 — IA controlada
 

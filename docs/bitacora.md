@@ -1872,3 +1872,107 @@ Por ello, validar nuevamente cada evidencia contra la especificación producirí
 La validación de Skills de `LessonExperience` contra su fuente de verdad quedó implementada, probada y publicada.
 
 El cierre operativo requiere versionar esta documentación y confirmar nuevamente Git limpio y sincronizado.
+
+## B121 — Primera lección piloto v2 candidata
+
+### Objetivo
+
+Construir la primera lección piloto basada en `LessonExperience`, mantenerla físicamente separada del contenido activo y someterla a validaciones deterministas y revisión humana antes de cualquier integración.
+
+### Especificación pedagógica aprobada
+
+- Unidad: `a1-u1`.
+- Lección piloto: `a1-u1-l1`.
+- Skill: `a1_introduce_yourself`.
+- Resultado observable: decir el nombre y el lugar de origen durante un intercambio breve.
+- Etapas obligatorias: introducir, practicar, aplicar, evaluar y consolidar.
+- Completar la lección no equivale a dominar ni retener la Skill.
+- La cobertura debe permanecer en `pending_approval` hasta superar la revisión pedagógica humana.
+
+### Infraestructura candidata
+
+- Se creó `content/candidates/` como espacio aislado y versionado.
+- La API y Flutter continúan leyendo exclusivamente `content/content_tree.json`.
+- Se añadió `content/candidates/README.md` con las reglas del ciclo de vida.
+- Se versionó `pedagogical-unit-specification-v2.json` como especificación aprobada independiente.
+- Ningún mecanismo copia o promociona automáticamente candidatos al contenido activo.
+
+### Validaciones ampliadas
+
+- `validate_content_identifiers` valida ahora identificadores jerárquicos v2.
+- Convenciones aprobadas: `-m<n>`, `-s<n>`, `-ls<n>` y `-ev<n>`.
+- Los identificadores de misión, etapas, apoyos y evidencias deben ser únicos en toda la unidad candidata.
+- `evaluation_evidence_ids` admite ejercicios heredados y `EvidenceDefinition` v2.
+- Una evidencia v2 debe declarar la misma Skill que pretende evaluar.
+- Las referencias desconocidas siguen produciendo un único hallazgo determinista.
+- La compatibilidad con candidatos y ejercicios heredados se conserva.
+
+### Candidata piloto creada
+
+- Archivo: `content/candidates/a1-u1/pedagogical-unit-candidate-v2.json`.
+- Contiene una lección, nueve etapas, tres conversaciones, dos ejercicios y tres evidencias.
+- Evidencias obligatorias: `a1-u1-l1-ev2` y `a1-u1-l1-ev3`.
+- Estado de validación almacenado: `pending`.
+- Único hallazgo: advertencia `skill_coverage_status` por cobertura `pending_approval`.
+- El informe almacenado coincide con una validación recalculada.
+- `content/content_tree.json` permaneció idéntico al contenido publicado.
+
+### Revisión humana
+
+- La misión y la progresión pedagógica son adecuadas para A1.
+- La comprensión, los apoyos lingüísticos y la práctica guiada son coherentes.
+- `a1-u1-l1-c3` todavía no captura una producción personal real.
+- Completar `c2` demuestra práctica, pero no producción autónoma.
+- `conversation_completion` demuestra recorrido, no corrección semántica o fonética.
+- La retroalimentación adaptativa no debe convertirse automáticamente en requisito obligatorio.
+- Faltan referencias revisadas de pronunciación en-US y en-GB.
+- Las traducciones de cortesía requieren revisión lingüística neutral.
+
+### Decisión pedagógica
+
+- B121 no declara demostrada, dominada ni retenida la Skill.
+- La candidata permanece aislada y en `pending_approval`.
+- La aprobación futura requiere capturar una respuesta personal mediante texto o voz.
+- La evidencia deberá diferenciar completar una actividad de producir correctamente el resultado observable.
+- El dominio y la retención requerirán evidencias múltiples y revisión diferida en bloques posteriores.
+
+### Protección automática del artefacto
+
+- Se creó `tests/test_pedagogical_candidate_artifact.py`.
+- La prueba carga el JSON real mediante `PedagogicalUnitCandidate`.
+- Comprueba que la candidata coincide exactamente con la especificación aprobada.
+- Recalcula el informe y rechaza informes obsoletos o inventados.
+- Protege el estado `pending_approval` y las dos evidencias obligatorias.
+
+### Validaciones finales
+
+- Compilación Python: correcta.
+- Pruebas de identificadores y evidencias ampliadas: `43 passed`.
+- Pruebas del artefacto real: `3 passed`.
+- Suite backend completa: `219 passed`.
+- `git diff --check`: correcto.
+
+### Commits técnicos
+
+- `4154989` — `B121 preparar infraestructura para candidata v2`.
+- `135a07c` — `B121 separar finalizacion de dominio de Skill`.
+- `1e08ad3` — `B121 crear candidata piloto v2 pendiente de aprobacion`.
+- Los tres commits fueron publicados en `origin/master`.
+
+### Límites respetados
+
+- No se modificó `content_tree.json`.
+- No se modificó Flutter.
+- No se modificaron endpoints, progreso ni persistencia.
+- No se implementó evaluación semántica o fonética.
+- No se generaron ni sustituyeron audios.
+- No se implementó promoción automática de candidatos.
+- No se declaró dominio ni retención de la Skill.
+
+### Estado de B121
+
+La primera lección piloto v2 quedó especificada, construida, aislada, validada, protegida mediante pruebas y revisada humanamente.
+
+La candidata permanece en `pending_approval` porque todavía falta una capacidad real para capturar y representar la producción personal del estudiante.
+
+El cierre operativo requiere incorporar esta documentación, versionar el roadmap actualizado y confirmar nuevamente Git limpio y sincronizado.
