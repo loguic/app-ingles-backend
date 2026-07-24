@@ -19,6 +19,9 @@ from app.services.pedagogical_duplicate_validation import (
 from app.services.pedagogical_exercise_integrity_validation import (
     validate_exercise_integrity,
 )
+from app.services.pedagogical_lesson_experience_skill_validation import (
+    validate_lesson_experience_skills,
+)
 from app.services.pedagogical_lesson_metadata_validation import (
     validate_lesson_metadata_integrity,
 )
@@ -355,6 +358,7 @@ def validate_pedagogical_candidate(
         *validate_required_resource_inventory(candidate),
         *validate_duplicate_exercise_options(candidate),
         *validate_exercise_integrity(candidate),
+        *validate_lesson_experience_skills(candidate),
         *validate_content_text_integrity(candidate),
         *validate_content_limits(candidate),
         *validate_content_identifiers(candidate),
