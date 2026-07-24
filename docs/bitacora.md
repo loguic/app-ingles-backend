@@ -1707,3 +1707,95 @@ Este comportamiento se aproxima al principio de raíz de agregado: una entidad p
 La integridad interna de `LessonExperience` quedó implementada, probada y publicada.
 
 El cierre operativo requiere versionar esta documentación y confirmar nuevamente Git limpio y sincronizado.
+
+## B119 — Integridad externa de `LessonExperience`
+
+### Objetivo
+
+Proteger las referencias entre `LessonExperience` y los recursos reales declarados por `Lesson`, sin sustituir las validaciones del Constructor Pedagógico.
+
+### Implementación
+
+- Se añadió `validate_external_experience_integrity` como `model_validator` de `Lesson`.
+- Los identificadores de conversaciones deben ser únicos en una lección v2.
+- Los identificadores de ejercicios deben ser únicos en una lección v2.
+- Una conversación y un ejercicio no pueden compartir el mismo identificador.
+- Una evidencia `exercise_result` debe referenciar un ejercicio existente.
+- Las Skills declaradas por una evidencia `exercise_result` deben pertenecer al ejercicio relacionado.
+- Una evidencia `conversation_completion` debe referenciar una conversación existente.
+- Las lecciones heredadas sin `experience` conservan su comportamiento anterior.
+
+### Explicación técnica didáctica
+
+B118 validó las relaciones internas del agregado `LessonExperience`.
+
+B119 valida su frontera externa: comprueba que determinadas referencias internas correspondan realmente a recursos disponibles en la lección.
+
+El validador está situado en `Lesson` porque allí están disponibles simultáneamente la experiencia, las conversaciones y los ejercicios.
+
+Los tipos `comprehension_result`, `contextual_response` y `guided_production` no se resuelven todavía contra un modelo concreto, porque el contrato B116 no define aún un registro general de actividades.
+
+### Separación de responsabilidades
+
+El contrato público v2 rechaza referencias externas incoherentes cuando una lección contiene `LessonExperience`.
+
+Las lecciones candidatas heredadas sin `experience` continúan llegando al sistema de validadores pedagógicos, que genera `findings` en lugar de ser detenido por Pydantic.
+
+Esta separación evita que el contrato público sustituya prematuramente al proceso controlado de autoría y revisión.
+
+### Pruebas
+
+- Se creó `tests/test_lesson_experience_external_integrity.py`.
+- Se añadió un caso externo coherente.
+- Se añadieron seis casos negativos para duplicados, colisiones, recursos inexistentes y Skills incompatibles.
+- La fase roja confirmó `6 failed, 1 passed` antes de implementar el validador.
+- Las pruebas específicas de B119 quedaron en `7 passed`.
+- Las pruebas seleccionadas de regresión quedaron en `44 passed`.
+- La suite backend completa quedó en `202 passed`.
+
+### Regresiones detectadas y corregidas
+
+- El fixture válido de B117 contenía una evidencia `exercise_result`, pero no incluía el ejercicio referenciado.
+- Se completó ese fixture con un ejercicio coherente y con la Skill declarada por la evidencia.
+- La primera versión del validador comprobaba duplicados antes de detectar que una lección no tenía `experience`.
+- Esto detenía pruebas del Constructor Pedagógico que introducen duplicados deliberadamente para generar `findings`.
+- El retorno para lecciones heredadas se movió al inicio del validador.
+- Después de la corrección, la suite completa pasó sin regresiones.
+
+### Corrección del método
+
+- Un comando extenso mediante `python3 -c` volvió a deformarse antes de ejecutarse.
+- El error no modificó `content.py`.
+- Se confirmó el último estado estable antes de continuar.
+- El validador se preparó como fragmento temporal plano, se inspeccionó y después se aplicó con restauración automática.
+- El fragmento temporal se eliminó tras superar las pruebas.
+
+### Validaciones finales
+
+- Compilación Python: correcta.
+- Pruebas específicas B119: `7 passed`.
+- Pruebas seleccionadas de contrato y regresión: `44 passed`.
+- Suite backend completa: `202 passed`.
+- `git diff --check`: correcto.
+
+### Límites respetados
+
+- No se modificó `content_tree.json`.
+- No se modificó Flutter.
+- No se modificaron endpoints ni persistencia.
+- No se validó todavía el catálogo global de Skills.
+- No se resolvieron todos los `stage.activity_ids` contra un registro general.
+- No se impuso un tipo concreto de actividad para cada tipo de etapa.
+- No se evaluó calidad pedagógica o lingüística.
+
+### Cierre técnico
+
+- Commit técnico: `c1e1af9` — `B119 validar referencias externas LessonExperience`.
+- Push completado a `origin/master`.
+- Repositorio confirmado limpio y sincronizado después de la publicación.
+
+### Estado de B119
+
+La integridad externa inicial de `LessonExperience` quedó implementada, probada y publicada.
+
+El cierre operativo requiere versionar esta documentación y confirmar nuevamente Git limpio y sincronizado.
