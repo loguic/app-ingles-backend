@@ -54,7 +54,8 @@
     "Use LessonExperience as the v2 pedagogical orchestrator.",
     "Keep the candidate isolated from content_tree.json.",
     "Preserve stable existing identifiers only when their pedagogical meaning remains valid.",
-    "Do not modify Flutter, progress persistence or active content during candidate construction."
+    "Do not modify Flutter, progress persistence or active content during candidate construction.",
+    "Completing the pilot lesson must not automatically declare the Skill mastered or retained."
   ],
   "acceptance_criteria": [
     "The learner states both a name and an origin.",
@@ -62,6 +63,7 @@
     "The required evidence is linked to the Skill.",
     "Every required Skill stage has an explicit activity or evidence reference.",
     "The candidate passes all deterministic backend validations.",
-    "Coverage remains pending_approval until human pedagogical review."
+    "Coverage remains pending_approval until human pedagogical review.",
+    "The candidate distinguishes lesson completion from Skill mastery and retention."
   ]
 }
