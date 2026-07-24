@@ -81,6 +81,16 @@ def test_lesson_parses_professional_experience_v2():
         "id": "a1-u1-l1",
         "title": "Introduce yourself",
         "experience": build_experience_payload(),
+        "exercises": [
+            {
+                "id": "a1-u1-l1-q1",
+                "type": "mcq",
+                "prompt": "Complete the introduction.",
+                "options": ["Hello.", "Goodbye."],
+                "answer_index": 0,
+                "skill_ids": ["a1_introduce_yourself"],
+            }
+        ],
     })
 
     assert lesson.experience is not None

@@ -573,6 +573,83 @@ class Lesson(BaseModel):
     conversations: List[Conversation] = Field(default_factory=list)
     exercises: List[ExerciseMCQ] = []
 
+    @model_validator(mode="after")
+    def validate_external_experience_integrity(self) -> "Lesson":
+        "Validate experience references against lesson resources. / Valida las referencias de la experiencia contra los recursos de la lección."
+        if self.experience is None:
+            return self
+
+        conversation_ids = [
+            conversation.id
+            for conversation in self.conversations
+        ]
+        exercise_ids = [
+            exercise.id
+            for exercise in self.exercises
+        ]
+
+        if len(conversation_ids) != len(set(conversation_ids)):
+            raise ValueError(
+                "Lesson conversation IDs must be unique"
+            )
+
+        if len(exercise_ids) != len(set(exercise_ids)):
+            raise ValueError(
+                "Lesson exercise IDs must be unique"
+            )
+
+        shared_ids = sorted(
+            set(conversation_ids) & set(exercise_ids)
+        )
+        if shared_ids:
+            raise ValueError(
+                "Lesson activity IDs must be unique across resources: "
+                + ", ".join(shared_ids)
+            )
+
+        conversation_id_set = set(conversation_ids)
+        exercises_by_id = {
+            exercise.id: exercise
+            for exercise in self.exercises
+        }
+
+        for evidence in self.experience.evidence_definitions:
+            if evidence.evidence_type == "exercise_result":
+                exercise = exercises_by_id.get(evidence.activity_id)
+
+                if exercise is None:
+                    raise ValueError(
+                        "Evidence "
+                        + evidence.id
+                        + " references unknown exercise: "
+                        + evidence.activity_id
+                    )
+
+                unknown_skill_ids = sorted(
+                    set(evidence.skill_ids)
+                    - set(exercise.skill_ids)
+                )
+                if unknown_skill_ids:
+                    raise ValueError(
+                        "Evidence "
+                        + evidence.id
+                        + " Skills must be declared by exercise "
+                        + exercise.id
+                        + ": "
+                        + ", ".join(unknown_skill_ids)
+                    )
+
+            elif evidence.evidence_type == "conversation_completion":
+                if evidence.activity_id not in conversation_id_set:
+                    raise ValueError(
+                        "Evidence "
+                        + evidence.id
+                        + " references unknown conversation: "
+                        + evidence.activity_id
+                    )
+
+        return self
+
 
 class Unit(BaseModel):
     id: str
