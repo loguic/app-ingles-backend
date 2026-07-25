@@ -127,15 +127,16 @@ Constructor Pedagógico de Unidades:
 - B118 cerrado: integridad interna de `LessonExperience`.
 - B119 cerrado: integridad externa entre la experiencia y los recursos de `Lesson`.
 - B120 cerrado: validación de Skills de `LessonExperience` contra la especificación aprobada.
-- B121 en cierre: especificación versionada y candidata piloto `a1-u1-l1` aislada, validada y revisada humanamente.
-- La candidata permanece en `pending_approval` porque completar conversaciones todavía no demuestra una producción personal correcta.
+- B121 cerrado: especificación versionada y candidata piloto `a1-u1-l1` aislada, validada y revisada humanamente.
+- B122 en cierre: contratos de producción personal, prompts obligatorios y evidencia `contextual_response` incorporados.
+- Registrar una producción mediante texto o voz no implica todavía que sea correcta.
+- La candidata permanece en `pending_approval` hasta disponer de persistencia, presentación y revisión de las producciones capturadas.
 - El contenido candidato permanece separado del contenido pedagógico activo.
 - El agente orquestador y MCP no están implementados y no se incorporarán antes de confirmar una necesidad real.
 
 Evolución prevista:
 
-- captura de una respuesta personal mediante texto o voz;
-- evidencia diferenciada entre recorrer una actividad y producir el resultado observable;
+- persistencia y presentación de producciones personales;
 - reconocimiento de voz y palabras;
 - evaluación semántica y fonética gradual;
 - retroalimentación pedagógica adaptativa;

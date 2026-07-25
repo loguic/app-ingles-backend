@@ -1976,3 +1976,82 @@ La primera lección piloto v2 quedó especificada, construida, aislada, validada
 La candidata permanece en `pending_approval` porque todavía falta una capacidad real para capturar y representar la producción personal del estudiante.
 
 El cierre operativo requiere incorporar esta documentación, versionar el roadmap actualizado y confirmar nuevamente Git limpio y sincronizado.
+
+## B122 — Captura de producción personal observable
+
+### Objetivo
+
+Representar una producción personal real del estudiante mediante contratos explícitos, sin confundir captura, recorrido, evaluación, dominio ni retención de una Skill.
+
+### Contratos incorporados
+
+- `LearnerProductionPrompt` declara qué turnos requieren producción.
+- Cada prompt define modalidades aceptadas: `text` o `voice`.
+- `LearnerProductionItem` representa una respuesta capturada.
+- `ConversationProductionSubmission` agrupa las producciones de una conversación.
+- La validación comprueba conversación, prompt, turno, modalidad y obligatoriedad.
+- Los contratos no contienen puntuación, corrección semántica, evaluación fonética, dominio ni retención.
+
+### Integridad pedagógica
+
+- Un `production_prompt` solo puede pertenecer a un turno `learner`.
+- Sus identificadores siguen `<conversation_id>-p<n>`.
+- Los identificadores deben ser únicos dentro de la unidad candidata.
+- `contextual_response` requiere una conversación existente con al menos un prompt.
+- Su `measurement_mode` continúa siendo `completion`.
+- Una producción registrada no se considera automáticamente correcta.
+
+### Aplicación a la candidata
+
+- `a1-u1-l1-c3-t2` requiere `a1-u1-l1-c3-p1` para el nombre.
+- `a1-u1-l1-c3-t4` requiere `a1-u1-l1-c3-p2` para el origen.
+- `a1-u1-l1-c3-t6` requiere `a1-u1-l1-c3-p3` para la respuesta de cortesía.
+- Los tres prompts admiten texto y voz y son obligatorios.
+- `a1-u1-l1-ev3` cambió de `conversation_completion` a `contextual_response`.
+- El informe recalculado permanece en `pending` con una advertencia `skill_coverage_status`.
+- La cobertura continúa en `pending_approval`.
+
+### Revisión humana actualizada
+
+- B122 resuelve el contrato de captura y evidencia contextual.
+- Persistencia y presentación en Flutter continúan pendientes.
+- No existe todavía evaluación semántica o fonética.
+- También siguen pendientes la adaptación condicional, pronunciaciones revisadas y traducciones neutrales.
+- La candidata permanece aislada del contenido activo.
+
+### Protección automática
+
+- `tests/test_pedagogical_candidate_artifact.py` protege los tres prompts.
+- La prueba verifica modalidades, obligatoriedad y `contextual_response`.
+- El informe almacenado debe coincidir con la validación recalculada.
+- `content/content_tree.json` permanece sin modificaciones.
+
+### Validaciones finales
+
+- Validación específica de candidata y contratos: `62 passed`.
+- Suite backend completa: `250 passed`.
+- `git diff --check`: correcto.
+- Git quedó limpio y sincronizado después del commit técnico.
+
+### Commits técnicos
+
+- `4829318` — `B122 definir contratos de produccion personal`.
+- `b2dccd6` — `B122 aplicar produccion personal a candidata`.
+- Ambos commits fueron publicados en `origin/master`.
+
+### Límites respetados
+
+- No se añadieron tablas, migraciones ni endpoints.
+- No se implementó persistencia de producciones.
+- No se modificó Flutter.
+- No se implementó evaluación semántica ni fonética.
+- No se modificó el contenido pedagógico activo.
+- No se declaró demostrada, dominada ni retenida la Skill.
+
+### Estado de B122
+
+La captura de producción personal quedó definida, validada y aplicada a la candidata aislada.
+
+La candidata continúa en `pending_approval` hasta disponer de persistencia, presentación y revisión de las producciones capturadas.
+
+El cierre operativo requiere versionar esta documentación y confirmar nuevamente Git limpio y sincronizado.
