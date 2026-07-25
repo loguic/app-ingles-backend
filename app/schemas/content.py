@@ -47,6 +47,34 @@ class ConversationChoice(BaseModel):
     next_turn_id: Optional[str] = None
 
 
+class LearnerProductionPrompt(BaseModel):
+    """Define how one learner turn accepts personal production.
+
+    Define cómo un turno del estudiante acepta producción personal.
+    """
+
+    id: str
+    accepted_modalities: List[Literal["text", "voice"]] = Field(
+        min_length=1
+    )
+    required: bool = True
+
+    @model_validator(mode="after")
+    def validate_unique_modalities(self) -> "LearnerProductionPrompt":
+        """Reject repeated capture modalities.
+
+        Rechaza modalidades de captura repetidas.
+        """
+        if len(self.accepted_modalities) != len(
+            set(self.accepted_modalities)
+        ):
+            raise ValueError(
+                "Production prompt modalities must be unique"
+            )
+
+        return self
+
+
 class ConversationTurn(BaseModel):
     # Stable identifier for progress, evaluation and future analytics.
     # Identificador estable para progreso, evaluación y analítica futura.
@@ -62,6 +90,10 @@ class ConversationTurn(BaseModel):
     # Optional reference audio for listening and pronunciation practice.
     # Audio de referencia opcional para escucha y práctica oral.
     pronunciations: List[Pronunciation] = Field(default_factory=list)
+
+    # Optional instruction for capturing personal learner production.
+    # Instrucción opcional para capturar producción personal del estudiante.
+    production_prompt: Optional[LearnerProductionPrompt] = None
 
     # Deterministic destination used by branching conversations.
     # Destino determinista utilizado por conversaciones ramificadas.
@@ -126,6 +158,25 @@ class Conversation(BaseModel):
             raise ValueError(
                 "Conversation transitions reference unknown turns: "
                 + ", ".join(unknown_turn_ids)
+            )
+
+        for turn in self.turns:
+            if (
+                turn.production_prompt is not None
+                and turn.speaker != "learner"
+            ):
+                raise ValueError(
+                    "Conversation production prompt requires a learner turn"
+                )
+
+        production_prompt_ids = [
+            turn.production_prompt.id
+            for turn in self.turns
+            if turn.production_prompt is not None
+        ]
+        if len(production_prompt_ids) != len(set(production_prompt_ids)):
+            raise ValueError(
+                "Conversation production prompt IDs must be unique"
             )
 
         if self.mode != "branching":
@@ -608,6 +659,10 @@ class Lesson(BaseModel):
             )
 
         conversation_id_set = set(conversation_ids)
+        conversations_by_id = {
+            conversation.id: conversation
+            for conversation in self.conversations
+        }
         exercises_by_id = {
             exercise.id: exercise
             for exercise in self.exercises
@@ -637,6 +692,34 @@ class Lesson(BaseModel):
                         + exercise.id
                         + ": "
                         + ", ".join(unknown_skill_ids)
+                    )
+
+            elif evidence.evidence_type == "contextual_response":
+                conversation = conversations_by_id.get(
+                    evidence.activity_id
+                )
+
+                if conversation is None:
+                    raise ValueError(
+                        "Contextual response references unknown "
+                        "conversation: "
+                        + evidence.activity_id
+                    )
+
+                has_production_prompt = any(
+                    turn.production_prompt is not None
+                    for turn in conversation.turns
+                )
+                if not has_production_prompt:
+                    raise ValueError(
+                        "Contextual response requires at least one "
+                        "production prompt"
+                    )
+
+                if evidence.measurement_mode != "completion":
+                    raise ValueError(
+                        "Contextual response must use completion "
+                        "measurement"
                     )
 
             elif evidence.evidence_type == "conversation_completion":

@@ -131,3 +131,63 @@ def test_conversation_completion_requires_existing_conversation():
     ]
 
     assert_invalid(payload, "references unknown conversation")
+
+def test_contextual_response_requires_existing_conversation():
+    payload = build_lesson_payload()
+    evidence = payload["experience"]["evidence_definitions"][0]
+    evidence["evidence_type"] = "contextual_response"
+    evidence["measurement_mode"] = "completion"
+    evidence["activity_id"] = "a1-u1-l1-c999"
+    payload["experience"]["stages"][1]["activity_ids"] = [
+        "a1-u1-l1-c999"
+    ]
+
+    assert_invalid(
+        payload,
+        "Contextual response references unknown conversation",
+    )
+
+
+def test_contextual_response_requires_production_prompt():
+    payload = build_lesson_payload()
+    evidence = payload["experience"]["evidence_definitions"][0]
+    evidence["evidence_type"] = "contextual_response"
+    evidence["measurement_mode"] = "completion"
+    evidence["activity_id"] = "a1-u1-l1-c1"
+    payload["experience"]["stages"][1]["activity_ids"] = [
+        "a1-u1-l1-c1"
+    ]
+
+    assert_invalid(
+        payload,
+        "Contextual response requires at least one production prompt",
+    )
+
+
+def test_contextual_response_requires_completion_measurement():
+    payload = build_lesson_payload()
+    payload["conversations"][0]["turns"].append(
+        {
+            "id": "turn-2",
+            "speaker": "learner",
+            "en": "Respond personally.",
+            "production_prompt": {
+                "id": "a1-u1-l1-c1-p1",
+                "accepted_modalities": ["text"],
+                "required": True,
+            },
+        }
+    )
+
+    evidence = payload["experience"]["evidence_definitions"][0]
+    evidence["evidence_type"] = "contextual_response"
+    evidence["measurement_mode"] = "binary"
+    evidence["activity_id"] = "a1-u1-l1-c1"
+    payload["experience"]["stages"][1]["activity_ids"] = [
+        "a1-u1-l1-c1"
+    ]
+
+    assert_invalid(
+        payload,
+        "Contextual response must use completion measurement",
+    )

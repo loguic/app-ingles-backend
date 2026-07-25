@@ -96,6 +96,8 @@ def validate_content_identifiers(
                 else:
                     seen_child_ids[content_type].add(element.id)
 
+    seen_production_prompt_ids: set[str] = set()
+
     for lesson in unit.lessons:
         for conversation in lesson.conversations:
             turn_pattern = re.compile(
@@ -104,6 +106,9 @@ def validate_content_identifiers(
             choice_pattern = re.compile(
                 rf"^{re.escape(conversation.id)}-choice-"
                 r"[a-z0-9]+(?:-[a-z0-9]+)*$"
+            )
+            production_prompt_pattern = re.compile(
+                rf"^{re.escape(conversation.id)}-p[1-9][0-9]*$"
             )
 
             for turn in conversation.turns:
@@ -121,6 +126,45 @@ def validate_content_identifiers(
                             reference_ids=[turn.id],
                         )
                     )
+
+                production_prompt = turn.production_prompt
+                if production_prompt is not None:
+                    prompt_id = production_prompt.id
+
+                    if (
+                        production_prompt_pattern.fullmatch(prompt_id)
+                        is None
+                    ):
+                        findings.append(
+                            ValidationFinding(
+                                validator_id=(
+                                    "content_identifier_integrity"
+                                ),
+                                severity="error",
+                                message=(
+                                    "Candidate contains invalid production "
+                                    f"prompt identifier: {prompt_id}."
+                                ),
+                                reference_ids=[prompt_id],
+                            )
+                        )
+
+                    if prompt_id in seen_production_prompt_ids:
+                        findings.append(
+                            ValidationFinding(
+                                validator_id=(
+                                    "content_identifier_integrity"
+                                ),
+                                severity="error",
+                                message=(
+                                    "Candidate contains duplicate production "
+                                    f"prompt identifier: {prompt_id}."
+                                ),
+                                reference_ids=[prompt_id],
+                            )
+                        )
+                    else:
+                        seen_production_prompt_ids.add(prompt_id)
 
                 for choice in turn.choices:
                     if choice_pattern.fullmatch(choice.id) is not None:

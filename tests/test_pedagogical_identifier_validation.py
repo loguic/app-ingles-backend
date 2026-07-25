@@ -345,3 +345,80 @@ def test_duplicate_lesson_experience_identifier_across_lessons(
     findings = validate_content_identifiers(candidate)
 
     assert any(message in finding.message for finding in findings)
+
+def _add_production_prompt(
+    conversation: dict,
+    prompt_id: str,
+) -> None:
+    """Add one learner production prompt for identifier tests.
+
+    Añade un prompt de producción para probar identificadores.
+    """
+    conversation["turns"].append(
+        {
+            "id": conversation["id"] + "-t2",
+            "speaker": "learner",
+            "en": "Respond personally.",
+            "production_prompt": {
+                "id": prompt_id,
+                "accepted_modalities": ["text"],
+                "required": True,
+            },
+        }
+    )
+
+
+def test_malformed_production_prompt_identifier_generates_finding():
+    payload = deepcopy(build_candidate_payload())
+    conversation = payload["candidate_unit"]["lessons"][0][
+        "conversations"
+    ][0]
+    invalid_id = conversation["id"] + "-prompt-1"
+    _add_production_prompt(conversation, invalid_id)
+    candidate = build_candidate(payload)
+
+    findings = validate_content_identifiers(candidate)
+
+    matching = [
+        finding
+        for finding in findings
+        if "invalid production prompt identifier" in finding.message
+    ]
+    assert len(matching) == 1
+    assert matching[0].validator_id == "content_identifier_integrity"
+    assert matching[0].severity == "error"
+    assert matching[0].reference_ids == [invalid_id]
+
+
+def test_duplicate_production_prompt_identifier_across_unit_generates_finding():
+    payload = deepcopy(build_candidate_payload())
+    first_lesson = payload["candidate_unit"]["lessons"][0]
+    second_lesson = payload["candidate_unit"]["lessons"][1]
+    first_conversation = first_lesson["conversations"][0]
+
+    second_conversation = {
+        "id": second_lesson["id"] + "-c1",
+        "title": "Second production conversation",
+        "mode": "guided",
+        "turns": [
+            {
+                "id": second_lesson["id"] + "-c1-t1",
+                "speaker": "partner",
+                "en": "Respond.",
+            }
+        ],
+    }
+    second_lesson["conversations"] = [second_conversation]
+
+    duplicate_id = first_conversation["id"] + "-p1"
+    _add_production_prompt(first_conversation, duplicate_id)
+    _add_production_prompt(second_conversation, duplicate_id)
+    candidate = build_candidate(payload)
+
+    findings = validate_content_identifiers(candidate)
+
+    assert any(
+        "duplicate production prompt identifier" in finding.message
+        and finding.reference_ids == [duplicate_id]
+        for finding in findings
+    )
