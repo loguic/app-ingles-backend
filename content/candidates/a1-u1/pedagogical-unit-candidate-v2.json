@@ -344,7 +344,7 @@
               ],
               "stage_id": "a1-u1-l1-s8",
               "activity_id": "a1-u1-l1-c3",
-              "evidence_type": "conversation_completion",
+              "evidence_type": "contextual_response",
               "measurement_mode": "completion",
               "success_threshold": null,
               "required": true
@@ -530,7 +530,15 @@
                 "es": "Di tu nombre.",
                 "pronunciations": [],
                 "next_turn_id": "a1-u1-l1-c3-t3",
-                "choices": []
+                "choices": [],
+                "production_prompt": {
+                  "id": "a1-u1-l1-c3-p1",
+                  "accepted_modalities": [
+                    "text",
+                    "voice"
+                  ],
+                  "required": true
+                }
               },
               {
                 "id": "a1-u1-l1-c3-t3",
@@ -548,7 +556,15 @@
                 "es": "Di de dónde eres.",
                 "pronunciations": [],
                 "next_turn_id": "a1-u1-l1-c3-t5",
-                "choices": []
+                "choices": [],
+                "production_prompt": {
+                  "id": "a1-u1-l1-c3-p2",
+                  "accepted_modalities": [
+                    "text",
+                    "voice"
+                  ],
+                  "required": true
+                }
               },
               {
                 "id": "a1-u1-l1-c3-t5",
@@ -566,7 +582,15 @@
                 "es": "Responde de forma educada.",
                 "pronunciations": [],
                 "next_turn_id": null,
-                "choices": []
+                "choices": [],
+                "production_prompt": {
+                  "id": "a1-u1-l1-c3-p3",
+                  "accepted_modalities": [
+                    "text",
+                    "voice"
+                  ],
+                  "required": true
+                }
               }
             ]
           }
@@ -648,12 +672,14 @@
     "Review every English and Spanish text pedagogically and linguistically.",
     "Approve the use of free mode for the applied conversation.",
     "Review or produce en-US and en-GB pronunciation references.",
-    "Confirm whether completion evidence is sufficient for this pilot before semantic or phonetic evaluation exists."
+    "Define how captured personal productions will be persisted and presented for review."
   ],
   "proposed_change_summary": [
     "Add one isolated v2 pilot lesson for a1-u1.",
     "Do not modify content/content_tree.json.",
     "Keep Skill coverage pending until human review.",
-    "Do not treat lesson completion as Skill mastery or retention."
+    "Do not treat lesson completion as Skill mastery or retention.",
+    "Require three personal productions in the applied conversation.",
+    "Replace route completion evidence with contextual response evidence."
   ]
 }

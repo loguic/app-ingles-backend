@@ -84,3 +84,44 @@ def test_stored_candidate_remains_pending_human_approval():
         "a1-u1-l1-ev2",
         "a1-u1-l1-ev3",
     ]
+
+def test_stored_candidate_requires_personal_production_prompts():
+    """Protect captured production separately from route completion.
+
+    Protege la producción capturada frente a la simple finalización.
+    """
+    candidate = load_candidate()
+    lesson = candidate.candidate_unit.lessons[0]
+    conversation = next(
+        item
+        for item in lesson.conversations
+        if item.id == "a1-u1-l1-c3"
+    )
+
+    prompts = [
+        turn.production_prompt
+        for turn in conversation.turns
+        if turn.production_prompt is not None
+    ]
+
+    assert [prompt.id for prompt in prompts] == [
+        "a1-u1-l1-c3-p1",
+        "a1-u1-l1-c3-p2",
+        "a1-u1-l1-c3-p3",
+    ]
+    assert all(
+        prompt.accepted_modalities == ["text", "voice"]
+        and prompt.required
+        for prompt in prompts
+    )
+
+    assert lesson.experience is not None
+    evidence = next(
+        item
+        for item in lesson.experience.evidence_definitions
+        if item.id == "a1-u1-l1-ev3"
+    )
+
+    assert evidence.activity_id == conversation.id
+    assert evidence.evidence_type == "contextual_response"
+    assert evidence.measurement_mode == "completion"
