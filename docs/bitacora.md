@@ -2193,3 +2193,34 @@ La exposición backend de producciones personales quedó implementada y limitada
 La candidata continúa en `pending_approval`; la siguiente capacidad necesaria es presentar y revisar las producciones personales en Flutter sin asumir todavía evaluación automática.
 
 El cierre operativo requiere versionar esta documentación y confirmar nuevamente Git limpio y sincronizado.
+
+## B125 — Sincronización del roadmap tras B104 frontend
+
+### Objetivo
+
+Sincronizar la planificación backend con el cierre real de B104 frontend antes de abrir una nueva capacidad técnica.
+
+### Actualización realizada
+
+- El roadmap reconoce que B104 frontend completó la presentación y revisión de producciones personales persistidas.
+- La candidata `a1-u1-l1` continúa aislada y en `pending_approval`.
+- B104 frontend no publicó contenido candidato.
+- Presentar una producción no implica evaluarla ni demostrar dominio o retención de ninguna Skill.
+- `presentación de producciones personales en Flutter` queda marcada como completada dentro de la evolución prevista de Fase 5.
+- El orden restante de Fase 5 no fue modificado.
+
+### Límites respetados
+
+- No se modificó código backend.
+- No se modificó Flutter.
+- No se publicó `content/candidates/`.
+- No se inició reconocimiento de voz.
+- No se implementó evaluación semántica ni fonética.
+- No se abrió Fase 6.
+- No se introdujeron agentes ni MCP.
+
+### Estado de B125
+
+La planificación queda sincronizada con el estado real del producto.
+
+La siguiente capacidad técnica deberá definirse explícitamente a partir del roadmap actualizado; no se asume automáticamente que el siguiente bloque sea reconocimiento de voz.

@@ -132,13 +132,13 @@ Constructor Pedagógico de Unidades:
 - B123 cerrado: persistencia normalizada y lectura interna estructurada de las producciones personales incorporadas.
 - B124 cerrado: exposición API controlada de producciones personales limitada al contenido pedagógico activo.
 - Registrar una producción mediante texto o voz no implica todavía que sea correcta.
-- La candidata permanece en `pending_approval`: persistencia y exposición backend ya están disponibles, pero siguen pendientes la presentación y revisión en Flutter.
+- La candidata permanece en `pending_approval`: persistencia y exposición backend están disponibles, y B104 frontend completó la presentación y revisión de producciones personales sin publicar la candidata ni introducir evaluación automática.
 - El contenido candidato permanece separado del contenido pedagógico activo.
 - El agente orquestador y MCP no están implementados y no se incorporarán antes de confirmar una necesidad real.
 
 Evolución prevista:
 
-- presentación de producciones personales en Flutter;
+- presentación de producciones personales en Flutter — completada en B104 frontend;
 - reconocimiento de voz y palabras;
 - evaluación semántica y fonética gradual;
 - retroalimentación pedagógica adaptativa;
