@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal, Optional
 
 from pydantic import BaseModel, Field, model_validator
@@ -85,3 +86,25 @@ class ConversationProductionSubmission(BaseModel):
             )
 
         return self
+
+
+class LearnerProductionRecord(LearnerProductionItem):
+    """Represent one persisted production for internal traceability.
+
+    Representa una producción persistida para trazabilidad interna.
+    """
+
+    production_id: int
+
+
+class ConversationProductionSubmissionRecord(
+    ConversationProductionSubmission
+):
+    """Represent one persisted submission and its captured productions.
+
+    Representa una entrega persistida y sus producciones capturadas.
+    """
+
+    submission_id: int
+    submitted_at: datetime
+    productions: list[LearnerProductionRecord]

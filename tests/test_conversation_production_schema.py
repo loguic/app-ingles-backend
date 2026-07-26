@@ -3,7 +3,9 @@ from pydantic import ValidationError
 
 from app.schemas.conversation_production import (
     ConversationProductionSubmission,
+    ConversationProductionSubmissionRecord,
     LearnerProductionItem,
+    LearnerProductionRecord,
 )
 
 
@@ -147,3 +149,47 @@ def test_submission_rejects_duplicate_prompt_ids():
         match="production prompt IDs must be unique",
     ):
         ConversationProductionSubmission.model_validate(payload)
+
+
+def test_persisted_production_adds_internal_identifier():
+    # Preserve captured content and add only internal traceability.
+    # Conserva la captura y añade solo trazabilidad interna.
+    payload = build_text_production()
+    payload["production_id"] = 11
+
+    record = LearnerProductionRecord.model_validate(payload)
+
+    assert record.production_id == 11
+    assert record.response_text == "My name is Ana."
+    assert record.audio_reference is None
+    assert "correct" not in LearnerProductionRecord.model_fields
+    assert "score" not in LearnerProductionRecord.model_fields
+
+
+def test_persisted_submission_reconstructs_captured_productions():
+    # Rebuild one persisted submission without evaluating its responses.
+    # Reconstruye una entrega persistida sin evaluar sus respuestas.
+    payload = build_submission()
+    payload["submission_id"] = 7
+    payload["submitted_at"] = "2026-07-26T12:00:00+00:00"
+
+    for index, production in enumerate(
+        payload["productions"],
+        start=21,
+    ):
+        production["production_id"] = index
+
+    record = ConversationProductionSubmissionRecord.model_validate(
+        payload
+    )
+
+    assert record.submission_id == 7
+    assert record.submitted_at.isoformat() == (
+        "2026-07-26T12:00:00+00:00"
+    )
+    assert [
+        production.production_id
+        for production in record.productions
+    ] == [21, 22]
+    assert record.productions[0].response_text == "My name is Ana."
+    assert record.productions[1].audio_reference.endswith("origin.wav")
