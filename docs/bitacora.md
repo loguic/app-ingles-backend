@@ -2055,3 +2055,69 @@ La captura de producción personal quedó definida, validada y aplicada a la can
 La candidata continúa en `pending_approval` hasta disponer de persistencia, presentación y revisión de las producciones capturadas.
 
 El cierre operativo requiere versionar esta documentación y confirmar nuevamente Git limpio y sincronizado.
+
+## B123 — Persistencia de producción personal
+
+### Objetivo
+
+Persistir de forma estructurada y trazable las producciones personales capturadas por los contratos de B122, sin convertir su almacenamiento en evaluación, dominio ni retención de una Skill.
+
+### Persistencia incorporada
+
+- `conversation_production_submissions` representa cada entrega completa de una conversación.
+- `learner_productions` almacena las producciones individuales asociadas a la entrega.
+- Cada producción conserva `prompt_id`, `turn_id`, modalidad, texto y referencia de audio cuando corresponda.
+- La relación hija usa clave foránea con borrado en cascada.
+- La unicidad por entrega y prompt evita duplicar una misma producción requerida.
+- Las tablas fueron creadas mediante el mecanismo actual `Base.metadata.create_all` y su estructura fue comprobada en PostgreSQL.
+
+### Contratos de lectura persistida
+
+- `LearnerProductionRecord` incorpora el identificador persistido de cada producción.
+- `ConversationProductionSubmissionRecord` incorpora identificador de entrega, fecha de envío y producciones persistidas.
+- Los contratos continúan sin puntuación, corrección, dominio, retención ni evaluación fonética.
+
+### Servicio interno
+
+- `save_conversation_production_submission` valida la entrega antes de iniciar escrituras.
+- La entrega y sus producciones se guardan dentro de una única transacción.
+- Ante `SQLAlchemyError`, el servicio ejecuta `rollback` y no conserva datos parciales.
+- `get_conversation_production_submissions_by_user` reconstruye las entregas persistidas en orden cronológico.
+- El servicio recibe explícitamente la `Conversation`; no carga ni publica contenido candidato.
+
+### Protección automática
+
+- La prueba de guardado y lectura verifica persistencia y reconstrucción completas.
+- La prueba de entrega inválida confirma que la validación ocurre antes de escribir.
+- La prueba de fallo de `commit` confirma rollback de entrega y producciones.
+- Los datos de prueba se aíslan mediante usuarios `test-user-b123-*`.
+
+### Validaciones finales
+
+- Contratos y persistencia relacionados: `23 passed`.
+- Suite backend completa: `256 passed`.
+- `git diff --check`: correcto.
+- El cambio técnico quedó publicado y Git limpio antes de documentar el cierre.
+
+### Commits técnicos
+
+- `76ddb52` — `B123 definir persistencia de producciones`.
+- `00b9269` — `B123 definir registros de producciones persistidas`.
+- `f31e533` — `B123 persistir producciones capturadas`.
+- Los commits fueron publicados en `origin/master`.
+
+### Límites respetados
+
+- No se añadió ningún endpoint para estas producciones.
+- No se modificó Flutter.
+- No se expuso la candidata al contenido activo.
+- No se implementó evaluación semántica ni fonética.
+- No se declaró demostrada, dominada ni retenida ninguna Skill.
+
+### Estado de B123
+
+La persistencia y lectura interna de las producciones personales quedaron implementadas, validadas y protegidas automáticamente.
+
+La candidata continúa en `pending_approval`: todavía falta presentar y revisar estas producciones dentro de la experiencia de usuario.
+
+El cierre operativo requiere versionar esta documentación y confirmar nuevamente Git limpio y sincronizado.

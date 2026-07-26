@@ -128,15 +128,16 @@ Constructor Pedagógico de Unidades:
 - B119 cerrado: integridad externa entre la experiencia y los recursos de `Lesson`.
 - B120 cerrado: validación de Skills de `LessonExperience` contra la especificación aprobada.
 - B121 cerrado: especificación versionada y candidata piloto `a1-u1-l1` aislada, validada y revisada humanamente.
-- B122 en cierre: contratos de producción personal, prompts obligatorios y evidencia `contextual_response` incorporados.
+- B122 cerrado: contratos de producción personal, prompts obligatorios y evidencia `contextual_response` incorporados.
+- B123 en cierre: persistencia normalizada y lectura interna estructurada de las producciones personales incorporadas.
 - Registrar una producción mediante texto o voz no implica todavía que sea correcta.
-- La candidata permanece en `pending_approval` hasta disponer de persistencia, presentación y revisión de las producciones capturadas.
+- La candidata permanece en `pending_approval` hasta disponer de presentación en Flutter y revisión de las producciones capturadas.
 - El contenido candidato permanece separado del contenido pedagógico activo.
 - El agente orquestador y MCP no están implementados y no se incorporarán antes de confirmar una necesidad real.
 
 Evolución prevista:
 
-- persistencia y presentación de producciones personales;
+- presentación de producciones personales en Flutter;
 - reconocimiento de voz y palabras;
 - evaluación semántica y fonética gradual;
 - retroalimentación pedagógica adaptativa;
