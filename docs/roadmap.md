@@ -130,8 +130,9 @@ Constructor Pedagógico de Unidades:
 - B121 cerrado: especificación versionada y candidata piloto `a1-u1-l1` aislada, validada y revisada humanamente.
 - B122 cerrado: contratos de producción personal, prompts obligatorios y evidencia `contextual_response` incorporados.
 - B123 cerrado: persistencia normalizada y lectura interna estructurada de las producciones personales incorporadas.
+- B124 cerrado: exposición API controlada de producciones personales limitada al contenido pedagógico activo.
 - Registrar una producción mediante texto o voz no implica todavía que sea correcta.
-- La candidata permanece en `pending_approval` hasta disponer de presentación en Flutter y revisión de las producciones capturadas.
+- La candidata permanece en `pending_approval`: persistencia y exposición backend ya están disponibles, pero siguen pendientes la presentación y revisión en Flutter.
 - El contenido candidato permanece separado del contenido pedagógico activo.
 - El agente orquestador y MCP no están implementados y no se incorporarán antes de confirmar una necesidad real.
 

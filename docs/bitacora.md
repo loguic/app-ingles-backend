@@ -2121,3 +2121,75 @@ La persistencia y lectura interna de las producciones personales quedaron implem
 La candidata continúa en `pending_approval`: todavía falta presentar y revisar estas producciones dentro de la experiencia de usuario.
 
 El cierre operativo requiere versionar esta documentación y confirmar nuevamente Git limpio y sincronizado.
+
+## B124 — Exposición controlada de producciones personales
+
+### Objetivo
+
+Exponer mediante API las producciones personales persistidas, manteniendo una frontera estricta entre contenido activo y contenido candidato.
+
+### Frontera de contenido activo
+
+- `save_active_conversation_production_submission` resuelve la conversación exclusivamente desde `content/content_tree.json`.
+- Una conversación inexistente en contenido activo es rechazada antes de persistir.
+- `level_id`, `unit_id` y `lesson_id` deben coincidir con la jerarquía publicada.
+- La validación de prompts, turnos, modalidades y obligatoriedad continúa delegada a los contratos de B122.
+- La persistencia atómica y el rollback continúan delegados a B123.
+
+### Lectura controlada
+
+- `get_active_conversation_production_submissions_by_user` parte de la persistencia interna existente.
+- Solo devuelve entregas cuya conversación continúa presente en contenido activo.
+- También exige coincidencia de la jerarquía persistida con la publicada.
+- Una producción histórica puede permanecer en base de datos sin quedar expuesta por la API.
+
+### API incorporada
+
+- `POST /api/v1/conversation-productions` guarda una entrega válida perteneciente a contenido activo.
+- `GET /api/v1/conversation-productions/{user_id}` devuelve únicamente producciones asociadas a contenido activo.
+- Los errores de validación contextual se traducen a HTTP `400`.
+- El router quedó registrado en la API v1.
+
+### Aislamiento de candidata
+
+- `content/candidates/` continúa sin ser consumido por la API.
+- `a1-u1-l1-c3` sigue fuera de `content/content_tree.json`.
+- Las pruebas positivas utilizan contenido sintético mediante `monkeypatch`; no publican la candidata.
+- La API rechaza actualmente `a1-u1-l1-c3` cuando se intenta usar como contenido activo real.
+- La revisión humana continúa en `pending_approval`.
+
+### Protección automática
+
+- La frontera de servicio rechaza conversación inexistente y jerarquía incorrecta.
+- La frontera de servicio valida guardado y lectura cuando el contenido se resuelve como activo.
+- La lectura controlada oculta persistencia perteneciente a contenido no activo.
+- Las pruebas HTTP verifican aislamiento, guardado/lectura, jerarquía y filtrado.
+- Servicio y API relacionados: `12 passed`.
+
+### Validaciones finales
+
+- Suite backend completa: `265 passed`.
+- `git diff --check`: correcto.
+- El cambio técnico quedó publicado y Git limpio antes del cierre documental.
+
+### Commit técnico
+
+- `b26bcf3` — `B124 exponer producciones de contenido activo`.
+- El commit fue publicado en `origin/master`.
+
+### Límites respetados
+
+- No se modificó `content/content_tree.json`.
+- No se publicó ni promocionó la candidata.
+- No se modificó Flutter.
+- No se implementó evaluación semántica ni fonética.
+- No se almacenó ninguna conclusión de corrección, dominio o retención de Skills.
+- No se añadió preview de contenido candidato mediante API.
+
+### Estado de B124
+
+La exposición backend de producciones personales quedó implementada y limitada al contenido pedagógico activo.
+
+La candidata continúa en `pending_approval`; la siguiente capacidad necesaria es presentar y revisar las producciones personales en Flutter sin asumir todavía evaluación automática.
+
+El cierre operativo requiere versionar esta documentación y confirmar nuevamente Git limpio y sincronizado.

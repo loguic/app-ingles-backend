@@ -24,7 +24,7 @@ La candidata constituye un recorrido pedagógico coherente, pero todavía no apo
 
 ## Bloqueos para la aprobación
 
-1. Las producciones capturadas todavía no tienen persistencia ni presentación en Flutter.
+1. Las producciones capturadas ya tienen persistencia y exposición backend controlada, pero todavía no tienen presentación ni revisión en Flutter.
 2. Completar `a1-u1-l1-c2` demuestra práctica guiada, no producción autónoma.
 3. Todavía no existe evaluación semántica o fonética de las respuestas capturadas.
 4. La etapa adaptativa `a1-u1-l1-s7` no debe convertirse en requisito obligatorio cuando no exista necesidad de refuerzo.
@@ -36,9 +36,9 @@ La candidata constituye un recorrido pedagógico coherente, pero todavía no apo
 - B122 representa la producción personal mediante contratos separados de contenido, captura y validación.
 - La candidata permanecerá aislada y en `pending_approval`.
 - Registrar una producción no equivale a considerarla correcta.
-- La siguiente capacidad necesaria es persistir y presentar las producciones capturadas.
+- B123 incorporó persistencia estructurada y B124 exposición backend controlada; la siguiente capacidad necesaria es presentar y revisar las producciones capturadas en Flutter.
 - La evaluación, el dominio y la retención se resolverán posteriormente mediante evidencias múltiples y revisión diferida.
 
 ## Condición para continuar
 
-Antes de aprobar la lección piloto deberá diseñarse la persistencia y presentación de las producciones personales, sin asumir todavía evaluación semántica o fonética automática.
+Antes de aprobar la lección piloto deberá completarse la presentación y revisión de las producciones personales en Flutter, sin asumir todavía evaluación semántica o fonética automática.
