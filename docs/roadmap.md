@@ -129,7 +129,7 @@ Constructor Pedagógico de Unidades:
 - B120 cerrado: validación de Skills de `LessonExperience` contra la especificación aprobada.
 - B121 cerrado: especificación versionada y candidata piloto `a1-u1-l1` aislada, validada y revisada humanamente.
 - B122 cerrado: contratos de producción personal, prompts obligatorios y evidencia `contextual_response` incorporados.
-- B123 en cierre: persistencia normalizada y lectura interna estructurada de las producciones personales incorporadas.
+- B123 cerrado: persistencia normalizada y lectura interna estructurada de las producciones personales incorporadas.
 - Registrar una producción mediante texto o voz no implica todavía que sea correcta.
 - La candidata permanece en `pending_approval` hasta disponer de presentación en Flutter y revisión de las producciones capturadas.
 - El contenido candidato permanece separado del contenido pedagógico activo.
