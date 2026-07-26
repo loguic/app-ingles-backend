@@ -12,7 +12,9 @@ from app.schemas.conversation_production import (
     ConversationProductionSubmission,
 )
 from app.services.conversation_production_persistence_service import (
+    get_active_conversation_production_submissions_by_user,
     get_conversation_production_submissions_by_user,
+    save_active_conversation_production_submission,
     save_conversation_production_submission,
 )
 
@@ -271,3 +273,175 @@ def test_database_failure_rolls_back_complete_submission(
 
     assert submission_count == 0
     assert production_count == 0
+
+def test_active_submission_rejects_unknown_conversation():
+    """Reject production absent from active content.
+
+    Rechaza producción ausente del contenido activo.
+    """
+    db = SessionLocal()
+    try:
+        with pytest.raises(
+            ValueError,
+            match="Conversation does not exist",
+        ):
+            save_active_conversation_production_submission(
+                build_submission(),
+                db,
+            )
+
+        count = db.query(SubmissionModel).filter(
+            SubmissionModel.user_id
+            == "test-user-b123-service"
+        ).count()
+    finally:
+        db.close()
+
+    assert count == 0
+
+def test_active_submission_rejects_mismatched_hierarchy(
+    monkeypatch,
+):
+    """Reject production assigned to the wrong active hierarchy.
+
+    Rechaza producción asociada a una jerarquía activa incorrecta.
+    """
+    monkeypatch.setattr(
+        "app.services.conversation_production_persistence_service."
+        "get_conversation_context_by_id",
+        lambda conversation_id: (
+            "A1",
+            "a1-u1",
+            "a1-u1-l1",
+            build_conversation(),
+        ),
+    )
+
+    submission = build_submission().model_copy(
+        update={"lesson_id": "a1-u1-l2"}
+    )
+
+    db = SessionLocal()
+    try:
+        with pytest.raises(
+            ValueError,
+            match="Conversation hierarchy does not match",
+        ):
+            save_active_conversation_production_submission(
+                submission,
+                db,
+            )
+
+        count = db.query(SubmissionModel).filter(
+            SubmissionModel.user_id
+            == "test-user-b123-service"
+        ).count()
+    finally:
+        db.close()
+
+    assert count == 0
+
+def test_active_submission_persists_resolved_conversation(
+    monkeypatch,
+):
+    """Persist production resolved through active content boundary.
+
+    Persiste producción resuelta mediante la frontera activa.
+    """
+    monkeypatch.setattr(
+        "app.services.conversation_production_persistence_service."
+        "get_conversation_context_by_id",
+        lambda conversation_id: (
+            "A1",
+            "a1-u1",
+            "a1-u1-l1",
+            build_conversation(),
+        ),
+    )
+
+    db = SessionLocal()
+    try:
+        created = save_active_conversation_production_submission(
+            build_submission(),
+            db,
+        )
+        recovered = (
+            get_conversation_production_submissions_by_user(
+                "test-user-b123-service",
+                db,
+            )
+        )
+    finally:
+        db.close()
+
+    assert created.submission_id > 0
+    assert created.conversation_id == "a1-u1-l1-c3"
+    assert len(created.productions) == 3
+    assert recovered == [created]
+
+def test_active_read_hides_submission_outside_active_content():
+    """Hide persisted production absent from active content.
+
+    Oculta producción persistida ausente del contenido activo.
+    """
+    db = SessionLocal()
+    try:
+        created = save_conversation_production_submission(
+            build_submission(),
+            build_conversation(),
+            db,
+        )
+        internal_records = (
+            get_conversation_production_submissions_by_user(
+                "test-user-b123-service",
+                db,
+            )
+        )
+        active_records = (
+            get_active_conversation_production_submissions_by_user(
+                "test-user-b123-service",
+                db,
+            )
+        )
+    finally:
+        db.close()
+
+    assert internal_records == [created]
+    assert active_records == []
+
+def test_active_read_returns_submission_from_active_content(
+    monkeypatch,
+):
+    """Return persisted production when its content is active.
+
+    Devuelve producción persistida cuando su contenido está activo.
+    """
+    db = SessionLocal()
+    try:
+        created = save_conversation_production_submission(
+            build_submission(),
+            build_conversation(),
+            db,
+        )
+
+        monkeypatch.setattr(
+            "app.services.conversation_production_persistence_service."
+            "get_conversation_context_by_id",
+            lambda conversation_id: (
+                "A1",
+                "a1-u1",
+                "a1-u1-l1",
+                build_conversation(),
+            ),
+        )
+
+        active_records = (
+            get_active_conversation_production_submissions_by_user(
+                "test-user-b123-service",
+                db,
+            )
+        )
+    finally:
+        db.close()
+
+    assert active_records == [created]

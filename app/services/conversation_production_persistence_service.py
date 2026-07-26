@@ -11,6 +11,9 @@ from app.schemas.conversation_production import (
     ConversationProductionSubmissionRecord,
     LearnerProductionRecord,
 )
+from app.services.content_service import (
+    get_conversation_context_by_id,
+)
 from app.services.conversation_production_validation import (
     validate_conversation_production_submission,
 )
@@ -45,6 +48,36 @@ def _build_submission_record(
         ],
     )
 
+
+def save_active_conversation_production_submission(
+    record: ConversationProductionSubmission,
+    db: Session,
+) -> ConversationProductionSubmissionRecord:
+    """Resolve active content and persist one validated submission.
+
+    Resuelve contenido activo y persiste una entrega validada.
+    """
+    context = get_conversation_context_by_id(
+        record.conversation_id
+    )
+    if context is None:
+        raise ValueError("Conversation does not exist")
+
+    level_id, unit_id, lesson_id, conversation = context
+    if (
+        record.level_id != level_id
+        or record.unit_id != unit_id
+        or record.lesson_id != lesson_id
+    ):
+        raise ValueError(
+            "Conversation hierarchy does not match the content tree"
+        )
+
+    return save_conversation_production_submission(
+        record,
+        conversation,
+        db,
+    )
 
 def save_conversation_production_submission(
     record: ConversationProductionSubmission,
@@ -99,6 +132,39 @@ def save_conversation_production_submission(
 
     return result
 
+
+def get_active_conversation_production_submissions_by_user(
+    user_id: str,
+    db: Session,
+) -> list[ConversationProductionSubmissionRecord]:
+    """Return only submissions belonging to active content.
+
+    Devuelve solo entregas pertenecientes al contenido activo.
+    """
+    records = get_conversation_production_submissions_by_user(
+        user_id,
+        db,
+    )
+    active_records: list[
+        ConversationProductionSubmissionRecord
+    ] = []
+
+    for record in records:
+        context = get_conversation_context_by_id(
+            record.conversation_id
+        )
+        if context is None:
+            continue
+
+        level_id, unit_id, lesson_id, _ = context
+        if (
+            record.level_id == level_id
+            and record.unit_id == unit_id
+            and record.lesson_id == lesson_id
+        ):
+            active_records.append(record)
+
+    return active_records
 
 def get_conversation_production_submissions_by_user(
     user_id: str,
