@@ -7,18 +7,20 @@ Actualizado: 2026-07-27
 Fase 5 — Frontend y práctica conversacional.
 
 ## Último bloque cerrado
-B135 — Desacoplar evaluación runtime de la candidata pedagógica.
-- Commit técnico: `9795b2f`.
-- Pipeline runtime neutral respecto a `PedagogicalUnitCandidate`.
-- 7 pruebas del alcance B135 superadas; 4 nuevas.
-- Suite backend completa: 349 passed.
+B136 — Frontera de evidencia fonética trazable.
+- Commit técnico: `616d43d`.
+- Evidencia acústica separada de la producción original.
+- Evaluación fonética determinista desde evidencia normalizada y umbral pedagógico.
+- Persistencia reutiliza `ProductionEvaluationResult` de B131.
+- 8 pruebas específicas B136 superadas.
+- Suite backend completa: 357 passed.
 - `git diff --check`: correcto.
-- Candidata pedagógica permanece aislada y no publicada.
+- No existe todavía un analizador acústico real.
 
 ## Bloque activo
 Ninguno.
 
-El siguiente bloque se definirá desde la secuencia vigente de Fase 5 sin reconstruir B129-B135 mediante inspecciones generales.
+El siguiente bloque deberá continuar la capacidad de evaluación semántica y fonética gradual desde la frontera creada en B136, sin inventar puntuaciones fonéticas ni publicar la candidata pedagógica.
 
 ## Secuencia vigente de Fase 5
 
@@ -198,3 +200,12 @@ Todo cambio futuro de esquema debe implementarse mediante una revisión Alembic 
 - Una futura fuente de contenido activo podrá proporcionar la misma configuración.
 - La prueba de rollback vuelve a demostrar atomicidad real dentro del pipeline.
 - 349 pruebas backend superadas.
+
+## Resultado técnico B136
+- `PhoneticEvaluationEvidence` representa evidencia acústica normalizada y trazable.
+- Producción, evidencia acústica y resultado evaluativo permanecen separados.
+- El evaluador fonético verifica producción, criterio y audio antes de aplicar el umbral.
+- La salida utiliza el contrato y persistencia evaluativa existentes.
+- El transcript reconocido no se interpreta como calidad fonética.
+- El análisis acústico real permanece pendiente.
+- 357 pruebas backend superadas.

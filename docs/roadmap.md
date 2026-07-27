@@ -140,7 +140,7 @@ Evolución prevista:
 
 - presentación de producciones personales en Flutter — completada en B104 frontend;
 - reconocimiento de voz y palabras — completado en B126–B128;
-- evaluación semántica y fonética gradual — B129 creó contratos trazables, B130 añadió el primer evaluador determinista, B131 incorporó persistencia de resultados, B132 añadió feedback pedagógico, B133 persistió ese feedback, B134 unificó el flujo en un pipeline atómico y B135 desacopló ese runtime de la candidata pedagógica; comprensión semántica avanzada y fonética siguen pendientes;
+- evaluación semántica y fonética gradual — B129 creó contratos trazables, B130 añadió el primer evaluador semántico determinista, B131 incorporó persistencia de resultados, B132 añadió feedback pedagógico, B133 persistió ese feedback, B134 unificó el flujo en un pipeline atómico, B135 desacopló el runtime de la candidata pedagógica y B136 creó la frontera trazable para evidencia fonética; comprensión semántica avanzada y el analizador acústico real siguen pendientes;
 - retroalimentación pedagógica adaptativa;
 - conversación libre;
 - consolidación y comprobación diferida de retención por Skill.

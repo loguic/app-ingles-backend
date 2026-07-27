@@ -2545,3 +2545,29 @@ Resultado:
 
 Límites:
 B135 no publica la candidata, no añade API pública, no cambia reglas pedagógicas y no implementa mastery, retention, fonética ni IA.
+
+## B136 — Frontera de evidencia fonética trazable
+
+Fecha: 2026-07-27
+
+Objetivo:
+Crear una frontera neutral y trazable para evaluación fonética sin confundir reconocimiento de palabras con calidad de pronunciación.
+
+Resultado:
+- Se creó `PhoneticEvaluationEvidence` para representar evidencia acústica normalizada.
+- La evidencia conserva `production_id`, `criterion_id`, `audio_reference`, puntuación, analizador, versión y fecha de análisis.
+- Se creó `evaluate_phonetic_production_from_evidence`.
+- El evaluador exige producción de voz, criterio fonético y medición `score`.
+- Se valida la correspondencia producción → criterio → audio → evidencia antes de evaluar.
+- El resultado `passed` o `failed` se determina con el `success_threshold` del criterio.
+- La salida reutiliza `ProductionEvaluationResult` y la persistencia introducida en B131.
+- `learner_productions` continúa sin almacenar `phonetic_score`.
+- El transcript reconocido no se usa como medida de pronunciación.
+- La integración de persistencia fue comprobada con una producción de voz real en SQLite aislado.
+- 8 pruebas específicas B136 superadas.
+- Suite completa backend: 357 passed.
+- `git diff --check`: correcto.
+- Commit técnico: `616d43d`.
+
+Límites:
+B136 no analiza audio todavía, no selecciona un motor acústico, no añade criterios fonéticos a la candidata, no publica contenido, no añade API pública y no introduce mastery, retention ni IA.
