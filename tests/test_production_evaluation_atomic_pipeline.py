@@ -14,6 +14,9 @@ from app.db.models import (
 )
 from app.schemas.conversation_production import LearnerProductionRecord
 from app.schemas.pedagogical_unit import PedagogicalUnitCandidate
+from app.services.production_evaluation_runtime_adapter import (
+    build_runtime_evaluation_config_from_candidate,
+)
 from app.services.production_evaluation_pipeline_service import (
     evaluate_production_atomically,
 )
@@ -92,8 +95,10 @@ def test_pipeline_persists_evaluation_and_feedback_atomically(db):
     production = create_production(db)
 
     outcome = evaluate_production_atomically(
-        load_candidate(),
-        "a1-u1-l1",
+        build_runtime_evaluation_config_from_candidate(
+            load_candidate(),
+            "a1-u1-l1",
+        ),
         production,
         db,
     )
@@ -117,19 +122,31 @@ def test_pipeline_persists_evaluation_and_feedback_atomically(db):
     assert db.query(FeedbackModel).count() == 1
 
 
-def test_pipeline_rolls_back_evaluation_if_feedback_fails(db):
+def test_pipeline_rolls_back_evaluation_if_feedback_fails(
+    db,
+    monkeypatch,
+):
     production = create_production(db)
-    candidate = load_candidate().model_copy(
-        update={"feedback_plans": []}
+    config = build_runtime_evaluation_config_from_candidate(
+        load_candidate(),
+        "a1-u1-l1",
+    )
+
+    def fail_feedback_generation(*args, **kwargs):
+        raise ValueError("Forced feedback failure")
+
+    monkeypatch.setattr(
+        "app.services.production_evaluation_pipeline_service."
+        "generate_pedagogical_feedback",
+        fail_feedback_generation,
     )
 
     with pytest.raises(
         ValueError,
-        match="No feedback plan for lesson",
+        match="Forced feedback failure",
     ):
         evaluate_production_atomically(
-            candidate,
-            "a1-u1-l1",
+            config,
             production,
             db,
         )
@@ -150,8 +167,10 @@ def test_voice_pipeline_uses_recognized_text(db):
     )
 
     outcome = evaluate_production_atomically(
-        load_candidate(),
-        "a1-u1-l1",
+        build_runtime_evaluation_config_from_candidate(
+            load_candidate(),
+            "a1-u1-l1",
+        ),
         production,
         db,
         recognized_text="I am from Ecuador.",

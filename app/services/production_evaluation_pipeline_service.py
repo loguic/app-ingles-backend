@@ -1,27 +1,28 @@
 from sqlalchemy.orm import Session
 
 from app.schemas.conversation_production import LearnerProductionRecord
-from app.schemas.pedagogical_unit import PedagogicalUnitCandidate
 from app.schemas.production_evaluation_outcome import (
     ProductionEvaluationOutcome,
+)
+from app.schemas.production_evaluation_runtime import (
+    ProductionEvaluationRuntimeConfig,
 )
 from app.services.pedagogical_feedback_persistence_service import (
     save_production_feedback,
 )
 from app.services.pedagogical_feedback_service import (
-    generate_candidate_pedagogical_feedback,
+    generate_pedagogical_feedback,
 )
 from app.services.production_evaluation_persistence_service import (
     save_production_evaluation_results,
 )
 from app.services.semantic_evaluation_service import (
-    evaluate_candidate_semantic_production,
+    evaluate_semantic_production_from_plan,
 )
 
 
 def evaluate_production_atomically(
-    candidate: PedagogicalUnitCandidate,
-    lesson_id: str,
+    config: ProductionEvaluationRuntimeConfig,
     production: LearnerProductionRecord,
     db: Session,
     *,
@@ -33,10 +34,9 @@ def evaluate_production_atomically(
     """
     try:
         evaluation_results = (
-            evaluate_candidate_semantic_production(
-                candidate,
-                lesson_id,
+            evaluate_semantic_production_from_plan(
                 production,
+                config.evaluation_plan,
                 recognized_text=recognized_text,
             )
         )
@@ -49,10 +49,20 @@ def evaluate_production_atomically(
 
         feedbacks = []
         for result in persisted_results:
-            feedback = generate_candidate_pedagogical_feedback(
-                candidate,
-                lesson_id,
+            criterion = next(
+                item
+                for item in config.evaluation_plan.criteria
+                if item.id == result.criterion_id
+            )
+            rule = next(
+                item
+                for item in config.feedback_plan.rules
+                if item.criterion_id == criterion.id
+            )
+            feedback = generate_pedagogical_feedback(
                 result,
+                criterion,
+                rule,
             )
             feedbacks.append(
                 save_production_feedback(
