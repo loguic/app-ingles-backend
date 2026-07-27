@@ -7,19 +7,18 @@ Actualizado: 2026-07-27
 Fase 5 — Frontend y práctica conversacional.
 
 ## Último bloque cerrado
-B131 — Persistencia trazable de resultados evaluativos.
-- Commit técnico: `66d348b`.
-- 10 pruebas específicas superadas.
-- Suite backend completa: 321 passed.
-- Alembic baseline: `b1fe71209621`.
-- Migración B131: `98ff29894521`.
-- PostgreSQL verificado en `98ff29894521 (head)`.
-- `alembic check`: sin diferencias.
+B132 — Feedback pedagógico determinista y trazable.
+- Commit técnico: `bb5c331`.
+- 13 pruebas específicas superadas.
+- Suite backend completa: 334 passed.
+- `git diff --check`: correcto.
+- Feedback trazable hasta `evaluation_result_id`, `production_id` y `criterion_id`.
+- Sin persistencia de feedback, mastery, retention, fonética ni IA.
 
 ## Bloque activo
 Ninguno.
 
-El siguiente bloque se definirá desde la secuencia vigente de Fase 5 sin reconstruir B129-B131 mediante inspecciones generales.
+El siguiente bloque se definirá desde la secuencia vigente de Fase 5 sin reconstruir B129-B132 mediante inspecciones generales.
 
 ## Secuencia vigente de Fase 5
 
@@ -163,3 +162,13 @@ Si hacen falta varias inspecciones consecutivas sin producir cambio técnico, de
 
 ## Migraciones desde B131
 Todo cambio futuro de esquema debe implementarse mediante una revisión Alembic versionada. No usar `Base.metadata.create_all()` para evolucionar una base existente.
+
+## Resultado técnico B132
+- `ProductionFeedbackRule` declara feedback pedagógico fuera del generador.
+- `ProductionFeedback` conserva trazabilidad al resultado evaluativo.
+- `LessonProductionFeedbackPlan` agrupa reglas por lección.
+- `PedagogicalUnitCandidate.feedback_plans` integra el feedback de forma aditiva.
+- La candidata A1-U1-L1 contiene reglas para nombre, procedencia y cortesía.
+- La integridad feedback → evaluación → criterio se valida antes del runtime.
+- 13 pruebas específicas B132 superadas.
+- Suite backend completa: 334 passed.

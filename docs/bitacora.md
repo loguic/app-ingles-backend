@@ -2440,3 +2440,30 @@ Desde B131, los cambios de esquema deben expresarse mediante migraciones Alembic
 
 Límites:
 B131 no añade API pública de resultados, feedback adaptativo, mastery, retention, evaluación fonética ni comprensión semántica avanzada.
+
+## B132 — Feedback pedagógico determinista y trazable
+
+Fecha: 2026-07-27
+
+Objetivo:
+Transformar un resultado evaluativo concreto en orientación pedagógica útil y trazable sin confundir feedback con dominio de una Skill.
+
+Resultado:
+- Se creó `ProductionFeedbackRule` como contrato declarativo de feedback.
+- Se creó `ProductionFeedback` con trazabilidad a `evaluation_result_id`, `production_id` y `criterion_id`.
+- Se implementó `generate_pedagogical_feedback`.
+- El feedback diferencia resultados `passed` y `failed`.
+- Cada salida conserva la descripción pedagógica del criterio y una orientación accionable.
+- Se añadió `LessonProductionFeedbackPlan`.
+- `PedagogicalUnitCandidate` admite `feedback_plans` de forma aditiva.
+- La candidata A1-U1-L1 declara reglas de feedback para nombre, procedencia y respuesta cortés.
+- Se implementó resolución candidata → criterio → regla → feedback.
+- Se validó la integridad feedback plan → evaluation plan → criterion.
+- El feedback no modifica `LearnerProduction` ni `ProductionEvaluationResult`.
+- 13 pruebas específicas B132 superadas.
+- Suite completa backend: 334 passed.
+- `git diff --check`: correcto.
+- Commit técnico: `bb5c331`.
+
+Límites:
+B132 no persiste todavía el feedback, no expone API pública y no implementa mastery, retention, evaluación fonética, comprensión semántica avanzada ni IA generativa.
