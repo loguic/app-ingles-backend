@@ -7,17 +7,19 @@ Actualizado: 2026-07-27
 Fase 5 — Frontend y práctica conversacional.
 
 ## Último bloque cerrado
-B130 — Primer evaluador semántico determinista.
-- Implementación técnica completada y validada.
-- Commit técnico: `4109b98`.
-- 19 pruebas específicas superadas.
-- Suite backend completa: 311 passed.
-- `git diff --check`: correcto.
+B131 — Persistencia trazable de resultados evaluativos.
+- Commit técnico: `66d348b`.
+- 10 pruebas específicas superadas.
+- Suite backend completa: 321 passed.
+- Alembic baseline: `b1fe71209621`.
+- Migración B131: `98ff29894521`.
+- PostgreSQL verificado en `98ff29894521 (head)`.
+- `alembic check`: sin diferencias.
 
 ## Bloque activo
 Ninguno.
 
-El siguiente bloque se definirá desde la secuencia vigente de Fase 5 sin reconstruir B129/B130 mediante inspecciones generales.
+El siguiente bloque se definirá desde la secuencia vigente de Fase 5 sin reconstruir B129-B131 mediante inspecciones generales.
 
 ## Secuencia vigente de Fase 5
 
@@ -148,3 +150,16 @@ Si hacen falta varias inspecciones consecutivas sin producir cambio técnico, de
 - La candidata A1-U1-L1 declara reglas para nombre, procedencia y respuesta cortés.
 - 19 pruebas específicas B130 superadas.
 - Suite completa backend: 311 passed.
+
+## Resultado técnico B131
+- Evaluación y producción permanecen separadas.
+- `production_evaluation_results` conserva resultados trazables por `production_id`.
+- El historial evaluativo admite múltiples evaluadores/versiones sin sobrescritura.
+- B130 y B131 forman el flujo producción → evaluación → persistencia.
+- Alembic 1.18.5 pasa a ser el mecanismo oficial de evolución del esquema.
+- Baseline histórico: `b1fe71209621`.
+- Migración de resultados evaluativos: `98ff29894521`.
+- 321 pruebas backend superadas.
+
+## Migraciones desde B131
+Todo cambio futuro de esquema debe implementarse mediante una revisión Alembic versionada. No usar `Base.metadata.create_all()` para evolucionar una base existente.

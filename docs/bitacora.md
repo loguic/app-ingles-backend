@@ -2408,3 +2408,35 @@ Resultado:
 
 Límite técnico:
 Este primer evaluador ejecuta patrones lingüísticos deterministas configurables. Evalúa criterios clasificados como semánticos, pero no constituye todavía un motor de comprensión semántica profunda. No se implementaron API, persistencia del resultado, evaluación fonética, feedback adaptativo, mastery, retention ni IA.
+
+## B131 — Persistencia trazable de resultados evaluativos
+
+Fecha: 2026-07-27
+
+Objetivo:
+Persistir los resultados generados por la evaluación de producciones personales sin mezclar evaluación con la producción capturada.
+
+Resultado:
+- Se creó `production_evaluation_results` como entidad persistente separada de `learner_productions`.
+- Cada resultado mantiene `production_id`, `criterion_id`, `status`, `score`, `evaluator_id`, `evaluator_version` y `evaluated_at`.
+- `ProductionEvaluationResultRecord` incorpora `evaluation_result_id` como identidad persistente.
+- La FK `production_id -> learner_productions.id` usa `ON DELETE CASCADE`.
+- Se implementó persistencia por lotes y consulta del historial evaluativo por producción.
+- El historial es append-only: nuevas evaluaciones/versiones no sobrescriben resultados anteriores.
+- Se integró producción persistida → evaluación semántica B130 → persistencia B131.
+- Los errores previos a la evaluación no generan resultados persistidos.
+- Se introdujo Alembic 1.18.5 como mecanismo versionado de evolución del esquema.
+- Baseline histórico: `b1fe71209621`.
+- Migración B131: `98ff29894521`.
+- PostgreSQL fue migrado y verificado en `98ff29894521 (head)`.
+- `alembic check`: sin nuevas operaciones detectadas.
+- 10 pruebas específicas B131 superadas.
+- Suite completa backend: 321 passed.
+- `git diff --check`: correcto.
+- Commit técnico: `66d348b`.
+
+Decisión de infraestructura:
+Desde B131, los cambios de esquema deben expresarse mediante migraciones Alembic versionadas. `Base.metadata.create_all()` no se considera mecanismo de evolución de una base existente.
+
+Límites:
+B131 no añade API pública de resultados, feedback adaptativo, mastery, retention, evaluación fonética ni comprensión semántica avanzada.
