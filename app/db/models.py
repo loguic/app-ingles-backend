@@ -3,6 +3,7 @@ from sqlalchemy import (
     Column,
     DateTime,
     ForeignKey,
+    Float,
     Integer,
     JSON,
     String,
@@ -97,3 +98,26 @@ class LearnerProduction(Base):
     modality = Column(String, nullable=False)
     response_text = Column(Text, nullable=True)
     audio_reference = Column(String, nullable=True)
+
+
+class ProductionEvaluationResult(Base):
+    """Persist one evaluation separately from the captured production.
+
+    Persiste una evaluación separada de la producción capturada.
+    """
+
+    __tablename__ = "production_evaluation_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    production_id = Column(
+        Integer,
+        ForeignKey("learner_productions.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    criterion_id = Column(String, index=True, nullable=False)
+    status = Column(String, nullable=False)
+    score = Column(Float, nullable=True)
+    evaluator_id = Column(String, nullable=False)
+    evaluator_version = Column(String, nullable=False)
+    evaluated_at = Column(DateTime(timezone=True), nullable=False)

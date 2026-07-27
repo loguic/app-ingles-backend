@@ -95,6 +95,17 @@ class ProductionEvaluationResult(BaseModel):
     evaluator_version: str = Field(min_length=1)
     evaluated_at: datetime
 
+class ProductionEvaluationResultRecord(
+    ProductionEvaluationResult
+):
+    """Expose the persistent identity of one evaluation result.
+
+    Expone la identidad persistente de un resultado evaluativo.
+    """
+
+    evaluation_result_id: int = Field(gt=0)
+
+
 class LessonProductionEvaluationPlan(BaseModel):
     """Group the evaluation criteria declared for one lesson.
 
