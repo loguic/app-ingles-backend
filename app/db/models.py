@@ -121,3 +121,33 @@ class ProductionEvaluationResult(Base):
     evaluator_id = Column(String, nullable=False)
     evaluator_version = Column(String, nullable=False)
     evaluated_at = Column(DateTime(timezone=True), nullable=False)
+
+
+class ProductionFeedback(Base):
+    """Persist pedagogical feedback separately from its evaluation.
+
+    Persiste feedback pedagógico separado de su evaluación.
+    """
+
+    __tablename__ = "production_feedbacks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    evaluation_result_id = Column(
+        Integer,
+        ForeignKey(
+            "production_evaluation_results.id",
+            ondelete="CASCADE",
+        ),
+        index=True,
+        nullable=False,
+    )
+    criterion_description = Column(Text, nullable=False)
+    message = Column(Text, nullable=False)
+    guidance = Column(Text, nullable=False)
+    generator_id = Column(String, nullable=False)
+    generator_version = Column(String, nullable=False)
+    generated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )

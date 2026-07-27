@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 from app.schemas.evaluation import EvaluationStatus
@@ -62,3 +64,13 @@ class LessonProductionFeedbackPlan(BaseModel):
             raise ValueError(
                 "Feedback criteria can define only one rule"
             )
+
+
+class ProductionFeedbackRecord(ProductionFeedback):
+    """Expose the persistent identity and timestamp of feedback.
+
+    Expone la identidad persistente y fecha del feedback.
+    """
+
+    feedback_id: int = Field(gt=0)
+    generated_at: datetime
