@@ -2467,3 +2467,30 @@ Resultado:
 
 Límites:
 B132 no persiste todavía el feedback, no expone API pública y no implementa mastery, retention, evaluación fonética, comprensión semántica avanzada ni IA generativa.
+
+## B133 — Persistencia trazable del feedback pedagógico
+
+Fecha: 2026-07-27
+
+Objetivo:
+Conservar exactamente el feedback pedagógico generado para un resultado evaluativo, manteniendo separadas producción, evaluación y orientación.
+
+Resultado:
+- Se creó la tabla `production_feedbacks`.
+- Cada feedback persiste `evaluation_result_id`, descripción del criterio, mensaje, orientación, `generator_id`, `generator_version` y `generated_at`.
+- La FK `evaluation_result_id -> production_evaluation_results.id` usa `ON DELETE CASCADE`.
+- `ProductionFeedbackRecord` expone `feedback_id` y fecha de generación.
+- `production_id`, `criterion_id` y estado evaluativo se reconstruyen desde el resultado enlazado y no se duplican como autoridad persistente.
+- Se implementó persistencia append-only del historial de feedback.
+- Se implementó generación B132 → persistencia B133 de extremo a extremo.
+- Se rechazan inconsistencias de producción, criterio, estado o resultado evaluativo inexistente.
+- Migración Alembic B133: `f81a78f8c1c4`.
+- PostgreSQL verificado en `f81a78f8c1c4 (head)`.
+- `alembic check`: sin nuevas operaciones detectadas.
+- 8 pruebas específicas B133 superadas.
+- Suite completa backend: 342 passed.
+- `git diff --check`: correcto.
+- Commit técnico: `f07d4d5`.
+
+Límites:
+B133 no añade API pública de feedback, mastery, retention, evaluación fonética, adaptación automática ni IA generativa.

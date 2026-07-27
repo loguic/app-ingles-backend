@@ -7,18 +7,18 @@ Actualizado: 2026-07-27
 Fase 5 — Frontend y práctica conversacional.
 
 ## Último bloque cerrado
-B132 — Feedback pedagógico determinista y trazable.
-- Commit técnico: `bb5c331`.
-- 13 pruebas específicas superadas.
-- Suite backend completa: 334 passed.
-- `git diff --check`: correcto.
-- Feedback trazable hasta `evaluation_result_id`, `production_id` y `criterion_id`.
-- Sin persistencia de feedback, mastery, retention, fonética ni IA.
+B133 — Persistencia trazable del feedback pedagógico.
+- Commit técnico: `f07d4d5`.
+- 8 pruebas específicas superadas.
+- Suite backend completa: 342 passed.
+- Migración Alembic: `f81a78f8c1c4`.
+- PostgreSQL verificado en `f81a78f8c1c4 (head)`.
+- `alembic check`: sin diferencias.
 
 ## Bloque activo
 Ninguno.
 
-El siguiente bloque se definirá desde la secuencia vigente de Fase 5 sin reconstruir B129-B132 mediante inspecciones generales.
+El siguiente bloque se definirá desde la secuencia vigente de Fase 5 sin reconstruir B129-B133 mediante inspecciones generales.
 
 ## Secuencia vigente de Fase 5
 
@@ -172,3 +172,12 @@ Todo cambio futuro de esquema debe implementarse mediante una revisión Alembic 
 - La integridad feedback → evaluación → criterio se valida antes del runtime.
 - 13 pruebas específicas B132 superadas.
 - Suite backend completa: 334 passed.
+
+## Resultado técnico B133
+- `production_feedbacks` persiste el feedback realmente generado.
+- La evaluación permanece como fuente de verdad para producción, criterio y estado.
+- El historial de feedback es append-only.
+- B132 y B133 forman el flujo generar feedback → persistir feedback.
+- Migración: `f81a78f8c1c4`.
+- 8 pruebas específicas B133 superadas.
+- Suite backend completa: 342 passed.
