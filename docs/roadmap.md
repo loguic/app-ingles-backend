@@ -139,8 +139,8 @@ Constructor Pedagógico de Unidades:
 Evolución prevista:
 
 - presentación de producciones personales en Flutter — completada en B104 frontend;
-- reconocimiento de voz y palabras;
-- evaluación semántica y fonética gradual;
+- reconocimiento de voz y palabras — completado en B126–B128;
+- evaluación semántica y fonética gradual — iniciada en B129 con contratos trazables, todavía sin motor evaluador real;
 - retroalimentación pedagógica adaptativa;
 - conversación libre;
 - consolidación y comprobación diferida de retención por Skill.

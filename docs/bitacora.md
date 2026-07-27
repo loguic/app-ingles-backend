@@ -2224,3 +2224,165 @@ Sincronizar la planificación backend con el cierre real de B104 frontend antes 
 La planificación queda sincronizada con el estado real del producto.
 
 La siguiente capacidad técnica deberá definirse explícitamente a partir del roadmap actualizado; no se asume automáticamente que el siguiente bloque sea reconocimiento de voz.
+
+## B129 — Contrato trazable de evaluación de producciones personales
+
+Fecha: 2026-07-27
+
+### Objetivo
+
+Establecer la arquitectura trazable necesaria para evaluar producciones personales sin mezclar captura, reconocimiento de voz, evaluación, dominio ni retención de Skills.
+
+### Contratos implementados
+
+Se creó `app/schemas/evaluation.py` con:
+
+- `ProductionEvaluationCriterion`;
+- `ProductionEvaluationResult`;
+- `LessonProductionEvaluationPlan`.
+
+`ProductionEvaluationCriterion` declara qué producción será evaluada, su evidencia pedagógica, conversación, prompt, dimensión, modalidad y modo de medición.
+
+Dimensiones iniciales:
+
+- `semantic`;
+- `phonetic`.
+
+Modos iniciales:
+
+- `binary`;
+- `score`.
+
+Los scores permanecen normalizados entre `0.0` y `1.0`.
+
+Una evaluación fonética solo puede aplicarse a modalidad `voice`.
+
+`ProductionEvaluationResult` representa el resultado runtime de evaluar una producción concreta y conserva trazabilidad mediante:
+
+- `production_id`;
+- `criterion_id`;
+- estado;
+- score opcional;
+- identificador y versión del evaluador;
+- fecha de evaluación.
+
+No representa mastery ni retention.
+
+### Separación de responsabilidades
+
+B129 preserva las fronteras existentes:
+
+- `LearnerProduction` continúa representando únicamente lo producido por el estudiante;
+- `SpeechRecognitionResult` continúa representando únicamente lo reconocido técnicamente;
+- `EvidenceDefinition` continúa declarando evidencia pedagógica estática;
+- los criterios evaluativos viven en un contrato específico;
+- los resultados evaluativos viven separados de la producción capturada;
+- `Lesson` y `ConversationTurn` no recibieron lógica evaluativa;
+- `LessonExperience.contract_version` continúa siendo `2.0`.
+
+### Integridad contextual
+
+Se creó `production_evaluation_validation_service.py`.
+
+La validación comprueba:
+
+- IDs de criterios únicos;
+- existencia de `LessonExperience`;
+- existencia de `EvidenceDefinition`;
+- correspondencia entre evidencia y conversación;
+- existencia del `production_prompt`;
+- compatibilidad de modalidades entre criterio y prompt;
+- correspondencia entre resultado, producción y criterio;
+- compatibilidad entre producción y modalidad evaluable;
+- reglas de score y `success_threshold`;
+- coherencia entre score y estado `passed` o `failed`.
+
+### Integración con candidatas
+
+`PedagogicalUnitCandidate` recibió de forma aditiva:
+
+`evaluation_plans: list[LessonProductionEvaluationPlan]`
+
+Las candidatas existentes continúan siendo válidas sin planes evaluativos.
+
+Se protege:
+
+- un único plan por lección;
+- rechazo de referencias a lecciones inexistentes.
+
+La validación evaluativa quedó integrada en `validate_pedagogical_candidate()` mediante el hallazgo determinista:
+
+`production_evaluation_integrity`.
+
+### Candidata piloto
+
+La candidata aislada `a1-u1-l1` recibió un plan semántico para la conversación aplicada `c3`.
+
+Relaciones explícitas:
+
+- `p1` → el estudiante declara un nombre;
+- `p2` → el estudiante declara un origen;
+- `p3` → el estudiante responde cortésmente.
+
+Los tres criterios:
+
+- referencian `a1-u1-l1-ev3`;
+- pertenecen a `a1-u1-l1-c3`;
+- usan dimensión `semantic`;
+- usan medición `binary`;
+- admiten texto y voz;
+- no realizan todavía evaluación automática.
+
+La candidata continúa aislada del contenido activo.
+
+### Corrección documental
+
+El contrato canónico fue alineado con la implementación de B117:
+
+- `success_threshold` es el concepto vigente;
+- solo se utiliza con `measurement_mode=score`;
+- rango permitido `0.0–1.0`.
+
+La antigua referencia documental a `success_condition` fue retirada.
+
+### Pruebas
+
+Se añadieron pruebas para:
+
+- schemas de evaluación;
+- integridad contextual;
+- resultados runtime;
+- compatibilidad de `PedagogicalUnitCandidate`;
+- candidata piloto real;
+- integración con el pipeline pedagógico.
+
+Resultado específico B129:
+
+`27 passed`
+
+Suite backend completa:
+
+`292 passed`
+
+`git diff --check`: correcto.
+
+### Límites respetados
+
+B129 no implementa todavía:
+
+- algoritmo de similitud semántica;
+- evaluación fonética real;
+- puntuación automática de pronunciación;
+- feedback adaptativo;
+- `EvidenceRecord` persistido;
+- mastery;
+- retention;
+- conversación libre;
+- inteligencia artificial generativa;
+- publicación de la candidata.
+
+### Estado de B129
+
+La infraestructura trazable de evaluación queda implementada e integrada.
+
+La siguiente evolución podrá construir un primer evaluador real sobre estos contratos sin volver a mezclar reconocimiento, producción y evaluación.

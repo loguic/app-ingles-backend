@@ -359,7 +359,7 @@ Cada definición estática de evidencia deberá contener:
 - `activity_id`: actividad que produce la evidencia;
 - `evidence_type`: tipo observable;
 - `measurement_mode`: forma de medición;
-- `success_condition`: condición explícita de logro;
+- `success_threshold`: umbral entre `0.0` y `1.0`, obligatorio únicamente cuando `measurement_mode` es `score`;
 - `required`: obligatoriedad para completar la misión.
 
 Tipos iniciales:
