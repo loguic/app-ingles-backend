@@ -13,6 +13,9 @@ from app.schemas.conversation_production import (
 from app.services.conversation_production_persistence_service import (
     save_conversation_production_submission,
 )
+from app.services.production_audio_storage_service import (
+    read_production_audio,
+)
 
 
 client = TestClient(app)
@@ -259,3 +262,89 @@ def test_get_hides_persisted_non_active_production():
 
     assert response.status_code == 200
     assert response.json() == []
+
+def build_wav_payload(extra=b"learner-audio"):
+    # Build minimal WAV-like bytes accepted by the storage boundary.
+    # Construye bytes WAV mínimos aceptados por la frontera.
+    return (
+        b"RIFF"
+        + (36 + len(extra)).to_bytes(4, "little")
+        + b"WAVE"
+        + extra
+    )
+
+
+def test_upload_production_audio_returns_resolvable_reference(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.setenv("PRODUCTION_AUDIO_DIR", str(tmp_path))
+    payload = build_wav_payload()
+
+    response = client.post(
+        "/api/v1/conversation-production-audio",
+        files={
+            "audio": (
+                "learner.wav",
+                payload,
+                "audio/wav",
+            )
+        },
+    )
+
+    assert response.status_code == 200
+    record = response.json()
+    assert record["audio_reference"].startswith(
+        "production-audio://"
+    )
+    assert record["media_type"] == "audio/wav"
+    assert record["size_bytes"] == len(payload)
+    assert read_production_audio(
+        record["audio_reference"],
+        storage_dir=tmp_path,
+    ) == payload
+
+
+def test_upload_production_audio_rejects_non_wav(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.setenv("PRODUCTION_AUDIO_DIR", str(tmp_path))
+
+    response = client.post(
+        "/api/v1/conversation-production-audio",
+        files={
+            "audio": (
+                "fake.wav",
+                b"not-a-wave-file",
+                "audio/wav",
+            )
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == (
+        "Production audio must be WAV"
+    )
+
+
+def test_upload_production_audio_requires_storage_configuration(
+    monkeypatch,
+):
+    monkeypatch.delenv("PRODUCTION_AUDIO_DIR", raising=False)
+
+    response = client.post(
+        "/api/v1/conversation-production-audio",
+        files={
+            "audio": (
+                "learner.wav",
+                build_wav_payload(),
+                "audio/wav",
+            )
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == (
+        "PRODUCTION_AUDIO_DIR is not configured"
+    )
