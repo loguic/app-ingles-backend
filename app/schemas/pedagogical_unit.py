@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field, model_validator
 
 from app.schemas.content import Unit
 from app.schemas.evaluation import LessonProductionEvaluationPlan
+from app.schemas.pedagogical_feedback import LessonProductionFeedbackPlan
 
 
 SkillStage = Literal[
@@ -195,6 +196,9 @@ class PedagogicalUnitCandidate(BaseModel):
     evaluation_plans: list[LessonProductionEvaluationPlan] = Field(
         default_factory=list
     )
+    feedback_plans: list[LessonProductionFeedbackPlan] = Field(
+        default_factory=list
+    )
     skill_coverage: list[SkillCoverage] = Field(min_length=1)
     required_resource_ids: list[str] = Field(default_factory=list)
     validation_report: ValidationReport
@@ -231,6 +235,58 @@ class PedagogicalUnitCandidate(BaseModel):
                 "Evaluation plans reference unknown lessons: "
                 + ", ".join(unknown_evaluation_lesson_ids)
             )
+
+        feedback_lesson_ids = [
+            plan.lesson_id
+            for plan in self.feedback_plans
+        ]
+
+        if len(feedback_lesson_ids) != len(set(feedback_lesson_ids)):
+            raise ValueError(
+                "Feedback plan lesson IDs must be unique"
+            )
+
+        unknown_feedback_lesson_ids = sorted(
+            set(feedback_lesson_ids) - lesson_ids
+        )
+        if unknown_feedback_lesson_ids:
+            raise ValueError(
+                "Feedback plans reference unknown lessons: "
+                + ", ".join(unknown_feedback_lesson_ids)
+            )
+
+
+        evaluation_plans_by_lesson = {
+            plan.lesson_id: plan
+            for plan in self.evaluation_plans
+        }
+
+        for feedback_plan in self.feedback_plans:
+            evaluation_plan = evaluation_plans_by_lesson.get(
+                feedback_plan.lesson_id
+            )
+            if evaluation_plan is None:
+                raise ValueError(
+                    "Feedback plan requires evaluation plan for lesson: "
+                    + feedback_plan.lesson_id
+                )
+
+            evaluation_criterion_ids = {
+                criterion.id
+                for criterion in evaluation_plan.criteria
+            }
+            unknown_feedback_criterion_ids = sorted(
+                {
+                    rule.criterion_id
+                    for rule in feedback_plan.rules
+                }
+                - evaluation_criterion_ids
+            )
+            if unknown_feedback_criterion_ids:
+                raise ValueError(
+                    "Feedback rules reference unknown evaluation criteria: "
+                    + ", ".join(unknown_feedback_criterion_ids)
+                )
 
         skill_ids = [skill.id for skill in self.specification.skills]
         coverage_ids = [coverage.skill_id for coverage in self.skill_coverage]

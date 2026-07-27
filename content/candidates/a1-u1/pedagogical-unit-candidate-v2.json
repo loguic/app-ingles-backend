@@ -760,5 +760,36 @@
         }
       ]
     }
+  ],
+  "feedback_plans": [
+    {
+      "lesson_id": "a1-u1-l1",
+      "rules": [
+        {
+          "id": "a1-u1-l1-c3-p1-feedback",
+          "criterion_id": "a1-u1-l1-c3-p1-semantic",
+          "passed_message": "You stated your name successfully.",
+          "passed_guidance": "Keep using a clear introduction structure naturally.",
+          "failed_message": "Your response did not clearly state a name.",
+          "failed_guidance": "Try a structure such as My name is Ana or I am Ana."
+        },
+        {
+          "id": "a1-u1-l1-c3-p2-feedback",
+          "criterion_id": "a1-u1-l1-c3-p2-semantic",
+          "passed_message": "You clearly stated where you are from.",
+          "passed_guidance": "Keep connecting I am from with your place of origin.",
+          "failed_message": "Your response did not clearly state your origin.",
+          "failed_guidance": "Try a structure such as I am from Ecuador."
+        },
+        {
+          "id": "a1-u1-l1-c3-p3-feedback",
+          "criterion_id": "a1-u1-l1-c3-p3-semantic",
+          "passed_message": "You responded politely.",
+          "passed_guidance": "Keep using polite responses naturally in introductions.",
+          "failed_message": "Your response did not yet show the expected polite reply.",
+          "failed_guidance": "Try a response such as Nice to meet you too."
+        }
+      ]
+    }
   ]
 }
