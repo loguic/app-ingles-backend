@@ -7,18 +7,18 @@ Actualizado: 2026-07-27
 Fase 5 — Frontend y práctica conversacional.
 
 ## Último bloque cerrado
-B134 — Pipeline evaluativo completo de una producción.
-- Commit técnico: `955ef49`.
-- 3 pruebas específicas superadas.
-- Suite backend completa: 345 passed.
+B135 — Desacoplar evaluación runtime de la candidata pedagógica.
+- Commit técnico: `9795b2f`.
+- Pipeline runtime neutral respecto a `PedagogicalUnitCandidate`.
+- 7 pruebas del alcance B135 superadas; 4 nuevas.
+- Suite backend completa: 349 passed.
 - `git diff --check`: correcto.
-- Evaluación y feedback se confirman en una única transacción.
-- Sin cambios de esquema.
+- Candidata pedagógica permanece aislada y no publicada.
 
 ## Bloque activo
 Ninguno.
 
-El siguiente bloque se definirá desde la secuencia vigente de Fase 5 sin reconstruir B129-B134 mediante inspecciones generales.
+El siguiente bloque se definirá desde la secuencia vigente de Fase 5 sin reconstruir B129-B135 mediante inspecciones generales.
 
 ## Secuencia vigente de Fase 5
 
@@ -190,3 +190,11 @@ Todo cambio futuro de esquema debe implementarse mediante una revisión Alembic 
 - La producción previamente persistida permanece intacta.
 - 3 pruebas específicas B134 superadas.
 - Suite backend completa: 345 passed.
+
+## Resultado técnico B135
+- `ProductionEvaluationRuntimeConfig` es la nueva frontera neutral de runtime.
+- El adaptador desde candidata queda separado del pipeline.
+- `evaluate_production_atomically` ya no conoce `PedagogicalUnitCandidate`.
+- Una futura fuente de contenido activo podrá proporcionar la misma configuración.
+- La prueba de rollback vuelve a demostrar atomicidad real dentro del pipeline.
+- 349 pruebas backend superadas.

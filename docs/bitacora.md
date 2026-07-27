@@ -2519,3 +2519,29 @@ Resultado:
 
 Límites:
 B134 no añade API pública, cambios de esquema, mastery, retention, evaluación fonética, feedback adaptativo ni IA generativa.
+
+## B135 — Desacoplar evaluación runtime de la candidata pedagógica
+
+Fecha: 2026-07-27
+
+Objetivo:
+Eliminar la dependencia directa del pipeline evaluativo runtime respecto a `PedagogicalUnitCandidate`, manteniendo la candidata aislada hasta una aprobación explícita.
+
+Resultado:
+- Se creó `ProductionEvaluationRuntimeConfig` como contrato neutral de configuración runtime.
+- El contrato reúne `lesson_id`, plan evaluativo y plan de feedback.
+- Se valida coherencia de lección y referencias feedback → criterio.
+- Se creó `build_runtime_evaluation_config_from_candidate` como adaptador explícito desde una candidata.
+- `evaluate_production_atomically` ya no importa ni recibe `PedagogicalUnitCandidate`.
+- El pipeline consume únicamente `ProductionEvaluationRuntimeConfig`.
+- Evaluación semántica, persistencia evaluativa, generación de feedback, persistencia de feedback y atomicidad permanecen intactas.
+- La candidata A1-U1-L1 sigue aislada y no se publica como contenido runtime.
+- Una futura fuente de contenido activo podrá construir el mismo contrato sin modificar el pipeline.
+- Se corrigió la prueba de rollback de B134 para garantizar que el fallo ocurre dentro del pipeline después del `flush()` evaluativo.
+- 7 pruebas del alcance B135 superadas, 4 de ellas nuevas.
+- Suite completa backend: 349 passed.
+- `git diff --check`: correcto.
+- Commit técnico: `9795b2f`.
+
+Límites:
+B135 no publica la candidata, no añade API pública, no cambia reglas pedagógicas y no implementa mastery, retention, fonética ni IA.
