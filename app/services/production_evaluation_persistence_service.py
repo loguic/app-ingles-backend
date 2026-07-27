@@ -33,6 +33,8 @@ def _build_result_record(
 def save_production_evaluation_results(
     results: list[ProductionEvaluationResult],
     db: Session,
+    *,
+    commit_transaction: bool = True,
 ) -> list[ProductionEvaluationResultRecord]:
     """Persist one evaluation batch atomically.
 
@@ -83,7 +85,8 @@ def save_production_evaluation_results(
             _build_result_record(item)
             for item in persisted
         ]
-        db.commit()
+        if commit_transaction:
+            db.commit()
     except SQLAlchemyError:
         db.rollback()
         raise

@@ -37,6 +37,8 @@ def _build_feedback_record(
 def save_production_feedback(
     feedback: ProductionFeedback,
     db: Session,
+    *,
+    commit_transaction: bool = True,
 ) -> ProductionFeedbackRecord:
     """Persist one traceable feedback item without overwriting history.
 
@@ -86,7 +88,8 @@ def save_production_feedback(
             model,
             evaluation,
         )
-        db.commit()
+        if commit_transaction:
+            db.commit()
     except SQLAlchemyError:
         db.rollback()
         raise
