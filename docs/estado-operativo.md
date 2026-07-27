@@ -7,34 +7,17 @@ Actualizado: 2026-07-27
 Fase 5 — Frontend y práctica conversacional.
 
 ## Último bloque cerrado
-
-B128 — Reconocimiento de voz integrado en práctica conversacional.
-
-Estado:
-- implementado;
-- validado manualmente en Flutter Linux;
-- 37 pruebas frontend superadas;
-- publicado en `origin/master`;
-- frontend limpio y sincronizado.
-
-Resultado real validado:
-`Reconocido: Hello, I am John.`
+B130 — Primer evaluador semántico determinista.
+- Implementación técnica completada y validada.
+- Commit técnico: `4109b98`.
+- 19 pruebas específicas superadas.
+- Suite backend completa: 311 passed.
+- `git diff --check`: correcto.
 
 ## Bloque activo
+Ninguno.
 
-B129 — Contrato trazable de evaluación de producciones personales — implementación técnica completada, pendiente de cierre Git/GitHub.
-
-Objetivo aprobado:
-crear contratos estáticos y runtime que permitan vincular una producción concreta con criterios evaluables y registrar posteriormente su resultado.
-
-B129 no implementó:
-- cálculo semántico;
-- cálculo fonético;
-- feedback adaptativo;
-- mastery;
-- retention;
-- IA;
-- publicación de contenido candidato.
+El siguiente bloque se definirá desde la secuencia vigente de Fase 5 sin reconstruir B129/B130 mediante inspecciones generales.
 
 ## Secuencia vigente de Fase 5
 
@@ -157,3 +140,11 @@ Si hacen falta varias inspecciones consecutivas sin producir cambio técnico, de
 - candidata no publicada;
 - motor semántico/fonético real todavía pendiente.
 
+## Resultado técnico B130
+- `SemanticEvaluationRule` separa reglas pedagógicas del motor.
+- `evaluate_semantic_production` ejecuta una regla explícita.
+- `evaluate_semantic_production_from_plan` resuelve criterio y regla desde el plan.
+- `evaluate_candidate_semantic_production` orquesta candidata → lección → plan → producción → resultado.
+- La candidata A1-U1-L1 declara reglas para nombre, procedencia y respuesta cortés.
+- 19 pruebas específicas B130 superadas.
+- Suite completa backend: 311 passed.

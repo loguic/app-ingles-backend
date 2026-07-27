@@ -140,7 +140,7 @@ Evolución prevista:
 
 - presentación de producciones personales en Flutter — completada en B104 frontend;
 - reconocimiento de voz y palabras — completado en B126–B128;
-- evaluación semántica y fonética gradual — iniciada en B129 con contratos trazables, todavía sin motor evaluador real;
+- evaluación semántica y fonética gradual — B129 creó contratos trazables y B130 añadió el primer evaluador determinista por reglas declarativas para criterios semánticos; comprensión semántica avanzada y fonética siguen pendientes;
 - retroalimentación pedagógica adaptativa;
 - conversación libre;
 - consolidación y comprobación diferida de retención por Skill.

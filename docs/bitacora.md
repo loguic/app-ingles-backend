@@ -2385,4 +2385,26 @@ B129 no implementa todavía:
 
 La infraestructura trazable de evaluación queda implementada e integrada.
 
-La siguiente evolución podrá construir un primer evaluador real sobre estos contratos sin volver a mezclar reconocimiento, producción y evaluación.
+La siguiente evolución podrá construir un primer evaluador real sobre estos contratos sin volver a mezclar reconocimiento, producción y evaluación.## B130 — Primer evaluador semántico determinista
+
+Fecha: 2026-07-27
+
+Objetivo:
+Convertir una producción personal de texto o un transcript STT en resultados evaluativos trazables usando los contratos creados en B129.
+
+Resultado:
+- Se añadió `SemanticEvaluationRule` como contrato declarativo de reglas.
+- Se implementó `evaluate_semantic_production` para producir `ProductionEvaluationResult`.
+- El motor acepta texto escrito o transcript reconocido de una producción de voz.
+- Las reglas se declaran en `LessonProductionEvaluationPlan.semantic_rules`; el motor no contiene lógica específica por `criterion_id`.
+- La candidata A1-U1-L1 incorpora reglas para nombre, procedencia y respuesta cortés.
+- Se añadió resolución automática producción → prompt → criterio → regla → resultado.
+- Se añadió orquestación candidata → lesson → plan → producción → resultado.
+- Las reglas y criterios mantienen trazabilidad con los contratos de B129.
+- Se validaron 19 pruebas específicas de B130.
+- Suite completa backend: 311 passed.
+- `git diff --check`: correcto.
+- Commit técnico: `4109b98`.
+
+Límite técnico:
+Este primer evaluador ejecuta patrones lingüísticos deterministas configurables. Evalúa criterios clasificados como semánticos, pero no constituye todavía un motor de comprensión semántica profunda. No se implementaron API, persistencia del resultado, evaluación fonética, feedback adaptativo, mastery, retention ni IA.
