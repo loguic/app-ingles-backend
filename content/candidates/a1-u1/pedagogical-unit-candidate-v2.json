@@ -728,6 +728,36 @@
             "voice"
           ]
         }
+      ],
+      "semantic_rules": [
+        {
+          "id": "a1-u1-l1-c3-p1-semantic-rule",
+          "criterion_id": "a1-u1-l1-c3-p1-semantic",
+          "patterns": [
+            "\\bmy name is\\s+[a-z][a-z-]*\\b",
+            "\\bi am\\s+[a-z][a-z-]*\\b",
+            "\\bi\\x27m\\s+[a-z][a-z-]*\\b"
+          ],
+          "case_sensitive": false
+        },
+        {
+          "id": "a1-u1-l1-c3-p2-semantic-rule",
+          "criterion_id": "a1-u1-l1-c3-p2-semantic",
+          "patterns": [
+            "\\bi am from\\s+[a-z][a-z -]*\\b",
+            "\\bi\\x27m from\\s+[a-z][a-z -]*\\b"
+          ],
+          "case_sensitive": false
+        },
+        {
+          "id": "a1-u1-l1-c3-p3-semantic-rule",
+          "criterion_id": "a1-u1-l1-c3-p3-semantic",
+          "patterns": [
+            "\\bnice to meet you(?: too)?\\b",
+            "\\blikewise\\b"
+          ],
+          "case_sensitive": false
+        }
       ]
     }
   ]

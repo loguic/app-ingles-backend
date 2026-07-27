@@ -3,6 +3,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, model_validator
 
+from app.schemas.semantic_evaluation import SemanticEvaluationRule
+
 
 EvaluationDimension = Literal["semantic", "phonetic"]
 EvaluationMeasurementMode = Literal["binary", "score"]
@@ -101,6 +103,9 @@ class LessonProductionEvaluationPlan(BaseModel):
 
     lesson_id: str
     criteria: list[ProductionEvaluationCriterion] = Field(min_length=1)
+    semantic_rules: list[SemanticEvaluationRule] = Field(
+        default_factory=list
+    )
 
     @model_validator(mode="after")
     def validate_unique_criterion_ids(
@@ -118,6 +123,36 @@ class LessonProductionEvaluationPlan(BaseModel):
         if len(criterion_ids) != len(set(criterion_ids)):
             raise ValueError(
                 "Lesson evaluation criterion IDs must be unique"
+            )
+
+        rule_ids = [rule.id for rule in self.semantic_rules]
+        if len(rule_ids) != len(set(rule_ids)):
+            raise ValueError(
+                "Lesson semantic evaluation rule IDs must be unique"
+            )
+
+        semantic_criterion_ids = {
+            criterion.id
+            for criterion in self.criteria
+            if criterion.dimension == "semantic"
+        }
+        rule_criterion_ids = [
+            rule.criterion_id
+            for rule in self.semantic_rules
+        ]
+
+        if len(rule_criterion_ids) != len(set(rule_criterion_ids)):
+            raise ValueError(
+                "Semantic criteria can define only one rule"
+            )
+
+        unknown_criterion_ids = sorted(
+            set(rule_criterion_ids) - semantic_criterion_ids
+        )
+        if unknown_criterion_ids:
+            raise ValueError(
+                "Semantic rules reference unknown semantic criteria: "
+                + ", ".join(unknown_criterion_ids)
             )
 
         return self
