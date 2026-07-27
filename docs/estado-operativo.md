@@ -7,20 +7,21 @@ Actualizado: 2026-07-27
 Fase 5 — Frontend y práctica conversacional.
 
 ## Último bloque cerrado
-B136 — Frontera de evidencia fonética trazable.
-- Commit técnico: `616d43d`.
-- Evidencia acústica separada de la producción original.
-- Evaluación fonética determinista desde evidencia normalizada y umbral pedagógico.
-- Persistencia reutiliza `ProductionEvaluationResult` de B131.
-- 8 pruebas específicas B136 superadas.
-- Suite backend completa: 357 passed.
+B137 — Ingesta y referencia resoluble de audio de producción.
+- Commit técnico: `52cf574`.
+- Endpoint multipart de WAV separado del envío JSON de producciones.
+- Almacenamiento privado backend mediante `PRODUCTION_AUDIO_DIR`.
+- Referencias opacas `production-audio://UUID`.
+- Resolución interna disponible para futuros analizadores acústicos.
+- 11 pruebas específicas B137 superadas.
+- Suite backend completa: 368 passed.
 - `git diff --check`: correcto.
 - No existe todavía un analizador acústico real.
 
 ## Bloque activo
 Ninguno.
 
-El siguiente bloque deberá continuar la capacidad de evaluación semántica y fonética gradual desde la frontera creada en B136, sin inventar puntuaciones fonéticas ni publicar la candidata pedagógica.
+El siguiente bloque deberá continuar la evaluación semántica y fonética gradual desde las fronteras B136-B137: ya existe evidencia fonética normalizada y audio backend resoluble, pero todavía no un analizador acústico real.
 
 ## Secuencia vigente de Fase 5
 
@@ -209,3 +210,14 @@ Todo cambio futuro de esquema debe implementarse mediante una revisión Alembic 
 - El transcript reconocido no se interpreta como calidad fonética.
 - El análisis acústico real permanece pendiente.
 - 357 pruebas backend superadas.
+
+## Resultado técnico B137
+- El backend puede recibir WAV mediante multipart y almacenarlos de forma privada.
+- `audio_reference` puede ser ahora una referencia opaca administrada por backend.
+- Las rutas físicas permanecen ocultas al cliente y a la capa pedagógica.
+- `PRODUCTION_AUDIO_DIR` es obligatorio para la ingesta runtime.
+- La lectura de bytes queda disponible para futuros analizadores acústicos.
+- PostgreSQL continúa almacenando únicamente la referencia, no el binario.
+- El contrato JSON previo de producciones permanece intacto.
+- No hay todavía medición real de pronunciación.
+- 368 pruebas backend superadas.

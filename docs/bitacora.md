@@ -2571,3 +2571,35 @@ Resultado:
 
 Límites:
 B136 no analiza audio todavía, no selecciona un motor acústico, no añade criterios fonéticos a la candidata, no publica contenido, no añade API pública y no introduce mastery, retention ni IA.
+
+## B137 — Ingesta y referencia resoluble de audio de producción
+
+Fecha: 2026-07-27
+
+Objetivo:
+Hacer que las grabaciones del estudiante puedan entrar realmente al backend y quedar disponibles mediante referencias opacas y resolubles para futuros analizadores acústicos.
+
+Resultado:
+- Se añadió `python-multipart==0.0.32`.
+- Se creó `POST /conversation-production-audio` para recibir WAV mediante multipart.
+- La subida binaria permanece separada del contrato JSON existente de `POST /conversation-productions`.
+- Se creó `ProductionAudioUploadRecord`.
+- El backend almacena el audio fuera de PostgreSQL en un directorio privado configurable mediante `PRODUCTION_AUDIO_DIR`.
+- El nombre físico del archivo se genera mediante UUID y nunca procede del nombre enviado por el cliente.
+- La referencia persistible tiene formato `production-audio://UUID` y no expone rutas del servidor.
+- Se añadieron almacenamiento, resolución y lectura interna de audio para futuros analizadores.
+- Se limita cada audio a 10 MiB.
+- Se comprueba cabecera RIFF/WAVE antes del almacenamiento.
+- El directorio se protege con permisos `0700` y los archivos con `0600`.
+- Se rechazan referencias con esquema no soportado, UUID inválido y audios inexistentes.
+- La frontera permite sustituir posteriormente almacenamiento local por object storage sin cambiar la evaluación pedagógica.
+- 11 pruebas específicas B137 superadas.
+- Suite completa backend: 368 passed.
+- `git diff --check`: correcto.
+- Commit técnico: `52cf574`.
+
+Configuración runtime:
+`PRODUCTION_AUDIO_DIR` debe apuntar al directorio privado administrado por backend donde se almacenarán los WAV de producción.
+
+Límites:
+B137 no integra todavía un analizador acústico, no produce puntuaciones fonéticas, no modifica la candidata pedagógica, no cambia el esquema de base de datos y no introduce mastery, retention ni IA.
