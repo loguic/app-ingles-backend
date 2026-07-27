@@ -3,6 +3,7 @@ from typing import Literal
 from pydantic import BaseModel, Field, model_validator
 
 from app.schemas.content import Unit
+from app.schemas.evaluation import LessonProductionEvaluationPlan
 
 
 SkillStage = Literal[
@@ -191,6 +192,9 @@ class PedagogicalUnitCandidate(BaseModel):
 
     specification: PedagogicalUnitSpecification
     candidate_unit: Unit
+    evaluation_plans: list[LessonProductionEvaluationPlan] = Field(
+        default_factory=list
+    )
     skill_coverage: list[SkillCoverage] = Field(min_length=1)
     required_resource_ids: list[str] = Field(default_factory=list)
     validation_report: ValidationReport
@@ -206,6 +210,27 @@ class PedagogicalUnitCandidate(BaseModel):
         """
         if self.candidate_unit.id != self.specification.unit_id:
             raise ValueError("candidate unit ID must match specification unit_id")
+
+        lesson_ids = {
+            lesson.id
+            for lesson in self.candidate_unit.lessons
+        }
+        evaluation_lesson_ids = [
+            plan.lesson_id
+            for plan in self.evaluation_plans
+        ]
+
+        if len(evaluation_lesson_ids) != len(set(evaluation_lesson_ids)):
+            raise ValueError("Evaluation plan lesson IDs must be unique")
+
+        unknown_evaluation_lesson_ids = sorted(
+            set(evaluation_lesson_ids) - lesson_ids
+        )
+        if unknown_evaluation_lesson_ids:
+            raise ValueError(
+                "Evaluation plans reference unknown lessons: "
+                + ", ".join(unknown_evaluation_lesson_ids)
+            )
 
         skill_ids = [skill.id for skill in self.specification.skills]
         coverage_ids = [coverage.skill_id for coverage in self.skill_coverage]

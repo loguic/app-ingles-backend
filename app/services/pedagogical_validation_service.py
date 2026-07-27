@@ -31,6 +31,9 @@ from app.services.pedagogical_content_text_integrity_validation import (
 from app.services.pedagogical_unit_lesson_structure_validation import (
     validate_unit_lesson_structure,
 )
+from app.services.production_evaluation_validation_service import (
+    validate_candidate_production_evaluation_plans,
+)
 
 
 def _has_required_stage(
@@ -394,6 +397,7 @@ def validate_pedagogical_candidate(
         *validate_duplicate_exercise_options(candidate),
         *validate_exercise_integrity(candidate),
         *validate_lesson_experience_skills(candidate),
+        *validate_candidate_production_evaluation_plans(candidate),
         *validate_content_text_integrity(candidate),
         *validate_content_limits(candidate),
         *validate_content_identifiers(candidate),

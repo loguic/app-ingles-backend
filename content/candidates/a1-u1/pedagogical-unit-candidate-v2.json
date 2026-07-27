@@ -681,5 +681,54 @@
     "Do not treat lesson completion as Skill mastery or retention.",
     "Require three personal productions in the applied conversation.",
     "Replace route completion evidence with contextual response evidence."
+  ],
+  "evaluation_plans": [
+    {
+      "lesson_id": "a1-u1-l1",
+      "criteria": [
+        {
+          "id": "a1-u1-l1-c3-p1-semantic",
+          "evidence_definition_id": "a1-u1-l1-ev3",
+          "conversation_id": "a1-u1-l1-c3",
+          "prompt_id": "a1-u1-l1-c3-p1",
+          "dimension": "semantic",
+          "description": "The learner states a name.",
+          "measurement_mode": "binary",
+          "success_threshold": null,
+          "applicable_modalities": [
+            "text",
+            "voice"
+          ]
+        },
+        {
+          "id": "a1-u1-l1-c3-p2-semantic",
+          "evidence_definition_id": "a1-u1-l1-ev3",
+          "conversation_id": "a1-u1-l1-c3",
+          "prompt_id": "a1-u1-l1-c3-p2",
+          "dimension": "semantic",
+          "description": "The learner states an origin.",
+          "measurement_mode": "binary",
+          "success_threshold": null,
+          "applicable_modalities": [
+            "text",
+            "voice"
+          ]
+        },
+        {
+          "id": "a1-u1-l1-c3-p3-semantic",
+          "evidence_definition_id": "a1-u1-l1-ev3",
+          "conversation_id": "a1-u1-l1-c3",
+          "prompt_id": "a1-u1-l1-c3-p3",
+          "dimension": "semantic",
+          "description": "The learner responds politely.",
+          "measurement_mode": "binary",
+          "success_threshold": null,
+          "applicable_modalities": [
+            "text",
+            "voice"
+          ]
+        }
+      ]
+    }
   ]
 }
