@@ -2494,3 +2494,28 @@ Resultado:
 
 Límites:
 B133 no añade API pública de feedback, mastery, retention, evaluación fonética, adaptación automática ni IA generativa.
+
+## B134 — Pipeline evaluativo completo de una producción
+
+Fecha: 2026-07-27
+
+Objetivo:
+Coordinar evaluación, persistencia del resultado, generación de feedback y persistencia del feedback como una única capacidad runtime consistente.
+
+Resultado:
+- Se creó `ProductionEvaluationOutcome`.
+- Se implementó `evaluate_production_atomically`.
+- El pipeline coordina producción persistida → evaluación semántica → resultado persistido → feedback pedagógico → feedback persistido.
+- La persistencia evaluativa y la persistencia de feedback admiten `commit_transaction=False` para participar en una transacción externa.
+- El comportamiento previo se mantiene con `commit_transaction=True` por defecto.
+- El pipeline realiza un único `commit()` cuando toda la cadena finaliza correctamente.
+- Ante cualquier fallo se ejecuta `rollback()` de toda la operación.
+- Se verificó que un fallo durante el feedback elimina la evaluación temporal pero conserva la producción que existía antes del pipeline.
+- El flujo soporta transcript STT para producciones de voz.
+- 3 pruebas específicas B134 superadas.
+- Suite completa backend: 345 passed.
+- `git diff --check`: correcto.
+- Commit técnico: `955ef49`.
+
+Límites:
+B134 no añade API pública, cambios de esquema, mastery, retention, evaluación fonética, feedback adaptativo ni IA generativa.

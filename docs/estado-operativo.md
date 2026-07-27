@@ -7,18 +7,18 @@ Actualizado: 2026-07-27
 Fase 5 — Frontend y práctica conversacional.
 
 ## Último bloque cerrado
-B133 — Persistencia trazable del feedback pedagógico.
-- Commit técnico: `f07d4d5`.
-- 8 pruebas específicas superadas.
-- Suite backend completa: 342 passed.
-- Migración Alembic: `f81a78f8c1c4`.
-- PostgreSQL verificado en `f81a78f8c1c4 (head)`.
-- `alembic check`: sin diferencias.
+B134 — Pipeline evaluativo completo de una producción.
+- Commit técnico: `955ef49`.
+- 3 pruebas específicas superadas.
+- Suite backend completa: 345 passed.
+- `git diff --check`: correcto.
+- Evaluación y feedback se confirman en una única transacción.
+- Sin cambios de esquema.
 
 ## Bloque activo
 Ninguno.
 
-El siguiente bloque se definirá desde la secuencia vigente de Fase 5 sin reconstruir B129-B133 mediante inspecciones generales.
+El siguiente bloque se definirá desde la secuencia vigente de Fase 5 sin reconstruir B129-B134 mediante inspecciones generales.
 
 ## Secuencia vigente de Fase 5
 
@@ -181,3 +181,12 @@ Todo cambio futuro de esquema debe implementarse mediante una revisión Alembic 
 - Migración: `f81a78f8c1c4`.
 - 8 pruebas específicas B133 superadas.
 - Suite backend completa: 342 passed.
+
+## Resultado técnico B134
+- `ProductionEvaluationOutcome` representa el resultado conjunto.
+- `evaluate_production_atomically` centraliza B130-B133.
+- Evaluación y feedback participan en una única transacción.
+- Un fallo parcial provoca rollback completo del trabajo evaluativo.
+- La producción previamente persistida permanece intacta.
+- 3 pruebas específicas B134 superadas.
+- Suite backend completa: 345 passed.
