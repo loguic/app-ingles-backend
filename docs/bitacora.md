@@ -2631,3 +2631,31 @@ Resultado:
 
 Límites:
 Las pruebas B138 usaron audio sintético eSpeak. La integración futura deberá conservar la frontera neutral de B136, una carga segura y trazable del modelo, y validar posteriormente el comportamiento con voces humanas y criterios pedagógicos antes de fijar umbrales de producción.
+
+## B139 — Integración runtime del analizador fonético real
+
+Fecha de cierre: 2026-07-28
+
+Objetivo:
+Integrar la arquitectura fonética seleccionada en B138 detrás de las fronteras neutrales B136-B137, manteniendo sus dependencias pesadas fuera del proceso FastAPI.
+
+Resultado:
+- Se creó `PhoneticAnalyzer` como protocolo neutral de análisis.
+- Se añadió ejecución fonética desde `LessonProductionEvaluationPlan`.
+- El pipeline atómico puede combinar resultados semánticos y fonéticos en una misma transacción.
+- La ausencia temporal de feedback fonético no relaja la obligación de feedback para resultados semánticos.
+- `AcousticPhoneticMeasurement` representa la medición acústica previa a la trazabilidad de dominio.
+- `ProductionAudioPhoneticAnalyzer` resuelve `production-audio://UUID` y entrega al scorer únicamente WAV resuelto y texto de referencia explícito.
+- `CommandAcousticPhoneticScorer` ejecuta analizadores externos con `shell=False`, timeout y contrato JSON validado.
+- Se versionó `scripts/phonetic/wavlm_gop_runner.py` para normalizar `overall_score` de 0-100 a 0.0-1.0.
+- El runner verifica SHA-256 del pipeline acústico y del checkpoint antes de ejecutar el modelo.
+- La identidad persistida del analizador incluye versión del runner y hashes verificados.
+- `build_runtime_phonetic_analyzer` construye el runtime mediante variables `PHONETIC_ANALYZER_*`.
+- Las dependencias Torch/WavLM permanecen aisladas de `.venv`.
+- El smoke test real produjo `PhoneticEvaluationEvidence` con score 0.884 y trazabilidad completa.
+- Suite completa backend: 389 passed.
+- `git diff --check`: correcto.
+- Commit técnico: `f692f0f`.
+
+Límites:
+B139 demuestra integración técnica real, no validez pedagógica. Los scores y umbrales deberán validarse posteriormente con voces humanas representativas antes de utilizarse como criterio pedagógico de producción. No se añade todavía feedback fonético al estudiante, mastery ni retention.

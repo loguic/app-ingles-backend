@@ -21,7 +21,7 @@ B137 — Ingesta y referencia resoluble de audio de producción.
 ## Bloque activo
 Ninguno.
 
-B138 quedó cerrado tras seleccionar y validar técnicamente una arquitectura fonética real. El siguiente bloque deberá integrar el analizador seleccionado detrás de la frontera neutral creada en B136, sin convertir todavía sus scores en verdad pedagógica ni en mastery.
+B139 quedó técnicamente cerrado: el backend puede ejecutar el analizador fonético real mediante un proceso aislado, resolver audio privado B137 y producir evidencia B136 trazable. La calibración pedagógica con voces humanas y la definición de umbrales de producción permanecen pendientes.
 
 ## Secuencia vigente de Fase 5
 
@@ -235,3 +235,21 @@ Todo cambio futuro de esquema debe implementarse mediante una revisión Alembic 
 - `/hh/` de `Hello` fue marcado como error en ambas muestras, por lo que los scores y umbrales todavía no están calibrados pedagógicamente.
 - Las muestras usadas son sintéticas con eSpeak; B138 demuestra viabilidad técnica, no validez pedagógica sobre voces humanas.
 - No se modificó código runtime, esquema de base de datos, candidata pedagógica ni contenido activo.
+
+## Resultado técnico B139
+- `PhoneticAnalyzer` establece una frontera neutral entre runtime y motor acústico.
+- La evaluación fonética desde plan convive con la evaluación semántica dentro del pipeline atómico.
+- `AcousticPhoneticMeasurement` separa la medición técnica de `PhoneticEvaluationEvidence`.
+- `ProductionAudioPhoneticAnalyzer` resuelve referencias privadas B137 antes de invocar el scorer.
+- `CommandAcousticPhoneticScorer` ejecuta el motor aislado sin `shell=True`, con timeout, código de salida y JSON controlados.
+- `wavlm_gop_runner.py` adapta el resultado WavLM/GOP de escala 0-100 al contrato normalizado 0.0-1.0.
+- El runner verifica SHA-256 tanto del pipeline acústico como del checkpoint antes de ejecutar el modelo.
+- La configuración runtime usa variables `PHONETIC_ANALYZER_*`; no existen rutas experimentales `/tmp` hardcodeadas en el backend.
+- Torch, TorchAudio, WavLM y sus modelos permanecen fuera de `.venv` del backend.
+- Smoke test real B137 → runtime B139 → WavLM/GOP → B136 produjo score 0.884 para la muestra controlada.
+- Pipeline SHA-256 validado: `e09e2403e9f75fa23bfed65cc5e8e7fe90872328e0b351753e08a94a78437909`.
+- Checkpoint SHA-256 validado: `7b9485b679d9a1219ac7dbef197b5185ec16e7909632b082b1f0576a963e0040`.
+- 21 pruebas nuevas respecto a B138.
+- Suite backend completa: 389 passed.
+- Commit técnico: `f692f0f`.
+- B139 no calibra todavía los scores con voces humanas, no introduce feedback fonético pedagógico, mastery ni retention.
