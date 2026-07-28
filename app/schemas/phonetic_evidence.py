@@ -16,3 +16,14 @@ class PhoneticEvaluationEvidence(BaseModel):
     analyzer_id: str = Field(min_length=1)
     analyzer_version: str = Field(min_length=1)
     analyzed_at: datetime
+
+class AcousticPhoneticMeasurement(BaseModel):
+    """Represent one technical acoustic score before domain traceability.
+
+    Representa una medición acústica técnica antes de añadir trazabilidad.
+    """
+
+    score: float = Field(ge=0.0, le=1.0)
+    analyzer_id: str = Field(min_length=1)
+    analyzer_version: str = Field(min_length=1)
+    analyzed_at: datetime
