@@ -21,7 +21,7 @@ B137 — Ingesta y referencia resoluble de audio de producción.
 ## Bloque activo
 Ninguno.
 
-El siguiente bloque deberá continuar la evaluación semántica y fonética gradual desde las fronteras B136-B137: ya existe evidencia fonética normalizada y audio backend resoluble, pero todavía no un analizador acústico real.
+B138 quedó cerrado tras seleccionar y validar técnicamente una arquitectura fonética real. El siguiente bloque deberá integrar el analizador seleccionado detrás de la frontera neutral creada en B136, sin convertir todavía sus scores en verdad pedagógica ni en mastery.
 
 ## Secuencia vigente de Fase 5
 
@@ -221,3 +221,17 @@ Todo cambio futuro de esquema debe implementarse mediante una revisión Alembic 
 - El contrato JSON previo de producciones permanece intacto.
 - No hay todavía medición real de pronunciación.
 - 368 pruebas backend superadas.
+
+
+## Resultado técnico B138
+- Se compararon dos enfoques acústicos reales en Ubuntu y CPU.
+- `facebook/wav2vec2-lv-60-espeak-cv-ft` produjo observación fonémica y logits CTC, con inferencia aproximada de 0.30 s sobre un WAV de 1.91 s una vez cacheado.
+- La pérdida CTC global fue descartada como scorer de pronunciación: en el control `John`/`Joan` no discriminó consistentemente ambas hipótesis.
+- Se validó como candidato técnico `Jianshu001/wavlm-phoneme-scorer`, cuya arquitectura combina G2P, alineación CTC, WavLM, GOP y scoring por fonema.
+- El checkpoint `wavlm_finetuned.pt` quedó identificado por SHA-256 `7b9485b679d9a1219ac7dbef197b5185ec16e7909632b082b1f0576a963e0040`.
+- El checkpoint pudo cargarse con `weights_only=True` usando una allowlist mínima de tipos NumPy; no se aceptó la carga original con `weights_only=False`.
+- En el audio control `Hello, I am John.`, el scorer produjo 88.4/100 global y 92.9/100 para `John`.
+- Al mantener el objetivo `John` pero usar audio `Joan`, el score de la palabra cayó a 71.1/100 y el fonema objetivo `/aa/` cayó de 83.2 a 19.9 con `pherr=0.95`, localizando el cambio acústico.
+- `/hh/` de `Hello` fue marcado como error en ambas muestras, por lo que los scores y umbrales todavía no están calibrados pedagógicamente.
+- Las muestras usadas son sintéticas con eSpeak; B138 demuestra viabilidad técnica, no validez pedagógica sobre voces humanas.
+- No se modificó código runtime, esquema de base de datos, candidata pedagógica ni contenido activo.

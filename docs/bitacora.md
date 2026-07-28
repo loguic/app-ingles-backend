@@ -2603,3 +2603,31 @@ Configuración runtime:
 
 Límites:
 B137 no integra todavía un analizador acústico, no produce puntuaciones fonéticas, no modifica la candidata pedagógica, no cambia el esquema de base de datos y no introduce mastery, retention ni IA.
+
+## B138 — Selección y validación del analizador fonético real
+
+Fecha de cierre: 2026-07-28
+
+Objetivo:
+Seleccionar mediante pruebas reproducibles una arquitectura acústica real capaz de producir evidencia fonética trazable para la frontera definida en B136.
+
+Resultado:
+- Se trabajó en entornos experimentales aislados bajo `/tmp`, sin contaminar `.venv` ni `requirements.txt` del backend.
+- El primer candidato fue `facebook/wav2vec2-lv-60-espeak-cv-ft`.
+- El modelo produjo fonemas, logits CTC y una inferencia cacheada aproximada de 0.30 s para un WAV de 1.91 s en CPU.
+- Se descartó la pérdida CTC global como puntuación de pronunciación: el experimento controlado `John` frente a `Joan` no discriminó consistentemente ambas hipótesis.
+- El segundo candidato fue `Jianshu001/wavlm-phoneme-scorer`, basado en G2P, alineación CTC, WavLM, GOP y scorer por fonema.
+- Se inspeccionó el pipeline antes de ejecutarlo y se detectó que el código original cargaba el checkpoint mediante `torch.load(..., weights_only=False)`.
+- No se ejecutó esa carga insegura. Se creó una copia experimental que conserva `weights_only=True`, `mmap=True` y una allowlist mínima de tipos NumPy.
+- El checkpoint `wavlm_finetuned.pt` tiene SHA-256 `7b9485b679d9a1219ac7dbef197b5185ec16e7909632b082b1f0576a963e0040`.
+- La carga restringida confirmó `model_state` como `OrderedDict` con 517 entradas.
+- El pipeline completo ejecutó en CPU: WAV → G2P → alineación CTC → WavLM → GOP → scoring por fonema.
+- Para `Hello, I am John.` obtuvo 88.4/100 global y 92.9/100 en `John`.
+- En el control donde el audio decía `Joan` manteniendo como objetivo `John`, la palabra cayó a 71.1/100.
+- El fonema objetivo `/aa/` pasó de score 83.2 y `pherr=0.25` a score 19.9 y `pherr=0.95`, quedando marcado como error.
+- El fonema `/hh/` de `Hello` fue marcado como error en ambas muestras, lo que demuestra que la calibración pedagógica todavía está pendiente.
+- Se selecciona WavLM + alineación CTC + GOP + scorer por fonema como arquitectura técnicamente viable para continuar.
+- B138 no integra todavía el analizador en producción y no convierte sus scores en evidencia pedagógica aprobada, mastery ni retention.
+
+Límites:
+Las pruebas B138 usaron audio sintético eSpeak. La integración futura deberá conservar la frontera neutral de B136, una carga segura y trazable del modelo, y validar posteriormente el comportamiento con voces humanas y criterios pedagógicos antes de fijar umbrales de producción.
