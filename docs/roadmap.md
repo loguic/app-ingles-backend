@@ -184,3 +184,17 @@ Capacidades previstas:
 - futura detección de omisiones, pausas y errores durante la lectura oral.
 
 La implementación tomará como referencia patrones pedagógicos de herramientas de aprendizaje asistido, pero utilizará un contrato y una experiencia propios de App Inglés.
+
+## B148 — Solapamiento descriptivo entre distribuciones humanas
+
+Estado: cerrado técnicamente.
+
+Se añadió la comparación descriptiva del solapamiento entre IQR Q25–Q75 para pares de etiquetas humanas dentro del mismo contexto versionado de analizador y rúbrica.
+
+Este bloque amplía la evidencia descriptiva disponible, pero no establece separabilidad, umbrales, clasificación automática ni decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B148 específico: 11 passed.
+- Regresión B142–B148: 63 passed.
+- Suite backend completa: 491 passed.
+- Commit técnico: `4d7821e`.

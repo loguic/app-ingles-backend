@@ -2872,3 +2872,18 @@ B147 describe dispersión y posición de scores observados. Q25, mediana y Q75 n
 
 Estado:
 B147 técnicamente cerrado y validado. Publicación Git/GitHub pendiente.
+
+## B148 — Solapamiento descriptivo entre distribuciones humanas
+
+Se añadió la descripción del solapamiento entre rangos intercuartílicos Q25–Q75 de pares de etiquetas humanas dentro del mismo contexto `analyzer_id + analyzer_version + rubric_version`.
+
+El contrato distingue explícitamente casos con y sin solapamiento y el servicio no compara distribuciones de contextos versionados incompatibles.
+
+Límites: el solapamiento sigue siendo evidencia descriptiva. No define verdad, separabilidad, umbral fonético, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B148 específico: 11 passed.
+- Regresión B142–B148: 63 passed.
+- Suite backend completa: 491 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `4d7821e`.

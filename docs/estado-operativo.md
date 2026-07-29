@@ -267,3 +267,24 @@ Todo cambio futuro de esquema debe implementarse mediante una revisión Alembic 
 - `git diff --check`: correcto.
 - Commit técnico: `77ce27e`.
 - B140 todavía no establece calidad de pronunciación, umbrales pedagógicos, feedback fonético, mastery ni retention.
+
+## B148 — Solapamiento descriptivo entre distribuciones humanas
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó la descripción del solapamiento IQR Q25–Q75 entre pares de etiquetas humanas compatibles dentro del mismo `analyzer_id + analyzer_version + rubric_version`.
+
+Cadena vigente:
+`audio humano → medición acústica técnica → etiqueta humana independiente → acuerdo humano descriptivo → relación técnica-humana → resúmenes descriptivos → distribución por etiqueta → distribución robusta → solapamiento IQR descriptivo`
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+B148 no introduce verdad, mayoría automática, umbrales, clasificación, feedback pedagógico, mastery ni retention.
+
+Validación técnica:
+- B148 específico: 11 passed.
+- Regresión B142–B148: 63 passed.
+- Suite backend completa: 491 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `4d7821e`.
