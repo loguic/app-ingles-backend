@@ -1,0 +1,14 @@
+[
+  {
+    "sample_id": "human-001",
+    "labeler_id": "labeler-001",
+    "rubric_version": "phonetic-rubric/1.0",
+    "label": "acceptable"
+  },
+  {
+    "sample_id": "human-001",
+    "labeler_id": "labeler-002",
+    "rubric_version": "phonetic-rubric/1.0",
+    "label": "variant"
+  }
+]

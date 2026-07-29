@@ -27,6 +27,18 @@ class RepresentativePhoneticCalibrationSample(PhoneticCalibrationSample):
     session_id: str = Field(min_length=1)
 
 
+class PhoneticCalibrationHumanLabel(BaseModel):
+    """Record one independent human judgment for a calibration sample.
+
+    Registra un juicio humano independiente para una muestra de calibración.
+    """
+
+    sample_id: str = Field(min_length=1)
+    labeler_id: str = Field(min_length=1)
+    rubric_version: str = Field(min_length=1)
+    label: Literal["acceptable", "variant", "known_error"]
+
+
 class PhoneticCalibrationMeasurement(BaseModel):
     """Represent one reproducible analyzer result for calibration.
 

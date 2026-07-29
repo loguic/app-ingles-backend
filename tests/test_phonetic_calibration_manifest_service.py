@@ -5,6 +5,7 @@ from pydantic import ValidationError
 
 from app.services.phonetic_calibration_manifest_service import (
     load_phonetic_calibration_manifest,
+    load_phonetic_calibration_human_labels,
     load_representative_phonetic_calibration_manifest,
 )
 
@@ -82,3 +83,39 @@ def test_rejects_representative_manifest_without_identity(tmp_path, missing_fiel
 
     with pytest.raises(ValidationError):
         load_representative_phonetic_calibration_manifest(manifest)
+
+def test_loads_valid_human_calibration_labels(tmp_path):
+    labels_path = tmp_path / "labels.json"
+    labels_path.write_text(json.dumps([{
+        "sample_id": "human-001",
+        "labeler_id": "labeler-001",
+        "rubric_version": "phonetic-rubric/1.0",
+        "label": "acceptable",
+    }]), encoding="utf-8")
+
+    labels = load_phonetic_calibration_human_labels(labels_path)
+
+    assert labels[0].sample_id == "human-001"
+    assert labels[0].labeler_id == "labeler-001"
+    assert labels[0].label == "acceptable"
+
+
+def test_rejects_invalid_human_calibration_labels_json(tmp_path):
+    labels_path = tmp_path / "labels.json"
+    labels_path.write_text("{", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="invalid JSON"):
+        load_phonetic_calibration_human_labels(labels_path)
+
+
+def test_rejects_invalid_human_calibration_label(tmp_path):
+    labels_path = tmp_path / "labels.json"
+    labels_path.write_text(json.dumps([{
+        "sample_id": "human-001",
+        "labeler_id": "labeler-001",
+        "rubric_version": "phonetic-rubric/1.0",
+        "label": "perfect",
+    }]), encoding="utf-8")
+
+    with pytest.raises(ValidationError):
+        load_phonetic_calibration_human_labels(labels_path)

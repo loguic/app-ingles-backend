@@ -5,6 +5,7 @@ from pydantic import ValidationError
 
 from app.schemas.phonetic_calibration import (
     PhoneticCalibrationMeasurement,
+    PhoneticCalibrationHumanLabel,
     PhoneticCalibrationObservation,
     PhoneticCalibrationSample,
     RepresentativePhoneticCalibrationCoverage,
@@ -194,3 +195,40 @@ def test_rejects_negative_representative_coverage(field):
 
     with pytest.raises(ValidationError):
         RepresentativePhoneticCalibrationCoverage(**payload)
+
+def test_accepts_independent_human_calibration_label():
+    label = PhoneticCalibrationHumanLabel(
+        sample_id="human-001",
+        labeler_id="labeler-001",
+        rubric_version="phonetic-rubric/1.0",
+        label="acceptable",
+    )
+
+    assert label.sample_id == "human-001"
+    assert label.labeler_id == "labeler-001"
+    assert label.rubric_version == "phonetic-rubric/1.0"
+    assert label.label == "acceptable"
+
+
+@pytest.mark.parametrize("field", ["labeler_id", "rubric_version"])
+def test_rejects_empty_human_label_metadata(field):
+    payload = {
+        "sample_id": "human-001",
+        "labeler_id": "labeler-001",
+        "rubric_version": "phonetic-rubric/1.0",
+        "label": "acceptable",
+    }
+    payload[field] = ""
+
+    with pytest.raises(ValidationError):
+        PhoneticCalibrationHumanLabel(**payload)
+
+
+def test_rejects_unknown_human_calibration_label():
+    with pytest.raises(ValidationError):
+        PhoneticCalibrationHumanLabel(
+            sample_id="human-001",
+            labeler_id="labeler-001",
+            rubric_version="phonetic-rubric/1.0",
+            label="perfect",
+        )
