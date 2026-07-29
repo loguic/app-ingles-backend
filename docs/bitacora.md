@@ -2819,4 +2819,30 @@ Límites:
 B145 produce únicamente evidencia descriptiva agregada. No calcula correlación causal o pedagógica, no define umbrales de pronunciación, no clasifica automáticamente muestras, no genera feedback pedagógico, mastery ni retention, y no interpreta mayoría o unanimidad como verdad.
 
 Estado:
-B145 técnicamente cerrado y validado. Publicación Git/GitHub pendiente.
+B145 cerrado, publicado y sincronizado con GitHub.
+
+## B146 — Distribución descriptiva de scores por etiqueta humana
+
+Fecha: 2026-07-29
+
+Objetivo:
+Describir cómo se distribuyen los scores acústicos técnicos dentro de cada etiqueta humana observada, conservando desacuerdo y contexto versionado sin convertir ninguna etiqueta en verdad.
+
+Resultado:
+- Se añadió `PhoneticCalibrationHumanLabelScoreSummary`.
+- Los resúmenes se agrupan por `analyzer_id`, `analyzer_version`, `rubric_version` y etiqueta humana.
+- Se conservan `observation_count`, `sample_count`, `score_min`, `score_max` y `score_mean`.
+- Una misma muestra puede contribuir a distintas etiquetas cuando los evaluadores discrepan.
+- El desacuerdo humano se conserva sin seleccionar una etiqueta correcta.
+- Versiones distintas de analizador o rúbrica permanecen separadas.
+- Validación específica B146: 10 passed.
+- Regresión B142-B146: 42 passed.
+- Suite completa backend: 470 passed.
+- `git diff --check`: correcto.
+- Commit técnico: `7f2e3b0`.
+
+Límites:
+B146 describe distribuciones de scores por juicio humano observado. No define umbrales, no clasifica automáticamente pronunciaciones, no interpreta una etiqueta como verdad, no genera feedback pedagógico, mastery ni retention.
+
+Estado:
+B146 técnicamente cerrado y validado. Publicación Git/GitHub pendiente.
