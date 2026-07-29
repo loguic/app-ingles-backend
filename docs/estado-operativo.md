@@ -21,7 +21,7 @@ B137 — Ingesta y referencia resoluble de audio de producción.
 ## Bloque activo
 Ninguno.
 
-B141 quedó técnicamente cerrado: sobre la base humana reproducible B140, el backend distingue hablantes y sesiones pseudónimos, conserva esa identidad durante la medición y resume cobertura observable sin inferir representatividad ni validez pedagógica. Suite completa: 421 passed. Commit técnico: `4c00418`. La construcción de un corpus humano realmente representativo y la definición de umbrales de producción permanecen pendientes.
+B142 quedó técnicamente cerrado: sobre B140-B141, el backend puede registrar juicios fonéticos humanos independientes mediante evaluadores pseudónimos y una rúbrica versionada, preservando desacuerdos y sin mezclar todavía esas etiquetas con los scores acústicos. Suite completa: 431 passed. Commit técnico: `8eee6c8`. La construcción de un corpus realmente representativo, el consenso humano y los umbrales pedagógicos permanecen pendientes.
 
 ## Secuencia vigente de Fase 5
 

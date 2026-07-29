@@ -2711,4 +2711,30 @@ Límites:
 B141 define cómo construir y medir un corpus humano representativo, pero no demuestra todavía representatividad real. No establece mínimos de hablantes, umbrales fonéticos, porcentajes de pronunciación correcta, feedback pedagógico, mastery ni retention.
 
 Estado:
-B141 técnicamente cerrado y validado. Publicación Git/GitHub pendiente.
+B141 cerrado, publicado y sincronizado con GitHub.
+
+## B142 — Etiquetado fonético humano independiente y trazable
+
+Fecha: 2026-07-29
+
+Objetivo:
+Separar explícitamente los juicios humanos de las mediciones acústicas para permitir una futura calibración pedagógica sin convertir scores técnicos en conclusiones humanas.
+
+Resultado:
+- Se añadió `PhoneticCalibrationHumanLabel` con `sample_id`, `labeler_id` pseudónimo, `rubric_version` y clasificación cualitativa.
+- Las etiquetas permitidas son `acceptable`, `variant` y `known_error`.
+- Se añadió un loader independiente para manifiestos de etiquetas humanas.
+- Se añadió validación de integridad entre etiquetas y corpus: toda etiqueta debe apuntar a una muestra existente.
+- Se rechazan duplicados de `(sample_id, labeler_id, rubric_version)`.
+- Se versionó `human-labels.example.json`, permitiendo conservar desacuerdos entre evaluadores.
+- Se versionó `human-labeling-rubric-1.0.md`, independiente del scorer acústico.
+- Validación específica B142: 32 passed.
+- Suite completa backend: 431 passed.
+- `git diff --check`: correcto.
+- Commit técnico: `8eee6c8`.
+
+Límites:
+B142 preserva juicios humanos independientes y trazables, pero no calcula consenso, no decide qué evaluador tiene razón, no compara aún etiquetas humanas con scores del modelo y no define umbrales pedagógicos, mastery ni retention.
+
+Estado:
+B142 técnicamente cerrado y validado. Publicación Git/GitHub pendiente.
