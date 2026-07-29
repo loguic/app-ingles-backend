@@ -2737,4 +2737,31 @@ Límites:
 B142 preserva juicios humanos independientes y trazables, pero no calcula consenso, no decide qué evaluador tiene razón, no compara aún etiquetas humanas con scores del modelo y no define umbrales pedagógicos, mastery ni retention.
 
 Estado:
-B142 técnicamente cerrado y validado. Publicación Git/GitHub pendiente.
+B142 cerrado, publicado y sincronizado con GitHub.
+
+## B143 — Acuerdo humano descriptivo y trazable
+
+Fecha: 2026-07-29
+
+Objetivo:
+Describir el grado de coincidencia observado entre evaluadores humanos sin convertir mayoría, unanimidad o desacuerdo en verdad pedagógica.
+
+Resultado:
+- Se añadió `PhoneticCalibrationHumanAgreement`.
+- El resumen mantiene `sample_id` y `rubric_version` para impedir mezclar criterios de rúbricas distintas.
+- Se conserva la distribución completa de `acceptable`, `variant` y `known_error`.
+- Se registran número de etiquetas y número de evaluadores distintos.
+- Se indica únicamente si la observación es unánime.
+- El servicio agrupa por muestra y versión de rúbrica.
+- El ejemplo versionado de B142 conserva correctamente su desacuerdo humano.
+- Validación específica B143: 7 passed.
+- Regresión de calibración B140-B143: 39 passed.
+- Suite completa backend: 438 passed.
+- `git diff --check`: correcto.
+- Commit técnico: `a9ad708`.
+
+Límites:
+B143 no elige una etiqueta correcta, no calcula una mayoría como verdad, no compara todavía juicios humanos con scores acústicos y no establece umbrales pedagógicos, mastery ni retention.
+
+Estado:
+B143 técnicamente cerrado y validado. Publicación Git/GitHub pendiente.
