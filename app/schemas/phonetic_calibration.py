@@ -93,3 +93,16 @@ class PhoneticCalibrationObservation(BaseModel):
         if self.sample.sample_id != self.measurement.sample_id:
             raise ValueError("Calibration sample and measurement must share sample_id")
         return self
+
+class PhoneticCalibrationHumanAgreement(BaseModel):
+    """Summarize observed human-label agreement without deriving truth.
+
+    Resume el acuerdo observado entre etiquetas humanas sin derivar verdad.
+    """
+
+    sample_id: str = Field(min_length=1)
+    rubric_version: str = Field(min_length=1)
+    label_count: int = Field(ge=1)
+    labeler_count: int = Field(ge=1)
+    label_counts: dict[Literal["acceptable", "variant", "known_error"], int]
+    unanimous: bool
