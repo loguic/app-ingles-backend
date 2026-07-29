@@ -2845,4 +2845,30 @@ Límites:
 B146 describe distribuciones de scores por juicio humano observado. No define umbrales, no clasifica automáticamente pronunciaciones, no interpreta una etiqueta como verdad, no genera feedback pedagógico, mastery ni retention.
 
 Estado:
-B146 técnicamente cerrado y validado. Publicación Git/GitHub pendiente.
+B146 cerrado, publicado y sincronizado con GitHub.
+
+## B147 — Distribución robusta de scores por etiqueta humana
+
+Fecha: 2026-07-29
+
+Objetivo:
+Describir de forma robusta la distribución de scores acústicos dentro de cada etiqueta humana mediante Q25, mediana y Q75, preservando contexto versionado y sin convertir percentiles en umbrales pedagógicos.
+
+Resultado:
+- Se añadió `PhoneticCalibrationHumanLabelScoreDistribution`.
+- Se añadió un cálculo determinista de Q25, mediana y Q75 mediante interpolación lineal.
+- Las distribuciones se separan por `analyzer_id`, `analyzer_version`, `rubric_version` y etiqueta humana.
+- Se conservan `observation_count` y `sample_count`.
+- Una única observación produce Q25, mediana y Q75 iguales a su score.
+- El desacuerdo humano permanece representado por etiquetas independientes.
+- Validación específica B147: 10 passed.
+- Regresión B142-B147: 52 passed.
+- Suite completa backend: 480 passed.
+- `git diff --check`: correcto.
+- Commit técnico: `1bcdce1`.
+
+Límites:
+B147 describe dispersión y posición de scores observados. Q25, mediana y Q75 no son umbrales de pronunciación, no clasifican automáticamente, no establecen verdad pedagógica y no generan feedback, mastery ni retention.
+
+Estado:
+B147 técnicamente cerrado y validado. Publicación Git/GitHub pendiente.
