@@ -185,3 +185,20 @@ class PhoneticCalibrationHumanLabelScoreSummary(BaseModel):
     score_min: float = Field(ge=0.0, le=1.0)
     score_max: float = Field(ge=0.0, le=1.0)
     score_mean: float = Field(ge=0.0, le=1.0)
+
+
+class PhoneticCalibrationHumanLabelScoreDistribution(BaseModel):
+    """Describe robust technical-score distribution beside one human label.
+
+    Describe la distribución robusta de scores técnicos junto a una etiqueta humana.
+    """
+
+    analyzer_id: str = Field(min_length=1)
+    analyzer_version: str = Field(min_length=1)
+    rubric_version: str = Field(min_length=1)
+    label: Literal["acceptable", "variant", "known_error"]
+    observation_count: int = Field(ge=1)
+    sample_count: int = Field(ge=1)
+    score_q25: float = Field(ge=0.0, le=1.0)
+    score_median: float = Field(ge=0.0, le=1.0)
+    score_q75: float = Field(ge=0.0, le=1.0)
