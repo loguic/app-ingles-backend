@@ -2887,3 +2887,18 @@ Validación:
 - Suite backend completa: 491 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `4d7821e`.
+
+## B149 — Informe descriptivo consolidado de calibración modelo-humano
+
+Se añadió `PhoneticCalibrationDescriptiveReport` para consolidar, por `analyzer_id + analyzer_version + rubric_version`, el resumen modelo-humano, las distribuciones robustas por etiqueta y los solapamientos IQR ya calculados en bloques anteriores.
+
+El contrato valida que todas las piezas pertenezcan exactamente al mismo contexto versionado y el servicio solo reúne evidencia compatible, sin añadir nueva interpretación.
+
+Límites: el informe sigue siendo exclusivamente descriptivo. No define verdad, separabilidad, umbrales fonéticos, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B149 específico: 7 passed.
+- Regresión B142–B149: 70 passed.
+- Suite backend completa: 498 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `e91a011`.

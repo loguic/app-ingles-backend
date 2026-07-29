@@ -198,3 +198,17 @@ Validación de cierre técnico:
 - Regresión B142–B148: 63 passed.
 - Suite backend completa: 491 passed.
 - Commit técnico: `4d7821e`.
+
+## B149 — Informe descriptivo consolidado de calibración modelo-humano
+
+Estado: cerrado técnicamente.
+
+Se añadió un informe consolidado que reúne, dentro del mismo `analyzer_id + analyzer_version + rubric_version`, el resumen modelo-humano, las distribuciones robustas por etiqueta y los solapamientos IQR descriptivos.
+
+Este bloque consolida evidencia existente sin introducir verdad, separabilidad, umbrales, clasificación automática ni decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B149 específico: 7 passed.
+- Regresión B142–B149: 70 passed.
+- Suite backend completa: 498 passed.
+- Commit técnico: `e91a011`.
