@@ -2686,3 +2686,29 @@ Estas mediciones solo evidencian reproducibilidad técnica bajo un corpus inicia
 
 Estado:
 B140 técnicamente cerrado y validado. Publicación Git/GitHub pendiente.
+
+## B141 — Protocolo técnico para corpus fonético humano representativo
+
+Fecha: 2026-07-29
+
+Objetivo:
+Preparar contratos, trazabilidad y medición objetiva de cobertura para construir posteriormente un corpus fonético humano representativo sin convertir scores técnicos en conclusiones pedagógicas.
+
+Resultado:
+- Se añadió `RepresentativePhoneticCalibrationSample` con `speaker_id` y `session_id` pseudónimos.
+- Se añadió `RepresentativePhoneticCalibrationObservation` para conservar muestra e identidad junto con su medición acústica.
+- Se añadió un loader específico de manifiestos representativos sin modificar el contrato B140.
+- El flujo representativo reutiliza la verificación SHA-256, confinamiento de rutas y scorer productivo de B140/B139.
+- `RepresentativePhoneticCalibrationCoverage` registra únicamente número de muestras, hablantes y sesiones observadas.
+- Las sesiones se contabilizan por `(speaker_id, session_id)` para evitar colisiones entre hablantes.
+- Se añadió `manifest.representative.example.json` y un protocolo versionable en `calibration/phonetic/README.md`.
+- Validación específica B141: 32 passed.
+- Suite completa backend: 421 passed.
+- `git diff --check`: correcto.
+- Commit técnico: `4c00418`.
+
+Límites:
+B141 define cómo construir y medir un corpus humano representativo, pero no demuestra todavía representatividad real. No establece mínimos de hablantes, umbrales fonéticos, porcentajes de pronunciación correcta, feedback pedagógico, mastery ni retention.
+
+Estado:
+B141 técnicamente cerrado y validado. Publicación Git/GitHub pendiente.

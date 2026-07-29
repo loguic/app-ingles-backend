@@ -21,7 +21,7 @@ B137 — Ingesta y referencia resoluble de audio de producción.
 ## Bloque activo
 Ninguno.
 
-B140 quedó técnicamente cerrado: el runtime fonético B139 dispone de una base reproducible de calibración técnica con voz humana real, manifiestos validados, integridad SHA-256 y artefactos humanos locales aislados de Git. La calibración pedagógica con voces humanas representativas y la definición de umbrales de producción permanecen pendientes.
+B141 quedó técnicamente cerrado: sobre la base humana reproducible B140, el backend distingue hablantes y sesiones pseudónimos, conserva esa identidad durante la medición y resume cobertura observable sin inferir representatividad ni validez pedagógica. Suite completa: 421 passed. Commit técnico: `4c00418`. La construcción de un corpus humano realmente representativo y la definición de umbrales de producción permanecen pendientes.
 
 ## Secuencia vigente de Fase 5
 
