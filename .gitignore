@@ -16,3 +16,7 @@ data/
 .pytest_cache/
 
 .venv/
+calibration/phonetic/audio/
+calibration/phonetic/manifest.local.json
+calibration/phonetic/runtime.local.env
+calibration/phonetic/measurements.local.json

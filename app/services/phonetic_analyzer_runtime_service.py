@@ -24,10 +24,10 @@ def _required_env(name: str) -> str:
     return value.strip()
 
 
-def build_runtime_phonetic_analyzer() -> ProductionAudioPhoneticAnalyzer:
-    """Build the acoustic analyzer from explicit runtime configuration.
+def build_runtime_acoustic_phonetic_scorer() -> CommandAcousticPhoneticScorer:
+    """Build the acoustic scorer from explicit runtime configuration.
 
-    Construye el analizador acústico desde configuración runtime explícita.
+    Construye el scorer acústico desde configuración runtime explícita.
     """
     python_path = _required_env("PHONETIC_ANALYZER_PYTHON")
     pipeline_path = _required_env("PHONETIC_ANALYZER_PIPELINE")
@@ -67,5 +67,15 @@ def build_runtime_phonetic_analyzer() -> ProductionAudioPhoneticAnalyzer:
         timeout_seconds=timeout_seconds,
     )
 
-    return ProductionAudioPhoneticAnalyzer(scorer)
+    return scorer
 
+
+
+def build_runtime_phonetic_analyzer() -> ProductionAudioPhoneticAnalyzer:
+    """Build the production analyzer from the shared acoustic scorer.
+
+    Construye el analizador productivo desde el scorer acústico compartido.
+    """
+    return ProductionAudioPhoneticAnalyzer(
+        build_runtime_acoustic_phonetic_scorer()
+    )
