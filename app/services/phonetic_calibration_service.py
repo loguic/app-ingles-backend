@@ -4,12 +4,16 @@ from pathlib import Path
 from app.schemas.phonetic_calibration import (
     PhoneticCalibrationMeasurement,
     PhoneticCalibrationSample,
+    RepresentativePhoneticCalibrationCoverage,
+    RepresentativePhoneticCalibrationObservation,
+    RepresentativePhoneticCalibrationSample,
 )
 from app.services.production_audio_phonetic_analyzer import (
     AcousticPhoneticScorer,
 )
 from app.services.phonetic_calibration_manifest_service import (
     load_phonetic_calibration_manifest,
+    load_representative_phonetic_calibration_manifest,
 )
 from app.services.phonetic_analyzer_runtime_service import (
     build_runtime_acoustic_phonetic_scorer,
@@ -83,6 +87,44 @@ def measure_phonetic_calibration_corpus(
     return measurements
 
 
+def summarize_representative_phonetic_calibration_coverage(
+    samples: list[RepresentativePhoneticCalibrationSample],
+) -> RepresentativePhoneticCalibrationCoverage:
+    """Summarize observable speaker and session coverage.
+
+    Resume la cobertura observable de hablantes y sesiones.
+    """
+    return RepresentativePhoneticCalibrationCoverage(
+        sample_count=len(samples),
+        speaker_count=len({sample.speaker_id for sample in samples}),
+        session_count=len({(sample.speaker_id, sample.session_id) for sample in samples}),
+    )
+
+
+def measure_representative_phonetic_calibration_corpus(
+    samples: list[RepresentativePhoneticCalibrationSample],
+    scorer: AcousticPhoneticScorer,
+    *,
+    corpus_dir: Path,
+) -> list[RepresentativePhoneticCalibrationObservation]:
+    """Measure a representative corpus while preserving speaker and session.
+
+    Mide un corpus representativo preservando hablante y sesión.
+    """
+    measurements = measure_phonetic_calibration_corpus(
+        samples,
+        scorer,
+        corpus_dir=corpus_dir,
+    )
+    return [
+        RepresentativePhoneticCalibrationObservation(
+            sample=sample,
+            measurement=measurement,
+        )
+        for sample, measurement in zip(samples, measurements, strict=True)
+    ]
+
+
 def measure_runtime_phonetic_calibration_corpus(
     samples: list[PhoneticCalibrationSample],
     *,
@@ -109,5 +151,19 @@ def measure_runtime_phonetic_calibration_manifest(
     samples = load_phonetic_calibration_manifest(manifest_path)
     return measure_runtime_phonetic_calibration_corpus(
         samples,
+        corpus_dir=manifest_path.parent,
+    )
+
+def measure_runtime_representative_phonetic_calibration_manifest(
+    manifest_path: Path,
+) -> list[RepresentativePhoneticCalibrationObservation]:
+    """Measure a representative manifest with the configured production scorer.
+
+    Mide un manifiesto representativo con el scorer productivo configurado.
+    """
+    samples = load_representative_phonetic_calibration_manifest(manifest_path)
+    return measure_representative_phonetic_calibration_corpus(
+        samples,
+        build_runtime_acoustic_phonetic_scorer(),
         corpus_dir=manifest_path.parent,
     )

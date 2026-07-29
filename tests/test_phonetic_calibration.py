@@ -7,6 +7,9 @@ from app.schemas.phonetic_calibration import (
     PhoneticCalibrationMeasurement,
     PhoneticCalibrationObservation,
     PhoneticCalibrationSample,
+    RepresentativePhoneticCalibrationCoverage,
+    RepresentativePhoneticCalibrationObservation,
+    RepresentativePhoneticCalibrationSample,
 )
 
 
@@ -116,3 +119,78 @@ def test_rejects_observation_with_mismatched_sample_identity():
             sample=sample,
             measurement=measurement,
         )
+
+
+def test_accepts_representative_calibration_sample():
+    sample = RepresentativePhoneticCalibrationSample(
+        sample_id="human-001",
+        reference_text="Hello, I am John.",
+        audio_path="samples/human-001.wav",
+        audio_sha256="e" * 64,
+        expected_class="unlabeled",
+        speaker_id="speaker-001",
+        session_id="session-001",
+    )
+
+    assert sample.speaker_id == "speaker-001"
+    assert sample.session_id == "session-001"
+
+
+@pytest.mark.parametrize("field", ["speaker_id", "session_id"])
+def test_rejects_empty_representative_identity(field):
+    payload = {
+        "sample_id": "human-001",
+        "reference_text": "Hello, I am John.",
+        "audio_path": "samples/human-001.wav",
+        "audio_sha256": "f" * 64,
+        "expected_class": "unlabeled",
+        "speaker_id": "speaker-001",
+        "session_id": "session-001",
+    }
+    payload[field] = ""
+
+    with pytest.raises(ValidationError):
+        RepresentativePhoneticCalibrationSample(**payload)
+
+
+def test_preserves_representative_identity_in_observation():
+    sample = RepresentativePhoneticCalibrationSample(
+        sample_id="human-001", reference_text="Hello, I am John.",
+        audio_path="samples/human-001.wav", audio_sha256="a" * 64,
+        expected_class="unlabeled", speaker_id="speaker-001",
+        session_id="session-001",
+    )
+    measurement = PhoneticCalibrationMeasurement(
+        sample_id="human-001", score=0.6,
+        analyzer_id="wavlm-gop-phoneme-scorer",
+        analyzer_version="wavlm-gop-runner/1.0",
+        analyzed_at=datetime.now(UTC),
+    )
+
+    observation = RepresentativePhoneticCalibrationObservation(
+        sample=sample, measurement=measurement,
+    )
+
+    assert observation.sample.speaker_id == "speaker-001"
+    assert observation.sample.session_id == "session-001"
+
+
+def test_accepts_representative_calibration_coverage():
+    coverage = RepresentativePhoneticCalibrationCoverage(
+        sample_count=8,
+        speaker_count=3,
+        session_count=4,
+    )
+
+    assert coverage.sample_count == 8
+    assert coverage.speaker_count == 3
+    assert coverage.session_count == 4
+
+
+@pytest.mark.parametrize("field", ["sample_count", "speaker_count", "session_count"])
+def test_rejects_negative_representative_coverage(field):
+    payload = {"sample_count": 1, "speaker_count": 1, "session_count": 1}
+    payload[field] = -1
+
+    with pytest.raises(ValidationError):
+        RepresentativePhoneticCalibrationCoverage(**payload)

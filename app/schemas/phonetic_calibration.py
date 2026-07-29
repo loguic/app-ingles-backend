@@ -17,6 +17,16 @@ class PhoneticCalibrationSample(BaseModel):
     expected_class: Literal["unlabeled", "acceptable", "variant", "known_error"]
 
 
+class RepresentativePhoneticCalibrationSample(PhoneticCalibrationSample):
+    """Identify a calibration sample by pseudonymous speaker and session.
+
+    Identifica una muestra de calibración por hablante y sesión pseudónimos.
+    """
+
+    speaker_id: str = Field(min_length=1)
+    session_id: str = Field(min_length=1)
+
+
 class PhoneticCalibrationMeasurement(BaseModel):
     """Represent one reproducible analyzer result for calibration.
 
@@ -28,6 +38,33 @@ class PhoneticCalibrationMeasurement(BaseModel):
     analyzer_id: str = Field(min_length=1)
     analyzer_version: str = Field(min_length=1)
     analyzed_at: datetime
+
+
+class RepresentativePhoneticCalibrationCoverage(BaseModel):
+    """Describe observable coverage of a representative calibration corpus.
+
+    Describe la cobertura observable de un corpus representativo de calibración.
+    """
+
+    sample_count: int = Field(ge=0)
+    speaker_count: int = Field(ge=0)
+    session_count: int = Field(ge=0)
+
+
+class RepresentativePhoneticCalibrationObservation(BaseModel):
+    """Link a representative human sample to its acoustic measurement.
+
+    Vincula una muestra humana representativa con su medición acústica.
+    """
+
+    sample: RepresentativePhoneticCalibrationSample
+    measurement: PhoneticCalibrationMeasurement
+
+    @model_validator(mode="after")
+    def validate_sample_identity(self):
+        if self.sample.sample_id != self.measurement.sample_id:
+            raise ValueError("Calibration sample and measurement must share sample_id")
+        return self
 
 
 class PhoneticCalibrationObservation(BaseModel):

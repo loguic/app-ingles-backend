@@ -4,11 +4,16 @@ from pathlib import Path
 
 import pytest
 
-from app.schemas.phonetic_calibration import PhoneticCalibrationSample
+from app.schemas.phonetic_calibration import (
+    PhoneticCalibrationSample,
+    RepresentativePhoneticCalibrationSample,
+)
 from app.schemas.phonetic_evidence import AcousticPhoneticMeasurement
 from app.services.phonetic_calibration_service import (
     measure_phonetic_calibration_sample,
     measure_phonetic_calibration_corpus,
+    measure_representative_phonetic_calibration_corpus,
+    summarize_representative_phonetic_calibration_coverage,
 )
 
 
@@ -172,3 +177,82 @@ def test_runtime_calibration_uses_shared_configured_scorer(tmp_path, monkeypatch
 
     assert [result.sample_id for result in results] == ["human-001"]
     assert scorer.reference_text == "Hello, I am John."
+
+
+def test_measures_representative_corpus_preserving_identity(tmp_path):
+    corpus_dir = tmp_path / "corpus"
+    corpus_dir.mkdir()
+    audio = corpus_dir / "human.wav"
+    audio.write_bytes(b"representative-human-audio")
+    sample = RepresentativePhoneticCalibrationSample(
+        sample_id="human-001",
+        reference_text="Hello, I am John.",
+        audio_path="human.wav",
+        audio_sha256=sha256(audio.read_bytes()).hexdigest(),
+        expected_class="unlabeled",
+        speaker_id="speaker-001",
+        session_id="session-001",
+    )
+
+    observations = measure_representative_phonetic_calibration_corpus(
+        [sample],
+        FakeAcousticPhoneticScorer(),
+        corpus_dir=corpus_dir,
+    )
+
+    assert observations[0].sample.speaker_id == "speaker-001"
+    assert observations[0].sample.session_id == "session-001"
+    assert observations[0].measurement.sample_id == "human-001"
+    assert observations[0].measurement.score == 0.884
+
+def test_runtime_representative_manifest_preserves_identity(tmp_path, monkeypatch):
+    import json
+    import app.services.phonetic_calibration_service as service
+
+    audio = tmp_path / "human.wav"
+    audio.write_bytes(b"representative-human-audio")
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(json.dumps([{
+        "sample_id": "human-001",
+        "reference_text": "Hello, I am John.",
+        "audio_path": "human.wav",
+        "audio_sha256": sha256(audio.read_bytes()).hexdigest(),
+        "expected_class": "unlabeled",
+        "speaker_id": "speaker-001",
+        "session_id": "session-001",
+    }]), encoding="utf-8")
+    monkeypatch.setattr(
+        service,
+        "build_runtime_acoustic_phonetic_scorer",
+        lambda: FakeAcousticPhoneticScorer(),
+    )
+
+    observations = service.measure_runtime_representative_phonetic_calibration_manifest(manifest)
+
+    assert observations[0].sample.speaker_id == "speaker-001"
+    assert observations[0].sample.session_id == "session-001"
+    assert observations[0].measurement.sample_id == "human-001"
+
+def test_summarizes_representative_coverage_by_speaker_and_session():
+    samples = [
+        RepresentativePhoneticCalibrationSample(
+            sample_id=f"human-{index:03d}",
+            reference_text="Hello, I am John.",
+            audio_path=f"human-{index:03d}.wav",
+            audio_sha256="a" * 64,
+            expected_class="unlabeled",
+            speaker_id=speaker_id,
+            session_id=session_id,
+        )
+        for index, speaker_id, session_id in [
+            (1, "speaker-001", "session-001"),
+            (2, "speaker-001", "session-002"),
+            (3, "speaker-002", "session-001"),
+        ]
+    ]
+
+    coverage = summarize_representative_phonetic_calibration_coverage(samples)
+
+    assert coverage.sample_count == 3
+    assert coverage.speaker_count == 2
+    assert coverage.session_count == 3

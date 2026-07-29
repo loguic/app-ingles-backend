@@ -1,0 +1,1 @@
+[{"sample_id":"human-001","reference_text":"Hello, I am John.","audio_path":"audio/human-001.wav","audio_sha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","expected_class":"unlabeled","speaker_id":"speaker-001","session_id":"session-001"}]
