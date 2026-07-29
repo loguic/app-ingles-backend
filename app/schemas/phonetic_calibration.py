@@ -106,3 +106,30 @@ class PhoneticCalibrationHumanAgreement(BaseModel):
     labeler_count: int = Field(ge=1)
     label_counts: dict[Literal["acceptable", "variant", "known_error"], int]
     unanimous: bool
+
+
+class PhoneticCalibrationHumanRelationship(BaseModel):
+    """Relate technical measurement to descriptive human agreement.
+
+    Relaciona medición técnica con acuerdo humano descriptivo.
+    """
+
+    measurement: PhoneticCalibrationMeasurement
+    human_labels: list[PhoneticCalibrationHumanLabel] = Field(default_factory=list)
+    human_agreement: PhoneticCalibrationHumanAgreement
+
+    @model_validator(mode="after")
+    def validate_sample_identity(self):
+        if self.measurement.sample_id != self.human_agreement.sample_id:
+            raise ValueError("Calibration measurement and human agreement must share sample_id")
+
+        for label in self.human_labels:
+            if (
+                label.sample_id != self.human_agreement.sample_id
+                or label.rubric_version != self.human_agreement.rubric_version
+            ):
+                raise ValueError(
+                    "Human labels and human agreement must share sample_id and rubric_version"
+                )
+
+        return self
