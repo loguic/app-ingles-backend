@@ -2659,3 +2659,30 @@ Resultado:
 
 Límites:
 B139 demuestra integración técnica real, no validez pedagógica. Los scores y umbrales deberán validarse posteriormente con voces humanas representativas antes de utilizarse como criterio pedagógico de producción. No se añade todavía feedback fonético al estudiante, mastery ni retention.
+
+## B140 — Calibración técnica humana reproducible del analizador fonético
+
+Fecha de cierre: 2026-07-29
+
+Objetivo:
+Introducir una base reproducible para estudiar el comportamiento del analizador fonético B139 con voz humana real antes de establecer cualquier criterio pedagógico.
+
+Resultado:
+- Se añadieron contratos `PhoneticCalibrationSample`, `PhoneticCalibrationMeasurement` y `PhoneticCalibrationObservation`.
+- Las muestras admiten `unlabeled` para impedir atribuir calidad pedagógica sin evaluación humana independiente.
+- Se añadió carga y validación de manifiestos de calibración.
+- El servicio de calibración verifica existencia, confinamiento de ruta y SHA-256 del WAV antes de medirlo.
+- Se desacopló `build_runtime_acoustic_phonetic_scorer` para reutilizar el mismo runtime verificable de B139 en calibración.
+- El runtime pesado se reconstruyó fuera de `.venv` bajo `~/.local/share/app-ingles/phonetic-runtime/` y reprodujo el primer score humano técnico `0.625`.
+- Audio humano, manifiesto real, configuración runtime y mediciones permanecen locales e ignorados por Git; solo `manifest.example.json` es versionable.
+- Tras corregir una incidencia de captura VMware, cuatro repeticiones válidas del mismo hablante y frase produjeron scores `0.574`, `0.582`, `0.626` y `0.606` (media técnica `0.597`, rango `0.052`).
+- Validación específica B140: 20 passed.
+- Suite completa backend: 407 passed.
+- `git diff --check`: correcto.
+- Commit técnico: `77ce27e`.
+
+Límites:
+Estas mediciones solo evidencian reproducibilidad técnica bajo un corpus inicial muy limitado. No representan porcentajes de pronunciación correcta, no permiten fijar umbrales pedagógicos y no sustituyen una calibración posterior con voces humanas representativas, etiquetado independiente y criterios pedagógicos.
+
+Estado:
+B140 técnicamente cerrado y validado. Publicación Git/GitHub pendiente.

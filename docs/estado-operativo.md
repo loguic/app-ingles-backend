@@ -21,7 +21,7 @@ B137 — Ingesta y referencia resoluble de audio de producción.
 ## Bloque activo
 Ninguno.
 
-B139 quedó técnicamente cerrado: el backend puede ejecutar el analizador fonético real mediante un proceso aislado, resolver audio privado B137 y producir evidencia B136 trazable. La calibración pedagógica con voces humanas y la definición de umbrales de producción permanecen pendientes.
+B140 quedó técnicamente cerrado: el runtime fonético B139 dispone de una base reproducible de calibración técnica con voz humana real, manifiestos validados, integridad SHA-256 y artefactos humanos locales aislados de Git. La calibración pedagógica con voces humanas representativas y la definición de umbrales de producción permanecen pendientes.
 
 ## Secuencia vigente de Fase 5
 
@@ -253,3 +253,17 @@ Todo cambio futuro de esquema debe implementarse mediante una revisión Alembic 
 - Suite backend completa: 389 passed.
 - Commit técnico: `f692f0f`.
 - B139 no calibra todavía los scores con voces humanas, no introduce feedback fonético pedagógico, mastery ni retention.
+
+## Resultado técnico B140
+- Se definieron contratos separados para muestras, mediciones y observaciones de calibración fonética.
+- `unlabeled` preserva la separación entre medición acústica y juicio pedagógico.
+- Los manifiestos se validan antes de ejecutar el scorer y cada WAV se verifica mediante SHA-256.
+- El mismo `CommandAcousticPhoneticScorer` configurable y verificable de B139 puede reutilizarse directamente para corpus de calibración.
+- El runtime pesado persistente permanece fuera de `.venv` y reprodujo la ejecución humana previamente obtenida.
+- El corpus inicial controlado contiene cuatro repeticiones válidas del mismo hablante y misma frase; scores técnicos: 0.574, 0.582, 0.626 y 0.606.
+- Audio humano, manifiesto local, configuración runtime y mediciones locales están excluidos de Git.
+- Validación específica: 20 passed.
+- Suite backend completa: 407 passed.
+- `git diff --check`: correcto.
+- Commit técnico: `77ce27e`.
+- B140 todavía no establece calidad de pronunciación, umbrales pedagógicos, feedback fonético, mastery ni retention.
