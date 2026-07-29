@@ -133,3 +133,38 @@ class PhoneticCalibrationHumanRelationship(BaseModel):
                 )
 
         return self
+
+
+class PhoneticCalibrationModelHumanObservation(BaseModel):
+    """Describe one technical measurement beside human agreement.
+
+    Describe una medición técnica junto al acuerdo humano observado.
+    """
+
+    sample_id: str = Field(min_length=1)
+    analyzer_id: str = Field(min_length=1)
+    analyzer_version: str = Field(min_length=1)
+    rubric_version: str = Field(min_length=1)
+    score: float = Field(ge=0.0, le=1.0)
+    label_count: int = Field(ge=1)
+    labeler_count: int = Field(ge=1)
+    label_counts: dict[Literal["acceptable", "variant", "known_error"], int]
+    unanimous: bool
+
+
+class PhoneticCalibrationModelHumanSummary(BaseModel):
+    """Summarize descriptive model-human observations by versioned context.
+
+    Resume observaciones descriptivas modelo-humano por contexto versionado.
+    """
+
+    analyzer_id: str = Field(min_length=1)
+    analyzer_version: str = Field(min_length=1)
+    rubric_version: str = Field(min_length=1)
+    observation_count: int = Field(ge=1)
+    sample_count: int = Field(ge=1)
+    score_min: float = Field(ge=0.0, le=1.0)
+    score_max: float = Field(ge=0.0, le=1.0)
+    score_mean: float = Field(ge=0.0, le=1.0)
+    label_counts: dict[Literal["acceptable", "variant", "known_error"], int]
+    unanimous_count: int = Field(ge=0)
