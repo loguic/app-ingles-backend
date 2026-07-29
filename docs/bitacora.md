@@ -2764,4 +2764,31 @@ Límites:
 B143 no elige una etiqueta correcta, no calcula una mayoría como verdad, no compara todavía juicios humanos con scores acústicos y no establece umbrales pedagógicos, mastery ni retention.
 
 Estado:
-B143 técnicamente cerrado y validado. Publicación Git/GitHub pendiente.
+B143 cerrado, publicado y sincronizado con GitHub.
+
+## B144 — Relación descriptiva entre evidencia técnica y humana
+
+Fecha: 2026-07-29
+
+Objetivo:
+Relacionar de forma descriptiva y trazable la medición acústica técnica con las etiquetas humanas independientes y el acuerdo humano disponible, sin convertir ninguna señal en verdad o decisión pedagógica.
+
+Resultado:
+- Se añadió `PhoneticCalibrationHumanRelationship`.
+- La relación conserva la `PhoneticCalibrationMeasurement`, las `PhoneticCalibrationHumanLabel` independientes y el `PhoneticCalibrationHumanAgreement`.
+- Se exige coherencia de `sample_id` entre medición y acuerdo.
+- Las etiquetas humanas deben compartir `sample_id` y `rubric_version` con el acuerdo asociado.
+- El servicio preserva múltiples mediciones técnicas de una misma muestra sin sobrescribir evidencia.
+- Las distintas versiones de rúbrica permanecen separadas.
+- Los acuerdos sin medición correspondiente no generan relaciones artificiales.
+- Validación específica B144: 9 passed.
+- Regresión B142-B144: 19 passed.
+- Suite completa backend: 447 passed.
+- `git diff --check`: correcto.
+- Commit técnico: `9eae15a`.
+
+Límites:
+B144 describe relaciones entre evidencia técnica y humana, pero no deriva una etiqueta verdadera, no interpreta el score como corrección fonética, no calcula umbrales pedagógicos, no genera feedback, mastery ni retention, y no convierte mayoría o unanimidad en decisión automática.
+
+Estado:
+B144 técnicamente cerrado y validado. Publicación Git/GitHub pendiente.
