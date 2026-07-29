@@ -202,3 +202,32 @@ class PhoneticCalibrationHumanLabelScoreDistribution(BaseModel):
     score_q25: float = Field(ge=0.0, le=1.0)
     score_median: float = Field(ge=0.0, le=1.0)
     score_q75: float = Field(ge=0.0, le=1.0)
+
+
+class PhoneticCalibrationHumanLabelScoreOverlap(BaseModel):
+    """Describe observed IQR overlap between two human-label score distributions.
+
+    Describe el solapamiento IQR observado entre dos distribuciones por etiqueta humana.
+    """
+
+    analyzer_id: str = Field(min_length=1)
+    analyzer_version: str = Field(min_length=1)
+    rubric_version: str = Field(min_length=1)
+    left_label: Literal["acceptable", "variant", "known_error"]
+    right_label: Literal["acceptable", "variant", "known_error"]
+    overlap_lower: float | None = Field(default=None, ge=0.0, le=1.0)
+    overlap_upper: float | None = Field(default=None, ge=0.0, le=1.0)
+    overlap_width: float = Field(ge=0.0, le=1.0)
+    overlaps: bool
+
+    @model_validator(mode="after")
+    def validate_overlap_shape(self):
+        if self.overlaps:
+            if self.overlap_lower is None or self.overlap_upper is None:
+                raise ValueError("Overlapping distributions require overlap bounds")
+        else:
+            if self.overlap_lower is not None or self.overlap_upper is not None:
+                raise ValueError("Non-overlapping distributions must not define overlap bounds")
+            if self.overlap_width != 0.0:
+                raise ValueError("Non-overlapping distributions must have zero overlap width")
+        return self
