@@ -168,3 +168,20 @@ class PhoneticCalibrationModelHumanSummary(BaseModel):
     score_mean: float = Field(ge=0.0, le=1.0)
     label_counts: dict[Literal["acceptable", "variant", "known_error"], int]
     unanimous_count: int = Field(ge=0)
+
+
+class PhoneticCalibrationHumanLabelScoreSummary(BaseModel):
+    """Describe technical scores observed beside one human label.
+
+    Describe scores técnicos observados junto a una etiqueta humana.
+    """
+
+    analyzer_id: str = Field(min_length=1)
+    analyzer_version: str = Field(min_length=1)
+    rubric_version: str = Field(min_length=1)
+    label: Literal["acceptable", "variant", "known_error"]
+    observation_count: int = Field(ge=1)
+    sample_count: int = Field(ge=1)
+    score_min: float = Field(ge=0.0, le=1.0)
+    score_max: float = Field(ge=0.0, le=1.0)
+    score_mean: float = Field(ge=0.0, le=1.0)
