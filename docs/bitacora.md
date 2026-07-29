@@ -2791,4 +2791,32 @@ Límites:
 B144 describe relaciones entre evidencia técnica y humana, pero no deriva una etiqueta verdadera, no interpreta el score como corrección fonética, no calcula umbrales pedagógicos, no genera feedback, mastery ni retention, y no convierte mayoría o unanimidad en decisión automática.
 
 Estado:
-B144 técnicamente cerrado y validado. Publicación Git/GitHub pendiente.
+B144 cerrado, publicado y sincronizado con GitHub.
+
+## B145 — Resumen descriptivo modelo-humano
+
+Fecha: 2026-07-29
+
+Objetivo:
+Describir de forma agregada la relación observada entre scores acústicos técnicos y evaluación humana, preservando el contexto versionado y sin convertir la relación en una decisión pedagógica.
+
+Resultado:
+- Se añadió `PhoneticCalibrationModelHumanObservation`.
+- Cada observación conserva `sample_id`, identidad y versión del analizador, versión de rúbrica, score técnico y acuerdo humano descriptivo.
+- Se añadió `PhoneticCalibrationModelHumanSummary`.
+- Los resúmenes se agrupan por `analyzer_id`, `analyzer_version` y `rubric_version`.
+- Se conservan `observation_count`, `sample_count`, `score_min`, `score_max` y `score_mean`.
+- Se acumula la distribución completa de `acceptable`, `variant` y `known_error`.
+- Se conserva el número de observaciones unánimes sin interpretar unanimidad como verdad.
+- Versiones distintas de analizador o rúbrica permanecen separadas.
+- Validación específica B145: 13 passed.
+- Regresión B142-B145: 32 passed.
+- Suite completa backend: 460 passed.
+- `git diff --check`: correcto.
+- Commit técnico: `125ff37`.
+
+Límites:
+B145 produce únicamente evidencia descriptiva agregada. No calcula correlación causal o pedagógica, no define umbrales de pronunciación, no clasifica automáticamente muestras, no genera feedback pedagógico, mastery ni retention, y no interpreta mayoría o unanimidad como verdad.
+
+Estado:
+B145 técnicamente cerrado y validado. Publicación Git/GitHub pendiente.

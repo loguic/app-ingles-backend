@@ -21,7 +21,7 @@ B137 — Ingesta y referencia resoluble de audio de producción.
 ## Bloque activo
 Ninguno.
 
-B144 quedó técnicamente cerrado: sobre B140-B143, el backend puede relacionar de forma trazable mediciones acústicas técnicas, etiquetas humanas independientes y acuerdo humano por muestra y versión de rúbrica, preservando múltiples mediciones sin sobrescribir evidencia y sin derivar verdad, umbrales ni decisiones pedagógicas. Suite completa: 447 passed. Commit técnico: `9eae15a`. El corpus humano realmente representativo, la calibración pedagógica basada en evidencia y la comprensión semántica avanzada permanecen pendientes.
+B145 quedó técnicamente cerrado: sobre B140-B144, el backend puede producir observaciones y resúmenes descriptivos versionados de la relación entre scores acústicos técnicos y evaluación humana, conservando distribuciones de etiquetas, muestras, rango y media de scores sin derivar verdad, umbrales ni decisiones pedagógicas. Suite completa: 460 passed. Commit técnico: `125ff37`. El corpus humano realmente representativo, la calibración pedagógica basada en evidencia y la comprensión semántica avanzada permanecen pendientes.
 
 ## Secuencia vigente de Fase 5
 
