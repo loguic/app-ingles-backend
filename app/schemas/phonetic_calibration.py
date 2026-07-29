@@ -231,3 +231,61 @@ class PhoneticCalibrationHumanLabelScoreOverlap(BaseModel):
             if self.overlap_width != 0.0:
                 raise ValueError("Non-overlapping distributions must have zero overlap width")
         return self
+
+
+class PhoneticCalibrationDescriptiveReport(BaseModel):
+    """Consolidate descriptive model-human calibration evidence.
+
+    Consolida evidencia descriptiva de calibración modelo-humano.
+    """
+
+    analyzer_id: str = Field(min_length=1)
+    analyzer_version: str = Field(min_length=1)
+    rubric_version: str = Field(min_length=1)
+    summary: PhoneticCalibrationModelHumanSummary
+    score_distributions: list[PhoneticCalibrationHumanLabelScoreDistribution] = Field(
+        default_factory=list
+    )
+    overlaps: list[PhoneticCalibrationHumanLabelScoreOverlap] = Field(
+        default_factory=list
+    )
+
+    @model_validator(mode="after")
+    def validate_versioned_context(self):
+        expected = (
+            self.analyzer_id,
+            self.analyzer_version,
+            self.rubric_version,
+        )
+
+        summary_context = (
+            self.summary.analyzer_id,
+            self.summary.analyzer_version,
+            self.summary.rubric_version,
+        )
+        if summary_context != expected:
+            raise ValueError("Report summary must share the report versioned context")
+
+        for distribution in self.score_distributions:
+            distribution_context = (
+                distribution.analyzer_id,
+                distribution.analyzer_version,
+                distribution.rubric_version,
+            )
+            if distribution_context != expected:
+                raise ValueError(
+                    "Report score distributions must share the report versioned context"
+                )
+
+        for overlap in self.overlaps:
+            overlap_context = (
+                overlap.analyzer_id,
+                overlap.analyzer_version,
+                overlap.rubric_version,
+            )
+            if overlap_context != expected:
+                raise ValueError(
+                    "Report overlaps must share the report versioned context"
+                )
+
+        return self
