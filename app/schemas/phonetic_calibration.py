@@ -586,3 +586,23 @@ class PhoneticCalibrationTechnicalDistributionComparisonReportArtifactVerificati
     expected_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     computed_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     matches_content: bool
+
+class PhoneticCalibrationTechnicalDistributionComparisonArtifactComparison(BaseModel):
+    """Describe a reproducible comparison between two technical report artifacts.
+
+    Describe una comparación reproducible entre dos artefactos de informes técnicos.
+    """
+
+    left_artifact_version: str = Field(min_length=1)
+    left_content_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    left_left_analyzer_id: str = Field(min_length=1)
+    left_left_analyzer_version: str = Field(min_length=1)
+    left_right_analyzer_id: str = Field(min_length=1)
+    left_right_analyzer_version: str = Field(min_length=1)
+    right_artifact_version: str = Field(min_length=1)
+    right_content_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    right_left_analyzer_id: str = Field(min_length=1)
+    right_left_analyzer_version: str = Field(min_length=1)
+    right_right_analyzer_id: str = Field(min_length=1)
+    right_right_analyzer_version: str = Field(min_length=1)
+    rubric_version: str = Field(min_length=1)
