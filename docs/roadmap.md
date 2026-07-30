@@ -430,3 +430,21 @@ Validación de cierre técnico:
 - Regresión B142–B163: 205 passed.
 - Suite backend completa: 633 passed.
 - Commit técnico: `953ba52`.
+
+## B164 — Comparación reproducible entre artefactos técnicos verificados
+
+Estado: cerrado técnicamente.
+
+Se añadió `PhoneticCalibrationTechnicalDistributionComparisonArtifactComparison` junto con `compare_phonetic_calibration_technical_distribution_comparison_report_artifacts`.
+
+La comparación exige artefactos B162 íntegros según B163, conserva `artifact_version` y `content_sha256` de ambos lados y registra los analizadores y versiones presentes en cada informe técnico.
+
+Ambos artefactos deben utilizar exactamente la misma `rubric_version`.
+
+Este bloque establece identidad y trazabilidad reproducible entre informes técnicos versionados. Todavía no compara sus diferencias internas ni determina mejora, degradación, superioridad de analizadores o decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B164 específico: 7 passed.
+- Regresión B142–B164: 212 passed.
+- Suite backend completa: 640 passed.
+- Commit técnico: `5a18bcd`.

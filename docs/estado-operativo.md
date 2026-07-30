@@ -649,3 +649,28 @@ Validación técnica:
 - Suite backend completa: 633 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `953ba52`.
+
+## B164 — Comparación reproducible entre artefactos técnicos verificados
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationTechnicalDistributionComparisonArtifactComparison` junto con `compare_phonetic_calibration_technical_distribution_comparison_report_artifacts`.
+
+La comparación solo acepta artefactos B162 cuya integridad B163 haya sido validada. Conserva la versión y el SHA-256 de ambos artefactos, además de los analizadores y versiones que cada informe compara.
+
+Ambos artefactos deben utilizar exactamente la misma `rubric_version`.
+
+Cadena vigente:
+`audio humano → medición acústica técnica → etiqueta humana independiente → acuerdo humano descriptivo → identidad reproducible de evidencia humana → compatibilidad de evidencia humana → relación técnica-humana → resúmenes descriptivos → distribución por etiqueta → distribución robusta → solapamiento IQR descriptivo → informe descriptivo consolidado → artefacto reproducible versionado → verificación de integridad → comparación reproducible entre artefactos → contexto reproducible de calibración comparable → identidad reproducible de cobertura técnica → compatibilidad reproducible de cobertura técnica → contexto reproducible de comparación técnica completa → comparación descriptiva de medianas por etiqueta humana → comparación robusta de distribuciones por etiqueta humana → informe consolidado de comparación técnica por etiquetas → artefacto reproducible del informe de comparación técnica → verificación de integridad del artefacto de comparación técnica → comparación reproducible entre artefactos técnicos verificados`
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+B164 no compara todavía las diferencias internas entre ambos informes, no determina mejora, degradación ni superioridad de analizadores y no introduce separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación técnica:
+- B164 específico: 7 passed.
+- Regresión B142–B164: 212 passed.
+- Suite backend completa: 640 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `5a18bcd`.

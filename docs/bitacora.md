@@ -3126,3 +3126,20 @@ Validación:
 - Suite backend completa: 633 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `953ba52`.
+
+## B164 — Comparación reproducible entre artefactos técnicos verificados
+
+Se añadió `PhoneticCalibrationTechnicalDistributionComparisonArtifactComparison` y el servicio `compare_phonetic_calibration_technical_distribution_comparison_report_artifacts`.
+
+La comparación solo acepta artefactos B162 cuya integridad B163 sea válida. Conserva las versiones y SHA-256 de ambos artefactos, así como las identidades de los analizadores y versiones que cada informe compara.
+
+El servicio rechaza artefactos con integridad inválida y exige que ambos utilicen la misma `rubric_version`.
+
+Límites: B164 establece identidad y trazabilidad reproducible entre artefactos técnicos verificados. No compara todavía las diferencias internas entre informes, no determina mejora, degradación o superioridad de analizadores y no introduce separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B164 específico: 7 passed.
+- Regresión B142–B164: 212 passed.
+- Suite backend completa: 640 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `5a18bcd`.
