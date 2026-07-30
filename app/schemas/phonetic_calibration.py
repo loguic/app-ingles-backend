@@ -519,3 +519,49 @@ class PhoneticCalibrationHumanLabelScoreDistributionComparison(BaseModel):
                 "Q75 difference must equal right Q75 minus left Q75"
             )
         return self
+
+class PhoneticCalibrationTechnicalDistributionComparisonReport(BaseModel):
+    """Consolidate robust human-label score comparisons in one technical context.
+
+    Consolida comparaciones robustas por etiqueta humana en un contexto técnico.
+    """
+
+    context: PhoneticCalibrationTechnicalComparisonContext
+    comparisons: list[
+        PhoneticCalibrationHumanLabelScoreDistributionComparison
+    ] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_comparison_report(self):
+        artifact_comparison = (
+            self.context.comparable_artifact_context.artifact_comparison
+        )
+        expected = (
+            artifact_comparison.left_analyzer_id,
+            artifact_comparison.left_analyzer_version,
+            artifact_comparison.right_analyzer_id,
+            artifact_comparison.right_analyzer_version,
+            artifact_comparison.rubric_version,
+        )
+
+        labels = set()
+        for comparison in self.comparisons:
+            actual = (
+                comparison.left_analyzer_id,
+                comparison.left_analyzer_version,
+                comparison.right_analyzer_id,
+                comparison.right_analyzer_version,
+                comparison.rubric_version,
+            )
+            if actual != expected:
+                raise ValueError(
+                    "Distribution comparison must match technical comparison context"
+                )
+
+            if comparison.label in labels:
+                raise ValueError(
+                    "Technical distribution comparison report requires unique human labels"
+                )
+            labels.add(comparison.label)
+
+        return self
