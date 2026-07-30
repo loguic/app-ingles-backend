@@ -2977,3 +2977,18 @@ Validación:
 - Suite backend completa: 565 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `66b8b39`.
+
+## B155 — Contexto reproducible de calibración comparable
+
+Se añadió `PhoneticCalibrationComparableArtifactContext` y un servicio que combina la comparación reproducible de artefactos B152 con la compatibilidad de evidencia humana B154.
+
+El contexto solo puede construirse cuando ambos artefactos son comparables, comparten la misma `rubric_version` y las identidades humanas representan exactamente la misma evidencia. Esto prepara una base controlada para análisis técnicos posteriores sin calcular todavía diferencias de score ni rendimiento.
+
+Límites: B155 establece condiciones de comparabilidad técnica. No determina qué analizador es mejor ni define verdad, separabilidad, umbrales fonéticos, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B155 específico: 6 passed.
+- Regresión B142–B155: 143 passed.
+- Suite backend completa: 571 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `3927ebb`.

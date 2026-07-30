@@ -282,3 +282,19 @@ Validación de cierre técnico:
 - Regresión B142–B154: 137 passed.
 - Suite backend completa: 565 passed.
 - Commit técnico: `66b8b39`.
+
+## B155 — Contexto reproducible de calibración comparable
+
+Estado: cerrado técnicamente.
+
+Se añadió un contexto reproducible que combina la comparación de artefactos B152 con la compatibilidad de evidencia humana B154.
+
+El contexto solo existe cuando los artefactos son comparables, comparten `rubric_version` y utilizan exactamente la misma evidencia humana reproducible.
+
+Este bloque prepara análisis técnicos posteriores sin calcular todavía diferencias de score ni determinar qué analizador es mejor. Tampoco introduce verdad, separabilidad, umbrales, clasificación automática o decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B155 específico: 6 passed.
+- Regresión B142–B155: 143 passed.
+- Suite backend completa: 571 passed.
+- Commit técnico: `3927ebb`.
