@@ -387,3 +387,13 @@ class PhoneticCalibrationTechnicalCoverageIdentity(BaseModel):
     rubric_version: str = Field(min_length=1)
     sample_count: int = Field(ge=1)
     sample_ids_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+class PhoneticCalibrationTechnicalCoverageCompatibility(BaseModel):
+    """Describe reproducible compatibility between two technical coverage identities.
+
+    Describe la compatibilidad reproducible entre dos identidades de cobertura técnica.
+    """
+
+    left: PhoneticCalibrationTechnicalCoverageIdentity
+    right: PhoneticCalibrationTechnicalCoverageIdentity
+    same_coverage: bool
