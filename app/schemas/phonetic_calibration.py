@@ -397,3 +397,54 @@ class PhoneticCalibrationTechnicalCoverageCompatibility(BaseModel):
     left: PhoneticCalibrationTechnicalCoverageIdentity
     right: PhoneticCalibrationTechnicalCoverageIdentity
     same_coverage: bool
+
+class PhoneticCalibrationTechnicalComparisonContext(BaseModel):
+    """Combine comparable artifacts with reproducible technical coverage compatibility.
+
+    Combina artefactos comparables con compatibilidad reproducible de cobertura técnica.
+    """
+
+    comparable_artifact_context: PhoneticCalibrationComparableArtifactContext
+    technical_coverage_compatibility: PhoneticCalibrationTechnicalCoverageCompatibility
+
+    @model_validator(mode="after")
+    def validate_technical_comparison_context(self):
+        artifact_comparison = self.comparable_artifact_context.artifact_comparison
+        coverage = self.technical_coverage_compatibility
+
+        if not coverage.same_coverage:
+            raise ValueError(
+                "Technical comparison context requires the same technical coverage"
+            )
+
+        left_expected = (
+            artifact_comparison.left_analyzer_id,
+            artifact_comparison.left_analyzer_version,
+            artifact_comparison.rubric_version,
+        )
+        left_actual = (
+            coverage.left.analyzer_id,
+            coverage.left.analyzer_version,
+            coverage.left.rubric_version,
+        )
+        if left_actual != left_expected:
+            raise ValueError(
+                "Left technical coverage must match left artifact comparison context"
+            )
+
+        right_expected = (
+            artifact_comparison.right_analyzer_id,
+            artifact_comparison.right_analyzer_version,
+            artifact_comparison.rubric_version,
+        )
+        right_actual = (
+            coverage.right.analyzer_id,
+            coverage.right.analyzer_version,
+            coverage.right.rubric_version,
+        )
+        if right_actual != right_expected:
+            raise ValueError(
+                "Right technical coverage must match right artifact comparison context"
+            )
+
+        return self
