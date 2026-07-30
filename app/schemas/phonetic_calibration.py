@@ -565,3 +565,13 @@ class PhoneticCalibrationTechnicalDistributionComparisonReport(BaseModel):
             labels.add(comparison.label)
 
         return self
+
+class PhoneticCalibrationTechnicalDistributionComparisonReportArtifact(BaseModel):
+    """Version a technical distribution comparison report with reproducible identity.
+
+    Versiona un informe de comparación técnica de distribuciones con identidad reproducible.
+    """
+
+    artifact_version: str = Field(min_length=1)
+    content_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    report: PhoneticCalibrationTechnicalDistributionComparisonReport
