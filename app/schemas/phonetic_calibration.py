@@ -310,3 +310,19 @@ class PhoneticCalibrationDescriptiveReportArtifactVerification(BaseModel):
     expected_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     computed_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     matches_content: bool
+
+class PhoneticCalibrationDescriptiveReportArtifactComparison(BaseModel):
+    """Describe a reproducible comparison between calibration report artifacts.
+
+    Describe una comparación reproducible entre artefactos de informes de calibración.
+    """
+
+    left_report_version: str = Field(min_length=1)
+    left_content_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    left_analyzer_id: str = Field(min_length=1)
+    left_analyzer_version: str = Field(min_length=1)
+    right_report_version: str = Field(min_length=1)
+    right_content_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    right_analyzer_id: str = Field(min_length=1)
+    right_analyzer_version: str = Field(min_length=1)
+    rubric_version: str = Field(min_length=1)
