@@ -240,3 +240,17 @@ Validación de cierre técnico:
 - Regresión B142–B151: 96 passed.
 - Suite backend completa: 524 passed.
 - Commit técnico: `6954a58`.
+
+## B152 — Comparación descriptiva reproducible entre artefactos de calibración
+
+Estado: cerrado técnicamente.
+
+Se añadió comparación reproducible entre dos artefactos descriptivos íntegros, preservando sus identidades, versiones de analizador y una `rubric_version` común.
+
+Este bloque permite comparar contextos técnicos versionados sin decidir cuál es mejor ni introducir verdad, separabilidad, umbrales, clasificación automática o decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B152 específico: 22 passed.
+- Regresión B142–B152: 118 passed.
+- Suite backend completa: 546 passed.
+- Commit técnico: `858d36b`.

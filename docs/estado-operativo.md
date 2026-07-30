@@ -357,3 +357,26 @@ Validación técnica:
 - Suite backend completa: 524 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `6954a58`.
+
+## B152 — Comparación descriptiva reproducible entre artefactos de calibración
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationDescriptiveReportArtifactComparison` y un servicio que compara dos artefactos descriptivos únicamente después de verificar su integridad mediante B151.
+
+La comparación conserva `report_version`, SHA-256, `analyzer_id` y `analyzer_version` de ambos lados, y exige una misma `rubric_version` para evitar mezclar evidencia humana incompatible.
+
+Cadena vigente:
+`audio humano → medición acústica técnica → etiqueta humana independiente → acuerdo humano descriptivo → relación técnica-humana → resúmenes descriptivos → distribución por etiqueta → distribución robusta → solapamiento IQR descriptivo → informe descriptivo consolidado → artefacto reproducible versionado → verificación de integridad → comparación reproducible entre artefactos`
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+B152 no determina qué analizador es mejor ni introduce verdad, separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación técnica:
+- B152 específico: 22 passed.
+- Regresión B142–B152: 118 passed.
+- Suite backend completa: 546 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `858d36b`.

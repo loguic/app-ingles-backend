@@ -2932,3 +2932,18 @@ Validación:
 - Suite backend completa: 524 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `6954a58`.
+
+## B152 — Comparación descriptiva reproducible entre artefactos de calibración
+
+Se añadió `PhoneticCalibrationDescriptiveReportArtifactComparison` y un servicio que compara dos artefactos descriptivos después de verificar independientemente su integridad mediante B151.
+
+La comparación conserva identidad, SHA-256 y versión del analizador de ambos lados y exige una misma `rubric_version`, evitando mezclar evidencia humana definida por rúbricas incompatibles.
+
+Límites: B152 describe una comparación reproducible entre artefactos. No determina qué analizador es mejor, ni define verdad, separabilidad, umbrales fonéticos, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B152 específico: 22 passed.
+- Regresión B142–B152: 118 passed.
+- Suite backend completa: 546 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `858d36b`.
