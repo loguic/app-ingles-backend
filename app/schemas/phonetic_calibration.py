@@ -681,3 +681,14 @@ class PhoneticCalibrationTechnicalDistributionComparisonDeltaReport(BaseModel):
             labels.add(delta.label)
 
         return self
+
+
+class PhoneticCalibrationTechnicalDistributionComparisonDeltaReportArtifact(BaseModel):
+    """Version a technical comparison delta report with reproducible identity.
+
+    Versiona un informe de deltas de comparación técnica con identidad reproducible.
+    """
+
+    artifact_version: str = Field(min_length=1)
+    content_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    report: PhoneticCalibrationTechnicalDistributionComparisonDeltaReport
