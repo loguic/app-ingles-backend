@@ -475,3 +475,47 @@ class PhoneticCalibrationHumanLabelScoreComparison(BaseModel):
                 "Median difference must equal right median minus left median"
             )
         return self
+
+class PhoneticCalibrationHumanLabelScoreDistributionComparison(BaseModel):
+    """Describe robust score distribution differences for one human label.
+
+    Describe diferencias robustas de distribución de scores para una etiqueta humana.
+    """
+
+    rubric_version: str = Field(min_length=1)
+    label: Literal["acceptable", "variant", "known_error"]
+    left_analyzer_id: str = Field(min_length=1)
+    left_analyzer_version: str = Field(min_length=1)
+    right_analyzer_id: str = Field(min_length=1)
+    right_analyzer_version: str = Field(min_length=1)
+    left_sample_count: int = Field(ge=1)
+    right_sample_count: int = Field(ge=1)
+    left_score_q25: float = Field(ge=0.0, le=1.0)
+    right_score_q25: float = Field(ge=0.0, le=1.0)
+    score_q25_difference: float = Field(ge=-1.0, le=1.0)
+    left_score_median: float = Field(ge=0.0, le=1.0)
+    right_score_median: float = Field(ge=0.0, le=1.0)
+    score_median_difference: float = Field(ge=-1.0, le=1.0)
+    left_score_q75: float = Field(ge=0.0, le=1.0)
+    right_score_q75: float = Field(ge=0.0, le=1.0)
+    score_q75_difference: float = Field(ge=-1.0, le=1.0)
+
+    @model_validator(mode="after")
+    def validate_distribution_differences(self):
+        expected_q25 = self.right_score_q25 - self.left_score_q25
+        expected_median = self.right_score_median - self.left_score_median
+        expected_q75 = self.right_score_q75 - self.left_score_q75
+
+        if abs(self.score_q25_difference - expected_q25) > 1e-12:
+            raise ValueError(
+                "Q25 difference must equal right Q25 minus left Q25"
+            )
+        if abs(self.score_median_difference - expected_median) > 1e-12:
+            raise ValueError(
+                "Median difference must equal right median minus left median"
+            )
+        if abs(self.score_q75_difference - expected_q75) > 1e-12:
+            raise ValueError(
+                "Q75 difference must equal right Q75 minus left Q75"
+            )
+        return self
