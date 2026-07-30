@@ -226,3 +226,17 @@ Validación de cierre técnico:
 - Regresión B142–B150: 81 passed.
 - Suite backend completa: 509 passed.
 - Commit técnico: `1c07f43`.
+
+## B151 — Verificación de integridad del artefacto descriptivo de calibración
+
+Estado: cerrado técnicamente.
+
+Se añadió verificación independiente de integridad para el artefacto descriptivo reproducible de B150, recalculando su SHA-256 canónico y comparándolo con la identidad almacenada.
+
+Este bloque mejora la trazabilidad técnica y permite detectar alteraciones del contenido sin introducir verdad, separabilidad, umbrales, clasificación automática ni decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B151 específico: 15 passed.
+- Regresión B142–B151: 96 passed.
+- Suite backend completa: 524 passed.
+- Commit técnico: `6954a58`.

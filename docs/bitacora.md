@@ -2917,3 +2917,18 @@ Validación:
 - Suite backend completa: 509 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `1c07f43`.
+
+## B151 — Verificación de integridad del artefacto descriptivo de calibración
+
+Se añadió `PhoneticCalibrationDescriptiveReportArtifactVerification` y un servicio que recalcula mediante el mecanismo canónico de B150 la huella SHA-256 del informe y la compara con la identidad almacenada en el artefacto.
+
+La verificación conserva `report_version`, el hash esperado, el hash recalculado y el resultado `matches_content`, permitiendo detectar alteraciones sin duplicar la lógica de generación de identidad.
+
+Límites: B151 verifica integridad técnica del artefacto. No define verdad, separabilidad, umbrales fonéticos, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B151 específico: 15 passed.
+- Regresión B142–B151: 96 passed.
+- Suite backend completa: 524 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `6954a58`.

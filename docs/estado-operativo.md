@@ -334,3 +334,26 @@ Validación técnica:
 - Suite backend completa: 509 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `1c07f43`.
+
+## B151 — Verificación de integridad del artefacto descriptivo de calibración
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationDescriptiveReportArtifactVerification` y un servicio que reconstruye la identidad canónica del artefacto B150 para comparar el SHA-256 almacenado con el SHA-256 recalculado.
+
+La verificación conserva `report_version`, `expected_sha256`, `computed_sha256` y `matches_content`, permitiendo detectar alteraciones del contenido sin duplicar la lógica de generación de identidad.
+
+Cadena vigente:
+`audio humano → medición acústica técnica → etiqueta humana independiente → acuerdo humano descriptivo → relación técnica-humana → resúmenes descriptivos → distribución por etiqueta → distribución robusta → solapamiento IQR descriptivo → informe descriptivo consolidado → artefacto reproducible versionado → verificación de integridad`
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+B151 no introduce verdad, separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación técnica:
+- B151 específico: 15 passed.
+- Regresión B142–B151: 96 passed.
+- Suite backend completa: 524 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `6954a58`.
