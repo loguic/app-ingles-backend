@@ -674,3 +674,32 @@ Validación técnica:
 - Suite backend completa: 640 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `5a18bcd`.
+
+## B165 — Deltas descriptivos entre comparaciones técnicas
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationTechnicalDistributionComparisonDelta` junto con `compare_phonetic_calibration_technical_distribution_comparison_deltas`.
+
+B165 compara dos comparaciones robustas B160 dentro de una comparación reproducible B164 válida. Cada comparación debe corresponder exactamente a los analizadores, versiones y rúbrica de su lado, y ambas deben representar la misma etiqueta humana.
+
+El resultado conserva las diferencias de Q25, mediana y Q75 de ambos informes y calcula reproduciblemente:
+
+- `score_q25_difference_delta = right_score_q25_difference - left_score_q25_difference`
+- `score_median_difference_delta = right_score_median_difference - left_score_median_difference`
+- `score_q75_difference_delta = right_score_q75_difference - left_score_q75_difference`
+
+Cadena vigente:
+`audio humano → medición acústica técnica → etiqueta humana independiente → acuerdo humano descriptivo → identidad reproducible de evidencia humana → compatibilidad de evidencia humana → relación técnica-humana → resúmenes descriptivos → distribución por etiqueta → distribución robusta → solapamiento IQR descriptivo → informe descriptivo consolidado → artefacto reproducible versionado → verificación de integridad → comparación reproducible entre artefactos → contexto reproducible de calibración comparable → identidad reproducible de cobertura técnica → compatibilidad reproducible de cobertura técnica → contexto reproducible de comparación técnica completa → comparación descriptiva de medianas por etiqueta humana → comparación robusta de distribuciones por etiqueta humana → informe consolidado de comparación técnica por etiquetas → artefacto reproducible del informe de comparación técnica → verificación de integridad del artefacto de comparación técnica → comparación reproducible entre artefactos técnicos verificados → deltas descriptivos entre comparaciones técnicas`
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+B165 no interpreta signo ni magnitud de los deltas como mejora, degradación o superioridad del analizador. Tampoco introduce separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación técnica:
+- B165 específico: 8 passed.
+- Regresión B142–B165: 220 passed.
+- Suite backend completa: 648 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `9964241`.

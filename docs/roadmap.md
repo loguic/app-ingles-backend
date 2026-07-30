@@ -448,3 +448,21 @@ Validación de cierre técnico:
 - Regresión B142–B164: 212 passed.
 - Suite backend completa: 640 passed.
 - Commit técnico: `5a18bcd`.
+
+## B165 — Deltas descriptivos entre comparaciones técnicas
+
+Estado: cerrado técnicamente.
+
+Se añadió `PhoneticCalibrationTechnicalDistributionComparisonDelta` junto con `compare_phonetic_calibration_technical_distribution_comparison_deltas`.
+
+B165 compara dos comparaciones robustas B160 dentro de una comparación reproducible B164 válida. Cada lado debe corresponder exactamente a los analizadores, versiones y rúbrica de su artefacto, y ambas comparaciones deben representar la misma etiqueta humana.
+
+El resultado conserva las diferencias técnicas de Q25, mediana y Q75 de ambos informes y calcula sus deltas reproducibles `right - left`.
+
+Este bloque sigue siendo descriptivo: no interpreta signo ni magnitud de los deltas como mejora, degradación o superioridad del analizador y no introduce decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B165 específico: 8 passed.
+- Regresión B142–B165: 220 passed.
+- Suite backend completa: 648 passed.
+- Commit técnico: `9964241`.

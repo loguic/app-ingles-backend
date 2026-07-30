@@ -3143,3 +3143,24 @@ Validación:
 - Suite backend completa: 640 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `5a18bcd`.
+
+## B165 — Deltas descriptivos entre comparaciones técnicas
+
+Se añadió `PhoneticCalibrationTechnicalDistributionComparisonDelta` y el servicio `compare_phonetic_calibration_technical_distribution_comparison_deltas`.
+
+B165 compara dos comparaciones robustas B160 dentro de un contexto B164 ya validado. Cada lado debe corresponder exactamente a los analizadores, versiones y rúbrica de su artefacto técnico, y ambas comparaciones deben representar la misma etiqueta humana.
+
+El resultado conserva las diferencias de Q25, mediana y Q75 de ambos informes y calcula reproduciblemente:
+
+- `score_q25_difference_delta = right_score_q25_difference - left_score_q25_difference`
+- `score_median_difference_delta = right_score_median_difference - left_score_median_difference`
+- `score_q75_difference_delta = right_score_q75_difference - left_score_q75_difference`
+
+Límites: B165 describe cambios entre diferencias técnicas. No interpreta signo ni magnitud como mejora, degradación o superioridad del analizador y no introduce separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B165 específico: 8 passed.
+- Regresión B142–B165: 220 passed.
+- Suite backend completa: 648 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `9964241`.
