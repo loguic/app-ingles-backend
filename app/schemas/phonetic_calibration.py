@@ -448,3 +448,30 @@ class PhoneticCalibrationTechnicalComparisonContext(BaseModel):
             )
 
         return self
+
+class PhoneticCalibrationHumanLabelScoreComparison(BaseModel):
+    """Describe score differences for one human label across comparable calibrations.
+
+    Describe diferencias de score para una etiqueta humana entre calibraciones comparables.
+    """
+
+    rubric_version: str = Field(min_length=1)
+    label: Literal["acceptable", "variant", "known_error"]
+    left_analyzer_id: str = Field(min_length=1)
+    left_analyzer_version: str = Field(min_length=1)
+    right_analyzer_id: str = Field(min_length=1)
+    right_analyzer_version: str = Field(min_length=1)
+    left_observation_count: int = Field(ge=1)
+    right_observation_count: int = Field(ge=1)
+    left_median: float = Field(ge=0.0, le=1.0)
+    right_median: float = Field(ge=0.0, le=1.0)
+    median_difference: float = Field(ge=-1.0, le=1.0)
+
+    @model_validator(mode="after")
+    def validate_median_difference(self):
+        expected = self.right_median - self.left_median
+        if abs(self.median_difference - expected) > 1e-12:
+            raise ValueError(
+                "Median difference must equal right median minus left median"
+            )
+        return self
