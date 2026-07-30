@@ -268,3 +268,17 @@ Validación de cierre técnico:
 - Regresión B142–B153: 131 passed.
 - Suite backend completa: 559 passed.
 - Commit técnico: `75dae4c`.
+
+## B154 — Compatibilidad reproducible de evidencia humana entre calibraciones
+
+Estado: cerrado técnicamente.
+
+Se añadió compatibilidad reproducible entre dos identidades B153 de evidencia humana. `same_evidence` solo es verdadero cuando coinciden exactamente `rubric_version`, `sample_count` y `evidence_sha256`.
+
+Este bloque permite comprobar que dos calibraciones parten de la misma base humana antes de interpretar diferencias técnicas, sin determinar qué analizador es mejor ni introducir verdad, separabilidad, umbrales, clasificación automática o decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B154 específico: 6 passed.
+- Regresión B142–B154: 137 passed.
+- Suite backend completa: 565 passed.
+- Commit técnico: `66b8b39`.

@@ -403,3 +403,26 @@ Validación técnica:
 - Suite backend completa: 559 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `75dae4c`.
+
+## B154 — Compatibilidad reproducible de evidencia humana entre calibraciones
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationHumanEvidenceCompatibility` y un servicio que compara dos identidades B153.
+
+`same_evidence` solo es verdadero cuando coinciden exactamente `rubric_version`, `sample_count` y `evidence_sha256`, evitando tratar como equivalentes bases humanas distintas.
+
+Cadena vigente:
+`audio humano → medición acústica técnica → etiqueta humana independiente → acuerdo humano descriptivo → identidad reproducible de evidencia humana → compatibilidad de evidencia humana → relación técnica-humana → resúmenes descriptivos → distribución por etiqueta → distribución robusta → solapamiento IQR descriptivo → informe descriptivo consolidado → artefacto reproducible versionado → verificación de integridad → comparación reproducible entre artefactos`
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+B154 no determina qué analizador es mejor ni introduce verdad, separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación técnica:
+- B154 específico: 6 passed.
+- Regresión B142–B154: 137 passed.
+- Suite backend completa: 565 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `66b8b39`.

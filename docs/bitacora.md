@@ -2962,3 +2962,18 @@ Validación:
 - Suite backend completa: 559 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `75dae4c`.
+
+## B154 — Compatibilidad reproducible de evidencia humana entre calibraciones
+
+Se añadió `PhoneticCalibrationHumanEvidenceCompatibility` y un servicio que compara dos identidades B153 para determinar si representan exactamente la misma evidencia humana.
+
+`same_evidence` solo es verdadero cuando coinciden `rubric_version`, `sample_count` y `evidence_sha256`, sin inferir equivalencias parciales ni conclusiones sobre el rendimiento de los analizadores.
+
+Límites: B154 comprueba comparabilidad de la base humana. No determina qué analizador es mejor ni define verdad, separabilidad, umbrales fonéticos, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B154 específico: 6 passed.
+- Regresión B142–B154: 137 passed.
+- Suite backend completa: 565 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `66b8b39`.
