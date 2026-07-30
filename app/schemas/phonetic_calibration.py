@@ -651,3 +651,33 @@ class PhoneticCalibrationTechnicalDistributionComparisonDelta(BaseModel):
                 "Q75 comparison delta must equal right difference minus left difference"
             )
         return self
+
+class PhoneticCalibrationTechnicalDistributionComparisonDeltaReport(BaseModel):
+    """Consolidate descriptive technical comparison deltas by human label.
+
+    Consolida deltas descriptivos de comparación técnica por etiqueta humana.
+    """
+
+    artifact_comparison: PhoneticCalibrationTechnicalDistributionComparisonArtifactComparison
+    deltas: list[
+        PhoneticCalibrationTechnicalDistributionComparisonDelta
+    ] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_delta_report(self):
+        expected_rubric = self.artifact_comparison.rubric_version
+        labels = set()
+
+        for delta in self.deltas:
+            if delta.rubric_version != expected_rubric:
+                raise ValueError(
+                    "Technical comparison delta must match artifact comparison rubric"
+                )
+
+            if delta.label in labels:
+                raise ValueError(
+                    "Technical comparison delta report requires unique human labels"
+                )
+            labels.add(delta.label)
+
+        return self
