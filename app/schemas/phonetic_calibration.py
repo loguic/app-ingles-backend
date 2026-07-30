@@ -375,3 +375,15 @@ class PhoneticCalibrationComparableArtifactContext(BaseModel):
             )
 
         return self
+
+class PhoneticCalibrationTechnicalCoverageIdentity(BaseModel):
+    """Identify reproducibly the sample coverage of a technical calibration.
+
+    Identifica reproduciblemente la cobertura de muestras de una calibración técnica.
+    """
+
+    analyzer_id: str = Field(min_length=1)
+    analyzer_version: str = Field(min_length=1)
+    rubric_version: str = Field(min_length=1)
+    sample_count: int = Field(ge=1)
+    sample_ids_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
