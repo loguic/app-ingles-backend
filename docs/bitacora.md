@@ -3164,3 +3164,20 @@ Validación:
 - Suite backend completa: 648 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `9964241`.
+
+## B166 — Informe consolidado de deltas técnicos por etiqueta
+
+Se añadió `PhoneticCalibrationTechnicalDistributionComparisonDeltaReport` y el servicio `build_phonetic_calibration_technical_distribution_comparison_delta_report`.
+
+B166 consolida los deltas descriptivos B165 por etiqueta humana dentro de una comparación reproducible B164 válida. El contrato exige que todos los deltas compartan la misma `rubric_version` del contexto y que cada etiqueta humana aparezca una sola vez.
+
+El servicio exige etiquetas únicas en ambos lados, exactamente el mismo conjunto de etiquetas y genera los deltas en orden determinista reutilizando B165.
+
+Límites: B166 consolida cambios técnicos descriptivos. No interpreta signo ni magnitud de los deltas como mejora, degradación o superioridad del analizador y no introduce separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B166 específico: 7 passed.
+- Regresión B142–B166: 227 passed.
+- Suite backend completa: 655 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `403306f`.

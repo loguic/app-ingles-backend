@@ -703,3 +703,28 @@ Validación técnica:
 - Suite backend completa: 648 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `9964241`.
+
+## B166 — Informe consolidado de deltas técnicos por etiqueta
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationTechnicalDistributionComparisonDeltaReport` junto con `build_phonetic_calibration_technical_distribution_comparison_delta_report`.
+
+B166 consolida deltas descriptivos B165 por etiqueta humana dentro de una comparación reproducible B164 válida.
+
+Todos los deltas deben compartir la misma `rubric_version` del contexto y cada etiqueta humana debe aparecer una sola vez. El servicio exige etiquetas únicas en ambos lados, exactamente el mismo conjunto de etiquetas y genera los resultados en orden determinista.
+
+Cadena vigente:
+`audio humano → medición acústica técnica → etiqueta humana independiente → acuerdo humano descriptivo → identidad reproducible de evidencia humana → compatibilidad de evidencia humana → relación técnica-humana → resúmenes descriptivos → distribución por etiqueta → distribución robusta → solapamiento IQR descriptivo → informe descriptivo consolidado → artefacto reproducible versionado → verificación de integridad → comparación reproducible entre artefactos → contexto reproducible de calibración comparable → identidad reproducible de cobertura técnica → compatibilidad reproducible de cobertura técnica → contexto reproducible de comparación técnica completa → comparación descriptiva de medianas por etiqueta humana → comparación robusta de distribuciones por etiqueta humana → informe consolidado de comparación técnica por etiquetas → artefacto reproducible del informe de comparación técnica → verificación de integridad del artefacto de comparación técnica → comparación reproducible entre artefactos técnicos verificados → deltas descriptivos entre comparaciones técnicas → informe consolidado de deltas técnicos por etiqueta`
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+B166 no interpreta signo ni magnitud de los deltas como mejora, degradación o superioridad del analizador. Tampoco introduce separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación técnica:
+- B166 específico: 7 passed.
+- Regresión B142–B166: 227 passed.
+- Suite backend completa: 655 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `403306f`.

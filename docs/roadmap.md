@@ -466,3 +466,21 @@ Validación de cierre técnico:
 - Regresión B142–B165: 220 passed.
 - Suite backend completa: 648 passed.
 - Commit técnico: `9964241`.
+
+## B166 — Informe consolidado de deltas técnicos por etiqueta
+
+Estado: cerrado técnicamente.
+
+Se añadió `PhoneticCalibrationTechnicalDistributionComparisonDeltaReport` junto con `build_phonetic_calibration_technical_distribution_comparison_delta_report`.
+
+B166 consolida deltas descriptivos B165 por etiqueta humana dentro de una comparación reproducible B164 válida.
+
+Todos los deltas deben compartir la misma `rubric_version` del contexto y cada etiqueta humana debe aparecer una sola vez. El servicio exige etiquetas únicas en ambos lados, exactamente el mismo conjunto de etiquetas y genera los resultados en orden determinista.
+
+Este bloque sigue siendo descriptivo: no interpreta signo ni magnitud de los deltas como mejora, degradación o superioridad del analizador y no introduce decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B166 específico: 7 passed.
+- Regresión B142–B166: 227 passed.
+- Suite backend completa: 655 passed.
+- Commit técnico: `403306f`.
