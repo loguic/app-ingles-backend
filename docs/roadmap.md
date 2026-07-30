@@ -414,3 +414,19 @@ Validación de cierre técnico:
 - Regresión B142–B162: 200 passed.
 - Suite backend completa: 628 passed.
 - Commit técnico: `51e85f0`.
+
+## B163 — Verificación de integridad del artefacto de comparación técnica
+
+Estado: cerrado técnicamente.
+
+Se añadió `PhoneticCalibrationTechnicalDistributionComparisonReportArtifactVerification`, que permite verificar reproduciblemente la integridad de un artefacto B162 frente a su contenido actual.
+
+La verificación reconstruye el artefacto mediante el constructor canónico B162 y conserva `artifact_version`, `expected_sha256`, `computed_sha256` y `matches_content`, permitiendo detectar cualquier discrepancia entre la identidad almacenada y el contenido actual.
+
+Este bloque verifica integridad técnica únicamente. No interpreta las diferencias de Q25, mediana o Q75 como mejora, degradación o superioridad del analizador y no introduce decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B163 específico: 5 passed.
+- Regresión B142–B163: 205 passed.
+- Suite backend completa: 633 passed.
+- Commit técnico: `953ba52`.

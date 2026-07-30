@@ -624,3 +624,28 @@ Validación técnica:
 - Suite backend completa: 628 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `51e85f0`.
+
+## B163 — Verificación de integridad del artefacto de comparación técnica
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationTechnicalDistributionComparisonReportArtifactVerification` junto con `verify_phonetic_calibration_technical_distribution_comparison_report_artifact`.
+
+La verificación reconstruye el artefacto técnico B162 mediante su constructor canónico, conservando `artifact_version`, `expected_sha256`, `computed_sha256` y `matches_content`.
+
+Esto permite detectar de forma reproducible si el contenido actual del informe técnico consolidado sigue correspondiendo exactamente a la identidad SHA-256 almacenada.
+
+Cadena vigente:
+`audio humano → medición acústica técnica → etiqueta humana independiente → acuerdo humano descriptivo → identidad reproducible de evidencia humana → compatibilidad de evidencia humana → relación técnica-humana → resúmenes descriptivos → distribución por etiqueta → distribución robusta → solapamiento IQR descriptivo → informe descriptivo consolidado → artefacto reproducible versionado → verificación de integridad → comparación reproducible entre artefactos → contexto reproducible de calibración comparable → identidad reproducible de cobertura técnica → compatibilidad reproducible de cobertura técnica → contexto reproducible de comparación técnica completa → comparación descriptiva de medianas por etiqueta humana → comparación robusta de distribuciones por etiqueta humana → informe consolidado de comparación técnica por etiquetas → artefacto reproducible del informe de comparación técnica → verificación de integridad del artefacto de comparación técnica`
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+B163 verifica únicamente integridad reproducible. No interpreta diferencias técnicas como mejora, degradación o superioridad del analizador. Tampoco introduce separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación técnica:
+- B163 específico: 5 passed.
+- Regresión B142–B163: 205 passed.
+- Suite backend completa: 633 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `953ba52`.

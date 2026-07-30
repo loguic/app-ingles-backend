@@ -3111,3 +3111,18 @@ Validación:
 - Suite backend completa: 628 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `51e85f0`.
+
+## B163 — Verificación de integridad del artefacto de comparación técnica
+
+Se añadió `PhoneticCalibrationTechnicalDistributionComparisonReportArtifactVerification` y el servicio `verify_phonetic_calibration_technical_distribution_comparison_report_artifact`.
+
+La verificación reconstruye el artefacto mediante el constructor canónico B162 usando el mismo `artifact_version` y el contenido actual del informe. El resultado conserva el SHA-256 almacenado, el SHA-256 recomputado y `matches_content`, permitiendo detectar si el contenido actual ya no corresponde a la identidad registrada.
+
+Límites: B163 verifica integridad reproducible del artefacto técnico. No interpreta las diferencias de Q25, mediana o Q75 como mejora, degradación o superioridad del analizador y no introduce separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B163 específico: 5 passed.
+- Regresión B142–B163: 205 passed.
+- Suite backend completa: 633 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `953ba52`.
