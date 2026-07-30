@@ -449,3 +449,26 @@ Validación técnica:
 - Suite backend completa: 571 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `3927ebb`.
+
+## B156 — Identidad reproducible de cobertura técnica de calibración
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationTechnicalCoverageIdentity`, que identifica reproduciblemente la cobertura técnica mediante `analyzer_id`, `analyzer_version`, `rubric_version`, número de muestras distintas y SHA-256 del conjunto canónico de `sample_id`.
+
+La identidad no cambia por orden de entrada ni por observaciones duplicadas sobre una misma muestra, pero sí cuando cambia el conjunto efectivo de muestras técnicamente observadas.
+
+Cadena vigente:
+`audio humano → medición acústica técnica → etiqueta humana independiente → acuerdo humano descriptivo → identidad reproducible de evidencia humana → compatibilidad de evidencia humana → relación técnica-humana → resúmenes descriptivos → distribución por etiqueta → distribución robusta → solapamiento IQR descriptivo → informe descriptivo consolidado → artefacto reproducible versionado → verificación de integridad → comparación reproducible entre artefactos → contexto reproducible de calibración comparable → identidad reproducible de cobertura técnica`
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+B156 no calcula diferencias de score ni determina qué analizador es mejor. Tampoco introduce verdad, separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación técnica:
+- B156 específico: 16 passed.
+- Regresión B142–B156: 159 passed.
+- Suite backend completa: 587 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `45189b8`.

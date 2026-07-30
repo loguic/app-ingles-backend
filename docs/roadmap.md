@@ -298,3 +298,17 @@ Validación de cierre técnico:
 - Regresión B142–B155: 143 passed.
 - Suite backend completa: 571 passed.
 - Commit técnico: `3927ebb`.
+
+## B156 — Identidad reproducible de cobertura técnica de calibración
+
+Estado: cerrado técnicamente.
+
+Se añadió una identidad reproducible de cobertura técnica basada en `analyzer_id`, `analyzer_version`, `rubric_version`, número de muestras distintas y SHA-256 del conjunto canónico de `sample_id`.
+
+Este bloque permite comprobar posteriormente que dos analizadores fueron evaluados sobre la misma cobertura efectiva de muestras, sin calcular todavía diferencias de score ni introducir verdad, separabilidad, umbrales, clasificación automática o decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B156 específico: 16 passed.
+- Regresión B142–B156: 159 passed.
+- Suite backend completa: 587 passed.
+- Commit técnico: `45189b8`.

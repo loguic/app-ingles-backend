@@ -2992,3 +2992,18 @@ Validación:
 - Suite backend completa: 571 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `3927ebb`.
+
+## B156 — Identidad reproducible de cobertura técnica de calibración
+
+Se añadió `PhoneticCalibrationTechnicalCoverageIdentity` y un servicio que identifica reproduciblemente la cobertura técnica mediante `analyzer_id`, `analyzer_version`, `rubric_version`, número de muestras distintas y SHA-256 del conjunto canónico de `sample_id`.
+
+La identidad es independiente del orden de entrada y de observaciones duplicadas sobre una misma muestra, pero cambia cuando cambia el conjunto efectivo de muestras técnicamente observadas.
+
+Límites: B156 aporta trazabilidad de cobertura técnica para comparaciones posteriores. No calcula diferencias de score, no determina qué analizador es mejor y no define verdad, separabilidad, umbrales fonéticos, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B156 específico: 16 passed.
+- Regresión B142–B156: 159 passed.
+- Suite backend completa: 587 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `45189b8`.
