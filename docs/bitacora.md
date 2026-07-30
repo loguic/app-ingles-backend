@@ -3056,3 +3056,24 @@ Validación:
 - Suite backend completa: 607 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `cb70582`.
+
+## B160 — Comparación robusta de distribuciones por etiqueta humana
+
+Se añadió `PhoneticCalibrationHumanLabelScoreDistributionComparison` y el servicio `compare_phonetic_calibration_human_label_score_distributions`.
+
+La comparación se realiza únicamente dentro de un `PhoneticCalibrationTechnicalComparisonContext` B158 válido. Cada distribución debe corresponder exactamente al analizador, versión y rúbrica de su lado y ambas deben representar la misma etiqueta humana.
+
+El resultado conserva los conteos de muestras y los valores robustos Q25, mediana y Q75 de ambos lados, calculando reproduciblemente:
+
+- `score_q25_difference = right_score_q25 - left_score_q25`
+- `score_median_difference = right_score_median - left_score_median`
+- `score_q75_difference = right_score_q75 - left_score_q75`
+
+Límites: B160 describe diferencias técnicas robustas de distribución. No interpreta signo, magnitud ni forma de estas diferencias como mejora, degradación, superioridad del analizador, separabilidad, umbral pedagógico, clasificación automática, feedback, mastery ni retention.
+
+Validación:
+- B160 específico: 8 passed.
+- Regresión B142–B160: 187 passed.
+- Suite backend completa: 615 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `a64bec7`.

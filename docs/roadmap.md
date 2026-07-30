@@ -364,3 +364,21 @@ Validación de cierre técnico:
 - Regresión B142–B159: 179 passed.
 - Suite backend completa: 607 passed.
 - Commit técnico: `cb70582`.
+
+## B160 — Comparación robusta de distribuciones por etiqueta humana
+
+Estado: cerrado técnicamente.
+
+Se añadió una comparación reproducible de distribuciones robustas por etiqueta humana entre dos calibraciones que ya cumplen el contexto técnico completo B158.
+
+Cada distribución debe pertenecer exactamente al analizador, versión y rúbrica de su lado y ambas deben usar la misma etiqueta humana.
+
+El resultado conserva `sample_count`, Q25, mediana y Q75 de ambos lados y calcula las diferencias reproducibles `right - left` para los tres puntos robustos.
+
+Este bloque sigue siendo descriptivo: no interpreta signo, magnitud ni forma como mejora, degradación, superioridad del analizador ni decisión pedagógica.
+
+Validación de cierre técnico:
+- B160 específico: 8 passed.
+- Regresión B142–B160: 187 passed.
+- Suite backend completa: 615 passed.
+- Commit técnico: `a64bec7`.

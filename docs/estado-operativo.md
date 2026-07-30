@@ -545,3 +545,32 @@ Validación técnica:
 - Suite backend completa: 607 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `cb70582`.
+
+## B160 — Comparación robusta de distribuciones por etiqueta humana
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationHumanLabelScoreDistributionComparison` junto con `compare_phonetic_calibration_human_label_score_distributions`.
+
+La comparación solo opera dentro de un `PhoneticCalibrationTechnicalComparisonContext` B158 válido. Las distribuciones izquierda y derecha deben corresponder exactamente a los analizadores, versiones y rúbrica del contexto y representar la misma etiqueta humana.
+
+El resultado conserva `sample_count`, Q25, mediana y Q75 de ambos lados y calcula reproduciblemente:
+
+- `score_q25_difference = right_score_q25 - left_score_q25`
+- `score_median_difference = right_score_median - left_score_median`
+- `score_q75_difference = right_score_q75 - left_score_q75`
+
+Cadena vigente:
+`audio humano → medición acústica técnica → etiqueta humana independiente → acuerdo humano descriptivo → identidad reproducible de evidencia humana → compatibilidad de evidencia humana → relación técnica-humana → resúmenes descriptivos → distribución por etiqueta → distribución robusta → solapamiento IQR descriptivo → informe descriptivo consolidado → artefacto reproducible versionado → verificación de integridad → comparación reproducible entre artefactos → contexto reproducible de calibración comparable → identidad reproducible de cobertura técnica → compatibilidad reproducible de cobertura técnica → contexto reproducible de comparación técnica completa → comparación descriptiva de medianas por etiqueta humana → comparación robusta de distribuciones por etiqueta humana`
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+B160 no interpreta signo, magnitud ni forma de las diferencias como mejora, degradación o superioridad del analizador. Tampoco introduce separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación técnica:
+- B160 específico: 8 passed.
+- Regresión B142–B160: 187 passed.
+- Suite backend completa: 615 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `a64bec7`.
