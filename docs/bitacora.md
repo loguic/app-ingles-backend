@@ -3022,3 +3022,18 @@ Validación:
 - Suite backend completa: 593 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `437723a`.
+
+## B158 — Contexto reproducible de comparación técnica completa
+
+Se añadió `PhoneticCalibrationTechnicalComparisonContext` y un servicio que combina el contexto comparable B155 con la compatibilidad de cobertura técnica B157.
+
+El contexto solo puede construirse cuando los artefactos son íntegros y comparables, comparten exactamente la misma evidencia humana reproducible y corresponden a exactamente la misma cobertura técnica de muestras. Además, cada identidad de cobertura debe corresponder al analizador, versión y rúbrica de su lado de la comparación.
+
+Límites: B158 establece las condiciones completas de comparabilidad técnica. No calcula diferencias de score, mejoras o degradaciones, no determina qué analizador es mejor y no define verdad, separabilidad, umbrales fonéticos, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B158 específico: 7 passed.
+- Regresión B142–B158: 172 passed.
+- Suite backend completa: 600 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `6fc5e7a`.

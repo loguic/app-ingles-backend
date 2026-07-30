@@ -495,3 +495,26 @@ Validación técnica:
 - Suite backend completa: 593 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `437723a`.
+
+## B158 — Contexto reproducible de comparación técnica completa
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationTechnicalComparisonContext`, que combina el contexto comparable B155 con la compatibilidad de cobertura técnica B157.
+
+El contexto exige artefactos íntegros y comparables, exactamente la misma evidencia humana reproducible y exactamente la misma cobertura técnica de muestras. Cada identidad de cobertura debe corresponder además al `analyzer_id`, `analyzer_version` y `rubric_version` de su lado de la comparación.
+
+Cadena vigente:
+`audio humano → medición acústica técnica → etiqueta humana independiente → acuerdo humano descriptivo → identidad reproducible de evidencia humana → compatibilidad de evidencia humana → relación técnica-humana → resúmenes descriptivos → distribución por etiqueta → distribución robusta → solapamiento IQR descriptivo → informe descriptivo consolidado → artefacto reproducible versionado → verificación de integridad → comparación reproducible entre artefactos → contexto reproducible de calibración comparable → identidad reproducible de cobertura técnica → compatibilidad reproducible de cobertura técnica → contexto reproducible de comparación técnica completa`
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+B158 no calcula diferencias de score, mejoras o degradaciones ni determina qué analizador es mejor. Tampoco introduce verdad, separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación técnica:
+- B158 específico: 7 passed.
+- Regresión B142–B158: 172 passed.
+- Suite backend completa: 600 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `6fc5e7a`.

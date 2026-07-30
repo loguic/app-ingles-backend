@@ -328,3 +328,19 @@ Validación de cierre técnico:
 - Regresión B142–B157: 165 passed.
 - Suite backend completa: 593 passed.
 - Commit técnico: `437723a`.
+
+## B158 — Contexto reproducible de comparación técnica completa
+
+Estado: cerrado técnicamente.
+
+Se añadió un contexto que combina la comparabilidad de artefactos, la compatibilidad de evidencia humana y la compatibilidad de cobertura técnica.
+
+El contexto solo existe cuando ambas calibraciones comparten exactamente la misma evidencia humana reproducible, exactamente la misma cobertura efectiva de muestras y cada cobertura corresponde al analizador, versión y rúbrica correctos de su lado.
+
+Este bloque prepara comparaciones técnicas posteriores bajo condiciones controladas, sin calcular todavía diferencias de score, mejoras, degradaciones ni decidir qué analizador es mejor.
+
+Validación de cierre técnico:
+- B158 específico: 7 passed.
+- Regresión B142–B158: 172 passed.
+- Suite backend completa: 600 passed.
+- Commit técnico: `6fc5e7a`.
