@@ -289,3 +289,13 @@ class PhoneticCalibrationDescriptiveReport(BaseModel):
                 )
 
         return self
+
+class PhoneticCalibrationDescriptiveReportArtifact(BaseModel):
+    """Identify a reproducible descriptive calibration report artifact.
+
+    Identifica un artefacto reproducible del informe descriptivo de calibración.
+    """
+
+    report_version: str = Field(min_length=1)
+    content_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    report: PhoneticCalibrationDescriptiveReport
