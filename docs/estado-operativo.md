@@ -518,3 +518,30 @@ Validación técnica:
 - Suite backend completa: 600 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `6fc5e7a`.
+
+## B159 — Comparación descriptiva de scores por etiqueta humana
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationHumanLabelScoreComparison` junto con `compare_phonetic_calibration_human_label_scores`.
+
+La comparación solo opera dentro de un `PhoneticCalibrationTechnicalComparisonContext` B158 válido. Las distribuciones izquierda y derecha deben corresponder exactamente a los analizadores, versiones y rúbrica del contexto y representar la misma etiqueta humana.
+
+El resultado conserva los conteos de observaciones, las medianas de ambos lados y calcula reproduciblemente:
+
+`median_difference = right_median - left_median`
+
+Cadena vigente:
+`audio humano → medición acústica técnica → etiqueta humana independiente → acuerdo humano descriptivo → identidad reproducible de evidencia humana → compatibilidad de evidencia humana → relación técnica-humana → resúmenes descriptivos → distribución por etiqueta → distribución robusta → solapamiento IQR descriptivo → informe descriptivo consolidado → artefacto reproducible versionado → verificación de integridad → comparación reproducible entre artefactos → contexto reproducible de calibración comparable → identidad reproducible de cobertura técnica → compatibilidad reproducible de cobertura técnica → contexto reproducible de comparación técnica completa → comparación descriptiva de medianas por etiqueta humana`
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+B159 no interpreta diferencias de mediana como mejora, degradación o superioridad del analizador. Tampoco introduce separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación técnica:
+- B159 específico: 7 passed.
+- Regresión B142–B159: 179 passed.
+- Suite backend completa: 607 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `cb70582`.

@@ -3037,3 +3037,22 @@ Validación:
 - Suite backend completa: 600 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `6fc5e7a`.
+
+## B159 — Comparación descriptiva de scores por etiqueta humana
+
+Se añadió `PhoneticCalibrationHumanLabelScoreComparison` y el servicio `compare_phonetic_calibration_human_label_scores`.
+
+La comparación se realiza únicamente dentro de un `PhoneticCalibrationTechnicalComparisonContext` B158 ya validado. Cada distribución debe corresponder exactamente al analizador, versión y rúbrica de su lado, y ambas deben representar la misma etiqueta humana.
+
+El resultado conserva las medianas izquierda y derecha, los conteos de observaciones y calcula de forma reproducible `median_difference = right_median - left_median`.
+
+Durante la validación se corrigió la integración con el contrato B147 real, usando `sample_count`, `score_q25`, `score_median` y `score_q75`.
+
+Límites: B159 describe diferencias técnicas de mediana. No interpreta el signo o magnitud como mejora, degradación o superioridad del analizador, y no define separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B159 específico: 7 passed.
+- Regresión B142–B159: 179 passed.
+- Suite backend completa: 607 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `cb70582`.

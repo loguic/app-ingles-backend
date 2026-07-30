@@ -344,3 +344,23 @@ Validación de cierre técnico:
 - Regresión B142–B158: 172 passed.
 - Suite backend completa: 600 passed.
 - Commit técnico: `6fc5e7a`.
+
+## B159 — Comparación descriptiva de scores por etiqueta humana
+
+Estado: cerrado técnicamente.
+
+Se añadió una comparación reproducible de medianas por etiqueta humana entre dos calibraciones que ya cumplen el contexto técnico completo B158.
+
+Cada distribución debe pertenecer exactamente al analizador, versión y rúbrica de su lado y ambas deben usar la misma etiqueta humana.
+
+El resultado conserva conteos y medianas y calcula:
+
+`median_difference = right_median - left_median`
+
+Este bloque sigue siendo descriptivo: no interpreta signo o magnitud como mejora, degradación o superioridad del analizador y no introduce decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B159 específico: 7 passed.
+- Regresión B142–B159: 179 passed.
+- Suite backend completa: 607 passed.
+- Commit técnico: `cb70582`.
