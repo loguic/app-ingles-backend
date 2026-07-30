@@ -606,3 +606,48 @@ class PhoneticCalibrationTechnicalDistributionComparisonArtifactComparison(BaseM
     right_right_analyzer_id: str = Field(min_length=1)
     right_right_analyzer_version: str = Field(min_length=1)
     rubric_version: str = Field(min_length=1)
+
+class PhoneticCalibrationTechnicalDistributionComparisonDelta(BaseModel):
+    """Describe changes between two robust technical distribution comparisons.
+
+    Describe cambios entre dos comparaciones técnicas robustas de distribución.
+    """
+
+    rubric_version: str = Field(min_length=1)
+    label: Literal["acceptable", "variant", "known_error"]
+    left_score_q25_difference: float = Field(ge=-1.0, le=1.0)
+    right_score_q25_difference: float = Field(ge=-1.0, le=1.0)
+    score_q25_difference_delta: float = Field(ge=-2.0, le=2.0)
+    left_score_median_difference: float = Field(ge=-1.0, le=1.0)
+    right_score_median_difference: float = Field(ge=-1.0, le=1.0)
+    score_median_difference_delta: float = Field(ge=-2.0, le=2.0)
+    left_score_q75_difference: float = Field(ge=-1.0, le=1.0)
+    right_score_q75_difference: float = Field(ge=-1.0, le=1.0)
+    score_q75_difference_delta: float = Field(ge=-2.0, le=2.0)
+
+    @model_validator(mode="after")
+    def validate_distribution_comparison_deltas(self):
+        expected_q25 = (
+            self.right_score_q25_difference - self.left_score_q25_difference
+        )
+        expected_median = (
+            self.right_score_median_difference
+            - self.left_score_median_difference
+        )
+        expected_q75 = (
+            self.right_score_q75_difference - self.left_score_q75_difference
+        )
+
+        if abs(self.score_q25_difference_delta - expected_q25) > 1e-12:
+            raise ValueError(
+                "Q25 comparison delta must equal right difference minus left difference"
+            )
+        if abs(self.score_median_difference_delta - expected_median) > 1e-12:
+            raise ValueError(
+                "Median comparison delta must equal right difference minus left difference"
+            )
+        if abs(self.score_q75_difference_delta - expected_q75) > 1e-12:
+            raise ValueError(
+                "Q75 comparison delta must equal right difference minus left difference"
+            )
+        return self
