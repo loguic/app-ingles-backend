@@ -312,3 +312,19 @@ Validación de cierre técnico:
 - Regresión B142–B156: 159 passed.
 - Suite backend completa: 587 passed.
 - Commit técnico: `45189b8`.
+
+## B157 — Compatibilidad reproducible de cobertura técnica entre calibraciones
+
+Estado: cerrado técnicamente.
+
+Se añadió compatibilidad reproducible entre dos identidades B156 de cobertura técnica. `same_coverage` solo es verdadero cuando coinciden exactamente `rubric_version`, `sample_count` y `sample_ids_sha256`.
+
+Este bloque permite comprobar que dos analizadores distintos fueron evaluados sobre exactamente el mismo conjunto efectivo de muestras antes de cualquier comparación posterior de scores.
+
+Límites: B157 no calcula diferencias de score, no determina qué analizador es mejor y no introduce verdad, separabilidad, umbrales, clasificación automática o decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B157 específico: 6 passed.
+- Regresión B142–B157: 165 passed.
+- Suite backend completa: 593 passed.
+- Commit técnico: `437723a`.

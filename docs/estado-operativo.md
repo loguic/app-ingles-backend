@@ -472,3 +472,26 @@ Validación técnica:
 - Suite backend completa: 587 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `45189b8`.
+
+## B157 — Compatibilidad reproducible de cobertura técnica entre calibraciones
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationTechnicalCoverageCompatibility` y un servicio que compara dos identidades B156.
+
+`same_coverage` solo es verdadero cuando coinciden exactamente `rubric_version`, `sample_count` y `sample_ids_sha256`. `analyzer_id` y `analyzer_version` pueden diferir para permitir comparar analizadores distintos sobre exactamente la misma cobertura efectiva de muestras.
+
+Cadena vigente:
+`audio humano → medición acústica técnica → etiqueta humana independiente → acuerdo humano descriptivo → identidad reproducible de evidencia humana → compatibilidad de evidencia humana → relación técnica-humana → resúmenes descriptivos → distribución por etiqueta → distribución robusta → solapamiento IQR descriptivo → informe descriptivo consolidado → artefacto reproducible versionado → verificación de integridad → comparación reproducible entre artefactos → contexto reproducible de calibración comparable → identidad reproducible de cobertura técnica → compatibilidad reproducible de cobertura técnica`
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+B157 no calcula diferencias de score ni determina qué analizador es mejor. Tampoco introduce verdad, separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación técnica:
+- B157 específico: 6 passed.
+- Regresión B142–B157: 165 passed.
+- Suite backend completa: 593 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `437723a`.

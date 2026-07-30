@@ -3007,3 +3007,18 @@ Validación:
 - Suite backend completa: 587 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `45189b8`.
+
+## B157 — Compatibilidad reproducible de cobertura técnica entre calibraciones
+
+Se añadió `PhoneticCalibrationTechnicalCoverageCompatibility` y un servicio que compara dos identidades B156 para determinar si representan exactamente la misma cobertura técnica.
+
+`same_coverage` solo es verdadero cuando coinciden `rubric_version`, `sample_count` y `sample_ids_sha256`. `analyzer_id` y `analyzer_version` pueden diferir, permitiendo comparar analizadores distintos siempre que hayan evaluado exactamente el mismo conjunto efectivo de muestras.
+
+Límites: B157 comprueba comparabilidad de cobertura técnica. No calcula diferencias de score, no determina qué analizador es mejor y no define verdad, separabilidad, umbrales fonéticos, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B157 específico: 6 passed.
+- Regresión B142–B157: 165 passed.
+- Suite backend completa: 593 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `437723a`.
