@@ -3094,3 +3094,20 @@ Validación:
 - Suite backend completa: 622 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `58b95d2`.
+
+## B162 — Artefacto reproducible del informe de comparación técnica
+
+Se añadió `PhoneticCalibrationTechnicalDistributionComparisonReportArtifact` y el servicio `build_phonetic_calibration_technical_distribution_comparison_report_artifact`.
+
+El artefacto versiona un informe B161 completo mediante `artifact_version` y una identidad `content_sha256` calculada sobre una representación JSON canónica que incluye la versión y todo el contenido del informe.
+
+La identidad es reproducible para contenido idéntico y cambia cuando cambia la versión del artefacto o cualquier contenido del informe.
+
+Límites: B162 añade versionado e identidad reproducible al informe técnico consolidado. No verifica todavía integridad posterior del artefacto y no interpreta las diferencias técnicas como mejora, degradación, superioridad del analizador ni decisión pedagógica.
+
+Validación:
+- B162 específico: 6 passed.
+- Regresión B142–B162: 200 passed.
+- Suite backend completa: 628 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `51e85f0`.

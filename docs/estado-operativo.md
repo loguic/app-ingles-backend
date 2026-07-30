@@ -599,3 +599,28 @@ Validación técnica:
 - Suite backend completa: 622 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `58b95d2`.
+
+## B162 — Artefacto reproducible del informe de comparación técnica
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationTechnicalDistributionComparisonReportArtifact` junto con `build_phonetic_calibration_technical_distribution_comparison_report_artifact`.
+
+El artefacto encapsula un informe B161 completo, una `artifact_version` explícita y `content_sha256`, calculado sobre una representación JSON canónica que incluye tanto la versión como el contenido íntegro del informe.
+
+La identidad es reproducible para entradas idénticas y cambia cuando cambia la versión del artefacto o cualquier parte del informe.
+
+Cadena vigente:
+`audio humano → medición acústica técnica → etiqueta humana independiente → acuerdo humano descriptivo → identidad reproducible de evidencia humana → compatibilidad de evidencia humana → relación técnica-humana → resúmenes descriptivos → distribución por etiqueta → distribución robusta → solapamiento IQR descriptivo → informe descriptivo consolidado → artefacto reproducible versionado → verificación de integridad → comparación reproducible entre artefactos → contexto reproducible de calibración comparable → identidad reproducible de cobertura técnica → compatibilidad reproducible de cobertura técnica → contexto reproducible de comparación técnica completa → comparación descriptiva de medianas por etiqueta humana → comparación robusta de distribuciones por etiqueta humana → informe consolidado de comparación técnica por etiquetas → artefacto reproducible del informe de comparación técnica`
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+B162 todavía no verifica integridad posterior del artefacto y no interpreta diferencias técnicas como mejora, degradación o superioridad del analizador. Tampoco introduce separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación técnica:
+- B162 específico: 6 passed.
+- Regresión B142–B162: 200 passed.
+- Suite backend completa: 628 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `51e85f0`.

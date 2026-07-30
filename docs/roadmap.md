@@ -398,3 +398,19 @@ Validación de cierre técnico:
 - Regresión B142–B161: 194 passed.
 - Suite backend completa: 622 passed.
 - Commit técnico: `58b95d2`.
+
+## B162 — Artefacto reproducible del informe de comparación técnica
+
+Estado: cerrado técnicamente.
+
+Se añadió `PhoneticCalibrationTechnicalDistributionComparisonReportArtifact`, que encapsula un informe B161 completo junto con una `artifact_version` explícita y una identidad `content_sha256` reproducible.
+
+El hash se calcula sobre una representación JSON canónica que incluye la versión del artefacto y todo el contenido del informe. La identidad permanece estable para entradas idénticas y cambia ante modificaciones de versión o contenido.
+
+Este bloque añade identidad reproducible al informe consolidado, pero todavía no verifica su integridad posterior ni interpreta las diferencias técnicas como mejora, degradación, superioridad del analizador o decisión pedagógica.
+
+Validación de cierre técnico:
+- B162 específico: 6 passed.
+- Regresión B142–B162: 200 passed.
+- Suite backend completa: 628 passed.
+- Commit técnico: `51e85f0`.
