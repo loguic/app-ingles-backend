@@ -336,3 +336,13 @@ class PhoneticCalibrationHumanEvidenceIdentity(BaseModel):
     rubric_version: str = Field(min_length=1)
     sample_count: int = Field(ge=1)
     evidence_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+class PhoneticCalibrationHumanEvidenceCompatibility(BaseModel):
+    """Describe reproducible compatibility between two human evidence identities.
+
+    Describe la compatibilidad reproducible entre dos identidades de evidencia humana.
+    """
+
+    left: PhoneticCalibrationHumanEvidenceIdentity
+    right: PhoneticCalibrationHumanEvidenceIdentity
+    same_evidence: bool
