@@ -382,3 +382,19 @@ Validación de cierre técnico:
 - Regresión B142–B160: 187 passed.
 - Suite backend completa: 615 passed.
 - Commit técnico: `a64bec7`.
+
+## B161 — Informe consolidado de comparación técnica por etiquetas
+
+Estado: cerrado técnicamente.
+
+Se añadió un informe consolidado reproducible que agrupa comparaciones robustas B160 por etiqueta humana dentro de un único contexto técnico completo B158.
+
+Cada comparación debe corresponder exactamente a los analizadores, versiones y rúbrica del contexto. Las etiquetas deben ser únicas y ambos lados deben utilizar exactamente el mismo conjunto de etiquetas. El resultado se genera en orden determinista.
+
+Este bloque continúa siendo descriptivo: no interpreta diferencias de Q25, mediana o Q75 como mejora, degradación o superioridad del analizador y no introduce decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B161 específico: 7 passed.
+- Regresión B142–B161: 194 passed.
+- Suite backend completa: 622 passed.
+- Commit técnico: `58b95d2`.

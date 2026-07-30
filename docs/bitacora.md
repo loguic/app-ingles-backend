@@ -3077,3 +3077,20 @@ Validación:
 - Suite backend completa: 615 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `a64bec7`.
+
+## B161 — Informe consolidado de comparación técnica por etiquetas
+
+Se añadió `PhoneticCalibrationTechnicalDistributionComparisonReport` y el servicio `build_phonetic_calibration_technical_distribution_comparison_report`.
+
+El informe agrupa comparaciones robustas B160 por etiqueta humana dentro de un único `PhoneticCalibrationTechnicalComparisonContext` B158 válido.
+
+Cada comparación debe corresponder exactamente a los analizadores, versiones y rúbrica del contexto. El informe exige etiquetas humanas únicas y el servicio exige que ambos lados utilicen exactamente el mismo conjunto de etiquetas, generando el resultado en orden determinista.
+
+Límites: B161 consolida evidencia técnica descriptiva. No interpreta diferencias de Q25, mediana o Q75 como mejora, degradación o superioridad del analizador y no introduce separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B161 específico: 7 passed.
+- Regresión B142–B161: 194 passed.
+- Suite backend completa: 622 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `58b95d2`.

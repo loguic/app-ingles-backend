@@ -574,3 +574,28 @@ Validación técnica:
 - Suite backend completa: 615 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `a64bec7`.
+
+## B161 — Informe consolidado de comparación técnica por etiquetas
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationTechnicalDistributionComparisonReport` junto con `build_phonetic_calibration_technical_distribution_comparison_report`.
+
+El informe consolida comparaciones robustas B160 por etiqueta humana dentro de un único `PhoneticCalibrationTechnicalComparisonContext` B158 válido.
+
+Cada comparación debe corresponder exactamente a los analizadores, versiones y rúbrica del contexto. Las etiquetas humanas deben ser únicas y ambos lados deben utilizar exactamente el mismo conjunto de etiquetas. El servicio produce las comparaciones en orden determinista.
+
+Cadena vigente:
+`audio humano → medición acústica técnica → etiqueta humana independiente → acuerdo humano descriptivo → identidad reproducible de evidencia humana → compatibilidad de evidencia humana → relación técnica-humana → resúmenes descriptivos → distribución por etiqueta → distribución robusta → solapamiento IQR descriptivo → informe descriptivo consolidado → artefacto reproducible versionado → verificación de integridad → comparación reproducible entre artefactos → contexto reproducible de calibración comparable → identidad reproducible de cobertura técnica → compatibilidad reproducible de cobertura técnica → contexto reproducible de comparación técnica completa → comparación descriptiva de medianas por etiqueta humana → comparación robusta de distribuciones por etiqueta humana → informe consolidado de comparación técnica por etiquetas`
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+B161 no interpreta diferencias de Q25, mediana o Q75 como mejora, degradación o superioridad del analizador. Tampoco introduce separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación técnica:
+- B161 específico: 7 passed.
+- Regresión B142–B161: 194 passed.
+- Suite backend completa: 622 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `58b95d2`.
