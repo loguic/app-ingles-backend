@@ -299,3 +299,14 @@ class PhoneticCalibrationDescriptiveReportArtifact(BaseModel):
     report_version: str = Field(min_length=1)
     content_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     report: PhoneticCalibrationDescriptiveReport
+
+class PhoneticCalibrationDescriptiveReportArtifactVerification(BaseModel):
+    """Describe integrity verification of a descriptive report artifact.
+
+    Describe la verificación de integridad de un artefacto de informe descriptivo.
+    """
+
+    report_version: str = Field(min_length=1)
+    expected_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    computed_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    matches_content: bool
