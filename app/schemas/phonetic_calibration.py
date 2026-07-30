@@ -346,3 +346,32 @@ class PhoneticCalibrationHumanEvidenceCompatibility(BaseModel):
     left: PhoneticCalibrationHumanEvidenceIdentity
     right: PhoneticCalibrationHumanEvidenceIdentity
     same_evidence: bool
+
+class PhoneticCalibrationComparableArtifactContext(BaseModel):
+    """Combine artifact comparison with reproducible human evidence compatibility.
+
+    Combina la comparación de artefactos con compatibilidad reproducible de evidencia humana.
+    """
+
+    artifact_comparison: PhoneticCalibrationDescriptiveReportArtifactComparison
+    human_evidence_compatibility: PhoneticCalibrationHumanEvidenceCompatibility
+
+    @model_validator(mode="after")
+    def validate_comparable_context(self):
+        compatibility = self.human_evidence_compatibility
+        if not compatibility.same_evidence:
+            raise ValueError(
+                "Comparable calibration context requires the same human evidence"
+            )
+
+        expected_rubric = self.artifact_comparison.rubric_version
+        if compatibility.left.rubric_version != expected_rubric:
+            raise ValueError(
+                "Left human evidence rubric must match artifact comparison rubric"
+            )
+        if compatibility.right.rubric_version != expected_rubric:
+            raise ValueError(
+                "Right human evidence rubric must match artifact comparison rubric"
+            )
+
+        return self
