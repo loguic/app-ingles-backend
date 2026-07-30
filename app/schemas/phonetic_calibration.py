@@ -326,3 +326,13 @@ class PhoneticCalibrationDescriptiveReportArtifactComparison(BaseModel):
     right_analyzer_id: str = Field(min_length=1)
     right_analyzer_version: str = Field(min_length=1)
     rubric_version: str = Field(min_length=1)
+
+class PhoneticCalibrationHumanEvidenceIdentity(BaseModel):
+    """Identify reproducibly the human evidence used for calibration comparison.
+
+    Identifica reproduciblemente la evidencia humana usada para comparar calibraciones.
+    """
+
+    rubric_version: str = Field(min_length=1)
+    sample_count: int = Field(ge=1)
+    evidence_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
