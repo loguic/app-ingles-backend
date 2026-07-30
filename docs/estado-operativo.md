@@ -311,3 +311,26 @@ Validación técnica:
 - Suite backend completa: 498 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `e91a011`.
+
+## B150 — Identidad reproducible del informe descriptivo de calibración
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationDescriptiveReportArtifact`, que añade `report_version` y una huella SHA-256 determinista sobre la serialización canónica del informe descriptivo consolidado.
+
+La misma versión y el mismo contenido producen la misma identidad; cualquier cambio en el contenido o en la versión produce una huella diferente.
+
+Cadena vigente:
+`audio humano → medición acústica técnica → etiqueta humana independiente → acuerdo humano descriptivo → relación técnica-humana → resúmenes descriptivos → distribución por etiqueta → distribución robusta → solapamiento IQR descriptivo → informe descriptivo consolidado → artefacto reproducible versionado`
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+B150 no introduce verdad, separabilidad, umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación técnica:
+- B150 específico: 11 passed.
+- Regresión B142–B150: 81 passed.
+- Suite backend completa: 509 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `1c07f43`.

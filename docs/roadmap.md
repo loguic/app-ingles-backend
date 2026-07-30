@@ -212,3 +212,17 @@ Validación de cierre técnico:
 - Regresión B142–B149: 70 passed.
 - Suite backend completa: 498 passed.
 - Commit técnico: `e91a011`.
+
+## B150 — Identidad reproducible del informe descriptivo de calibración
+
+Estado: cerrado técnicamente.
+
+Se añadió un artefacto reproducible para el informe descriptivo consolidado mediante `report_version` y SHA-256 determinista sobre su contenido canónico.
+
+Este bloque mejora la trazabilidad y reproducibilidad de la evidencia sin introducir verdad, separabilidad, umbrales, clasificación automática ni decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B150 específico: 11 passed.
+- Regresión B142–B150: 81 passed.
+- Suite backend completa: 509 passed.
+- Commit técnico: `1c07f43`.

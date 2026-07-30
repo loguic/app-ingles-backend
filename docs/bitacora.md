@@ -2902,3 +2902,18 @@ Validación:
 - Suite backend completa: 498 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `e91a011`.
+
+## B150 — Identidad reproducible del informe descriptivo de calibración
+
+Se añadió `PhoneticCalibrationDescriptiveReportArtifact` para identificar reproduciblemente cada informe descriptivo mediante `report_version` y un SHA-256 calculado sobre una serialización canónica del informe completo y su versión.
+
+El servicio conserva el informe original y garantiza que el mismo contenido y versión produzcan la misma huella, mientras que cambios en el contenido o en `report_version` generan una identidad diferente.
+
+Límites: B150 aporta trazabilidad e identidad reproducible del artefacto. No define verdad, separabilidad, umbrales fonéticos, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B150 específico: 11 passed.
+- Regresión B142–B150: 81 passed.
+- Suite backend completa: 509 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `1c07f43`.
