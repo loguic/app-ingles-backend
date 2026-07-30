@@ -254,3 +254,17 @@ Validación de cierre técnico:
 - Regresión B142–B152: 118 passed.
 - Suite backend completa: 546 passed.
 - Commit técnico: `858d36b`.
+
+## B153 — Identidad reproducible de evidencia humana para comparación
+
+Estado: cerrado técnicamente.
+
+Se añadió una identidad reproducible de la evidencia humana basada en `rubric_version`, número de muestras distintas y SHA-256 canónico de los acuerdos compatibles.
+
+Este bloque permite comprobar posteriormente si dos calibraciones utilizan la misma base humana, sin comparar todavía diferencias de score ni introducir verdad, separabilidad, umbrales, clasificación automática o decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B153 específico: 13 passed.
+- Regresión B142–B153: 131 passed.
+- Suite backend completa: 559 passed.
+- Commit técnico: `75dae4c`.

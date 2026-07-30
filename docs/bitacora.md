@@ -2947,3 +2947,18 @@ Validación:
 - Suite backend completa: 546 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `858d36b`.
+
+## B153 — Identidad reproducible de evidencia humana para comparación
+
+Se añadió `PhoneticCalibrationHumanEvidenceIdentity` y un servicio que construye una identidad reproducible de la evidencia humana mediante `rubric_version`, número de muestras distintas y SHA-256 de una representación canónica de los acuerdos humanos compatibles.
+
+La identidad es independiente del orden de entrada, cambia cuando cambia la evidencia humana y mantiene separadas las rúbricas, permitiendo comprobar posteriormente si dos calibraciones se apoyan sobre la misma base humana.
+
+Límites: B153 aporta trazabilidad de la evidencia humana. No compara todavía diferencias de score entre analizadores ni define verdad, separabilidad, umbrales fonéticos, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B153 específico: 13 passed.
+- Regresión B142–B153: 131 passed.
+- Suite backend completa: 559 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `75dae4c`.
