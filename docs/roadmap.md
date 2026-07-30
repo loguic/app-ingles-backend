@@ -484,3 +484,19 @@ Validación de cierre técnico:
 - Regresión B142–B166: 227 passed.
 - Suite backend completa: 655 passed.
 - Commit técnico: `403306f`.
+
+## B167 — Sistematización del cierre de bloques
+
+Estado: cerrado técnicamente.
+
+Se añadió `scripts/engineering/block_close.py` para reducir pasos repetitivos del cierre técnico manteniendo controles explícitos y trazabilidad.
+
+Automatiza validación de raíz, `git diff --check`, pruebas específicas, regresión fonética, suite completa, preflight técnico y staging restringido a las rutas técnicas validadas.
+
+Los commits, la documentación, el push y las decisiones arquitectónicas permanecen manuales y requieren confirmación humana.
+
+Validación de cierre técnico:
+- B167 específico: 19 passed.
+- Regresión fonética automática: 246 passed en 53 archivos.
+- Suite backend completa: 674 passed.
+- Commit técnico: `5f249d4`.
