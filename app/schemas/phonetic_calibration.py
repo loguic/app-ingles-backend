@@ -256,6 +256,44 @@ class PhoneticCalibrationHumanLabelScoreIqrGap(BaseModel):
         return self
 
 
+class PhoneticCalibrationHumanLabelScoreIqrRelationship(BaseModel):
+    """Combine descriptive overlap and gap evidence for one human-label IQR pair.
+
+    Combina evidencia descriptiva de solapamiento y distancia para un par de IQR humanos.
+    """
+
+    overlap: PhoneticCalibrationHumanLabelScoreOverlap
+    gap: PhoneticCalibrationHumanLabelScoreIqrGap
+
+    @model_validator(mode="after")
+    def validate_iqr_relationship(self):
+        overlap_key = (
+            self.overlap.analyzer_id,
+            self.overlap.analyzer_version,
+            self.overlap.rubric_version,
+            self.overlap.left_label,
+            self.overlap.right_label,
+        )
+        gap_key = (
+            self.gap.analyzer_id,
+            self.gap.analyzer_version,
+            self.gap.rubric_version,
+            self.gap.left_label,
+            self.gap.right_label,
+        )
+        if overlap_key != gap_key:
+            raise ValueError(
+                "IQR overlap and gap must describe the same versioned label pair"
+            )
+
+        if self.overlap.overlaps == self.gap.separated:
+            raise ValueError(
+                "IQR overlap and separation states must be complementary"
+            )
+
+        return self
+
+
 class PhoneticCalibrationDescriptiveReport(BaseModel):
     """Consolidate descriptive model-human calibration evidence.
 
