@@ -3264,3 +3264,21 @@ Validación:
 - Suite backend completa: 699 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `094571a`.
+
+## B172 — Relación descriptiva unificada de evidencia IQR
+
+Se añadió `PhoneticCalibrationHumanLabelScoreIqrRelationship` y `relate_phonetic_calibration_human_label_score_iqr_evidence`.
+
+B172 vincula la evidencia descriptiva de B148 (`overlap`) y B171 (`gap`) cuando ambas describen exactamente el mismo contexto versionado y par de etiquetas humanas. El servicio conserva las evidencias originales, exige correspondencia uno a uno, rechaza claves duplicadas y devuelve relaciones en orden determinista.
+
+Los IQR que se tocan permanecen coherentes: `overlaps=True` con `overlap_width=0.0` y `separated=False` con `gap_width=0.0`.
+
+B172 no modifica `PhoneticCalibrationDescriptiveReport` ni los artefactos reproducibles B150–B151, preservando sus contratos históricos.
+
+Límite: esta relación describe geometría observada entre distribuciones. No establece separabilidad pedagógica, umbrales, clasificación automática, feedback, mastery ni retention.
+
+Validación:
+- B172 específico: 10 passed.
+- Regresión fonética: 281 passed en 63 archivos.
+- Suite backend completa: 716 passed.
+- Commit técnico: `bb0dcdd`.

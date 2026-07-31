@@ -564,3 +564,19 @@ Validación de cierre técnico:
 - Regresión fonética automática: 271 passed en 61 archivos.
 - Suite backend completa: 699 passed.
 - Commit técnico: `094571a`.
+
+## B172 — Relación descriptiva unificada de evidencia IQR
+
+Estado: cerrado técnicamente.
+
+Se añadió una relación explícita entre la evidencia de solapamiento B148 y la distancia IQR B171 para el mismo contexto versionado y par de etiquetas.
+
+La integración se realiza en una capa independiente, sin modificar B149–B151.
+
+El bloque mantiene carácter exclusivamente descriptivo: no define separabilidad pedagógica, umbrales ni clasificación automática.
+
+Validación:
+- B172 específico: 10 passed.
+- Regresión fonética: 281 passed en 63 archivos.
+- Suite backend completa: 716 passed.
+- Commit técnico: `bb0dcdd`.

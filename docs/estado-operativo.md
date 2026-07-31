@@ -835,3 +835,24 @@ Validación técnica:
 - Suite backend completa: 699 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `094571a`.
+
+## B172 — Relación descriptiva unificada de evidencia IQR
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationHumanLabelScoreIqrRelationship` y `relate_phonetic_calibration_human_label_score_iqr_evidence`.
+
+La nueva capa relaciona B148 y B171 por `analyzer_id + analyzer_version + rubric_version + left_label + right_label`, exige correspondencia exacta y rechaza evidencia duplicada o incompleta.
+
+B149–B151 permanecen sin cambios.
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+La relación overlap/gap sigue siendo descriptiva y no constituye separabilidad pedagógica ni umbral fonético.
+
+Validación técnica:
+- B172 específico: 10 passed.
+- Regresión fonética: 281 passed en 63 archivos.
+- Suite backend completa: 716 passed.
+- Commit técnico: `bb0dcdd`.
