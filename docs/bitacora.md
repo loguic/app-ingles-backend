@@ -3213,3 +3213,20 @@ Validación:
 - Suite backend completa: 680 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `89d1fec`.
+
+## B169 — Verificación de integridad del artefacto de deltas técnicos
+
+Se añadió `PhoneticCalibrationTechnicalDistributionComparisonDeltaReportArtifactVerification` y `verify_phonetic_calibration_technical_distribution_comparison_delta_report_artifact`.
+
+B169 verifica la integridad del artefacto reproducible B168 reconstruyéndolo a partir de su `report` y `artifact_version` mediante el mismo builder canónico. El resultado conserva el SHA-256 almacenado como `expected_sha256`, el SHA-256 recomputado como `computed_sha256` y declara explícitamente `matches_content`.
+
+La verificación permite distinguir un artefacto íntegro de uno cuyo hash almacenado ya no corresponde con su contenido actual.
+
+Límites: B169 verifica únicamente integridad reproducible. No interpreta signo ni magnitud de los deltas como mejora, degradación o superioridad y no introduce umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B169 específico: 5 passed.
+- Regresión fonética automática: 257 passed en 57 archivos.
+- Suite backend completa: 685 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `140ea14`.

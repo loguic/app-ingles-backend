@@ -773,3 +773,23 @@ Validación técnica:
 - Suite backend completa: 680 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `89d1fec`.
+
+## B169 — Verificación de integridad del artefacto de deltas técnicos
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationTechnicalDistributionComparisonDeltaReportArtifactVerification` junto con `verify_phonetic_calibration_technical_distribution_comparison_delta_report_artifact`.
+
+B169 reconstruye el artefacto B168 mediante su builder canónico y compara el SHA-256 almacenado con el recomputado, preservando ambos valores y `matches_content`.
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+B169 verifica integridad técnica reproducible. No interpreta los deltas como mejora, degradación o superioridad y no introduce umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación técnica:
+- B169 específico: 5 passed.
+- Regresión fonética automática: 257 passed en 57 archivos.
+- Suite backend completa: 685 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `140ea14`.

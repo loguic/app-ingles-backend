@@ -516,3 +516,19 @@ Validación de cierre técnico:
 - Regresión fonética automática: 252 passed en 55 archivos.
 - Suite backend completa: 680 passed.
 - Commit técnico: `89d1fec`.
+
+## B169 — Verificación de integridad del artefacto de deltas técnicos
+
+Estado: cerrado técnicamente.
+
+Se añadió `PhoneticCalibrationTechnicalDistributionComparisonDeltaReportArtifactVerification` junto con `verify_phonetic_calibration_technical_distribution_comparison_delta_report_artifact`.
+
+B169 verifica reproduciblemente el artefacto B168 reconstruyendo su identidad canónica y comparando el SHA-256 almacenado con el SHA-256 calculado desde su contenido actual.
+
+El bloque sigue siendo estrictamente técnico y descriptivo: verifica integridad, pero no interpreta los deltas ni introduce decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B169 específico: 5 passed.
+- Regresión fonética automática: 257 passed en 57 archivos.
+- Suite backend completa: 685 passed.
+- Commit técnico: `140ea14`.
