@@ -86,6 +86,23 @@ class RegionalRepresentativePhoneticCalibrationCoverage(BaseModel):
     session_count: int = Field(ge=0)
 
 
+class RegionalPhoneticCalibrationHumanEvidenceCoverage(BaseModel):
+    """Describe regional coverage of independently reviewed human evidence.
+
+    Describe la cobertura regional de evidencia humana revisada independientemente.
+    """
+
+    reference_locale: Literal["en-US", "en-GB"]
+    rubric_version: str = Field(min_length=1)
+    sample_count: int = Field(ge=0)
+    speaker_count: int = Field(ge=0)
+    session_count: int = Field(ge=0)
+    label_count: int = Field(ge=0)
+    labeler_count: int = Field(ge=0)
+    label_counts: dict[Literal["acceptable", "variant", "known_error"], int]
+    unanimous_sample_count: int = Field(ge=0)
+
+
 class RepresentativePhoneticCalibrationObservation(BaseModel):
     """Link a representative human sample to its acoustic measurement.
 
