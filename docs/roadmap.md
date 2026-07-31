@@ -532,3 +532,19 @@ Validación de cierre técnico:
 - Regresión fonética automática: 257 passed en 57 archivos.
 - Suite backend completa: 685 passed.
 - Commit técnico: `140ea14`.
+
+## B170 — Comparación reproducible entre artefactos de deltas técnicos
+
+Estado: cerrado técnicamente.
+
+Se añadió `PhoneticCalibrationTechnicalDistributionComparisonDeltaReportArtifactComparison` junto con `compare_phonetic_calibration_technical_distribution_comparison_delta_report_artifacts`.
+
+B170 permite comparar dos artefactos B168 íntegros preservando su identidad reproducible y sus contextos técnicos, con `rubric_version` común obligatoria.
+
+El bloque sigue siendo estrictamente descriptivo: establece comparabilidad reproducible entre artefactos de deltas, pero no interpreta cuál analizador mejora, empeora o es superior.
+
+Validación de cierre técnico:
+- B170 específico: 7 passed.
+- Regresión fonética automática: 264 passed en 59 archivos.
+- Suite backend completa: 692 passed.
+- Commit técnico: `e34d18d`.

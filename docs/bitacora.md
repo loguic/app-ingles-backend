@@ -3230,3 +3230,20 @@ Validación:
 - Suite backend completa: 685 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `140ea14`.
+
+## B170 — Comparación reproducible entre artefactos de deltas técnicos
+
+Se añadió `PhoneticCalibrationTechnicalDistributionComparisonDeltaReportArtifactComparison` y `compare_phonetic_calibration_technical_distribution_comparison_delta_report_artifacts`.
+
+B170 compara reproduciblemente dos artefactos B168 después de verificar la integridad de ambos mediante B169. El resultado conserva la versión y el SHA-256 de cada artefacto, junto con su contexto completo `PhoneticCalibrationTechnicalDistributionComparisonArtifactComparison`.
+
+La comparación exige que ambos informes utilicen la misma `rubric_version`. Un artefacto cuya integridad no coincida con su contenido es rechazado antes de construir la comparación.
+
+Límites: B170 establece identidad y contexto reproducible entre artefactos de deltas. No interpreta los deltas como mejora, degradación o superioridad y no introduce umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación:
+- B170 específico: 7 passed.
+- Regresión fonética automática: 264 passed en 59 archivos.
+- Suite backend completa: 692 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `e34d18d`.
