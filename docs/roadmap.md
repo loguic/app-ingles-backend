@@ -580,3 +580,21 @@ Validación:
 - Regresión fonética: 281 passed en 63 archivos.
 - Suite backend completa: 716 passed.
 - Commit técnico: `bb0dcdd`.
+
+## B173 — Cobertura regional de referencia del corpus fonético humano
+
+Estado: cerrado técnicamente.
+
+Se añadió una extensión compatible del corpus representativo B141 que registra explícitamente la variante de pronunciación utilizada como referencia mediante `reference_locale`, limitada actualmente a `en-US` y `en-GB`.
+
+La cobertura regional observa por locale el número de muestras, hablantes pseudónimos y sesiones, sin alterar los contratos ni manifiestos históricos de B141.
+
+Los audios históricos sin locale permanecen sin clasificación regional retrospectiva.
+
+Este bloque prepara una futura construcción trazable del corpus humano real, pero no demuestra representatividad, no establece mínimos de suficiencia ni introduce umbrales o decisiones pedagógicas.
+
+Validación:
+- B173 específico: 16 passed.
+- Regresión fonética automática: 297 passed en 67 archivos.
+- Suite backend completa: 725 passed.
+- Commit técnico: `dbefa49`.
