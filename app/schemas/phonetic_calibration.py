@@ -233,6 +233,29 @@ class PhoneticCalibrationHumanLabelScoreOverlap(BaseModel):
         return self
 
 
+class PhoneticCalibrationHumanLabelScoreIqrGap(BaseModel):
+    """Describe the observed gap between two human-label score IQRs.
+
+    Describe la distancia observada entre dos IQR de scores por etiqueta humana.
+    """
+
+    analyzer_id: str = Field(min_length=1)
+    analyzer_version: str = Field(min_length=1)
+    rubric_version: str = Field(min_length=1)
+    left_label: Literal["acceptable", "variant", "known_error"]
+    right_label: Literal["acceptable", "variant", "known_error"]
+    gap_width: float = Field(ge=0.0, le=1.0)
+    separated: bool
+
+    @model_validator(mode="after")
+    def validate_iqr_gap(self):
+        if self.separated and self.gap_width <= 0.0:
+            raise ValueError("Separated IQRs require a positive gap width")
+        if not self.separated and self.gap_width != 0.0:
+            raise ValueError("Non-separated IQRs must have zero gap width")
+        return self
+
+
 class PhoneticCalibrationDescriptiveReport(BaseModel):
     """Consolidate descriptive model-human calibration evidence.
 
