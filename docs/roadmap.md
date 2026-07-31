@@ -500,3 +500,19 @@ Validación de cierre técnico:
 - Regresión fonética automática: 246 passed en 53 archivos.
 - Suite backend completa: 674 passed.
 - Commit técnico: `5f249d4`.
+
+## B168 — Artefacto reproducible del informe de deltas técnicos
+
+Estado: cerrado técnicamente.
+
+Se añadió `PhoneticCalibrationTechnicalDistributionComparisonDeltaReportArtifact` junto con `build_phonetic_calibration_technical_distribution_comparison_delta_report_artifact`.
+
+B168 convierte el informe consolidado B166 en un artefacto versionado con identidad SHA-256 reproducible calculada sobre su representación JSON canónica.
+
+El bloque sigue siendo estrictamente descriptivo: no interpreta los deltas como mejora, degradación o superioridad del analizador y no introduce decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B168 específico: 6 passed.
+- Regresión fonética automática: 252 passed en 55 archivos.
+- Suite backend completa: 680 passed.
+- Commit técnico: `89d1fec`.

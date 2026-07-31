@@ -753,3 +753,23 @@ Validación técnica:
 - Suite backend completa: 674 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `5f249d4`.
+
+## B168 — Artefacto reproducible del informe de deltas técnicos
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationTechnicalDistributionComparisonDeltaReportArtifact` junto con `build_phonetic_calibration_technical_distribution_comparison_delta_report_artifact`.
+
+El artefacto versiona el informe B166 mediante `artifact_version` y `content_sha256`. La identidad se calcula reproduciblemente sobre JSON canónico que incluye la versión del artefacto y el informe completo.
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+B168 no interpreta los deltas como mejora, degradación o superioridad y no introduce umbrales, clasificación automática, feedback pedagógico, mastery ni retention.
+
+Validación técnica:
+- B168 específico: 6 passed.
+- Regresión fonética automática: 252 passed en 55 archivos.
+- Suite backend completa: 680 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `89d1fec`.
