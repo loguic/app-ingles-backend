@@ -704,3 +704,30 @@ class PhoneticCalibrationTechnicalDistributionComparisonDeltaReportArtifactVerif
     expected_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     computed_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     matches_content: bool
+
+
+class PhoneticCalibrationTechnicalDistributionComparisonDeltaReportArtifactComparison(BaseModel):
+    """Describe a reproducible comparison between two delta report artifacts.
+
+    Describe una comparación reproducible entre dos artefactos de informes de deltas.
+    """
+
+    left_artifact_version: str = Field(min_length=1)
+    left_content_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    left_artifact_comparison: PhoneticCalibrationTechnicalDistributionComparisonArtifactComparison
+    right_artifact_version: str = Field(min_length=1)
+    right_content_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    right_artifact_comparison: PhoneticCalibrationTechnicalDistributionComparisonArtifactComparison
+    rubric_version: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_delta_artifact_comparison(self):
+        if self.left_artifact_comparison.rubric_version != self.rubric_version:
+            raise ValueError(
+                "Left delta report artifact comparison must match rubric version"
+            )
+        if self.right_artifact_comparison.rubric_version != self.rubric_version:
+            raise ValueError(
+                "Right delta report artifact comparison must match rubric version"
+            )
+        return self
