@@ -4,6 +4,8 @@ from pathlib import Path
 from app.schemas.phonetic_calibration import (
     PhoneticCalibrationMeasurement,
     PhoneticCalibrationSample,
+    RegionalRepresentativePhoneticCalibrationCoverage,
+    RegionalRepresentativePhoneticCalibrationSample,
     RepresentativePhoneticCalibrationCoverage,
     RepresentativePhoneticCalibrationObservation,
     RepresentativePhoneticCalibrationSample,
@@ -99,6 +101,41 @@ def summarize_representative_phonetic_calibration_coverage(
         speaker_count=len({sample.speaker_id for sample in samples}),
         session_count=len({(sample.speaker_id, sample.session_id) for sample in samples}),
     )
+
+
+def summarize_regional_representative_phonetic_calibration_coverage(
+    samples: list[RegionalRepresentativePhoneticCalibrationSample],
+) -> list[RegionalRepresentativePhoneticCalibrationCoverage]:
+    """Summarize observable corpus coverage by pronunciation reference locale.
+
+    Resume la cobertura observable del corpus por variante regional de referencia.
+    """
+    locales = sorted({sample.reference_locale for sample in samples})
+
+    return [
+        RegionalRepresentativePhoneticCalibrationCoverage(
+            reference_locale=locale,
+            sample_count=sum(
+                sample.reference_locale == locale
+                for sample in samples
+            ),
+            speaker_count=len(
+                {
+                    sample.speaker_id
+                    for sample in samples
+                    if sample.reference_locale == locale
+                }
+            ),
+            session_count=len(
+                {
+                    (sample.speaker_id, sample.session_id)
+                    for sample in samples
+                    if sample.reference_locale == locale
+                }
+            ),
+        )
+        for locale in locales
+    ]
 
 
 def measure_representative_phonetic_calibration_corpus(

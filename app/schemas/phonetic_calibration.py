@@ -27,6 +27,17 @@ class RepresentativePhoneticCalibrationSample(PhoneticCalibrationSample):
     session_id: str = Field(min_length=1)
 
 
+class RegionalRepresentativePhoneticCalibrationSample(
+    RepresentativePhoneticCalibrationSample
+):
+    """Identify the pronunciation reference locale used for one human sample.
+
+    Identifica la variante regional de referencia usada para una muestra humana.
+    """
+
+    reference_locale: Literal["en-US", "en-GB"]
+
+
 class PhoneticCalibrationHumanLabel(BaseModel):
     """Record one independent human judgment for a calibration sample.
 
@@ -58,6 +69,18 @@ class RepresentativePhoneticCalibrationCoverage(BaseModel):
     Describe la cobertura observable de un corpus representativo de calibración.
     """
 
+    sample_count: int = Field(ge=0)
+    speaker_count: int = Field(ge=0)
+    session_count: int = Field(ge=0)
+
+
+class RegionalRepresentativePhoneticCalibrationCoverage(BaseModel):
+    """Describe observable representative corpus coverage by reference locale.
+
+    Describe la cobertura observable del corpus representativo por variante de referencia.
+    """
+
+    reference_locale: Literal["en-US", "en-GB"]
     sample_count: int = Field(ge=0)
     speaker_count: int = Field(ge=0)
     session_count: int = Field(ge=0)
