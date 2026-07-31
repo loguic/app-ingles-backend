@@ -813,3 +813,25 @@ Validación técnica:
 - Suite backend completa: 692 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `e34d18d`.
+
+## B171 — Distancia descriptiva entre IQR por etiqueta humana
+
+Estado: implementación técnica cerrada y validada.
+
+Se incorporó `PhoneticCalibrationHumanLabelScoreIqrGap` junto con `describe_phonetic_calibration_human_label_score_iqr_gaps`.
+
+B171 complementa B148: además de saber si dos IQR se solapan, ahora puede conservarse la distancia positiva entre ellos cuando están separados. Si se solapan o se tocan, `gap_width=0.0`.
+
+La comparación continúa confinada por `analyzer_id`, `analyzer_version` y `rubric_version`.
+
+Separación obligatoria:
+`score técnico ≠ juicio humano ≠ decisión pedagógica`
+
+`gap_width` es evidencia descriptiva geométrica. No constituye separabilidad pedagógica, umbral fonético, clasificación automática ni criterio de calidad.
+
+Validación técnica:
+- B171 específico: 7 passed.
+- Regresión fonética automática: 271 passed en 61 archivos.
+- Suite backend completa: 699 passed.
+- `git diff --check`: limpio.
+- Commit técnico: `094571a`.

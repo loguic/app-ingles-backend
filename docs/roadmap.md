@@ -548,3 +548,19 @@ Validación de cierre técnico:
 - Regresión fonética automática: 264 passed en 59 archivos.
 - Suite backend completa: 692 passed.
 - Commit técnico: `e34d18d`.
+
+## B171 — Distancia descriptiva entre IQR por etiqueta humana
+
+Estado: cerrado técnicamente.
+
+Se añadió `PhoneticCalibrationHumanLabelScoreIqrGap` junto con `describe_phonetic_calibration_human_label_score_iqr_gaps`.
+
+B171 cubre el vacío descriptivo dejado por B148 para distribuciones no solapadas: conserva cuánto espacio existe entre sus IQR mediante `gap_width`, manteniendo `0.0` cuando se solapan o se tocan.
+
+El bloque no convierte esta distancia en separabilidad pedagógica ni introduce umbrales, clasificación automática o decisiones pedagógicas.
+
+Validación de cierre técnico:
+- B171 específico: 7 passed.
+- Regresión fonética automática: 271 passed en 61 archivos.
+- Suite backend completa: 699 passed.
+- Commit técnico: `094571a`.
