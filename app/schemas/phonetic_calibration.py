@@ -692,3 +692,15 @@ class PhoneticCalibrationTechnicalDistributionComparisonDeltaReportArtifact(Base
     artifact_version: str = Field(min_length=1)
     content_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     report: PhoneticCalibrationTechnicalDistributionComparisonDeltaReport
+
+
+class PhoneticCalibrationTechnicalDistributionComparisonDeltaReportArtifactVerification(BaseModel):
+    """Describe integrity verification for a technical comparison delta report artifact.
+
+    Describe la verificación de integridad de un artefacto de informe de deltas técnicos.
+    """
+
+    artifact_version: str = Field(min_length=1)
+    expected_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    computed_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    matches_content: bool
