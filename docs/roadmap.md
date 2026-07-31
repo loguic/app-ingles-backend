@@ -598,3 +598,19 @@ Validación:
 - Regresión fonética automática: 297 passed en 67 archivos.
 - Suite backend completa: 725 passed.
 - Commit técnico: `dbefa49`.
+
+## B174 — Cobertura regional de evidencia humana del corpus fonético
+
+Estado: cerrado técnicamente.
+
+Se añadió una cobertura descriptiva de la evidencia humana revisada por `reference_locale + rubric_version`, relacionando las muestras regionales B173 con acuerdos humanos B143 y etiquetas independientes B142.
+
+La cobertura conserva muestras, hablantes, sesiones, cantidad y distribución de etiquetas, evaluadores pseudónimos distintos y muestras con acuerdo unánime, sin convertir el desacuerdo humano en mayoría o verdad.
+
+B174 mejora la observabilidad necesaria para construir posteriormente un corpus humano realmente representativo, pero no establece mínimos de suficiencia ni demuestra representatividad y no introduce umbrales o decisiones pedagógicas.
+
+Validación:
+- B174 específico: 14 passed.
+- Regresión fonética: 311 pruebas en 69 archivos.
+- Suite backend completa: 746 pruebas.
+- Commit técnico: `a7cdac4`.

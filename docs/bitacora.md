@@ -3303,3 +3303,25 @@ Validación:
 - Suite backend completa: 725 passed.
 - `git diff --check`: limpio.
 - Commit técnico: `dbefa49`.
+
+## B174 — Cobertura regional de evidencia humana del corpus fonético
+
+Se añadió `RegionalPhoneticCalibrationHumanEvidenceCoverage` junto con `summarize_regional_phonetic_calibration_human_evidence_coverage`.
+
+B174 relaciona las muestras regionales B173 con los acuerdos humanos B143 y las etiquetas independientes B142 para describir evidencia revisada por `reference_locale + rubric_version`.
+
+La cobertura conserva muestras, hablantes pseudónimos, sesiones, etiquetas, evaluadores pseudónimos distintos, distribución completa de `acceptable` / `variant` / `known_error` y número de muestras con acuerdo unánime.
+
+`labeler_count` se calcula desde los `labeler_id` distintos de B142 dentro de cada contexto, evitando sumar repetidamente evaluadores que hayan revisado varias muestras.
+
+Las muestras sin acuerdo humano no se contabilizan como evidencia humana revisada. Las distintas versiones de rúbrica permanecen separadas.
+
+`reference_locale` continúa identificando la variante de pronunciación utilizada como referencia; no representa nacionalidad, procedencia ni acento personal del hablante.
+
+B174 sigue siendo estrictamente descriptivo: no demuestra representatividad o suficiencia del corpus, no deriva etiqueta mayoritaria ni verdad, y no introduce separabilidad, umbrales, clasificación automática, feedback, mastery o retention.
+
+Validación:
+- B174 específico: 14 passed.
+- Regresión fonética: 311 pruebas en 69 archivos.
+- Suite backend completa: 746 pruebas.
+- Commit técnico: `a7cdac4`.
