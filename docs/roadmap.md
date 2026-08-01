@@ -614,3 +614,47 @@ Validación:
 - Regresión fonética: 311 pruebas en 69 archivos.
 - Suite backend completa: 746 pruebas.
 - Commit técnico: `a7cdac4`.
+
+## B175 — Auditoría de reutilización tecnológica y extensibilidad multilingüe
+
+Estado: auditoría cerrada.
+
+B175 estableció la política `open-source/local first`: reutilizar software, modelos y runtimes abiertos antes de desarrollar capacidades propias. Los servicios de pago quedan como adaptadores opcionales futuros.
+
+La auditoría confirmó:
+- conservación de los contratos y el runtime fonético desacoplado;
+- WavLM como proveedor local experimental de inglés;
+- reutilización de Sherpa-ONNX y Moonshine para STT;
+- conservación de la capa local de reproducción y grabación de audio;
+- evaluación semántica determinista para actividades cerradas;
+- ausencia actual de integración real con OpenAI;
+- conversación libre todavía pendiente de contratos de sesión y mensajes dinámicos;
+- Qwen3.5-4B únicamente como candidato para benchmark local futuro;
+- necesidad futura de separar LOGUIC Core, capacidades compartidas y módulos específicos por idioma.
+
+Deuda técnica prioritaria detectada:
+`ProductionEvaluationCriterion` y su `EvidenceDefinition` pueden declarar políticas distintas de `measurement_mode` y `success_threshold` sin que el validador detecte la incoherencia.
+
+B175 no modificó código, contratos, dependencias ni base de datos y no requirió ejecutar pruebas.
+
+## Próximos bloques propuestos
+
+### B176 — Coherencia entre evidencia y criterio de evaluación
+
+Añadir una validación pequeña y compatible que exija coherencia entre `EvidenceDefinition` y `ProductionEvaluationCriterion` para `measurement_mode` y `success_threshold`.
+
+### B177 — Identidad trazable del proveedor STT
+
+Evaluar una extensión compatible del resultado STT con identidad de proveedor, modelo y versión, sin cambiar Sherpa-ONNX ni Moonshine.
+
+### B178 — Selección STT por idioma
+
+Diseñar únicamente cuando exista un segundo idioma o modelo real que justifique sustituir el único directorio global por un registro configurable.
+
+### Pendientes posteriores, no iniciados
+
+- normalización opcional del detalle fonético por palabra y fonema;
+- verificación de procedencia del corpus del checkpoint WavLM;
+- desacoplamiento progresivo de campos `en` / `es` y del árbol CEFR global;
+- sesiones de conversación libre con un runtime local reutilizado;
+- benchmark de Qwen3.5-4B únicamente cuando la conversación libre sea el bloque activo.

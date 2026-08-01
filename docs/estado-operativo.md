@@ -897,3 +897,48 @@ Validación:
 - Regresión fonética: 311 pruebas en 69 archivos.
 - Suite backend completa: 746 pruebas.
 - Commit técnico: `a7cdac4`.
+
+## B175 — Auditoría de reutilización tecnológica y extensibilidad multilingüe
+
+Estado: auditoría arquitectónica cerrada.
+
+B175 revisó las capacidades actuales de pronunciación, STT, audio, evaluación semántica y conversación para evitar reconstruir tecnología existente y preparar una arquitectura multilingüe sin generalizaciones innecesarias.
+
+Política vigente:
+`open-source/local first`.
+
+Durante la construcción, LOGUIC reutilizará prioritariamente software, modelos y runtimes abiertos ejecutables localmente. Los proveedores de pago permanecerán como adaptadores opcionales futuros. Solo se desarrollará desde cero una capacidad cuando una limitación real y demostrada afecte al diferencial pedagógico.
+
+Arquitectura objetivo:
+- LOGUIC Core: usuarios, progreso, Skills, intentos, evidencias, evaluación, feedback y decisiones pedagógicas.
+- Capacidades compartidas: audio, STT, pronunciación, conversación y generación mediante contratos independientes del proveedor.
+- Módulos de idioma: progresión, contenido, fonética, escritura, locales y políticas específicas de cada idioma.
+- Adaptadores: motores locales actuales y proveedores sustituibles futuros.
+
+Decisiones operativas:
+- Conservar `AcousticPhoneticScorer`, el runtime aislado, la trazabilidad de analizador y la verificación SHA-256.
+- Mantener WavLM como proveedor local experimental de inglés, pendiente de verificar la procedencia y licencia del corpus de entrenamiento.
+- Conservar Sherpa-ONNX y Moonshine detrás de `SpeechRecognitionController`.
+- Mantener audio pregrabado, reproducción local y grabación WAV mediante librerías existentes.
+- Conservar la evaluación semántica determinista para actividades cerradas.
+- No integrar APIs de pago durante la construcción.
+- No desarrollar un LLM propio.
+- Registrar Qwen3.5-4B solo como candidato para un benchmark local futuro de conversación libre.
+- No forzar la conversación libre dentro de los contratos actuales de intentos guiados y ramificados.
+
+Acoplamientos pendientes:
+- contenido modelado mediante campos `en` y `es`;
+- niveles CEFR globales sin identidad de idioma;
+- árbol único `Level → Unit → Lesson`;
+- locales visuales `en-US` y `en-GB` embebidos;
+- tokenización STT limitada al alfabeto latino inglés;
+- selección de un único directorio de modelo STT;
+- ausencia de identidad explícita del proveedor y versión del modelo STT.
+
+Deuda técnica confirmada:
+el validador de criterios de evaluación no comprueba todavía que `ProductionEvaluationCriterion` y su `EvidenceDefinition` compartan `measurement_mode` y `success_threshold`.
+
+B175 no modificó código, contratos, base de datos, dependencias ni modelos y no requirió ejecutar pruebas.
+
+Siguiente objetivo:
+priorizar los hallazgos y definir el primer bloque técnico pequeño que elimine una deuda real sin iniciar una migración multilingüe completa.

@@ -3325,3 +3325,36 @@ Validación:
 - Regresión fonética: 311 pruebas en 69 archivos.
 - Suite backend completa: 746 pruebas.
 - Commit técnico: `a7cdac4`.
+
+## B175 — Auditoría de reutilización tecnológica y extensibilidad multilingüe
+
+Se auditó la arquitectura actual para evitar reconstruir capacidades tecnológicas ya disponibles y preparar LOGUIC para incorporar otros idiomas sin convertir el núcleo en una implementación específica de inglés.
+
+Decisión principal:
+`open-source/local first`.
+
+Durante la construcción se priorizarán herramientas, modelos y runtimes abiertos ejecutables localmente. Las APIs de pago permanecerán únicamente como posibles adaptadores futuros. Una capacidad solo se desarrollará desde cero cuando una limitación demostrada de las soluciones existentes afecte al diferencial pedagógico de LOGUIC.
+
+Clasificación consolidada:
+- LOGUIC Core: usuarios, progreso, Skills, intentos, evidencias, evaluación, feedback y futuras decisiones pedagógicas.
+- Capacidades compartidas: audio, STT, pronunciación, conversación y generación mediante contratos independientes del proveedor.
+- Módulos de idioma: progresión, contenido, representaciones lingüísticas, locales, fonética y políticas específicas.
+- Adaptadores: Sherpa-ONNX, WavLM, runtimes locales y posibles proveedores futuros.
+
+Hallazgos principales:
+- El proveedor fonético local reutiliza WavLM-Large, un modelo CTC, G2P, Torch y Transformers. El runner y los contratos LOGUIC se conservan como integración intercambiable.
+- El checkpoint fonético conserva métricas técnicas, pero no documenta de forma suficiente la procedencia y licencia de su corpus de entrenamiento. Su aprobación productiva queda pendiente.
+- El pipeline produce información por palabra y fonema que actualmente se reduce a un score global en el contrato backend.
+- El STT reutiliza Sherpa-ONNX y Moonshine detrás de `SpeechRecognitionController`. El contrato ya transporta `languageCode` y `locale`.
+- La fábrica STT actual selecciona un único directorio de modelo y la tokenización de palabras está limitada al alfabeto latino inglés.
+- La reproducción y grabación reutilizan `audioplayers` y `record`; la capa de audio es independiente del idioma y no ejecuta TTS durante el uso normal.
+- La evaluación semántica actual es local, determinista y basada en reglas explícitas.
+- `openai` está instalado como dependencia, pero no existe una integración del SDK dentro de `app`.
+- Los modos guiado y ramificado están implementados. El modo libre está declarado en contenido, pero no dispone todavía de sesiones, mensajes dinámicos ni generador.
+- Qwen3.5-4B quedó registrado únicamente como candidato local y gratuito para un benchmark futuro; no se instaló ni integró ningún modelo.
+- El contenido sigue acoplado a inglés y español mediante campos `en` y `es`, niveles CEFR globales, un único árbol de contenido y catálogos visuales `en-US` / `en-GB`.
+
+Deuda técnica confirmada:
+`ProductionEvaluationCriterion` referencia una `EvidenceDefinition`, pero el validador no exige actualmente que ambos contratos compartan el mismo `measurement_mode` ni el mismo `success_threshold` cuando corresponda.
+
+B175 fue una auditoría arquitectónica. No modificó código, contratos, base de datos, dependencias ni modelos locales, y no requirió ejecutar la suite de pruebas.
