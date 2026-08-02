@@ -1,4 +1,25 @@
 # Roadmap del proyecto app-ingles-backend
+## Dirección canónica vigente desde B176
+
+Desde B176, la dirección del producto está definida por:
+
+`docs/modelo-pedagogico-maestro.md`
+
+Ese documento establece:
+
+- el puerto de llegada de fluidez conversacional funcional;
+- las cuatro fases pedagógicas;
+- el diagnóstico conversacional;
+- el ciclo diario;
+- los métodos y principios aprobados;
+- la pronunciación funcional transversal;
+- el sistema de macrobloques pedagógicos;
+- las tres puertas humanas de control.
+
+El historial técnico conservado en este roadmap continúa siendo válido como trazabilidad de lo construido, pero ya no determina automáticamente el siguiente bloque.
+
+Todo trabajo nuevo deberá partir de una capacidad observable del estudiante y justificar su contribución directa al puerto de llegada.
+
 
 ## Fase 1 — Backend base
 
@@ -632,29 +653,52 @@ La auditoría confirmó:
 - Qwen3.5-4B únicamente como candidato para benchmark local futuro;
 - necesidad futura de separar LOGUIC Core, capacidades compartidas y módulos específicos por idioma.
 
-Deuda técnica prioritaria detectada:
-`ProductionEvaluationCriterion` y su `EvidenceDefinition` pueden declarar políticas distintas de `measurement_mode` y `success_threshold` sin que el validador detecte la incoherencia.
+Hallazgo corregido posteriormente en B176:
+
+La diferencia entre `EvidenceDefinition.measurement_mode` y `ProductionEvaluationCriterion.measurement_mode` no constituye por sí sola una incoherencia.
+
+Una evidencia pedagógica `contextual_response` puede registrar `completion`, mientras sus producciones concretas son evaluadas mediante criterios semánticos `binary` o fonéticos `score`. Ambos contratos representan responsabilidades diferentes.
 
 B175 no modificó código, contratos, dependencias ni base de datos y no requirió ejecutar pruebas.
 
-## Próximos bloques propuestos
+## B176 — Reorientación estratégica y pedagógica
 
-### B176 — Coherencia entre evidencia y criterio de evaluación
+Estado: en documentación.
 
-Añadir una validación pequeña y compatible que exija coherencia entre `EvidenceDefinition` y `ProductionEvaluationCriterion` para `measurement_mode` y `success_threshold`.
+B176 canceló su alcance técnico original después de comprobar que la supuesta igualdad obligatoria entre evidencia pedagógica y criterio evaluativo era incorrecta.
 
-### B177 — Identidad trazable del proveedor STT
+El bloque definió y aprobó:
 
-Evaluar una extensión compatible del resultado STT con identidad de proveedor, modelo y versión, sin cambiar Sherpa-ONNX ni Moonshine.
+- el puerto de llegada de LOGUIC English;
+- la fluidez conversacional funcional como resultado final;
+- un horizonte orientativo de tres a seis meses;
+- cuatro fases pedagógicas basadas en desempeño;
+- diagnóstico y plan conversacional inicial;
+- práctica diaria centrada en tiempo real hablando;
+- construcción directa en inglés;
+- pronunciación funcional transversal;
+- el triángulo vocálico `/iː/–/ɪ/–/e/`;
+- macrobloques pedagógicos completos;
+- tres puertas humanas de aprobación;
+- incorporación futura y controlada de Codex.
 
-### B178 — Selección STT por idioma
+La fuente canónica de estas decisiones es:
 
-Diseñar únicamente cuando exista un segundo idioma o modelo real que justifique sustituir el único directorio global por un registro configurable.
+`docs/modelo-pedagogico-maestro.md`
 
-### Pendientes posteriores, no iniciados
+## Próximo macrobloque
 
-- normalización opcional del detalle fonético por palabra y fonema;
-- verificación de procedencia del corpus del checkpoint WavLM;
-- desacoplamiento progresivo de campos `en` / `es` y del árbol CEFR global;
-- sesiones de conversación libre con un runtime local reutilizado;
-- benchmark de Qwen3.5-4B únicamente cuando la conversación libre sea el bloque activo.
+Todavía no está seleccionado.
+
+No se asignará automáticamente B177 a una deuda técnica ni a una capacidad futura ya listada.
+
+El próximo macrobloque deberá superar primero la Puerta 1 y definir:
+
+- problema del estudiante;
+- fase pedagógica;
+- capacidad objetivo;
+- método;
+- experiencia;
+- evidencia observable;
+- transferencia;
+- criterios de aceptación.

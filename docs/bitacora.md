@@ -3358,3 +3358,50 @@ Deuda técnica confirmada:
 `ProductionEvaluationCriterion` referencia una `EvidenceDefinition`, pero el validador no exige actualmente que ambos contratos compartan el mismo `measurement_mode` ni el mismo `success_threshold` cuando corresponda.
 
 B175 fue una auditoría arquitectónica. No modificó código, contratos, base de datos, dependencias ni modelos locales, y no requirió ejecutar la suite de pruebas.
+
+## B176 — Reorientación estratégica y pedagógica
+
+B176 detuvo y canceló su alcance técnico original después de comprobar que la diferencia entre `EvidenceDefinition.measurement_mode` y `ProductionEvaluationCriterion.measurement_mode` no constituye por sí sola una incoherencia.
+
+Una evidencia pedagógica `contextual_response` puede registrar la finalización de una actividad mediante `completion`, mientras las producciones concretas asociadas son evaluadas mediante criterios semánticos `binary` o fonéticos `score`. Ambos contratos representan responsabilidades diferentes.
+
+El bloque detectó que el proyecto había acumulado capacidades técnicas sin disponer de un puerto de llegada pedagógico suficientemente explícito. Como corrección de rumbo, se definió y aprobó el Modelo Pedagógico Maestro de LOGUIC English.
+
+Decisiones principales:
+
+- fluidez conversacional funcional como puerto de llegada;
+- horizonte intensivo orientativo de tres a seis meses;
+- conversación espontánea, inteligible y transferible como demostración final;
+- cuatro fases pedagógicas: desbloqueo mental, automatización, continuidad conversacional y transferencia;
+- diagnóstico conversacional basado en desempeño;
+- Plan Conversacional Inicial personalizado;
+- sesiones centradas en tiempo real escuchando y hablando;
+- Método 1: Construcción directa en inglés;
+- pronunciación funcional transversal;
+- primera ancla sonora `/iː/–/ɪ/–/e/`;
+- inteligibilidad prioritaria frente a imitación obligatoria de un acento nativo;
+- desarrollo mediante macrobloques pedagógicos completos;
+- tres puertas humanas: definición, plan de implementación y cierre;
+- futura incorporación controlada de Codex para ejecución técnica;
+- tecnología subordinada a aprendizaje observable y transferencia.
+
+Se creó `docs/modelo-pedagogico-maestro.md` como fuente canónica del puerto de llegada, el recorrido pedagógico y el nuevo sistema operativo de desarrollo.
+
+Se actualizó `docs/roadmap.md` para:
+
+- declarar el Modelo Pedagógico Maestro como dirección vigente;
+- conservar el historial técnico B1–B175;
+- corregir el hallazgo contractual erróneo registrado en B175;
+- retirar la antigua secuencia automática de bloques B176–B178;
+- exigir que el próximo macrobloque supere primero la Puerta 1.
+
+B176 no modificó código, contratos, base de datos, dependencias ni comportamiento runtime. Por tratarse de un bloque exclusivamente estratégico y documental, no requirió ejecutar la suite backend.
+
+Validación documental:
+
+- estructura del Modelo Pedagógico Maestro revisada;
+- roadmap alineado con el puerto de llegada;
+- historial técnico conservado;
+- `git diff --check`: limpio.
+
+Estado: documentación completada; pendiente revisión final, commit y publicación.
