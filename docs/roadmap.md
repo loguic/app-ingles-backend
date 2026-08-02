@@ -702,3 +702,22 @@ El próximo macrobloque deberá superar primero la Puerta 1 y definir:
 - evidencia observable;
 - transferencia;
 - criterios de aceptación.
+## B177 — Diagnóstico conversacional contextual
+
+Estado: en desarrollo.
+
+Puerta 1 — Definición de la capacidad: cerrada.
+
+Puerta 2 — Plan de implementación: cerrada.
+
+Etapa A — Contratos puros: implementada y validada.
+
+Capacidad objetivo: generar un Perfil Conversacional Inicial contextual, trazable y revisable para los perfiles de 6–8 años, 9–12 años, 13–17 años y adultos.
+
+Piloto funcional previsto: niños de 9–12 años.
+
+Siguiente etapa: validaciones cruzadas entre sesión, contexto, actividades, producciones, apoyos, observaciones y perfil inicial.
+
+Límites vigentes: sin persistencia, migraciones, API, contenido piloto ni integración Flutter en la Etapa A.
+
+Commit técnico de la Etapa A: `6d4a52b`.

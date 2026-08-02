@@ -3407,3 +3407,33 @@ Validación documental:
 Commit documental principal: `f8ae50e`.
 
 Estado: documentación completada y commit principal creado; pendiente publicación y verificación final de Git.
+## B177 — Etapa A: contratos puros del diagnóstico conversacional
+
+Estado: implementación técnica completada y validada.
+
+Se añadieron contratos puros para:
+
+- sesión diagnóstica;
+- contexto autorizado;
+- actividad diagnóstica;
+- apoyo utilizado;
+- observación diagnóstica;
+- Perfil Conversacional Inicial;
+- trazabilidad entre perfil y observaciones.
+
+Separaciones preservadas:
+
+- producción distinta de observación diagnóstica;
+- evaluación técnica distinta de decisión pedagógica;
+- perfil inicial distinto de progreso y mastery.
+
+La etapa no incluye todavía validaciones cruzadas, persistencia, migraciones, API, contenido piloto ni integración Flutter.
+
+Validación confirmada:
+
+- 67 pruebas específicas superadas;
+- 806 pruebas del backend superadas;
+- `git diff --check` limpio;
+- commit técnico `6d4a52b`.
+
+Contrato canónico: `docs/conversational-diagnostic-contract.md`.
