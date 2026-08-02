@@ -3404,4 +3404,6 @@ Validación documental:
 - historial técnico conservado;
 - `git diff --check`: limpio.
 
-Estado: documentación completada; pendiente revisión final, commit y publicación.
+Commit documental principal: `f8ae50e`.
+
+Estado: documentación completada y commit principal creado; pendiente publicación y verificación final de Git.
