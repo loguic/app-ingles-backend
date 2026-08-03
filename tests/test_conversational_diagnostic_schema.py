@@ -108,6 +108,7 @@ def test_reject_unknown_age_profile() -> None:
 
 def test_create_diagnostic_context() -> None:
     context = ConversationalDiagnosticContext(
+        context_id="context-001",
         diagnostic_session_id="diagnostic-001",
         usual_languages=["Spanish"],
         previous_english_contact="School classes",
@@ -149,6 +150,7 @@ def test_reject_duplicate_diagnostic_context_values(
     message: str,
 ) -> None:
     data = {
+        "context_id": "context-001",
         "diagnostic_session_id": "diagnostic-001",
         "usual_languages": ["Spanish"],
         "previous_english_contact": "School classes",
@@ -188,6 +190,7 @@ def test_reject_blank_diagnostic_context_values(
     message: str,
 ) -> None:
     data = {
+        "context_id": "context-001",
         "diagnostic_session_id": "diagnostic-001",
         "usual_languages": ["Spanish"],
         "previous_english_contact": "School classes",
@@ -207,6 +210,7 @@ def test_reject_blank_previous_english_contact() -> None:
         match="previous_english_contact cannot be blank",
     ):
         ConversationalDiagnosticContext(
+            context_id="context-001",
             diagnostic_session_id="diagnostic-001",
             usual_languages=["Spanish"],
             previous_english_contact=" ",
@@ -217,6 +221,7 @@ def test_reject_blank_previous_english_contact() -> None:
 def test_reject_empty_usual_languages() -> None:
     with pytest.raises(ValidationError):
         ConversationalDiagnosticContext(
+            context_id="context-001",
             diagnostic_session_id="diagnostic-001",
             usual_languages=[],
             previous_english_contact="No previous contact",
@@ -227,6 +232,7 @@ def test_reject_empty_usual_languages() -> None:
 def test_reject_unknown_autonomy_level() -> None:
     with pytest.raises(ValidationError):
         ConversationalDiagnosticContext(
+            context_id="context-001",
             diagnostic_session_id="diagnostic-001",
             usual_languages=["Spanish"],
             previous_english_contact="School classes",
@@ -238,6 +244,7 @@ def test_create_diagnostic_activity() -> None:
         activity_id="activity-001",
         diagnostic_session_id="diagnostic-001",
         context_id="context-001",
+        prompt_id="diagnostic-prompt-001",
         stage="initial_response",
         communicative_intention="Describe a favorite animal",
         modality="voice",
@@ -256,6 +263,7 @@ def test_create_transfer_activity() -> None:
         activity_id="activity-002",
         diagnostic_session_id="diagnostic-001",
         context_id="context-001",
+        prompt_id="diagnostic-prompt-001",
         stage="transfer",
         communicative_intention="Describe a different animal",
         modality="voice",
@@ -278,6 +286,7 @@ def test_reject_blank_communicative_intention() -> None:
             activity_id="activity-001",
             diagnostic_session_id="diagnostic-001",
             context_id="context-001",
+            prompt_id="diagnostic-prompt-001",
             stage="initial_response",
             communicative_intention=" ",
             modality="voice",
@@ -295,6 +304,7 @@ def test_reject_duplicate_available_supports() -> None:
             activity_id="activity-001",
             diagnostic_session_id="diagnostic-001",
             context_id="context-001",
+            prompt_id="diagnostic-prompt-001",
             stage="guided_construction",
             communicative_intention="Build one supported sentence",
             modality="voice",
@@ -313,6 +323,7 @@ def test_reject_transfer_activity_without_variant() -> None:
             activity_id="activity-001",
             diagnostic_session_id="diagnostic-001",
             context_id="context-001",
+            prompt_id="diagnostic-prompt-001",
             stage="transfer",
             communicative_intention="Respond to a changed situation",
             modality="voice",
@@ -330,6 +341,7 @@ def test_reject_transfer_variant_outside_transfer_activity() -> None:
             activity_id="activity-001",
             diagnostic_session_id="diagnostic-001",
             context_id="context-001",
+            prompt_id="diagnostic-prompt-001",
             stage="initial_response",
             communicative_intention="Give an initial response",
             modality="voice",
@@ -348,6 +360,7 @@ def test_reject_transfer_evidence_outside_transfer_activity() -> None:
             activity_id="activity-001",
             diagnostic_session_id="diagnostic-001",
             context_id="context-001",
+            prompt_id="diagnostic-prompt-001",
             stage="connected_exchange",
             communicative_intention="Continue the conversation",
             modality="voice",
@@ -362,6 +375,7 @@ def test_reject_non_positive_activity_sequence_order() -> None:
             activity_id="activity-001",
             diagnostic_session_id="diagnostic-001",
             context_id="context-001",
+            prompt_id="diagnostic-prompt-001",
             stage="adaptation",
             communicative_intention="Become familiar with the activity",
             modality="selection",
@@ -376,6 +390,7 @@ def test_reject_unknown_diagnostic_activity_stage() -> None:
             activity_id="activity-001",
             diagnostic_session_id="diagnostic-001",
             context_id="context-001",
+            prompt_id="diagnostic-prompt-001",
             stage="unknown",
             communicative_intention="Complete one activity",
             modality="voice",
@@ -837,3 +852,35 @@ def test_reject_blank_initial_profile_evidence_identifier(
 
     with pytest.raises(ValidationError, match=message):
         InitialConversationalProfileEvidence(**data)
+
+
+def test_reject_blank_context_id() -> None:
+    with pytest.raises(
+        ValidationError,
+        match="context_id cannot be blank",
+    ):
+        ConversationalDiagnosticContext(
+            context_id=" ",
+            diagnostic_session_id="diagnostic-001",
+            usual_languages=["Spanish"],
+            previous_english_contact="School classes",
+            autonomy_level="developing",
+        )
+
+
+def test_reject_blank_activity_prompt_id() -> None:
+    with pytest.raises(
+        ValidationError,
+        match="prompt_id cannot be blank",
+    ):
+        ConversationalDiagnosticActivity(
+            activity_id="activity-001",
+            diagnostic_session_id="diagnostic-001",
+            context_id="context-001",
+            prompt_id=" ",
+            stage="initial_response",
+            communicative_intention="Give an initial response",
+            modality="voice",
+            expected_evidence_type="spontaneous_production",
+            sequence_order=1,
+        )

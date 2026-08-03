@@ -67,6 +67,7 @@ class ConversationalDiagnosticContext(BaseModel):
     Conserva el contexto mínimo autorizado de una sesión diagnóstica.
     """
 
+    context_id: str
     diagnostic_session_id: str
     usual_languages: list[str] = Field(min_length=1)
     previous_english_contact: str
@@ -102,6 +103,9 @@ class ConversationalDiagnosticContext(BaseModel):
                 raise ValueError(
                     field_name + " must contain unique values"
                 )
+
+        if not self.context_id.strip():
+            raise ValueError("context_id cannot be blank")
 
         if not self.previous_english_contact.strip():
             raise ValueError(
@@ -152,6 +156,7 @@ class ConversationalDiagnosticActivity(BaseModel):
     activity_id: str
     diagnostic_session_id: str
     context_id: str
+    prompt_id: str
     stage: DiagnosticActivityStage
     communicative_intention: str
     modality: DiagnosticActivityModality
@@ -170,6 +175,9 @@ class ConversationalDiagnosticActivity(BaseModel):
 
         Protege el contenido y los invariantes de transferencia.
         """
+        if not self.prompt_id.strip():
+            raise ValueError("prompt_id cannot be blank")
+
         if not self.communicative_intention.strip():
             raise ValueError(
                 "communicative_intention cannot be blank"
