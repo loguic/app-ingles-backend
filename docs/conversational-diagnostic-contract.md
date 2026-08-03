@@ -79,15 +79,43 @@ Sus estados permitidos son `provisional` y `confirmed`. No representa certificac
 Vincula el Perfil Conversacional Inicial con cada observación utilizada para generarlo.
 
 La relación conserva trazabilidad, pero no convierte una observación aislada en una decisión pedagógica completa.
-## Límites de la Etapa A
+## Etapa A — contratos puros
 
-La Etapa A define exclusivamente contratos puros e invariantes internos.
+La Etapa A definió los contratos puros y sus invariantes internos.
 
-Todavía no incluye validaciones cruzadas entre objetos, generación del perfil, persistencia, migraciones, API, contenido piloto ni integración Flutter.
-
-## Validación confirmada
+Validación confirmada:
 
 - 67 pruebas específicas superadas;
 - 806 pruebas del backend superadas;
 - `git diff --check` limpio;
 - commit técnico `6d4a52b`.
+
+## Etapa B — validaciones cruzadas
+
+La Etapa B valida las relaciones entre:
+
+- sesión y contexto autorizado;
+- actividad, contexto y modalidad;
+- actividad y producción mediante `prompt_id`;
+- producción y observación;
+- producción y evaluaciones técnicas;
+- apoyos disponibles, utilizados y retirados;
+- observación y nivel real de apoyo;
+- actividades y secuencia diagnóstica;
+- perfil inicial, sesión y evidencias;
+- producción y propiedad exclusiva de una actividad.
+
+Una producción puede respaldar varias observaciones de la misma actividad, pero no puede reutilizarse entre actividades diferentes.
+
+Las evaluaciones técnicas conservan su trazabilidad hacia la producción observada, pero no se convierten automáticamente en una decisión pedagógica.
+
+## Límites vigentes
+
+Todavía no se incluyen generación automática del perfil, persistencia, migraciones, API, contenido piloto ni integración Flutter.
+
+## Validación confirmada de la Etapa B
+
+- 71 pruebas específicas superadas;
+- 879 pruebas del backend superadas;
+- `git diff --check` limpio;
+- commit técnico `e4e287c`.

@@ -3437,3 +3437,46 @@ Validación confirmada:
 - commit técnico `6d4a52b`.
 
 Contrato canónico: `docs/conversational-diagnostic-contract.md`.
+
+
+## B177 — Etapa B: validaciones cruzadas del diagnóstico conversacional
+
+Estado: implementación técnica completada y validada.
+
+Se añadieron validaciones cruzadas para:
+
+- pertenencia entre sesión, contexto y actividad;
+- autorización de audio para actividades de voz;
+- secuencia de actividades y apoyos;
+- apoyos disponibles, utilizados y retirados;
+- coherencia entre observación y nivel real de apoyo;
+- trazabilidad entre actividad y producción mediante `prompt_id`;
+- coincidencia de modalidad entre actividad y producción;
+- trazabilidad entre observación, producción y evaluaciones técnicas;
+- propiedad exclusiva de cada producción respecto de una actividad;
+- relación entre perfil inicial, sesión y evidencias diagnósticas.
+
+Separaciones preservadas:
+
+- producción distinta de observación diagnóstica;
+- evaluación técnica distinta de interpretación pedagógica;
+- Perfil Conversacional Inicial distinto de progreso y mastery;
+- apoyo utilizado distinto de nivel lingüístico;
+- evidencia descriptiva distinta de decisión automática.
+
+Límites vigentes:
+
+- sin generación automática del perfil;
+- sin persistencia ni migraciones;
+- sin API;
+- sin contenido piloto;
+- sin integración Flutter.
+
+Validación confirmada:
+
+- 71 pruebas específicas superadas;
+- 879 pruebas del backend superadas;
+- `git diff --check` limpio;
+- commit técnico `e4e287c`.
+
+Contrato canónico actualizado: `docs/conversational-diagnostic-contract.md`.
