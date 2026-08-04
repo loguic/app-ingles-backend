@@ -70,7 +70,7 @@ Las dimensiones permitidas son comprensión auditiva, inicio de respuesta, const
 
 Representa una hipótesis pedagógica inicial, trazable y revisable.
 
-Incluye bloqueo prioritario, capacidad objetivo, apoyo recomendado, contextos relevantes, método inicial, primera experiencia, criterio de revisión y resumen de evidencia.
+Incluye bloqueo prioritario, capacidad objetivo, apoyo recomendado, contextos relevantes, método inicial, primera lección, criterio de revisión y resumen de evidencia.
 
 Sus estados permitidos son `provisional` y `confirmed`. No representa certificación MCER, fluidez, diagnóstico psicológico ni mastery.
 
@@ -109,9 +109,35 @@ Una producción puede respaldar varias observaciones de la misma actividad, pero
 
 Las evaluaciones técnicas conservan su trazabilidad hacia la producción observada, pero no se convierten automáticamente en una decisión pedagógica.
 
+## Etapa C — generación del Perfil Conversacional Inicial
+
+La Etapa C añadió una generación determinista, trazable y revisable del Perfil Conversacional Inicial.
+
+La generación:
+
+- deriva el estado `provisional` o `confirmed` desde el estado de la sesión;
+- exige un único bloqueo prioritario explícito;
+- conserva los contextos relevantes autorizados;
+- separa las observaciones diagnósticas del plan pedagógico;
+- vincula todas las observaciones utilizadas mediante evidencias trazables;
+- valida que la primera lección exista y contenga `LessonExperience`;
+- exige evidencia diagnóstica completa para un perfil confirmado;
+- permite evidencia incompleta para un perfil provisional revisable.
+
+El método recomendado permanece limitado a `direct-english-construction`.
+
+La generación no deriva automáticamente MCER, fluidez, mastery, progreso ni diagnóstico psicológico.
+
+Validación confirmada:
+
+- pruebas específicas del diagnóstico superadas;
+- 915 pruebas del backend superadas;
+- `git diff --check` limpio;
+- commit técnico `d0004fd`.
+
 ## Límites vigentes
 
-Todavía no se incluyen generación automática del perfil, persistencia, migraciones, API, contenido piloto ni integración Flutter.
+Todavía no se incluyen persistencia, migraciones, API, contenido piloto ni integración Flutter.
 
 ## Validación confirmada de la Etapa B
 

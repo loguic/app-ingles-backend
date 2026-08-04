@@ -710,6 +710,20 @@ Puerta 1 — Definición de la capacidad: cerrada.
 
 Puerta 2 — Plan de implementación: cerrada.
 
+Etapa A — contratos puros: completada.
+
+Etapa B — validaciones cruzadas: completada.
+
+Etapa C — generación trazable y revisable del Perfil Conversacional Inicial: implementación técnica completada y validada.
+
+Validación de la Etapa C:
+
+- 915 pruebas del backend superadas;
+- `git diff --check` limpio;
+- commit técnico `d0004fd`.
+
+Pendiente para cerrar B177: documentación, publicación y verificación final de Git.
+
 Etapa A — Contratos puros: implementada y validada.
 
 Etapa B — Validaciones cruzadas: implementada y validada.

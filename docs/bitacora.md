@@ -3480,3 +3480,37 @@ Validación confirmada:
 - commit técnico `e4e287c`.
 
 Contrato canónico actualizado: `docs/conversational-diagnostic-contract.md`.
+
+## B177 — Etapa C: generación del Perfil Conversacional Inicial
+
+Estado: implementación técnica completada y validada.
+
+Se añadió una generación determinista, trazable y revisable del Perfil Conversacional Inicial.
+
+La Etapa C incorpora:
+
+- roles explícitos de evidencia diagnóstica;
+- referencias autorizadas a contextos motivadores;
+- un plan pedagógico separado de las observaciones;
+- selección validada de la primera lección mediante `Lesson.id`;
+- exigencia de `LessonExperience` en la lección recomendada;
+- generación de perfiles `provisional` y `confirmed`;
+- trazabilidad completa mediante `InitialConversationalProfileEvidence`;
+- rechazo de evidencia incompleta para perfiles confirmados;
+- validación de pertenencia entre sesión y contexto.
+
+Separaciones preservadas:
+
+- observación diagnóstica ≠ decisión pedagógica;
+- score técnico ≠ juicio diagnóstico;
+- perfil inicial ≠ progreso;
+- perfil inicial ≠ mastery;
+- perfil inicial ≠ certificación MCER.
+
+Validación final:
+
+- pruebas específicas del diagnóstico superadas;
+- 915 pruebas del backend superadas;
+- `git diff --check` limpio.
+
+Commit técnico: `d0004fd`.
