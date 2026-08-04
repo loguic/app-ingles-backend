@@ -16,6 +16,7 @@ from app.schemas.conversational_diagnostic import (
 )
 from app.services.conversational_diagnostic_validation_service import (
     validate_diagnostic_activity_context,
+    validate_diagnostic_context_references,
     validate_diagnostic_activity_production,
     validate_diagnostic_activity_sequence,
     validate_diagnostic_observation,
@@ -254,6 +255,7 @@ def build_observation(
     production_id: int | None = 1,
     evaluation_result_ids: list[int] | None = None,
     support_level: str = "minimal",
+    evidence_role: str = "development_need",
 ) -> ConversationalDiagnosticObservation:
     return ConversationalDiagnosticObservation(
         observation_id="observation-001",
@@ -265,6 +267,7 @@ def build_observation(
             else evaluation_result_ids
         ),
         dimension="oral_production",
+        evidence_role=evidence_role,
         description="Produced one understandable sentence.",
         support_level=support_level,
         observer_id="deterministic-diagnostic-observer",
@@ -361,7 +364,7 @@ def build_initial_profile(
         recommended_support_level="minimal",
         relevant_contexts=["animals"],
         recommended_method="direct-english-construction",
-        first_experience_id="experience-animals-001",
+        first_lesson_id="lesson-animals-001",
         review_criterion="Respond to a new variation with less support.",
         evidence_summary="Evidence from several diagnostic observations.",
         generated_at=STARTED_AT,
@@ -704,6 +707,20 @@ def build_complete_profile_evidence() -> tuple[
                 activity_id=activity_id,
                 production_id=sequence_order,
                 dimension=dimension,
+                evidence_role=(
+                    "context_relevance"
+                    if dimension == "motivating_context"
+                    else (
+                        "priority_blockage"
+                        if dimension == "support_need"
+                        else "development_need"
+                    )
+                ),
+                context_reference=(
+                    "animals"
+                    if dimension == "motivating_context"
+                    else None
+                ),
                 description="Observed diagnostic evidence.",
                 support_level="minimal",
                 observer_id="deterministic-diagnostic-observer",
@@ -1430,4 +1447,66 @@ def test_reject_evaluations_without_observed_production() -> None:
         validate_diagnostic_observation_evaluations(
             observation,
             [build_evaluation_result(production_id=1)],
+        )
+
+
+def build_context_observation(
+    diagnostic_session_id: str = "diagnostic-001",
+    context_reference: str = "animals",
+) -> ConversationalDiagnosticObservation:
+    return ConversationalDiagnosticObservation(
+        observation_id="observation-context",
+        diagnostic_session_id=diagnostic_session_id,
+        activity_id="activity-context",
+        dimension="motivating_context",
+        evidence_role="context_relevance",
+        context_reference=context_reference,
+        description="The learner selected a motivating context.",
+        support_level="none",
+        observer_id="deterministic-diagnostic-observer",
+        observer_version="1.0",
+        observed_at=STARTED_AT,
+    )
+
+
+def test_accept_authorized_diagnostic_context_reference() -> None:
+    validate_diagnostic_context_references(
+        build_context(),
+        [build_context_observation()],
+    )
+
+
+def test_reject_unauthorized_diagnostic_context_reference() -> None:
+    with pytest.raises(
+        ValueError,
+        match=(
+            "Diagnostic context reference must exist "
+            "in authorized general interests"
+        ),
+    ):
+        validate_diagnostic_context_references(
+            build_context(),
+            [
+                build_context_observation(
+                    context_reference="video games"
+                )
+            ],
+        )
+
+
+def test_reject_context_observation_from_another_session() -> None:
+    with pytest.raises(
+        ValueError,
+        match=(
+            "Context observation must belong to "
+            "the diagnostic context session"
+        ),
+    ):
+        validate_diagnostic_context_references(
+            build_context(),
+            [
+                build_context_observation(
+                    diagnostic_session_id="diagnostic-999"
+                )
+            ],
         )

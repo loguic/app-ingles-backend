@@ -293,6 +293,14 @@ DiagnosticDimension = Literal[
 ]
 
 
+DiagnosticObservationEvidenceRole = Literal[
+    "strength",
+    "development_need",
+    "priority_blockage",
+    "context_relevance",
+]
+
+
 class ConversationalDiagnosticObservation(BaseModel):
     """Describe one traceable diagnostic observation.
 
@@ -305,6 +313,8 @@ class ConversationalDiagnosticObservation(BaseModel):
     production_id: int | None = Field(default=None, gt=0)
     evaluation_result_ids: list[int] = Field(default_factory=list)
     dimension: DiagnosticDimension
+    evidence_role: DiagnosticObservationEvidenceRole
+    context_reference: str | None = None
     description: str
     support_level: DiagnosticSupportLevel
     observer_id: str
@@ -347,12 +357,80 @@ class ConversationalDiagnosticObservation(BaseModel):
                 "evaluation_result_ids must contain unique values"
             )
 
+        if (
+            self.evidence_role == "context_relevance"
+            and self.dimension != "motivating_context"
+        ):
+            raise ValueError(
+                "Context relevance requires motivating_context dimension"
+            )
+
+        if (
+            self.dimension == "motivating_context"
+            and self.evidence_role != "context_relevance"
+        ):
+            raise ValueError(
+                "Motivating context requires context_relevance role"
+            )
+
+        if self.evidence_role == "context_relevance":
+            if (
+                self.context_reference is None
+                or not self.context_reference.strip()
+            ):
+                raise ValueError(
+                    "Context relevance requires context_reference"
+                )
+        elif self.context_reference is not None:
+            raise ValueError(
+                "Only context relevance can define context_reference"
+            )
+
         return self
 
 InitialConversationalProfileStatus = Literal[
     "provisional",
     "confirmed",
 ]
+
+
+InitialProfileRecommendedMethod = Literal[
+    "direct-english-construction",
+]
+
+
+class InitialConversationalProfilePlan(BaseModel):
+    """Represent explicit pedagogical decisions for one initial profile.
+
+    Representa decisiones pedagógicas explícitas para un perfil inicial.
+    """
+
+    target_capacity: str
+    recommended_support_level: DiagnosticSupportLevel
+    recommended_method: InitialProfileRecommendedMethod
+    first_lesson_id: str
+    review_criterion: str
+
+    @model_validator(mode="after")
+    def validate_profile_plan(
+        self,
+    ) -> "InitialConversationalProfilePlan":
+        """Require usable and explicit pedagogical recommendations.
+
+        Exige recomendaciones pedagógicas utilizables y explícitas.
+        """
+        text_fields = {
+            "target_capacity": self.target_capacity,
+            "recommended_method": self.recommended_method,
+            "first_lesson_id": self.first_lesson_id,
+            "review_criterion": self.review_criterion,
+        }
+
+        for field_name, value in text_fields.items():
+            if not value.strip():
+                raise ValueError(field_name + " cannot be blank")
+
+        return self
 
 
 class InitialConversationalProfile(BaseModel):
@@ -368,8 +446,8 @@ class InitialConversationalProfile(BaseModel):
     target_capacity: str
     recommended_support_level: DiagnosticSupportLevel
     relevant_contexts: list[str] = Field(min_length=1)
-    recommended_method: str
-    first_experience_id: str
+    recommended_method: InitialProfileRecommendedMethod
+    first_lesson_id: str
     review_criterion: str
     evidence_summary: str
     generated_at: datetime
@@ -390,7 +468,7 @@ class InitialConversationalProfile(BaseModel):
             "priority_blockage": self.priority_blockage,
             "target_capacity": self.target_capacity,
             "recommended_method": self.recommended_method,
-            "first_experience_id": self.first_experience_id,
+            "first_lesson_id": self.first_lesson_id,
             "review_criterion": self.review_criterion,
             "evidence_summary": self.evidence_summary,
             "generator_id": self.generator_id,

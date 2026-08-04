@@ -564,3 +564,37 @@ def validate_diagnostic_production_activity_ownership(
                 "Diagnostic production cannot be reused "
                 "across different activities"
             )
+
+
+def validate_diagnostic_context_references(
+    context: ConversationalDiagnosticContext,
+    observations: list[ConversationalDiagnosticObservation],
+) -> None:
+    """Validate motivating-context references against authorized context.
+
+    Valida las referencias motivadoras contra el contexto autorizado.
+    """
+    available_contexts = {
+        value.strip()
+        for value in context.general_interests
+    }
+
+    for observation in observations:
+        if observation.evidence_role != "context_relevance":
+            continue
+
+        if (
+            observation.diagnostic_session_id
+            != context.diagnostic_session_id
+        ):
+            raise ValueError(
+                "Context observation must belong to "
+                "the diagnostic context session"
+            )
+
+        assert observation.context_reference is not None
+        if observation.context_reference.strip() not in available_contexts:
+            raise ValueError(
+                "Diagnostic context reference must exist "
+                "in authorized general interests"
+            )

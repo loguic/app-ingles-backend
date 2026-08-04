@@ -11,6 +11,7 @@ from app.schemas.conversational_diagnostic import (
     DiagnosticSupportUsage,
     InitialConversationalProfile,
     InitialConversationalProfileEvidence,
+    InitialConversationalProfilePlan,
 )
 
 
@@ -513,6 +514,7 @@ def test_create_diagnostic_observation() -> None:
         production_id=1,
         evaluation_result_ids=[2, 3],
         dimension="direct_english_construction",
+        evidence_role="development_need",
         description=(
             "Built the initial sentence without translation support."
         ),
@@ -533,6 +535,7 @@ def test_create_observation_without_production() -> None:
         diagnostic_session_id="diagnostic-001",
         activity_id="activity-001",
         dimension="listening_comprehension",
+        evidence_role="development_need",
         description="Followed the spoken instruction with visual support.",
         support_level="minimal",
         observer_id="deterministic-diagnostic-observer",
@@ -563,6 +566,7 @@ def test_reject_blank_diagnostic_observation_text_field(
         "diagnostic_session_id": "diagnostic-001",
         "activity_id": "activity-001",
         "dimension": "oral_production",
+        "evidence_role": "development_need",
         "description": "Produced one understandable sentence.",
         "support_level": "none",
         "observer_id": "deterministic-diagnostic-observer",
@@ -589,6 +593,7 @@ def test_reject_non_positive_evaluation_result_id() -> None:
             activity_id="activity-001",
             evaluation_result_ids=[0],
             dimension="intelligibility",
+            evidence_role="development_need",
             description="The spoken message was understandable.",
             support_level="none",
             observer_id="deterministic-diagnostic-observer",
@@ -608,6 +613,7 @@ def test_reject_duplicate_evaluation_result_ids() -> None:
             activity_id="activity-001",
             evaluation_result_ids=[2, 2],
             dimension="intelligibility",
+            evidence_role="development_need",
             description="The spoken message was understandable.",
             support_level="none",
             observer_id="deterministic-diagnostic-observer",
@@ -624,6 +630,7 @@ def test_reject_non_positive_observation_production_id() -> None:
             activity_id="activity-001",
             production_id=0,
             dimension="oral_production",
+            evidence_role="development_need",
             description="Produced one sentence.",
             support_level="none",
             observer_id="deterministic-diagnostic-observer",
@@ -639,6 +646,7 @@ def test_reject_unknown_diagnostic_dimension() -> None:
             diagnostic_session_id="diagnostic-001",
             activity_id="activity-001",
             dimension="unknown",
+            evidence_role="development_need",
             description="Observed one response.",
             support_level="none",
             observer_id="deterministic-diagnostic-observer",
@@ -656,7 +664,7 @@ def test_create_initial_conversational_profile() -> None:
         recommended_support_level="minimal",
         relevant_contexts=["animals", "science"],
         recommended_method="direct-english-construction",
-        first_experience_id="experience-animals-001",
+        first_lesson_id="lesson-animals-001",
         review_criterion=(
             "Respond to one new variation with less support."
         ),
@@ -683,7 +691,7 @@ def test_create_provisional_initial_profile() -> None:
         recommended_support_level="moderate",
         relevant_contexts=["adventures"],
         recommended_method="direct-english-construction",
-        first_experience_id="experience-adventure-001",
+        first_lesson_id="lesson-adventure-001",
         review_criterion="Complete one transfer activity.",
         evidence_summary="Available evidence is incomplete.",
         generated_at=COMPLETED_AT,
@@ -701,8 +709,7 @@ def test_create_provisional_initial_profile() -> None:
         "diagnostic_session_id",
         "priority_blockage",
         "target_capacity",
-        "recommended_method",
-        "first_experience_id",
+        "first_lesson_id",
         "review_criterion",
         "evidence_summary",
         "generator_id",
@@ -721,7 +728,7 @@ def test_reject_blank_initial_profile_text_field(
         "recommended_support_level": "minimal",
         "relevant_contexts": ["animals"],
         "recommended_method": "direct-english-construction",
-        "first_experience_id": "experience-animals-001",
+        "first_lesson_id": "lesson-animals-001",
         "review_criterion": "Respond with less support.",
         "evidence_summary": "Evidence from several observations.",
         "generated_at": COMPLETED_AT,
@@ -751,7 +758,7 @@ def test_reject_blank_relevant_context() -> None:
             recommended_support_level="moderate",
             relevant_contexts=["animals", " "],
             recommended_method="direct-english-construction",
-            first_experience_id="experience-animals-001",
+            first_lesson_id="lesson-animals-001",
             review_criterion="Complete one additional activity.",
             evidence_summary="Evidence remains incomplete.",
             generated_at=COMPLETED_AT,
@@ -774,7 +781,7 @@ def test_reject_duplicate_relevant_contexts() -> None:
             recommended_support_level="minimal",
             relevant_contexts=["animals", "animals"],
             recommended_method="direct-english-construction",
-            first_experience_id="experience-animals-001",
+            first_lesson_id="lesson-animals-001",
             review_criterion="Respond with less support.",
             evidence_summary="Evidence from several observations.",
             generated_at=COMPLETED_AT,
@@ -794,7 +801,7 @@ def test_reject_empty_relevant_contexts() -> None:
             recommended_support_level="moderate",
             relevant_contexts=[],
             recommended_method="direct-english-construction",
-            first_experience_id="experience-animals-001",
+            first_lesson_id="lesson-animals-001",
             review_criterion="Complete one additional activity.",
             evidence_summary="Evidence remains incomplete.",
             generated_at=COMPLETED_AT,
@@ -814,7 +821,7 @@ def test_reject_unknown_initial_profile_status() -> None:
             recommended_support_level="moderate",
             relevant_contexts=["animals"],
             recommended_method="direct-english-construction",
-            first_experience_id="experience-animals-001",
+            first_lesson_id="lesson-animals-001",
             review_criterion="Complete one additional activity.",
             evidence_summary="Evidence remains incomplete.",
             generated_at=COMPLETED_AT,
@@ -883,4 +890,228 @@ def test_reject_blank_activity_prompt_id() -> None:
             modality="voice",
             expected_evidence_type="spontaneous_production",
             sequence_order=1,
+        )
+
+
+def test_accept_motivating_context_evidence_role() -> None:
+    observation = ConversationalDiagnosticObservation(
+        observation_id="observation-context",
+        diagnostic_session_id="diagnostic-001",
+        activity_id="activity-context",
+        dimension="motivating_context",
+        evidence_role="context_relevance",
+        context_reference="animals",
+        description="The learner chose animals as a motivating context.",
+        support_level="none",
+        observer_id="deterministic-diagnostic-observer",
+        observer_version="1.0",
+        observed_at=STARTED_AT,
+    )
+
+    assert observation.evidence_role == "context_relevance"
+
+
+def test_reject_context_relevance_for_another_dimension() -> None:
+    with pytest.raises(
+        ValidationError,
+        match=(
+            "Context relevance requires "
+            "motivating_context dimension"
+        ),
+    ):
+        ConversationalDiagnosticObservation(
+            observation_id="observation-001",
+            diagnostic_session_id="diagnostic-001",
+            activity_id="activity-001",
+            production_id=1,
+            dimension="oral_production",
+            evidence_role="context_relevance",
+            description="Produced one understandable sentence.",
+            support_level="none",
+            observer_id="deterministic-diagnostic-observer",
+            observer_version="1.0",
+            observed_at=STARTED_AT,
+        )
+
+
+def test_reject_motivating_context_with_another_role() -> None:
+    with pytest.raises(
+        ValidationError,
+        match=(
+            "Motivating context requires "
+            "context_relevance role"
+        ),
+    ):
+        ConversationalDiagnosticObservation(
+            observation_id="observation-context",
+            diagnostic_session_id="diagnostic-001",
+            activity_id="activity-context",
+            dimension="motivating_context",
+            evidence_role="development_need",
+            description="The learner chose animals.",
+            support_level="none",
+            observer_id="deterministic-diagnostic-observer",
+            observer_version="1.0",
+            observed_at=STARTED_AT,
+        )
+
+
+def test_reject_unknown_observation_evidence_role() -> None:
+    with pytest.raises(ValidationError):
+        ConversationalDiagnosticObservation(
+            observation_id="observation-001",
+            diagnostic_session_id="diagnostic-001",
+            activity_id="activity-001",
+            production_id=1,
+            dimension="oral_production",
+            evidence_role="unknown",
+            description="Produced one understandable sentence.",
+            support_level="none",
+            observer_id="deterministic-diagnostic-observer",
+            observer_version="1.0",
+            observed_at=STARTED_AT,
+        )
+
+
+def test_reject_missing_context_reference_for_context_relevance() -> None:
+    with pytest.raises(
+        ValidationError,
+        match="Context relevance requires context_reference",
+    ):
+        ConversationalDiagnosticObservation(
+            observation_id="observation-context",
+            diagnostic_session_id="diagnostic-001",
+            activity_id="activity-context",
+            dimension="motivating_context",
+            evidence_role="context_relevance",
+            description="The learner chose a motivating context.",
+            support_level="none",
+            observer_id="deterministic-diagnostic-observer",
+            observer_version="1.0",
+            observed_at=STARTED_AT,
+        )
+
+
+def test_reject_blank_context_reference_for_context_relevance() -> None:
+    with pytest.raises(
+        ValidationError,
+        match="Context relevance requires context_reference",
+    ):
+        ConversationalDiagnosticObservation(
+            observation_id="observation-context",
+            diagnostic_session_id="diagnostic-001",
+            activity_id="activity-context",
+            dimension="motivating_context",
+            evidence_role="context_relevance",
+            context_reference=" ",
+            description="The learner chose a motivating context.",
+            support_level="none",
+            observer_id="deterministic-diagnostic-observer",
+            observer_version="1.0",
+            observed_at=STARTED_AT,
+        )
+
+
+def test_reject_context_reference_for_another_evidence_role() -> None:
+    with pytest.raises(
+        ValidationError,
+        match=(
+            "Only context relevance can define "
+            "context_reference"
+        ),
+    ):
+        ConversationalDiagnosticObservation(
+            observation_id="observation-001",
+            diagnostic_session_id="diagnostic-001",
+            activity_id="activity-001",
+            production_id=1,
+            dimension="oral_production",
+            evidence_role="development_need",
+            context_reference="animals",
+            description="Produced one understandable sentence.",
+            support_level="none",
+            observer_id="deterministic-diagnostic-observer",
+            observer_version="1.0",
+            observed_at=STARTED_AT,
+        )
+
+
+def test_create_initial_conversational_profile_plan() -> None:
+    plan = InitialConversationalProfilePlan(
+        target_capacity="Build and extend one connected response.",
+        recommended_support_level="minimal",
+        recommended_method="direct-english-construction",
+        first_lesson_id="lesson-animals-001",
+        review_criterion="Respond to a new variation with less support.",
+    )
+
+    assert plan.first_lesson_id == "lesson-animals-001"
+
+
+@pytest.mark.parametrize(
+    "field_name",
+    [
+        "target_capacity",
+        "first_lesson_id",
+        "review_criterion",
+    ],
+)
+def test_reject_blank_initial_profile_plan_text_field(
+    field_name: str,
+) -> None:
+    data = {
+        "target_capacity": "Build and extend one connected response.",
+        "recommended_support_level": "minimal",
+        "recommended_method": "direct-english-construction",
+        "first_lesson_id": "lesson-animals-001",
+        "review_criterion": "Respond with less support.",
+    }
+    data[field_name] = " "
+
+    with pytest.raises(
+        ValidationError,
+        match=field_name + " cannot be blank",
+    ):
+        InitialConversationalProfilePlan(**data)
+
+
+def test_reject_unknown_initial_profile_plan_support_level() -> None:
+    with pytest.raises(ValidationError):
+        InitialConversationalProfilePlan(
+            target_capacity="Build one connected response.",
+            recommended_support_level="unknown",
+            recommended_method="direct-english-construction",
+            first_lesson_id="lesson-animals-001",
+            review_criterion="Respond with less support.",
+        )
+
+
+def test_reject_unknown_initial_profile_plan_method() -> None:
+    with pytest.raises(ValidationError):
+        InitialConversationalProfilePlan(
+            target_capacity="Build one connected response.",
+            recommended_support_level="minimal",
+            recommended_method="unknown-method",
+            first_lesson_id="lesson-animals-001",
+            review_criterion="Respond with less support.",
+        )
+
+
+def test_reject_unknown_initial_profile_method() -> None:
+    with pytest.raises(ValidationError):
+        InitialConversationalProfile(
+            profile_id="profile-001",
+            diagnostic_session_id="diagnostic-001",
+            status="confirmed",
+            priority_blockage="Needs support to expand oral responses.",
+            target_capacity="Build one connected response.",
+            recommended_support_level="minimal",
+            relevant_contexts=["animals"],
+            recommended_method="unknown-method",
+            first_lesson_id="lesson-animals-001",
+            review_criterion="Respond with less support.",
+            evidence_summary="Diagnostic observations linked.",
+            generated_at=STARTED_AT,
+            generator_id="deterministic-profile-generator",
+            generator_version="1.0",
         )
