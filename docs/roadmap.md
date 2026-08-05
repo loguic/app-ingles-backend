@@ -739,3 +739,36 @@ Límites vigentes: sin persistencia, migraciones, API, contenido piloto ni integ
 Commit técnico de la Etapa A: `6d4a52b`.
 
 Commit técnico de la Etapa B: `e4e287c`.
+
+## B178 — Sistematización profesional del método de trabajo
+
+Estado: implementación técnica y documentación completadas.
+
+B178 reduce el trabajo manual y repetitivo mediante dos herramientas:
+
+- `scripts/engineering/operational_state.py`;
+- `scripts/engineering/block_workflow.py`.
+
+Capacidades incorporadas:
+
+- validación estructural, temporal y de tamaño del checkpoint;
+- detección de estado operativo anterior al último commit;
+- resumen corto de último bloque, bloque activo y siguiente objetivo;
+- orquestación sobre `block_close.py`;
+- delegación de pruebas específicas, preflight y staging técnico;
+- interrupción temprana cuando el contexto operativo es inválido.
+
+Uso principal:
+
+`python scripts/engineering/operational_state.py summary`
+
+`python scripts/engineering/block_workflow.py --technical-preflight --specific-test <ruta>`
+
+Validación:
+
+- 8 pruebas específicas superadas;
+- 923 pruebas del backend superadas;
+- `git diff --check` limpio;
+- commit técnico `c08196d`.
+
+Los commits y el push continúan bajo confirmación humana.

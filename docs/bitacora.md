@@ -3514,3 +3514,32 @@ Validación final:
 - `git diff --check` limpio.
 
 Commit técnico: `d0004fd`.
+
+## B178 — Sistematización profesional del método de trabajo
+
+Estado: implementación técnica y documentación completadas.
+
+Problema corregido:
+
+- exceso de microinspecciones;
+- confirmaciones demasiado frecuentes;
+- recuperación de contexto dependiente de la conversación;
+- uso de la IA como generador manual de comandos;
+- duplicación potencial de automatizaciones existentes.
+
+Se convirtió `docs/estado-operativo.md` en un checkpoint compacto y se añadieron:
+
+- `scripts/engineering/operational_state.py`;
+- `scripts/engineering/block_workflow.py`;
+- `tests/test_operational_state.py`;
+- `tests/test_block_workflow.py`.
+
+El nuevo flujo valida el contexto operativo antes de delegar en `scripts/engineering/block_close.py`.
+
+Validación final:
+
+- 8 pruebas específicas;
+- 923 pruebas backend;
+- `git diff --check` limpio.
+
+Commit técnico: `c08196d`.
