@@ -3637,3 +3637,27 @@ Validación final:
 No se modificaron modelos ni migraciones. Permanecen pendientes propiedad actividad–producción, apoyos, observaciones, enlaces observación–evaluación, perfiles, evidencias e historial completo. El siguiente incremento recomendado resolverá producciones preexistentes y persistirá atómicamente propiedad y usos de apoyo.
 
 Límites: sin API, Flutter, progreso ni mastery; S2 no autoriza operaciones sobre bases reales.
+
+## B179 — Hito B, segundo incremento transaccional
+
+Estado: incremento cerrado técnicamente; Hito B permanece activo.
+
+Se añadieron `ConversationalDiagnosticActivityProductionSetup` y `ConversationalDiagnosticProductionSupportsBatch`. `ConversationalDiagnosticSessionSetup` incorpora `production_supports=[]` sin romper los agregados válidos del primer incremento.
+
+La creación inicial puede persistir sesión, contexto, actividades, propiedad actividad–producción y apoyos en una sola transacción: conserva tres `flush` de configuración y añade dos para asociaciones y apoyos. `save_conversational_diagnostic_production_supports(batch, db)` usa estos dos últimos para enriquecer una sesión existente. Ambas rutas realizan exactamente un commit y rollback integral, sin sobrescritura ni idempotencia implícita.
+
+Cada `LearnerProduction` debe existir previamente y solo se consulta. El servicio valida sesión, actividad, `prompt_id`, modalidad, propiedad exclusiva, asociaciones existentes, apoyos disponibles y secuencias de utilización y retirada, considerando también el historial previo. La recuperación es explícita, ordenada, sin lazy loading y sin commit.
+
+Validación final:
+
+- 41 pruebas específicas en 0.72 s;
+- 190 pruebas de regresión diagnóstica en 1.29 s;
+- suite backend: 1008 passed in 5.60s;
+- `operational_state.py validate`: correcto;
+- `git diff --check`: limpio;
+- revisión sin defectos accionables;
+- commit técnico: `719aa74`.
+
+No se modificaron modelos ni migraciones. Permanecen pendientes observaciones, enlaces observación–evaluación, perfiles, evidencias e historial completo consultable. El siguiente incremento recomendado persistirá observaciones y resolverá evaluaciones técnicas preexistentes.
+
+Límites: sin API, Flutter, progreso ni mastery; S2 no autoriza operaciones sobre bases reales.

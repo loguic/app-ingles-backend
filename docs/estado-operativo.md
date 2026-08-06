@@ -42,7 +42,7 @@ Hito S1 — contrato ejecutable de seguridad DevSecOps: cerrado técnicamente.
 
 Hito S2 — adaptador PostgreSQL seguro: cerrado técnicamente mediante integración aislada ejecutada en Kitty.
 
-Hito B — primer incremento transaccional: cerrado técnicamente; Hito B continúa activo.
+Hito B — incrementos 1 y 2 transaccionales: cerrados técnicamente; Hito B continúa activo.
 
 Capacidades completadas:
 
@@ -59,7 +59,8 @@ Capacidades completadas:
 - clúster PostgreSQL temporal por socket Unix bajo `/tmp`, sin servicio del sistema, puerto `5432` ni `DATABASE_URL` real;
 - backup, SHA-256, restauración separada, verificación determinista y ensayo Alembic reversible;
 - limpieza protegida por workspace administrado y marcador.
-- round-trip Pydantic–SQLAlchemy–Pydantic de sesión, contexto y actividades con rechazo de duplicados, rollback y un único commit.
+- round-trip de sesión, contexto, actividades, propiedad actividad–producción y apoyos;
+- enriquecimiento atómico sobre producciones preexistentes, sin sobrescritura ni idempotencia implícita.
 
 Validación final directa en Kitty:
 
@@ -91,12 +92,13 @@ Validación de S2:
 - commit técnico: `d0efe1e`.
 
 Validación del primer incremento de Hito B: 16 específicas, 190 de regresión, suite backend 983 passed in 5.55s, revisión sin defectos y commit `56a3d42`.
+Validación del segundo incremento: 41 específicas en 0.72 s, 190 de regresión en 1.29 s, suite backend 1008 passed in 5.60s, revisión sin defectos y commit `719aa74`.
 
 Límites vigentes:
 
 - sin API ni Flutter;
 - sin progreso ni mastery;
-- pendientes propiedad actividad–producción, apoyos, observaciones, evaluaciones, perfiles, evidencias e historial completo;
+- pendientes observaciones, enlaces con evaluaciones, perfiles, evidencias e historial completo consultable;
 - S2 no autoriza migraciones en desarrollo, staging o producción reales.
 
 ## Deuda operativa separada
@@ -123,7 +125,7 @@ Cada hito pasa por definición, implementación técnica, validación específic
 
 ## Próximo objetivo
 
-B179 Hito B — ampliar la transacción con propiedad actividad–producción y usos de apoyo sobre producciones preexistentes.
+B179 Hito B — persistir observaciones diagnósticas y resolver sus evaluaciones técnicas preexistentes, conservando las fronteras de dominio.
 
 Toda futura aplicación sobre entornos reales requerirá una autorización y controles adicionales fuera de S2.
 

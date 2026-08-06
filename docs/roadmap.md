@@ -843,7 +843,7 @@ Validación:
 
 S2 no autoriza migraciones sobre desarrollo, staging o producción reales. Siguiente objetivo funcional de B179: Hito B, persistencia transaccional e historial consultable.
 
-### Hito B — primer incremento transaccional
+### Hito B — persistencia transaccional incremental
 
 Estado: incremento cerrado técnicamente; Hito B continúa activo.
 
@@ -853,6 +853,12 @@ La escritura valida antes del primer `add`, rechaza duplicados sin idempotencia 
 
 Validación: 16 pruebas específicas, 190 de regresión diagnóstica, suite backend 983 passed in 5.55s, `operational_state.py validate` correcto, `git diff --check` limpio, revisión sin defectos accionables y commit `56a3d42`.
 
-Pendiente: propiedad actividad–producción, apoyos, observaciones, enlaces con evaluaciones, perfiles, evidencias e historial completo. Siguiente incremento recomendado: resolver producciones preexistentes y persistir atómicamente propiedad actividad–producción y usos de apoyo.
+El segundo incremento añadió `ConversationalDiagnosticActivityProductionSetup`, `ConversationalDiagnosticProductionSupportsBatch` y `production_supports=[]` al agregado existente. Permite persistir propiedad actividad–producción y apoyos durante la creación o enriquecer después una sesión mediante `save_conversational_diagnostic_production_supports(batch, db)`.
+
+Las producciones deben existir previamente y solo se consultan. La escritura valida sesión, actividad, `prompt_id`, modalidad, propiedad exclusiva, asociaciones existentes y la secuencia histórica de apoyos; rechaza sobrescritura e idempotencia implícita. La creación conserva sus tres `flush` de configuración y añade dos para asociaciones y apoyos; el enriquecimiento usa estos dos últimos. Ambas rutas realizan exactamente un commit y rollback integral. La lectura recupera todo explícitamente, en orden estable, sin lazy loading ni commit.
+
+Validación del segundo incremento: 41 pruebas específicas en 0.72 s, 190 de regresión diagnóstica en 1.29 s, suite backend 1008 passed in 5.60s, `operational_state.py validate` correcto, `git diff --check` limpio, revisión sin defectos accionables y commit `719aa74`. No se modificaron modelos ni migraciones.
+
+Pendiente: observaciones, enlaces observación–evaluación, perfiles, evidencias e historial completo consultable. Siguiente incremento recomendado: persistir observaciones y resolver sus evaluaciones técnicas preexistentes sin mezclar evaluación técnica con interpretación diagnóstica.
 
 Límites: sin API, Flutter, progreso ni mastery. S2 no autoriza bases reales.

@@ -156,7 +156,7 @@ Los perfiles se conservan como historial acumulativo y revisable, sin sobrescrit
 
 La revisión Alembic `3c4f1a2b7d90` dispone de `upgrade` y `downgrade`, ambos validados en una base aislada.
 
-## B179 — Hito B: primer incremento transaccional
+## B179 — Hito B: persistencia transaccional incremental
 
 `ConversationalDiagnosticSessionSetup` agrega sesión, contexto y actividades usando los contratos Pydantic existentes. `save_conversational_diagnostic_session_setup` valida el agregado antes del primer `add`, rechaza identificadores existentes sin idempotencia ni sobrescritura, ejecuta tres `flush`, un único `commit` y rollback ante errores esperados o inesperados.
 
@@ -164,9 +164,17 @@ La revisión Alembic `3c4f1a2b7d90` dispone de `upgrade` y `downgrade`, ambos va
 
 Validación confirmada: 16 pruebas específicas, 190 pruebas de regresión diagnóstica, suite backend de 983 pruebas y commit técnico `56a3d42`.
 
+El segundo incremento amplía el agregado con `production_supports=[]`, conservando compatibilidad con configuraciones del primer incremento. `ConversationalDiagnosticActivityProductionSetup` referencia una producción preexistente y sus usos de apoyo; `ConversationalDiagnosticProductionSupportsBatch` agrupa asociaciones nuevas para enriquecer una sesión ya persistida.
+
+`save_conversational_diagnostic_session_setup` puede crear la configuración, la propiedad actividad–producción y sus apoyos en una única transacción: conserva los tres `flush` de configuración y añade dos para asociaciones y apoyos. `save_conversational_diagnostic_production_supports(batch, db)` usa estos dos últimos al enriquecer una sesión. Ambas rutas ejecutan exactamente un commit y rollback integral, sin sobrescritura ni idempotencia implícita.
+
+`LearnerProduction` debe existir previamente y solo se consulta. La validación reconstruye desde persistencia su `prompt_id` y modalidad, exige compatibilidad de sesión y actividad, protege la propiedad exclusiva y reutiliza las reglas canónicas de apoyos disponibles, utilizados y retirados, incluido el historial previo. La recuperación es explícita, estable y no usa lazy loading ni commit.
+
+Validación confirmada: 41 pruebas específicas en 0.72 s, 190 de regresión diagnóstica en 1.29 s, suite backend de 1008 pruebas en 5.60 s, revisión sin defectos accionables y commit técnico `719aa74`. No se modificaron modelos ni migraciones.
+
 ## Límites vigentes
 
-Hito B continúa activo. Todavía no persiste propiedad actividad–producción, apoyos, observaciones, enlaces con evaluaciones, perfiles, evidencias de perfil ni historial completo. No incluye API, Flutter, progreso o mastery.
+Hito B continúa activo. Todavía no persiste observaciones, enlaces con evaluaciones, perfiles, evidencias de perfil ni el historial completo consultable. No incluye API, Flutter, progreso o mastery. El siguiente incremento incorporará observaciones diagnósticas y sus referencias a evaluaciones técnicas preexistentes.
 
 ## Validación confirmada de la Etapa B
 
