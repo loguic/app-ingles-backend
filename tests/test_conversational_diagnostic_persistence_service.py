@@ -19,6 +19,7 @@ from app.db.models import (
     LearnerProduction as LearnerProductionModel,
     ProductionEvaluationResult as EvaluationResultModel,
     InitialConversationalProfile as InitialProfileModel,
+    InitialConversationalProfileEvidence as ProfileEvidenceModel,
 )
 from app.schemas.conversational_diagnostic import (
     ConversationalDiagnosticActivity,
@@ -26,13 +27,17 @@ from app.schemas.conversational_diagnostic import (
     ConversationalDiagnosticObservation,
     ConversationalDiagnosticSession,
     DiagnosticSupportUsage,
+    InitialConversationalProfile,
+    InitialConversationalProfileEvidence,
 )
 from app.schemas.conversational_diagnostic_persistence import (
     ConversationalDiagnosticActivityProductionSetup,
     ConversationalDiagnosticObservationsBatch,
     ConversationalDiagnosticProductionSupportsBatch,
+    ConversationalDiagnosticProfilesBatch,
     ConversationalDiagnosticSessionTransition,
     ConversationalDiagnosticSessionSetup,
+    InitialConversationalProfileSetup,
 )
 from app.services.conversational_diagnostic_persistence_service import (
     ConversationalDiagnosticPersistenceError,
@@ -42,6 +47,7 @@ from app.services.conversational_diagnostic_persistence_service import (
     get_conversational_diagnostic_session_setup,
     save_conversational_diagnostic_observations,
     save_conversational_diagnostic_production_supports,
+    save_conversational_diagnostic_profiles,
     save_conversational_diagnostic_session_setup,
     transition_conversational_diagnostic_session,
 )
@@ -1811,3 +1817,489 @@ def test_transition_commit_failure_rolls_back_state(db, monkeypatch):
     persisted = db.query(SessionModel).one()
     assert persisted.status == "in_progress"
     assert persisted.completed_at is None
+
+
+def build_initial_profile(
+    *,
+    profile_id="profile-one",
+    session_id="session-one",
+    status="provisional",
+    generated_at=STARTED_AT,
+    first_lesson_id="lesson-generated-one",
+):
+    return InitialConversationalProfile(
+        profile_id=profile_id,
+        diagnostic_session_id=session_id,
+        status=status,
+        priority_blockage="Needs support to initiate responses",
+        target_capacity="Initiate short conversational responses",
+        recommended_support_level="minimal",
+        relevant_contexts=["travel"],
+        recommended_method="direct-english-construction",
+        first_lesson_id=first_lesson_id,
+        review_criterion="Review after three independent responses",
+        evidence_summary="Diagnostic evidence supports this initial plan",
+        generated_at=generated_at,
+        generator_id="initial-profile-generator",
+        generator_version="1.0",
+    )
+
+
+def build_profile_setup(profile, observation_ids):
+    return InitialConversationalProfileSetup(
+        profile=profile,
+        evidences=[
+            InitialConversationalProfileEvidence(
+                profile_id=profile.profile_id,
+                observation_id=observation_id,
+            )
+            for observation_id in observation_ids
+        ],
+    )
+
+
+def persist_provisional_profile_session(db):
+    setup = build_setup().model_copy(
+        update={"observations": [build_observation()]}
+    )
+    save_conversational_diagnostic_session_setup(setup, db)
+    transition_conversational_diagnostic_session(
+        build_transition("provisional"),
+        db,
+    )
+    return setup
+
+
+def persist_completed_profile_session(db):
+    setup = build_completed_transition_setup()
+    save_conversational_diagnostic_session_setup(setup, db)
+    transition_conversational_diagnostic_session(
+        build_transition("completed"),
+        db,
+    )
+    return setup
+
+
+def test_profile_contracts_preserve_previous_aggregate_compatibility():
+    setup = build_setup()
+
+    assert setup.profiles == []
+
+
+def test_initial_session_creation_rejects_profiles(db):
+    setup = build_setup().model_copy(
+        update={
+            "profiles": [
+                build_profile_setup(
+                    build_initial_profile(),
+                    ["observation-one"],
+                )
+            ]
+        }
+    )
+
+    with pytest.raises(DiagnosticPersistenceInvariantError) as captured:
+        save_conversational_diagnostic_session_setup(setup, db)
+
+    assert "transitioned" in str(captured.value.__cause__)
+    assert db.query(SessionModel).count() == 0
+
+
+def test_appends_provisional_profile_and_round_trips_exactly(db):
+    persist_provisional_profile_session(db)
+    profile = build_initial_profile(first_lesson_id="catalog-not-consulted")
+    batch = ConversationalDiagnosticProfilesBatch(
+        diagnostic_session_id="session-one",
+        profiles=[build_profile_setup(profile, ["observation-one"])],
+    )
+
+    saved = save_conversational_diagnostic_profiles(batch, db)
+    loaded = get_conversational_diagnostic_session_setup("session-one", db)
+
+    assert saved.profiles == batch.profiles
+    assert loaded.profiles == batch.profiles
+    assert loaded.profiles[0].profile == profile
+    assert loaded.profiles[0].profile.first_lesson_id == "catalog-not-consulted"
+    assert db.query(ObservationModel).count() == 1
+    assert db.query(SessionModel).one().status == "provisional"
+
+
+def test_profile_enrichment_rejects_missing_session(db):
+    batch = ConversationalDiagnosticProfilesBatch(
+        diagnostic_session_id="session-one",
+        profiles=[
+            build_profile_setup(
+                build_initial_profile(),
+                ["observation-one"],
+            )
+        ],
+    )
+
+    with pytest.raises(DiagnosticReferenceNotFoundError):
+        save_conversational_diagnostic_profiles(batch, db)
+
+    assert db.query(InitialProfileModel).count() == 0
+
+
+def test_appends_confirmed_profile_with_complete_evidence(db):
+    setup = persist_completed_profile_session(db)
+    profile = build_initial_profile(status="confirmed")
+    observation_ids = [
+        observation.observation_id
+        for observation in reversed(setup.observations)
+    ]
+    batch = ConversationalDiagnosticProfilesBatch(
+        diagnostic_session_id="session-one",
+        profiles=[build_profile_setup(profile, observation_ids)],
+    )
+
+    saved = save_conversational_diagnostic_profiles(batch, db)
+
+    expected_order = [
+        observation.observation_id for observation in setup.observations
+    ]
+    assert [
+        evidence.observation_id for evidence in saved.profiles[0].evidences
+    ] == expected_order
+    assert saved.profiles[0].profile == profile
+
+
+@pytest.mark.parametrize(
+    ("session_status", "profile_status"),
+    [
+        ("in_progress", "provisional"),
+        ("cancelled", "provisional"),
+        ("provisional", "confirmed"),
+        ("completed", "provisional"),
+    ],
+)
+def test_rejects_profile_incompatible_with_persisted_session_status(
+    db,
+    session_status,
+    profile_status,
+):
+    if session_status == "completed":
+        setup = persist_completed_profile_session(db)
+    else:
+        setup = build_setup().model_copy(
+            update={"observations": [build_observation()]}
+        )
+        save_conversational_diagnostic_session_setup(setup, db)
+        if session_status != "in_progress":
+            transition_conversational_diagnostic_session(
+                build_transition(session_status),
+                db,
+            )
+    batch = ConversationalDiagnosticProfilesBatch(
+        diagnostic_session_id="session-one",
+        profiles=[
+            build_profile_setup(
+                build_initial_profile(status=profile_status),
+                [setup.observations[0].observation_id],
+            )
+        ],
+    )
+
+    with pytest.raises(DiagnosticPersistenceInvariantError) as captured:
+        save_conversational_diagnostic_profiles(batch, db)
+
+    assert captured.value.__cause__ is not None
+    assert db.query(InitialProfileModel).count() == 0
+
+
+def test_profiles_are_append_only_and_can_share_observation(db):
+    persist_provisional_profile_session(db)
+    first = build_profile_setup(
+        build_initial_profile(profile_id="profile-b"),
+        ["observation-one"],
+    )
+    second = build_profile_setup(
+        build_initial_profile(
+            profile_id="profile-a",
+            generated_at=STARTED_AT.replace(hour=11),
+        ),
+        ["observation-one"],
+    )
+
+    save_conversational_diagnostic_profiles(
+        ConversationalDiagnosticProfilesBatch(
+            diagnostic_session_id="session-one",
+            profiles=[first],
+        ),
+        db,
+    )
+    saved = save_conversational_diagnostic_profiles(
+        ConversationalDiagnosticProfilesBatch(
+            diagnostic_session_id="session-one",
+            profiles=[second],
+        ),
+        db,
+    )
+
+    assert [item.profile.profile_id for item in saved.profiles] == [
+        "profile-b",
+        "profile-a",
+    ]
+    assert db.query(InitialProfileModel).count() == 2
+    assert db.query(ProfileEvidenceModel).count() == 2
+
+    with pytest.raises(DiagnosticPersistenceInvariantError):
+        save_conversational_diagnostic_profiles(
+            ConversationalDiagnosticProfilesBatch(
+                diagnostic_session_id="session-one",
+                profiles=[first],
+            ),
+            db,
+        )
+    assert db.query(InitialProfileModel).count() == 2
+
+
+def test_profiles_with_same_timestamp_are_recovered_by_profile_id(db):
+    persist_provisional_profile_session(db)
+    profile_b = build_profile_setup(
+        build_initial_profile(profile_id="profile-b"),
+        ["observation-one"],
+    )
+    profile_a = build_profile_setup(
+        build_initial_profile(profile_id="profile-a"),
+        ["observation-one"],
+    )
+
+    saved = save_conversational_diagnostic_profiles(
+        ConversationalDiagnosticProfilesBatch(
+            diagnostic_session_id="session-one",
+            profiles=[profile_b, profile_a],
+        ),
+        db,
+    )
+
+    assert [item.profile.profile_id for item in saved.profiles] == [
+        "profile-a",
+        "profile-b",
+    ]
+
+
+def test_profile_batch_rejects_duplicate_profile_and_evidence_ids():
+    profile = build_initial_profile()
+    item = build_profile_setup(profile, ["observation-one"])
+
+    with pytest.raises(ValidationError):
+        ConversationalDiagnosticProfilesBatch(
+            diagnostic_session_id="session-one",
+            profiles=[item, item],
+        )
+    with pytest.raises(ValidationError):
+        InitialConversationalProfileSetup(
+            profile=profile,
+            evidences=[
+                InitialConversationalProfileEvidence(
+                    profile_id=profile.profile_id,
+                    observation_id="observation-one",
+                ),
+                InitialConversationalProfileEvidence(
+                    profile_id=profile.profile_id,
+                    observation_id="observation-one",
+                ),
+            ],
+        )
+
+
+def test_profile_contract_rejects_empty_or_crossed_evidence():
+    profile = build_initial_profile()
+
+    with pytest.raises(ValidationError):
+        InitialConversationalProfileSetup(profile=profile, evidences=[])
+    with pytest.raises(ValidationError):
+        InitialConversationalProfileSetup(
+            profile=profile,
+            evidences=[
+                InitialConversationalProfileEvidence(
+                    profile_id="profile-other",
+                    observation_id="observation-one",
+                )
+            ],
+        )
+
+
+def test_profile_rejects_missing_and_cross_session_observations(db):
+    persist_provisional_profile_session(db)
+    missing_batch = ConversationalDiagnosticProfilesBatch(
+        diagnostic_session_id="session-one",
+        profiles=[
+            build_profile_setup(
+                build_initial_profile(),
+                ["observation-missing"],
+            )
+        ],
+    )
+    with pytest.raises(DiagnosticReferenceNotFoundError):
+        save_conversational_diagnostic_profiles(missing_batch, db)
+
+    other = build_setup("two").model_copy(
+        update={
+            "observations": [
+                build_observation(
+                    observation_id="observation-two",
+                    session_id="session-two",
+                    activity_id="activity-two-1",
+                )
+            ]
+        }
+    )
+    save_conversational_diagnostic_session_setup(other, db)
+    crossed_batch = missing_batch.model_copy(
+        update={
+            "profiles": [
+                build_profile_setup(
+                    build_initial_profile(profile_id="profile-crossed"),
+                    ["observation-two"],
+                )
+            ]
+        }
+    )
+    with pytest.raises(DiagnosticPersistenceInvariantError) as captured:
+        save_conversational_diagnostic_profiles(crossed_batch, db)
+
+    assert captured.value.__cause__ is not None
+    assert db.query(InitialProfileModel).count() == 0
+
+
+def test_confirmed_profile_rejects_incomplete_evidence(db):
+    setup = persist_completed_profile_session(db)
+    batch = ConversationalDiagnosticProfilesBatch(
+        diagnostic_session_id="session-one",
+        profiles=[
+            build_profile_setup(
+                build_initial_profile(status="confirmed"),
+                [setup.observations[0].observation_id],
+            )
+        ],
+    )
+
+    with pytest.raises(DiagnosticPersistenceInvariantError) as captured:
+        save_conversational_diagnostic_profiles(batch, db)
+
+    assert "Confirmed profile" in str(captured.value.__cause__)
+    assert db.query(InitialProfileModel).count() == 0
+
+
+def test_profile_write_commits_exactly_once(db, monkeypatch):
+    persist_provisional_profile_session(db)
+    commits = 0
+    original_commit = db.commit
+
+    def counted_commit():
+        nonlocal commits
+        commits += 1
+        return original_commit()
+
+    monkeypatch.setattr(db, "commit", counted_commit)
+    save_conversational_diagnostic_profiles(
+        ConversationalDiagnosticProfilesBatch(
+            diagnostic_session_id="session-one",
+            profiles=[
+                build_profile_setup(
+                    build_initial_profile(),
+                    ["observation-one"],
+                )
+            ],
+        ),
+        db,
+    )
+
+    assert commits == 1
+
+
+@pytest.mark.parametrize("failing_flush_call", [1, 2])
+def test_profile_flush_failure_rolls_back_profiles_and_evidence(
+    db,
+    monkeypatch,
+    failing_flush_call,
+):
+    persist_provisional_profile_session(db)
+    calls = 0
+    original_flush = db.flush
+
+    def failing_flush(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        if calls == failing_flush_call:
+            raise SQLAlchemyError("injected profile flush failure")
+        return original_flush(*args, **kwargs)
+
+    monkeypatch.setattr(db, "flush", failing_flush)
+    batch = ConversationalDiagnosticProfilesBatch(
+        diagnostic_session_id="session-one",
+        profiles=[
+            build_profile_setup(
+                build_initial_profile(),
+                ["observation-one"],
+            )
+        ],
+    )
+
+    with pytest.raises(ConversationalDiagnosticPersistenceError) as captured:
+        save_conversational_diagnostic_profiles(batch, db)
+
+    assert isinstance(captured.value.__cause__, SQLAlchemyError)
+    assert db.query(InitialProfileModel).count() == 0
+    assert db.query(ProfileEvidenceModel).count() == 0
+
+
+def test_profile_commit_failure_rolls_back_without_mutating_history(
+    db,
+    monkeypatch,
+):
+    persist_provisional_profile_session(db)
+
+    def failing_commit():
+        raise SQLAlchemyError("injected profile commit failure")
+
+    monkeypatch.setattr(db, "commit", failing_commit)
+    batch = ConversationalDiagnosticProfilesBatch(
+        diagnostic_session_id="session-one",
+        profiles=[
+            build_profile_setup(
+                build_initial_profile(),
+                ["observation-one"],
+            )
+        ],
+    )
+
+    with pytest.raises(ConversationalDiagnosticPersistenceError):
+        save_conversational_diagnostic_profiles(batch, db)
+
+    assert db.query(InitialProfileModel).count() == 0
+    assert db.query(ProfileEvidenceModel).count() == 0
+    assert db.query(ObservationModel).one().description == (
+        "Observable diagnostic evidence"
+    )
+    assert db.query(SessionModel).one().status == "provisional"
+
+
+def test_get_with_profiles_does_not_commit_or_use_lazy_loading(
+    db,
+    monkeypatch,
+):
+    persist_provisional_profile_session(db)
+    batch = ConversationalDiagnosticProfilesBatch(
+        diagnostic_session_id="session-one",
+        profiles=[
+            build_profile_setup(
+                build_initial_profile(),
+                ["observation-one"],
+            )
+        ],
+    )
+    save_conversational_diagnostic_profiles(batch, db)
+
+    def forbidden_commit():
+        raise AssertionError("get must not commit")
+
+    monkeypatch.setattr(db, "commit", forbidden_commit)
+    loaded = get_conversational_diagnostic_session_setup("session-one", db)
+    db.expunge_all()
+
+    assert loaded.profiles == batch.profiles
+    assert not hasattr(loaded.profiles[0].profile, "progress")
+    assert not hasattr(loaded.profiles[0].profile, "mastery")

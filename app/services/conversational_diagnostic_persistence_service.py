@@ -9,6 +9,8 @@ from app.db.models import (
     ConversationalDiagnosticObservationEvaluation as ObservationEvaluationModel,
     ConversationalDiagnosticSession as SessionModel,
     ConversationalDiagnosticSupportUsage as SupportUsageModel,
+    InitialConversationalProfile as InitialProfileModel,
+    InitialConversationalProfileEvidence as ProfileEvidenceModel,
     LearnerProduction as LearnerProductionModel,
     ProductionEvaluationResult as EvaluationResultModel,
 )
@@ -20,13 +22,17 @@ from app.schemas.conversational_diagnostic import (
     ConversationalDiagnosticObservation,
     ConversationalDiagnosticSession,
     DiagnosticSupportUsage,
+    InitialConversationalProfile,
+    InitialConversationalProfileEvidence,
 )
 from app.schemas.conversational_diagnostic_persistence import (
     ConversationalDiagnosticActivityProductionSetup,
     ConversationalDiagnosticObservationsBatch,
     ConversationalDiagnosticProductionSupportsBatch,
+    ConversationalDiagnosticProfilesBatch,
     ConversationalDiagnosticSessionTransition,
     ConversationalDiagnosticSessionSetup,
+    InitialConversationalProfileSetup,
 )
 from app.services.conversational_diagnostic_validation_service import (
     validate_diagnostic_activity_production,
@@ -40,6 +46,7 @@ from app.services.conversational_diagnostic_validation_service import (
     validate_diagnostic_session_context,
     validate_diagnostic_session_status_transition,
     validate_diagnostic_support_sequence,
+    validate_initial_profile_evidence,
 )
 
 
@@ -84,6 +91,10 @@ def _validate_setup(setup: ConversationalDiagnosticSessionSetup) -> None:
     ):
         raise ValueError(
             "New diagnostic sessions must start in progress"
+        )
+    if setup.profiles:
+        raise ValueError(
+            "Initial profiles require a transitioned diagnostic session"
         )
     validate_diagnostic_session_context(setup.session, setup.context)
     validate_diagnostic_activity_sequence(setup.session, setup.activities)
@@ -159,6 +170,8 @@ def _build_setup(
     usages: list[SupportUsageModel],
     observations: list[ObservationModel],
     observation_evaluations: list[ObservationEvaluationModel],
+    profiles: list[InitialProfileModel],
+    profile_evidences: list[ProfileEvidenceModel],
 ) -> ConversationalDiagnosticSessionSetup:
     """Reconstruct contracts without retaining ORM-backed state.
 
@@ -204,6 +217,35 @@ def _build_setup(
             )
             for observation in observations
         ],
+        profiles=[
+            InitialConversationalProfileSetup(
+                profile=InitialConversationalProfile(
+                    profile_id=profile.profile_id,
+                    diagnostic_session_id=profile.diagnostic_session_id,
+                    status=profile.status,
+                    priority_blockage=profile.priority_blockage,
+                    target_capacity=profile.target_capacity,
+                    recommended_support_level=profile.recommended_support_level,
+                    relevant_contexts=list(profile.relevant_contexts),
+                    recommended_method=profile.recommended_method,
+                    first_lesson_id=profile.first_lesson_id,
+                    review_criterion=profile.review_criterion,
+                    evidence_summary=profile.evidence_summary,
+                    generated_at=profile.generated_at,
+                    generator_id=profile.generator_id,
+                    generator_version=profile.generator_version,
+                ),
+                evidences=[
+                    InitialConversationalProfileEvidence(
+                        profile_id=evidence.profile_id,
+                        observation_id=evidence.observation_id,
+                    )
+                    for evidence in profile_evidences
+                    if evidence.profile_id == profile.profile_id
+                ],
+            )
+            for profile in profiles
+        ],
     )
 
 
@@ -218,6 +260,8 @@ def _load_setup_models(
     list[SupportUsageModel],
     list[ObservationModel],
     list[ObservationEvaluationModel],
+    list[InitialProfileModel],
+    list[ProfileEvidenceModel],
 ]:
     session = (
         db.query(SessionModel)
@@ -336,6 +380,51 @@ def _load_setup_models(
         )
         .all()
     )
+    profiles = (
+        db.query(InitialProfileModel)
+        .filter(
+            InitialProfileModel.diagnostic_session_id == diagnostic_session_id
+        )
+        .order_by(
+            InitialProfileModel.generated_at.asc(),
+            InitialProfileModel.profile_id.asc(),
+        )
+        .all()
+    )
+    profile_evidences = (
+        db.query(ProfileEvidenceModel)
+        .join(
+            ObservationModel,
+            (
+                ObservationModel.diagnostic_session_id
+                == ProfileEvidenceModel.diagnostic_session_id
+            )
+            & (
+                ObservationModel.observation_id
+                == ProfileEvidenceModel.observation_id
+            ),
+        )
+        .join(
+            ActivityModel,
+            (
+                ActivityModel.diagnostic_session_id
+                == ObservationModel.diagnostic_session_id
+            )
+            & (ActivityModel.activity_id == ObservationModel.activity_id),
+        )
+        .filter(
+            ProfileEvidenceModel.diagnostic_session_id
+            == diagnostic_session_id
+        )
+        .order_by(
+            ProfileEvidenceModel.profile_id.asc(),
+            ActivityModel.sequence_order.asc(),
+            ObservationModel.activity_id.asc(),
+            ObservationModel.observed_at.asc(),
+            ObservationModel.observation_id.asc(),
+        )
+        .all()
+    )
     return (
         session,
         context,
@@ -344,6 +433,8 @@ def _load_setup_models(
         usages,
         observations,
         observation_evaluations,
+        profiles,
+        profile_evidences,
     )
 
 
@@ -898,6 +989,8 @@ def save_conversational_diagnostic_production_supports(
             _usages,
             _observations,
             _observation_evaluations,
+            _profiles,
+            _profile_evidences,
         ) = _load_setup_models(batch.diagnostic_session_id, db)
         session = _session_contract(session_model)
         activities = [
@@ -963,6 +1056,8 @@ def save_conversational_diagnostic_observations(
             usage_models,
             _observations,
             _observation_evaluations,
+            _profiles,
+            _profile_evidences,
         ) = _load_setup_models(batch.diagnostic_session_id, db)
         session = _session_contract(session_model)
         context = _context_contract(context_model)
@@ -1008,6 +1103,235 @@ def save_conversational_diagnostic_observations(
         db.rollback()
         raise ConversationalDiagnosticPersistenceError(
             "Diagnostic observation batch could not be persisted"
+        ) from exc
+    except Exception:
+        db.rollback()
+        raise
+
+
+def _prepare_profiles(
+    session: ConversationalDiagnosticSession,
+    activities: list[ConversationalDiagnosticActivity],
+    observations: list[ConversationalDiagnosticObservation],
+    profile_setups: list[InitialConversationalProfileSetup],
+    db: Session,
+) -> list[InitialConversationalProfileSetup]:
+    """Resolve immutable evidence and validate profiles before insertion.
+
+    Resuelve evidencias inmutables y valida perfiles antes de insertarlos.
+    """
+    if not profile_setups:
+        raise ValueError("Initial profile batch cannot be empty")
+    profile_ids = [item.profile.profile_id for item in profile_setups]
+    if len(profile_ids) != len(set(profile_ids)):
+        raise ValueError("Initial profiles must have unique identifiers")
+
+    existing_profile = (
+        db.query(InitialProfileModel.profile_id)
+        .filter(InitialProfileModel.profile_id.in_(profile_ids))
+        .first()
+    )
+    if existing_profile is not None:
+        raise DiagnosticPersistenceInvariantError(
+            "Initial profile identifier already exists"
+        )
+
+    evidence_observation_ids = {
+        evidence.observation_id
+        for item in profile_setups
+        for evidence in item.evidences
+    }
+    evidence_observations = (
+        db.query(ObservationModel)
+        .filter(ObservationModel.observation_id.in_(evidence_observation_ids))
+        .all()
+        if evidence_observation_ids
+        else []
+    )
+    evidence_observation_by_id = {
+        observation.observation_id: observation
+        for observation in evidence_observations
+    }
+    if evidence_observation_ids - set(evidence_observation_by_id):
+        raise DiagnosticReferenceNotFoundError(
+            "Referenced diagnostic observation does not exist"
+        )
+    if any(
+        observation.diagnostic_session_id
+        != session.diagnostic_session_id
+        for observation in evidence_observations
+    ):
+        raise ValueError(
+            "Initial profile evidence belongs to another session"
+        )
+
+    observation_by_id = {
+        observation.observation_id: observation
+        for observation in observations
+    }
+    for item in profile_setups:
+        if (
+            item.profile.diagnostic_session_id
+            != session.diagnostic_session_id
+        ):
+            raise ValueError(
+                "Initial profile must belong to the diagnostic session"
+            )
+        evidence_ids = [
+            evidence.observation_id for evidence in item.evidences
+        ]
+        if not evidence_ids:
+            raise ValueError(
+                "Initial conversational profile requires evidence"
+            )
+        if len(evidence_ids) != len(set(evidence_ids)):
+            raise ValueError("Profile evidence cannot repeat observations")
+        if any(
+            evidence.profile_id != item.profile.profile_id
+            for evidence in item.evidences
+        ):
+            raise ValueError(
+                "Profile evidence must reference the initial profile"
+            )
+        linked_observations = [
+            observation_by_id[observation_id]
+            for observation_id in evidence_ids
+        ]
+        validate_initial_profile_evidence(
+            session,
+            item.profile,
+            activities,
+            linked_observations,
+            item.evidences,
+        )
+
+    return sorted(
+        profile_setups,
+        key=lambda item: (
+            item.profile.generated_at.isoformat(),
+            item.profile.profile_id,
+        ),
+    )
+
+
+def _add_profiles(
+    profile_setups: list[InitialConversationalProfileSetup],
+    activities: list[ConversationalDiagnosticActivity],
+    observations: list[ConversationalDiagnosticObservation],
+    db: Session,
+) -> None:
+    """Append profiles and immutable evidence links in stable order.
+
+    Añade perfiles y enlaces de evidencia inmutables en orden estable.
+    """
+    for item in profile_setups:
+        profile = item.profile
+        db.add(
+            InitialProfileModel(
+                profile_id=profile.profile_id,
+                diagnostic_session_id=profile.diagnostic_session_id,
+                status=profile.status,
+                priority_blockage=profile.priority_blockage,
+                target_capacity=profile.target_capacity,
+                recommended_support_level=profile.recommended_support_level,
+                relevant_contexts=list(profile.relevant_contexts),
+                recommended_method=profile.recommended_method,
+                first_lesson_id=profile.first_lesson_id,
+                review_criterion=profile.review_criterion,
+                evidence_summary=profile.evidence_summary,
+                generated_at=profile.generated_at,
+                generator_id=profile.generator_id,
+                generator_version=profile.generator_version,
+            )
+        )
+    if profile_setups:
+        db.flush()
+
+    activity_order = {
+        activity.activity_id: activity.sequence_order
+        for activity in activities
+    }
+    observation_by_id = {
+        observation.observation_id: observation
+        for observation in observations
+    }
+    evidence_rows = [
+        (item.profile, evidence)
+        for item in profile_setups
+        for evidence in item.evidences
+    ]
+    evidence_rows.sort(
+        key=lambda row: (
+            row[0].generated_at.isoformat(),
+            row[0].profile_id,
+            activity_order[observation_by_id[row[1].observation_id].activity_id],
+            observation_by_id[row[1].observation_id].activity_id,
+            observation_by_id[row[1].observation_id].observed_at.isoformat(),
+            row[1].observation_id,
+        )
+    )
+    for profile, evidence in evidence_rows:
+        db.add(
+            ProfileEvidenceModel(
+                diagnostic_session_id=profile.diagnostic_session_id,
+                profile_id=profile.profile_id,
+                observation_id=evidence.observation_id,
+            )
+        )
+    if profile_setups:
+        db.flush()
+
+
+def save_conversational_diagnostic_profiles(
+    batch: ConversationalDiagnosticProfilesBatch,
+    db: Session,
+) -> ConversationalDiagnosticSessionSetup:
+    """Append generated profiles and their evidence in one transaction.
+
+    Añade perfiles generados y sus evidencias en una transacción.
+    """
+    try:
+        loaded_models = _load_setup_models(batch.diagnostic_session_id, db)
+        persisted_setup = _build_setup(*loaded_models)
+        with db.no_autoflush:
+            prepared_profiles = _prepare_profiles(
+                persisted_setup.session,
+                persisted_setup.activities,
+                persisted_setup.observations,
+                batch.profiles,
+                db,
+            )
+        _add_profiles(
+            prepared_profiles,
+            persisted_setup.activities,
+            persisted_setup.observations,
+            db,
+        )
+        persisted = _build_setup(
+            *_load_setup_models(batch.diagnostic_session_id, db)
+        )
+        db.commit()
+        return persisted
+    except (
+        DiagnosticReferenceNotFoundError,
+        DiagnosticPersistenceInvariantError,
+    ):
+        db.rollback()
+        raise
+    except ValueError as exc:
+        db.rollback()
+        raise DiagnosticPersistenceInvariantError(
+            "Initial profile batch violates a persistence invariant"
+        ) from exc
+    except IntegrityError as exc:
+        db.rollback()
+        raise DiagnosticPersistenceInvariantError(
+            "Initial profile batch conflicts with persisted data"
+        ) from exc
+    except SQLAlchemyError as exc:
+        db.rollback()
+        raise ConversationalDiagnosticPersistenceError(
+            "Initial profile batch could not be persisted"
         ) from exc
     except Exception:
         db.rollback()

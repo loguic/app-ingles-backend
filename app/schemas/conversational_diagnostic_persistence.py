@@ -9,6 +9,8 @@ from app.schemas.conversational_diagnostic import (
     ConversationalDiagnosticSession,
     DiagnosticSessionStatus,
     DiagnosticSupportUsage,
+    InitialConversationalProfile,
+    InitialConversationalProfileEvidence,
 )
 from app.services.conversational_diagnostic_validation_service import (
     validate_diagnostic_activity_context,
@@ -38,6 +40,64 @@ class ConversationalDiagnosticSessionTransition(BaseModel):
         validate_diagnostic_session_status_transition(
             self.expected_current_status,
             self.target_status,
+        )
+        return self
+
+
+class InitialConversationalProfileSetup(BaseModel):
+    """Group one generated profile with its immutable evidence links.
+
+    Agrupa un perfil generado con sus enlaces de evidencia inmutables.
+    """
+
+    profile: InitialConversationalProfile
+    evidences: list[InitialConversationalProfileEvidence] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_evidences(self) -> "InitialConversationalProfileSetup":
+        observation_ids: set[str] = set()
+        for evidence in self.evidences:
+            if evidence.profile_id != self.profile.profile_id:
+                raise ValueError(
+                    "Profile evidence must reference its initial profile"
+                )
+            if evidence.observation_id in observation_ids:
+                raise ValueError(
+                    "Profile evidence cannot repeat observations"
+                )
+            observation_ids.add(evidence.observation_id)
+        return self
+
+
+def _validate_profile_collection(
+    diagnostic_session_id: str,
+    profiles: list[InitialConversationalProfileSetup],
+) -> None:
+    profile_ids: set[str] = set()
+    for item in profiles:
+        if item.profile.diagnostic_session_id != diagnostic_session_id:
+            raise ValueError(
+                "Initial profile must belong to the aggregate session"
+            )
+        if item.profile.profile_id in profile_ids:
+            raise ValueError("Initial profiles must have unique identifiers")
+        profile_ids.add(item.profile.profile_id)
+
+
+class ConversationalDiagnosticProfilesBatch(BaseModel):
+    """Group generated profiles for one append-only transaction.
+
+    Agrupa perfiles generados para una transacción append-only.
+    """
+
+    diagnostic_session_id: str
+    profiles: list[InitialConversationalProfileSetup] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_profiles(self) -> "ConversationalDiagnosticProfilesBatch":
+        _validate_profile_collection(
+            self.diagnostic_session_id,
+            self.profiles,
         )
         return self
 
@@ -195,6 +255,9 @@ class ConversationalDiagnosticSessionSetup(BaseModel):
     observations: list[ConversationalDiagnosticObservation] = Field(
         default_factory=list
     )
+    profiles: list[InitialConversationalProfileSetup] = Field(
+        default_factory=list
+    )
 
     @model_validator(mode="after")
     def validate_setup(self) -> "ConversationalDiagnosticSessionSetup":
@@ -246,5 +309,9 @@ class ConversationalDiagnosticSessionSetup(BaseModel):
         validate_diagnostic_context_references(
             self.context,
             self.observations,
+        )
+        _validate_profile_collection(
+            self.session.diagnostic_session_id,
+            self.profiles,
         )
         return self
