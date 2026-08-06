@@ -172,9 +172,17 @@ El segundo incremento amplía el agregado con `production_supports=[]`, conserva
 
 Validación confirmada: 41 pruebas específicas en 0.72 s, 190 de regresión diagnóstica en 1.29 s, suite backend de 1008 pruebas en 5.60 s, revisión sin defectos accionables y commit técnico `719aa74`. No se modificaron modelos ni migraciones.
 
+El tercer incremento incorpora `ConversationalDiagnosticObservationsBatch` y amplía el agregado con `observations=[]`, compatible con los incrementos anteriores. `save_conversational_diagnostic_observations(batch, db)` enriquece una sesión existente; la creación inicial también puede persistir observaciones después de configuración, propiedad y apoyos.
+
+`evaluation_result_ids` permanece como lista Pydantic, pero se normaliza exclusivamente mediante `conversational_diagnostic_observation_evaluations` y se recupera en orden ascendente. Cada `ProductionEvaluationResult` debe existir previamente, pertenecer a la producción observada y permanece inmutable; una misma evaluación puede respaldar varias observaciones compatibles.
+
+La validación ocurre antes del primer `add`. Las observaciones y sus enlaces usan dos `flush`, exactamente un commit por operación y rollback integral. La recuperación ordena explícitamente observaciones y evaluaciones sin lazy loading ni commit. Se mantienen las fronteras producción ≠ evaluación técnica ≠ observación diagnóstica ≠ decisión pedagógica, sin derivar progreso, mastery o consenso.
+
+Validación confirmada: 69 pruebas específicas en 1.28 s, 190 de regresión diagnóstica en 1.35 s, suite backend de 1036 pruebas en 6.10 s, revisión sin defectos accionables y commit técnico `f30887f`. No se modificaron modelos ni migraciones.
+
 ## Límites vigentes
 
-Hito B continúa activo. Todavía no persiste observaciones, enlaces con evaluaciones, perfiles, evidencias de perfil ni el historial completo consultable. No incluye API, Flutter, progreso o mastery. El siguiente incremento incorporará observaciones diagnósticas y sus referencias a evaluaciones técnicas preexistentes.
+Hito B continúa activo. Todavía no persiste transaccionalmente perfiles iniciales, evidencias perfil–observación ni el historial completo orientado a consulta. No incluye API, Flutter, progreso o mastery. El siguiente incremento incorporará perfiles y evidencias sobre observaciones preexistentes.
 
 ## Validación confirmada de la Etapa B
 

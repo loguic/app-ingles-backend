@@ -859,6 +859,12 @@ Las producciones deben existir previamente y solo se consultan. La escritura val
 
 Validación del segundo incremento: 41 pruebas específicas en 0.72 s, 190 de regresión diagnóstica en 1.29 s, suite backend 1008 passed in 5.60s, `operational_state.py validate` correcto, `git diff --check` limpio, revisión sin defectos accionables y commit `719aa74`. No se modificaron modelos ni migraciones.
 
-Pendiente: observaciones, enlaces observación–evaluación, perfiles, evidencias e historial completo consultable. Siguiente incremento recomendado: persistir observaciones y resolver sus evaluaciones técnicas preexistentes sin mezclar evaluación técnica con interpretación diagnóstica.
+El tercer incremento añadió `ConversationalDiagnosticObservationsBatch`, `observations=[]` y `save_conversational_diagnostic_observations(batch, db)`. Permite incluir observaciones durante la creación o enriquecer después una sesión, validando antes del primer `add` su sesión, actividad, producción propietaria, apoyos reales, contexto motivador y evaluaciones técnicas preexistentes.
+
+`evaluation_result_ids` se conserva en Pydantic y se convierte en enlaces normalizados; la lectura lo reconstruye en orden ascendente. Las evaluaciones nunca se crean, modifican o eliminan y pueden respaldar varias observaciones compatibles. Observaciones y enlaces usan dos `flush`, exactamente un commit y rollback integral. La lectura es explícita y ordenada, sin lazy loading ni commit.
+
+Validación del tercer incremento: 69 pruebas específicas en 1.28 s, 190 de regresión diagnóstica en 1.35 s, suite backend 1036 passed in 6.10s, `operational_state.py validate` correcto, `git diff --check` limpio, revisión sin defectos accionables y commit `f30887f`. No se modificaron modelos ni migraciones.
+
+Pendiente: perfiles iniciales, evidencias perfil–observación e historial completo orientado a consulta. Siguiente incremento recomendado: persistir perfiles y evidencias sobre observaciones preexistentes, sin convertir observación en decisión pedagógica automática.
 
 Límites: sin API, Flutter, progreso ni mastery. S2 no autoriza bases reales.

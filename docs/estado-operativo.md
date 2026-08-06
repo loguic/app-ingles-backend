@@ -42,14 +42,14 @@ Hito S1 — contrato ejecutable de seguridad DevSecOps: cerrado técnicamente.
 
 Hito S2 — adaptador PostgreSQL seguro: cerrado técnicamente mediante integración aislada ejecutada en Kitty.
 
-Hito B — incrementos 1 y 2 transaccionales: cerrados técnicamente; Hito B continúa activo.
+Hito B — incrementos 1, 2 y 3 transaccionales: cerrados técnicamente; Hito B continúa activo.
 
 Capacidades completadas:
 
 - persistencia de las siete entidades diagnósticas principales;
 - propiedad exclusiva actividad–producción;
 - coincidencia relacional de sesión, actividad, `prompt_id` y producción;
-- integridad observación–evaluación–producción;
+- observaciones transaccionales y enlaces normalizados con evaluaciones técnicas inmutables;
 - perfiles iniciales históricos y acumulativos;
 - producción obligatoria para las ocho dimensiones dependientes;
 - revisión Alembic `3c4f1a2b7d90` con `upgrade` y `downgrade` validados aisladamente.
@@ -93,12 +93,12 @@ Validación de S2:
 
 Validación del primer incremento de Hito B: 16 específicas, 190 de regresión, suite backend 983 passed in 5.55s, revisión sin defectos y commit `56a3d42`.
 Validación del segundo incremento: 41 específicas en 0.72 s, 190 de regresión en 1.29 s, suite backend 1008 passed in 5.60s, revisión sin defectos y commit `719aa74`.
-
+Validación del tercero: 69 específicas en 1.28 s, 190 de regresión en 1.35 s, suite backend 1036 passed in 6.10s, revisión sin defectos y commit `f30887f`.
 Límites vigentes:
 
 - sin API ni Flutter;
 - sin progreso ni mastery;
-- pendientes observaciones, enlaces con evaluaciones, perfiles, evidencias e historial completo consultable;
+- pendientes perfiles, evidencias perfil–observación e historial completo orientado a consulta;
 - S2 no autoriza migraciones en desarrollo, staging o producción reales.
 
 ## Deuda operativa separada
@@ -125,7 +125,7 @@ Cada hito pasa por definición, implementación técnica, validación específic
 
 ## Próximo objetivo
 
-B179 Hito B — persistir observaciones diagnósticas y resolver sus evaluaciones técnicas preexistentes, conservando las fronteras de dominio.
+B179 Hito B — persistir perfiles iniciales y evidencias sobre observaciones preexistentes, sin decisión pedagógica automática.
 
 Toda futura aplicación sobre entornos reales requerirá una autorización y controles adicionales fuera de S2.
 
