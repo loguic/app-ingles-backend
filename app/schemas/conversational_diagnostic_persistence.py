@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field, model_validator
 
 from app.schemas.conversational_diagnostic import (
@@ -5,6 +7,7 @@ from app.schemas.conversational_diagnostic import (
     ConversationalDiagnosticContext,
     ConversationalDiagnosticObservation,
     ConversationalDiagnosticSession,
+    DiagnosticSessionStatus,
     DiagnosticSupportUsage,
 )
 from app.services.conversational_diagnostic_validation_service import (
@@ -13,7 +16,30 @@ from app.services.conversational_diagnostic_validation_service import (
     validate_diagnostic_context_references,
     validate_diagnostic_observation,
     validate_diagnostic_session_context,
+    validate_diagnostic_session_status_transition,
 )
+
+
+class ConversationalDiagnosticSessionTransition(BaseModel):
+    """Request one explicit optimistic diagnostic session transition.
+
+    Solicita una transición diagnóstica explícita y optimista.
+    """
+
+    diagnostic_session_id: str
+    expected_current_status: DiagnosticSessionStatus
+    target_status: DiagnosticSessionStatus
+    transitioned_at: datetime
+
+    @model_validator(mode="after")
+    def validate_transition(
+        self,
+    ) -> "ConversationalDiagnosticSessionTransition":
+        validate_diagnostic_session_status_transition(
+            self.expected_current_status,
+            self.target_status,
+        )
+        return self
 
 
 def _validate_observation_collection(

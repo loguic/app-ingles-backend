@@ -25,6 +25,7 @@ from app.schemas.conversational_diagnostic_persistence import (
     ConversationalDiagnosticActivityProductionSetup,
     ConversationalDiagnosticObservationsBatch,
     ConversationalDiagnosticProductionSupportsBatch,
+    ConversationalDiagnosticSessionTransition,
     ConversationalDiagnosticSessionSetup,
 )
 from app.services.conversational_diagnostic_validation_service import (
@@ -32,10 +33,12 @@ from app.services.conversational_diagnostic_validation_service import (
     validate_diagnostic_activity_context,
     validate_diagnostic_activity_sequence,
     validate_diagnostic_context_references,
+    validate_completed_diagnostic_evidence,
     validate_diagnostic_observation,
     validate_diagnostic_observation_evaluations,
     validate_diagnostic_observation_support,
     validate_diagnostic_session_context,
+    validate_diagnostic_session_status_transition,
     validate_diagnostic_support_sequence,
 )
 
@@ -75,6 +78,13 @@ class DiagnosticPersistenceInvariantError(
 
 
 def _validate_setup(setup: ConversationalDiagnosticSessionSetup) -> None:
+    if (
+        setup.session.status != "in_progress"
+        or setup.session.completed_at is not None
+    ):
+        raise ValueError(
+            "New diagnostic sessions must start in progress"
+        )
     validate_diagnostic_session_context(setup.session, setup.context)
     validate_diagnostic_activity_sequence(setup.session, setup.activities)
     for activity in setup.activities:
@@ -998,6 +1008,115 @@ def save_conversational_diagnostic_observations(
         db.rollback()
         raise ConversationalDiagnosticPersistenceError(
             "Diagnostic observation batch could not be persisted"
+        ) from exc
+    except Exception:
+        db.rollback()
+        raise
+
+
+def transition_conversational_diagnostic_session(
+    command: ConversationalDiagnosticSessionTransition,
+    db: Session,
+) -> ConversationalDiagnosticSession:
+    """Apply one explicit state transition with optimistic concurrency.
+
+    Aplica una transición explícita con concurrencia optimista.
+    """
+    try:
+        session_model = (
+            db.query(SessionModel)
+            .filter(
+                SessionModel.diagnostic_session_id
+                == command.diagnostic_session_id
+            )
+            .one_or_none()
+        )
+        if session_model is None:
+            raise DiagnosticReferenceNotFoundError(
+                "Diagnostic session does not exist"
+            )
+        if session_model.status != command.expected_current_status:
+            raise DiagnosticPersistenceInvariantError(
+                "Diagnostic session status differs from the expected state"
+            )
+
+        validate_diagnostic_session_status_transition(
+            command.expected_current_status,
+            command.target_status,
+        )
+        if command.transitioned_at < session_model.started_at:
+            raise ValueError(
+                "Diagnostic session transition cannot precede started_at"
+            )
+        if (
+            session_model.completed_at is not None
+            and command.transitioned_at < session_model.completed_at
+        ):
+            raise ValueError(
+                "Diagnostic session transition cannot precede its prior close"
+            )
+
+        if command.target_status == "completed":
+            persisted = _build_setup(
+                *_load_setup_models(command.diagnostic_session_id, db)
+            )
+            validate_completed_diagnostic_evidence(
+                persisted.activities,
+                persisted.observations,
+            )
+
+        rowcount = (
+            db.query(SessionModel)
+            .filter(
+                SessionModel.diagnostic_session_id
+                == command.diagnostic_session_id,
+                SessionModel.status == command.expected_current_status,
+            )
+            .update(
+                {
+                    SessionModel.status: command.target_status,
+                    SessionModel.completed_at: command.transitioned_at,
+                },
+                synchronize_session=False,
+            )
+        )
+        if rowcount != 1:
+            raise DiagnosticPersistenceInvariantError(
+                "Diagnostic session transition lost its expected state"
+            )
+
+        transitioned_model = (
+            db.query(SessionModel)
+            .populate_existing()
+            .filter(
+                SessionModel.diagnostic_session_id
+                == command.diagnostic_session_id
+            )
+            .one()
+        )
+        transitioned = _session_contract(transitioned_model)
+        db.commit()
+        return transitioned
+    except (
+        DiagnosticReferenceNotFoundError,
+        DiagnosticPersistenceInvariantError,
+    ):
+        db.rollback()
+        raise
+    except ValueError as exc:
+        db.rollback()
+        raise DiagnosticPersistenceInvariantError(
+            "Diagnostic session transition violates an invariant"
+        ) from exc
+    except IntegrityError as exc:
+        db.rollback()
+        raise DiagnosticPersistenceInvariantError(
+            "Diagnostic session transition conflicts with persisted data"
+        ) from exc
+    except SQLAlchemyError as exc:
+        db.rollback()
+        raise ConversationalDiagnosticPersistenceError(
+            "Diagnostic session transition could not be persisted"
         ) from exc
     except Exception:
         db.rollback()

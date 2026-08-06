@@ -7,9 +7,79 @@ from app.schemas.conversational_diagnostic import (
     ConversationalDiagnosticObservation,
     ConversationalDiagnosticSession,
     DiagnosticSupportUsage,
+    DiagnosticSessionStatus,
     InitialConversationalProfile,
     InitialConversationalProfileEvidence,
 )
+
+
+_DIAGNOSTIC_SESSION_TRANSITIONS = {
+    ("in_progress", "provisional"),
+    ("in_progress", "completed"),
+    ("in_progress", "cancelled"),
+    ("provisional", "completed"),
+    ("provisional", "cancelled"),
+}
+
+
+def validate_diagnostic_session_status_transition(
+    expected_current_status: DiagnosticSessionStatus,
+    target_status: DiagnosticSessionStatus,
+) -> None:
+    """Validate the closed diagnostic session state machine.
+
+    Valida la máquina cerrada de estados de la sesión diagnóstica.
+    """
+    if (expected_current_status, target_status) not in (
+        _DIAGNOSTIC_SESSION_TRANSITIONS
+    ):
+        raise ValueError("Diagnostic session status transition is not allowed")
+
+
+def validate_completed_diagnostic_evidence(
+    activities: list[ConversationalDiagnosticActivity],
+    observations: list[ConversationalDiagnosticObservation],
+    requirement_label: str = "Completed diagnostic session",
+) -> None:
+    """Require observations for every diagnostic evidence type.
+
+    Exige observaciones para cada tipo de evidencia diagnóstica.
+    """
+    activity_by_id = {
+        activity.activity_id: activity for activity in activities
+    }
+    if len(activity_by_id) != len(activities):
+        raise ValueError(
+            "Diagnostic activities must have unique identifiers"
+        )
+    if any(
+        observation.activity_id not in activity_by_id
+        for observation in observations
+    ):
+        raise ValueError(
+            "Diagnostic observation references an unknown activity"
+        )
+    required_evidence_types = {
+        "comprehension",
+        "spontaneous_production",
+        "supported_production",
+        "connected_exchange",
+        "transfer",
+        "motivating_context",
+    }
+    observed_evidence_types = {
+        activity_by_id[observation.activity_id].expected_evidence_type
+        for observation in observations
+        if observation.activity_id in activity_by_id
+    }
+    missing_evidence_types = sorted(
+        required_evidence_types - observed_evidence_types
+    )
+    if missing_evidence_types:
+        raise ValueError(
+            requirement_label + " requires complete diagnostic evidence: "
+            + ", ".join(missing_evidence_types)
+        )
 
 
 def validate_diagnostic_session_context(
@@ -259,37 +329,18 @@ def validate_initial_profile_evidence(
         )
 
     if profile.status == "confirmed":
-        activities_by_id = {
-            activity.activity_id: activity
-            for activity in activities
-        }
         observations_by_id = {
             observation.observation_id: observation
             for observation in observations
         }
-        linked_evidence_types = {
-            activities_by_id[
-                observations_by_id[observation_id].activity_id
-            ].expected_evidence_type
-            for observation_id in linked_observation_ids
-        }
-        required_evidence_types = {
-            "comprehension",
-            "spontaneous_production",
-            "supported_production",
-            "connected_exchange",
-            "transfer",
-            "motivating_context",
-        }
-        missing_evidence_types = sorted(
-            required_evidence_types - linked_evidence_types
+        validate_completed_diagnostic_evidence(
+            activities,
+            [
+                observations_by_id[observation_id]
+                for observation_id in linked_observation_ids
+            ],
+            requirement_label="Confirmed profile",
         )
-
-        if missing_evidence_types:
-            raise ValueError(
-                "Confirmed profile requires complete diagnostic evidence: "
-                + ", ".join(missing_evidence_types)
-            )
 
 
 def validate_diagnostic_activity_sequence(

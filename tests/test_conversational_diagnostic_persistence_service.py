@@ -18,6 +18,7 @@ from app.db.models import (
     ConversationalDiagnosticSupportUsage as SupportUsageModel,
     LearnerProduction as LearnerProductionModel,
     ProductionEvaluationResult as EvaluationResultModel,
+    InitialConversationalProfile as InitialProfileModel,
 )
 from app.schemas.conversational_diagnostic import (
     ConversationalDiagnosticActivity,
@@ -30,6 +31,7 @@ from app.schemas.conversational_diagnostic_persistence import (
     ConversationalDiagnosticActivityProductionSetup,
     ConversationalDiagnosticObservationsBatch,
     ConversationalDiagnosticProductionSupportsBatch,
+    ConversationalDiagnosticSessionTransition,
     ConversationalDiagnosticSessionSetup,
 )
 from app.services.conversational_diagnostic_persistence_service import (
@@ -41,6 +43,7 @@ from app.services.conversational_diagnostic_persistence_service import (
     save_conversational_diagnostic_observations,
     save_conversational_diagnostic_production_supports,
     save_conversational_diagnostic_session_setup,
+    transition_conversational_diagnostic_session,
 )
 
 
@@ -1508,3 +1511,303 @@ def test_observation_enrichment_does_not_mutate_sources(db):
     ) == evaluation_snapshot
     assert not hasattr(persisted_evaluation, "mastery")
     assert not hasattr(persisted_evaluation, "consensus")
+
+
+def build_transition(
+    target_status,
+    *,
+    expected_current_status="in_progress",
+    transitioned_at=STARTED_AT,
+):
+    return ConversationalDiagnosticSessionTransition(
+        diagnostic_session_id="session-one",
+        expected_current_status=expected_current_status,
+        target_status=target_status,
+        transitioned_at=transitioned_at,
+    )
+
+
+def build_completed_transition_setup():
+    setup = build_setup(activity_count=6)
+    evidence_types = [
+        "comprehension",
+        "spontaneous_production",
+        "supported_production",
+        "connected_exchange",
+        "transfer",
+        "motivating_context",
+    ]
+    activities = []
+    observations = []
+    for activity, evidence_type in zip(
+        setup.activities,
+        evidence_types,
+        strict=True,
+    ):
+        updates = {"expected_evidence_type": evidence_type}
+        if evidence_type == "transfer":
+            updates.update(
+                {"stage": "transfer", "transfer_variant_id": "variant-1"}
+            )
+        activity = activity.model_copy(update=updates)
+        activities.append(activity)
+        if evidence_type == "motivating_context":
+            observations.append(
+                ConversationalDiagnosticObservation(
+                    observation_id="observation-motivating-context",
+                    diagnostic_session_id="session-one",
+                    activity_id=activity.activity_id,
+                    dimension="motivating_context",
+                    evidence_role="context_relevance",
+                    context_reference="travel",
+                    description="Motivating context evidence",
+                    support_level="none",
+                    observer_id="diagnostic-observer",
+                    observer_version="1.0",
+                    observed_at=STARTED_AT,
+                )
+            )
+        else:
+            observations.append(
+                build_observation(
+                    observation_id=f"observation-{evidence_type}",
+                    activity_id=activity.activity_id,
+                )
+            )
+    return ConversationalDiagnosticSessionSetup(
+        session=setup.session,
+        context=setup.context,
+        activities=activities,
+        observations=observations,
+    )
+
+
+@pytest.mark.parametrize("target_status", ["provisional", "cancelled"])
+def test_transitions_in_progress_session_without_complete_coverage(
+    db,
+    target_status,
+):
+    save_conversational_diagnostic_session_setup(build_setup(), db)
+
+    transitioned = transition_conversational_diagnostic_session(
+        build_transition(target_status),
+        db,
+    )
+
+    assert transitioned.status == target_status
+    assert transitioned.completed_at == STARTED_AT
+
+
+def test_transitions_in_progress_session_to_completed_with_coverage(db):
+    setup = build_completed_transition_setup()
+    save_conversational_diagnostic_session_setup(setup, db)
+
+    transitioned = transition_conversational_diagnostic_session(
+        build_transition("completed"),
+        db,
+    )
+
+    assert transitioned.status == "completed"
+
+
+def test_transitions_provisional_session_to_completed(db):
+    setup = build_completed_transition_setup()
+    observations = setup.observations
+    save_conversational_diagnostic_session_setup(
+        setup.model_copy(update={"observations": []}),
+        db,
+    )
+    transition_conversational_diagnostic_session(
+        build_transition("provisional"),
+        db,
+    )
+    save_conversational_diagnostic_observations(
+        ConversationalDiagnosticObservationsBatch(
+            diagnostic_session_id="session-one",
+            observations=observations,
+        ),
+        db,
+    )
+
+    transitioned = transition_conversational_diagnostic_session(
+        build_transition(
+            "completed",
+            expected_current_status="provisional",
+            transitioned_at=STARTED_AT.replace(hour=11),
+        ),
+        db,
+    )
+
+    assert transitioned.status == "completed"
+    assert transitioned.completed_at == STARTED_AT.replace(hour=11)
+
+
+def test_transitions_provisional_session_to_cancelled(db):
+    save_conversational_diagnostic_session_setup(build_setup(), db)
+    transition_conversational_diagnostic_session(
+        build_transition("provisional"),
+        db,
+    )
+
+    transitioned = transition_conversational_diagnostic_session(
+        build_transition(
+            "cancelled",
+            expected_current_status="provisional",
+            transitioned_at=STARTED_AT.replace(hour=11),
+        ),
+        db,
+    )
+
+    assert transitioned.status == "cancelled"
+
+
+def test_rejects_completed_transition_without_complete_coverage(db):
+    save_conversational_diagnostic_session_setup(build_setup(), db)
+
+    with pytest.raises(DiagnosticPersistenceInvariantError) as captured:
+        transition_conversational_diagnostic_session(
+            build_transition("completed"),
+            db,
+        )
+
+    assert "complete diagnostic evidence" in str(captured.value.__cause__)
+    assert db.query(SessionModel).one().status == "in_progress"
+
+
+def test_rejects_unknown_transition_session(db):
+    command = build_transition("cancelled").model_copy(
+        update={"diagnostic_session_id": "unknown"}
+    )
+
+    with pytest.raises(DiagnosticReferenceNotFoundError):
+        transition_conversational_diagnostic_session(command, db)
+
+
+def test_rejects_transition_when_expected_status_is_stale(db):
+    save_conversational_diagnostic_session_setup(build_setup(), db)
+    transition_conversational_diagnostic_session(
+        build_transition("provisional"),
+        db,
+    )
+
+    with pytest.raises(
+        DiagnosticPersistenceInvariantError,
+        match="expected state",
+    ):
+        transition_conversational_diagnostic_session(
+            build_transition("cancelled"),
+            db,
+        )
+
+
+def test_transition_contract_rejects_repeated_or_reopened_status():
+    with pytest.raises(ValidationError, match="not allowed"):
+        build_transition(
+            "provisional",
+            expected_current_status="provisional",
+        )
+    with pytest.raises(ValidationError, match="not allowed"):
+        build_transition(
+            "in_progress",
+            expected_current_status="completed",
+        )
+
+
+def test_rejects_transition_timestamp_before_session_start(db):
+    save_conversational_diagnostic_session_setup(build_setup(), db)
+
+    with pytest.raises(DiagnosticPersistenceInvariantError) as captured:
+        transition_conversational_diagnostic_session(
+            build_transition(
+                "cancelled",
+                transitioned_at=STARTED_AT.replace(hour=9),
+            ),
+            db,
+        )
+
+    assert "started_at" in str(captured.value.__cause__)
+
+
+def test_rejects_transition_timestamp_before_provisional_close(db):
+    save_conversational_diagnostic_session_setup(build_setup(), db)
+    transition_conversational_diagnostic_session(
+        build_transition(
+            "provisional",
+            transitioned_at=STARTED_AT.replace(hour=11),
+        ),
+        db,
+    )
+
+    with pytest.raises(DiagnosticPersistenceInvariantError) as captured:
+        transition_conversational_diagnostic_session(
+            build_transition(
+                "cancelled",
+                expected_current_status="provisional",
+                transitioned_at=STARTED_AT,
+            ),
+            db,
+        )
+
+    assert "prior close" in str(captured.value.__cause__)
+
+
+@pytest.mark.parametrize("status", ["provisional", "completed", "cancelled"])
+def test_rejects_new_session_not_in_progress(db, status):
+    setup = build_setup()
+    invalid = setup.model_copy(
+        update={
+            "session": setup.session.model_copy(
+                update={"status": status, "completed_at": STARTED_AT}
+            )
+        }
+    )
+
+    with pytest.raises(DiagnosticPersistenceInvariantError) as captured:
+        save_conversational_diagnostic_session_setup(invalid, db)
+
+    assert "start in progress" in str(captured.value.__cause__)
+    assert db.query(SessionModel).count() == 0
+
+
+def test_transition_commits_exactly_once_and_creates_no_profile(
+    db,
+    monkeypatch,
+):
+    save_conversational_diagnostic_session_setup(build_setup(), db)
+    commits = 0
+    original_commit = db.commit
+
+    def counted_commit():
+        nonlocal commits
+        commits += 1
+        return original_commit()
+
+    monkeypatch.setattr(db, "commit", counted_commit)
+
+    transition_conversational_diagnostic_session(
+        build_transition("provisional"),
+        db,
+    )
+
+    assert commits == 1
+    assert db.query(InitialProfileModel).count() == 0
+
+
+def test_transition_commit_failure_rolls_back_state(db, monkeypatch):
+    save_conversational_diagnostic_session_setup(build_setup(), db)
+
+    def failing_commit():
+        raise SQLAlchemyError("injected transition commit failure")
+
+    monkeypatch.setattr(db, "commit", failing_commit)
+
+    with pytest.raises(ConversationalDiagnosticPersistenceError) as captured:
+        transition_conversational_diagnostic_session(
+            build_transition("provisional"),
+            db,
+        )
+
+    assert isinstance(captured.value.__cause__, SQLAlchemyError)
+    persisted = db.query(SessionModel).one()
+    assert persisted.status == "in_progress"
+    assert persisted.completed_at is None

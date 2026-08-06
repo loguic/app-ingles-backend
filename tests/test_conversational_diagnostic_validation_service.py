@@ -17,6 +17,8 @@ from app.schemas.conversational_diagnostic import (
 from app.services.conversational_diagnostic_validation_service import (
     validate_diagnostic_activity_context,
     validate_diagnostic_context_references,
+    validate_completed_diagnostic_evidence,
+    validate_diagnostic_session_status_transition,
     validate_diagnostic_activity_production,
     validate_diagnostic_activity_sequence,
     validate_diagnostic_observation,
@@ -1508,5 +1510,67 @@ def test_reject_context_observation_from_another_session() -> None:
                 build_context_observation(
                     diagnostic_session_id="diagnostic-999"
                 )
+            ],
+        )
+
+
+@pytest.mark.parametrize(
+    ("source", "target"),
+    [
+        ("in_progress", "provisional"),
+        ("in_progress", "completed"),
+        ("in_progress", "cancelled"),
+        ("provisional", "completed"),
+        ("provisional", "cancelled"),
+    ],
+)
+def test_accept_diagnostic_session_status_transition(source, target):
+    validate_diagnostic_session_status_transition(source, target)
+
+
+@pytest.mark.parametrize(
+    ("source", "target"),
+    [
+        ("in_progress", "in_progress"),
+        ("provisional", "provisional"),
+        ("provisional", "in_progress"),
+        ("completed", "in_progress"),
+        ("completed", "cancelled"),
+        ("cancelled", "in_progress"),
+        ("cancelled", "completed"),
+    ],
+)
+def test_reject_diagnostic_session_status_transition(source, target):
+    with pytest.raises(ValueError, match="not allowed"):
+        validate_diagnostic_session_status_transition(source, target)
+
+
+def test_accept_completed_diagnostic_evidence_coverage():
+    activities, observations, _links = build_complete_profile_evidence()
+
+    validate_completed_diagnostic_evidence(
+        activities,
+        observations,
+    )
+
+
+def test_reject_incomplete_diagnostic_evidence_coverage():
+    activities, observations, _links = build_complete_profile_evidence()
+    transfer_activity_ids = {
+        activity.activity_id
+        for activity in activities
+        if activity.expected_evidence_type == "transfer"
+    }
+
+    with pytest.raises(
+        ValueError,
+        match="complete diagnostic evidence: transfer",
+    ):
+        validate_completed_diagnostic_evidence(
+            activities,
+            [
+                observation
+                for observation in observations
+                if observation.activity_id not in transfer_activity_ids
             ],
         )
