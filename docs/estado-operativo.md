@@ -40,6 +40,8 @@ Hito A — modelos persistentes y migración Alembic: cerrado técnicamente medi
 
 Hito S1 — contrato ejecutable de seguridad DevSecOps: cerrado técnicamente.
 
+Hito S2 — adaptador PostgreSQL seguro: cerrado técnicamente mediante integración aislada ejecutada en Kitty.
+
 Capacidades completadas:
 
 - persistencia de las siete entidades diagnósticas principales;
@@ -52,6 +54,9 @@ Capacidades completadas:
 - puerta preventiva fail-closed con entorno e identidad explícitos;
 - evidencias verificables de backup, restauración, ensayo y rollback;
 - producción rechazada incondicionalmente en S1.
+- clúster PostgreSQL temporal por socket Unix bajo `/tmp`, sin servicio del sistema, puerto `5432` ni `DATABASE_URL` real;
+- backup, SHA-256, restauración separada, verificación determinista y ensayo Alembic reversible;
+- limpieza protegida por workspace administrado y marcador.
 
 Validación final directa en Kitty:
 
@@ -72,12 +77,23 @@ Validación de S1:
 - `operational_state.py validate` y `git diff --check`: correctos;
 - commit técnico: `0472093`.
 
+Validación de S2:
+
+- integración real aislada: 1 passed in 2.47s; código 0;
+- suite backend: 967 passed in 5.56s;
+- sin procesos, sockets ni clústeres temporales residuales;
+- URL Alembic explícita `postgresql+psycopg://`;
+- Codex preparó y revisó; Kitty conservó la observabilidad de la integración;
+- `operational_state.py validate` y `git diff --check`: correctos;
+- commit técnico: `d0efe1e`.
+
 Límites vigentes:
 
 - sin servicio transaccional;
 - sin API ni Flutter;
 - sin progreso ni mastery;
 - conversión Pydantic–tablas normalizadas pendiente del Hito B.
+- S2 no autoriza migraciones en desarrollo, staging o producción reales.
 
 ## Deuda operativa separada
 
@@ -103,9 +119,9 @@ Cada hito pasa por definición, implementación técnica, validación específic
 
 ## Próximo objetivo
 
-B179 Hito S2 — diseñar el adaptador PostgreSQL seguro para backup y restauración aislada, sin aplicarlo todavía a datos reales.
+B179 Hito B — persistencia transaccional e historial consultable.
 
-El diseño debe conservar el núcleo común sin red ni ejecución y preparar adaptadores específicos antes de cualquier propagación transversal.
+Toda futura aplicación sobre entornos reales requerirá una autorización y controles adicionales fuera de S2.
 
 ## Archivos clave
 

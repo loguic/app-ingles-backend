@@ -823,3 +823,22 @@ Validación:
 Estrategia transversal: LOGUIC English será el piloto. Tras validar backup y restauración reales en un entorno aislado, el núcleo común se extraerá a un repositorio independiente versionado y cada proyecto incorporará un adaptador propio; no se copiarán scripts manualmente. Proyectos previstos: CNAPP-Lite, AutoRadar ES, AgencyForge y otros.
 
 Siguiente objetivo: diseñar S2, adaptador PostgreSQL seguro para backup y restauración aislada, sin aplicarlo todavía a datos reales.
+
+### Hito S2 — adaptador PostgreSQL seguro
+
+Estado: cerrado técnicamente mediante integración real aislada.
+
+S2 añadió un adaptador para crear bajo `/tmp` un clúster PostgreSQL temporal con marcador, socket Unix, puerto dinámico distinto de `5432` y sin utilizar el servicio del sistema o la `DATABASE_URL` real. El flujo ejecuta backup custom, SHA-256, restauración en otra base, verificación determinista, upgrade Alembic hasta `3c4f1a2b7d90`, downgrade a la revisión inicial y limpieza comprobada. Alembic usa Psycopg 3 explícito mediante `postgresql+psycopg://`.
+
+Codex preparó y revisó el código; la integración real se ejecutó directamente en Kitty para conservar observabilidad externa.
+
+Validación:
+
+- integración aislada: 1 passed in 2.47s; código 0;
+- suite backend: 967 passed in 5.56s;
+- sin procesos, sockets ni clústeres temporales residuales;
+- `operational_state.py validate` correcto;
+- `git diff --check` limpio;
+- commit técnico `d0efe1e`.
+
+S2 no autoriza migraciones sobre desarrollo, staging o producción reales. Siguiente objetivo funcional de B179: Hito B, persistencia transaccional e historial consultable.

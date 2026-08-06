@@ -3592,3 +3592,26 @@ Validación final:
 LOGUIC English será el piloto. El núcleo común se extraerá posteriormente a un repositorio independiente versionado; CNAPP-Lite, AutoRadar ES, AgencyForge y otros usarán adaptadores propios para base, backups, migraciones, pruebas y entornos. No se copiarán scripts manualmente ni se propagará el sistema antes de validar backup y restauración reales en un entorno aislado.
 
 La deuda por procesos hijos y pérdida de salida al interrumpir `block_workflow.py` permanece separada y no se corrige en S1.
+
+## B179 — Puerta DevSecOps, Hito S2
+
+Estado: adaptador PostgreSQL cerrado técnicamente mediante integración real aislada.
+
+Se añadió `scripts/engineering/postgresql_devsecops_adapter.py` y su prueba específica. El adaptador administra un clúster temporal marcado bajo `/tmp`, con socket Unix, puerto dinámico distinto de `5432`, sin servicio PostgreSQL del sistema y sin reutilizar la `DATABASE_URL` real. SQLAlchemy y Alembic usan explícitamente Psycopg 3 mediante `postgresql+psycopg://`.
+
+El ensayo creó una base fuente aislada, generó un backup custom, verificó SHA-256, restauró en una base distinta, comprobó esquema y datos deterministas, ejecutó upgrade Alembic hasta `3c4f1a2b7d90`, volvió por downgrade a la revisión inicial y eliminó el workspace únicamente después de detener PostgreSQL.
+
+Codex preparó y revisó el código y las pruebas. La integración real se ejecutó directamente en Kitty para conservar la salida y la comprobación externa de recursos.
+
+Validación final:
+
+- integración aislada: 1 passed in 2.47s;
+- `INTEGRATION_EXIT_CODE=0`;
+- suite backend: 967 passed in 5.56s;
+- ningún proceso PostgreSQL residual;
+- ningún socket o clúster temporal residual;
+- `operational_state.py validate`: correcto;
+- `git diff --check`: limpio;
+- commit técnico: `d0efe1e`.
+
+S2 no autoriza migraciones sobre desarrollo, staging o producción reales. Persisten riesgos no ensayados de volumen, permisos, configuración y datos reales, que requieren controles y autorización adicionales.

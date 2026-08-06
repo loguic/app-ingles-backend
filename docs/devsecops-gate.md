@@ -57,8 +57,37 @@ LOGUIC English será el proyecto piloto. El núcleo común se extraerá posterio
 
 La propagación solo comenzará después de validar backup y restauración reales en un entorno aislado. Los proyectos futuros previstos incluyen CNAPP-Lite, AutoRadar ES, AgencyForge y otros.
 
+## S2 — adaptador PostgreSQL aislado
+
+S2 implementó un adaptador que crea un clúster PostgreSQL temporal bajo `/tmp`, escucha exclusivamente mediante socket Unix y usa un puerto dinámico distinto de `5432`. No utiliza el servicio PostgreSQL del sistema ni hereda la `DATABASE_URL` real. Las conexiones SQLAlchemy y Alembic declaran explícitamente Psycopg 3 mediante `postgresql+psycopg://`; las herramientas PostgreSQL reciben parámetros separados.
+
+El flujo validado es:
+
+1. crear una base fuente aislada y datos deterministas;
+2. generar un backup custom y comprobar su SHA-256;
+3. restaurar en una base temporal distinta;
+4. verificar esquema y datos de control;
+5. ejecutar Alembic desde la revisión inicial hasta `3c4f1a2b7d90`;
+6. volver mediante downgrade y comprobar la revisión inicial;
+7. generar evidencia compatible con S1;
+8. detener PostgreSQL y limpiar únicamente el workspace marcado.
+
+Codex preparó y revisó el código y las pruebas sin conservar una terminal de infraestructura como evidencia final. La integración real se ejecutó directamente en Kitty para mantener observabilidad externa completa.
+
+Validación confirmada:
+
+- integración real aislada: 1 passed in 2.47s;
+- `INTEGRATION_EXIT_CODE=0`;
+- suite backend: 967 passed in 5.56s;
+- ningún proceso PostgreSQL, socket o clúster temporal residual;
+- `operational_state.py validate` correcto;
+- `git diff --check` limpio;
+- commit técnico `d0efe1e`.
+
+S2 demuestra backup, restauración y reversibilidad en infraestructura temporal controlada. No autoriza migraciones sobre desarrollo, staging o producción reales y no elimina los riesgos propios de datos, volumen, permisos o configuración de esos entornos.
+
 ## Siguiente hito
 
-S2 diseñará un adaptador PostgreSQL seguro para backup y restauración aislada, sin aplicarlo todavía a datos reales.
+B179 continúa con el Hito B de persistencia transaccional e historial consultable. Cualquier futura ejecución DevSecOps sobre entornos reales requerirá una puerta adicional y autorización explícita.
 
 La deuda de `block_workflow.py`, cuya interrupción puede perder la salida final o dejar procesos hijos activos, permanece separada y fuera de este hito.
