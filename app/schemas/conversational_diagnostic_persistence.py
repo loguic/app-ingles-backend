@@ -3,14 +3,64 @@ from pydantic import BaseModel, Field, model_validator
 from app.schemas.conversational_diagnostic import (
     ConversationalDiagnosticActivity,
     ConversationalDiagnosticContext,
+    ConversationalDiagnosticObservation,
     ConversationalDiagnosticSession,
     DiagnosticSupportUsage,
 )
 from app.services.conversational_diagnostic_validation_service import (
     validate_diagnostic_activity_context,
     validate_diagnostic_activity_sequence,
+    validate_diagnostic_context_references,
+    validate_diagnostic_observation,
     validate_diagnostic_session_context,
 )
+
+
+def _validate_observation_collection(
+    diagnostic_session_id: str,
+    observations: list[ConversationalDiagnosticObservation],
+) -> None:
+    observation_ids: set[str] = set()
+    session_reference = ConversationalDiagnosticSession.model_construct(
+        diagnostic_session_id=diagnostic_session_id
+    )
+    for observation in observations:
+        if observation.observation_id in observation_ids:
+            raise ValueError(
+                "Diagnostic observations must have unique identifiers"
+            )
+        observation_ids.add(observation.observation_id)
+        activity_reference = ConversationalDiagnosticActivity.model_construct(
+            diagnostic_session_id=diagnostic_session_id,
+            activity_id=observation.activity_id,
+        )
+        validate_diagnostic_observation(
+            session_reference,
+            activity_reference,
+            observation,
+        )
+
+
+class ConversationalDiagnosticObservationsBatch(BaseModel):
+    """Group new diagnostic observations for one atomic enrichment.
+
+    Agrupa nuevas observaciones diagnósticas para un enriquecimiento atómico.
+    """
+
+    diagnostic_session_id: str
+    observations: list[ConversationalDiagnosticObservation] = Field(
+        min_length=1
+    )
+
+    @model_validator(mode="after")
+    def validate_observations(
+        self,
+    ) -> "ConversationalDiagnosticObservationsBatch":
+        _validate_observation_collection(
+            self.diagnostic_session_id,
+            self.observations,
+        )
+        return self
 
 
 class ConversationalDiagnosticActivityProductionSetup(BaseModel):
@@ -116,6 +166,9 @@ class ConversationalDiagnosticSessionSetup(BaseModel):
     production_supports: list[
         ConversationalDiagnosticActivityProductionSetup
     ] = Field(default_factory=list)
+    observations: list[ConversationalDiagnosticObservation] = Field(
+        default_factory=list
+    )
 
     @model_validator(mode="after")
     def validate_setup(self) -> "ConversationalDiagnosticSessionSetup":
@@ -146,4 +199,26 @@ class ConversationalDiagnosticSessionSetup(BaseModel):
             raise ValueError(
                 "Diagnostic production must reference an aggregate activity"
             )
+        _validate_observation_collection(
+            self.session.diagnostic_session_id,
+            self.observations,
+        )
+        activity_by_id = {
+            activity.activity_id: activity for activity in self.activities
+        }
+        for observation in self.observations:
+            activity = activity_by_id.get(observation.activity_id)
+            if activity is None:
+                raise ValueError(
+                    "Diagnostic observation must reference an aggregate activity"
+                )
+            validate_diagnostic_observation(
+                self.session,
+                activity,
+                observation,
+            )
+        validate_diagnostic_context_references(
+            self.context,
+            self.observations,
+        )
         return self

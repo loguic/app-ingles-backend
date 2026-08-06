@@ -5,19 +5,25 @@ from app.db.models import (
     ConversationalDiagnosticActivity as ActivityModel,
     ConversationalDiagnosticActivityProduction as ActivityProductionModel,
     ConversationalDiagnosticContext as ContextModel,
+    ConversationalDiagnosticObservation as ObservationModel,
+    ConversationalDiagnosticObservationEvaluation as ObservationEvaluationModel,
     ConversationalDiagnosticSession as SessionModel,
     ConversationalDiagnosticSupportUsage as SupportUsageModel,
     LearnerProduction as LearnerProductionModel,
+    ProductionEvaluationResult as EvaluationResultModel,
 )
 from app.schemas.conversation_production import LearnerProductionRecord
+from app.schemas.evaluation import ProductionEvaluationResultRecord
 from app.schemas.conversational_diagnostic import (
     ConversationalDiagnosticActivity,
     ConversationalDiagnosticContext,
+    ConversationalDiagnosticObservation,
     ConversationalDiagnosticSession,
     DiagnosticSupportUsage,
 )
 from app.schemas.conversational_diagnostic_persistence import (
     ConversationalDiagnosticActivityProductionSetup,
+    ConversationalDiagnosticObservationsBatch,
     ConversationalDiagnosticProductionSupportsBatch,
     ConversationalDiagnosticSessionSetup,
 )
@@ -25,6 +31,10 @@ from app.services.conversational_diagnostic_validation_service import (
     validate_diagnostic_activity_production,
     validate_diagnostic_activity_context,
     validate_diagnostic_activity_sequence,
+    validate_diagnostic_context_references,
+    validate_diagnostic_observation,
+    validate_diagnostic_observation_evaluations,
+    validate_diagnostic_observation_support,
     validate_diagnostic_session_context,
     validate_diagnostic_support_sequence,
 )
@@ -104,6 +114,20 @@ def _activity_contract(
     )
 
 
+def _context_contract(context: ContextModel) -> ConversationalDiagnosticContext:
+    return ConversationalDiagnosticContext(
+        context_id=context.context_id,
+        diagnostic_session_id=context.diagnostic_session_id,
+        usual_languages=list(context.usual_languages),
+        previous_english_contact=context.previous_english_contact,
+        general_interests=list(context.general_interests),
+        learning_goals=list(context.learning_goals),
+        autonomy_level=context.autonomy_level,
+        responsible_adult_present=context.responsible_adult_present,
+        audio_authorized=context.audio_authorized,
+    )
+
+
 def _support_contract(usage: SupportUsageModel) -> DiagnosticSupportUsage:
     return DiagnosticSupportUsage(
         diagnostic_session_id=usage.diagnostic_session_id,
@@ -123,6 +147,8 @@ def _build_setup(
     activities: list[ActivityModel],
     associations: list[ActivityProductionModel],
     usages: list[SupportUsageModel],
+    observations: list[ObservationModel],
+    observation_evaluations: list[ObservationEvaluationModel],
 ) -> ConversationalDiagnosticSessionSetup:
     """Reconstruct contracts without retaining ORM-backed state.
 
@@ -130,17 +156,7 @@ def _build_setup(
     """
     return ConversationalDiagnosticSessionSetup(
         session=_session_contract(session),
-        context=ConversationalDiagnosticContext(
-            context_id=context.context_id,
-            diagnostic_session_id=context.diagnostic_session_id,
-            usual_languages=list(context.usual_languages),
-            previous_english_contact=context.previous_english_contact,
-            general_interests=list(context.general_interests),
-            learning_goals=list(context.learning_goals),
-            autonomy_level=context.autonomy_level,
-            responsible_adult_present=context.responsible_adult_present,
-            audio_authorized=context.audio_authorized,
-        ),
+        context=_context_contract(context),
         activities=[_activity_contract(activity) for activity in activities],
         production_supports=[
             ConversationalDiagnosticActivityProductionSetup(
@@ -156,6 +172,28 @@ def _build_setup(
             )
             for association in associations
         ],
+        observations=[
+            ConversationalDiagnosticObservation(
+                observation_id=observation.observation_id,
+                diagnostic_session_id=observation.diagnostic_session_id,
+                activity_id=observation.activity_id,
+                production_id=observation.production_id,
+                evaluation_result_ids=sorted(
+                    link.evaluation_result_id
+                    for link in observation_evaluations
+                    if link.observation_id == observation.observation_id
+                ),
+                dimension=observation.dimension,
+                evidence_role=observation.evidence_role,
+                context_reference=observation.context_reference,
+                description=observation.description,
+                support_level=observation.support_level,
+                observer_id=observation.observer_id,
+                observer_version=observation.observer_version,
+                observed_at=observation.observed_at,
+            )
+            for observation in observations
+        ],
     )
 
 
@@ -168,6 +206,8 @@ def _load_setup_models(
     list[ActivityModel],
     list[ActivityProductionModel],
     list[SupportUsageModel],
+    list[ObservationModel],
+    list[ObservationEvaluationModel],
 ]:
     session = (
         db.query(SessionModel)
@@ -253,7 +293,48 @@ def _load_setup_models(
         )
         .all()
     )
-    return session, context, activities, associations, usages
+    observations = (
+        db.query(ObservationModel)
+        .join(
+            ActivityModel,
+            (
+                ActivityModel.diagnostic_session_id
+                == ObservationModel.diagnostic_session_id
+            )
+            & (ActivityModel.activity_id == ObservationModel.activity_id),
+        )
+        .filter(
+            ObservationModel.diagnostic_session_id == diagnostic_session_id
+        )
+        .order_by(
+            ActivityModel.sequence_order.asc(),
+            ObservationModel.activity_id.asc(),
+            ObservationModel.observed_at.asc(),
+            ObservationModel.observation_id.asc(),
+        )
+        .all()
+    )
+    observation_evaluations = (
+        db.query(ObservationEvaluationModel)
+        .filter(
+            ObservationEvaluationModel.diagnostic_session_id
+            == diagnostic_session_id
+        )
+        .order_by(
+            ObservationEvaluationModel.observation_id.asc(),
+            ObservationEvaluationModel.evaluation_result_id.asc(),
+        )
+        .all()
+    )
+    return (
+        session,
+        context,
+        activities,
+        associations,
+        usages,
+        observations,
+        observation_evaluations,
+    )
 
 
 def _reject_existing_identifiers(
@@ -458,6 +539,224 @@ def _add_production_supports(
         db.flush()
 
 
+def _association_contracts(
+    associations: list[ActivityProductionModel],
+    usages: list[SupportUsageModel],
+) -> list[ConversationalDiagnosticActivityProductionSetup]:
+    return [
+        ConversationalDiagnosticActivityProductionSetup(
+            diagnostic_session_id=association.diagnostic_session_id,
+            activity_id=association.activity_id,
+            production_id=association.production_id,
+            support_usages=[
+                _support_contract(usage)
+                for usage in usages
+                if usage.activity_id == association.activity_id
+                and usage.production_id == association.production_id
+            ],
+        )
+        for association in associations
+    ]
+
+
+def _evaluation_contract(
+    evaluation: EvaluationResultModel,
+) -> ProductionEvaluationResultRecord:
+    return ProductionEvaluationResultRecord(
+        evaluation_result_id=evaluation.id,
+        production_id=evaluation.production_id,
+        criterion_id=evaluation.criterion_id,
+        status=evaluation.status,
+        score=evaluation.score,
+        evaluator_id=evaluation.evaluator_id,
+        evaluator_version=evaluation.evaluator_version,
+        evaluated_at=evaluation.evaluated_at,
+    )
+
+
+def _prepare_observations(
+    session: ConversationalDiagnosticSession,
+    context: ConversationalDiagnosticContext,
+    activities: list[ConversationalDiagnosticActivity],
+    associations: list[ConversationalDiagnosticActivityProductionSetup],
+    observations: list[ConversationalDiagnosticObservation],
+    db: Session,
+) -> list[ConversationalDiagnosticObservation]:
+    """Resolve and validate observation traceability before any write.
+
+    Resuelve y valida la trazabilidad de observaciones antes de escribir.
+    """
+    if not observations:
+        return []
+
+    observation_ids = [item.observation_id for item in observations]
+    if len(observation_ids) != len(set(observation_ids)):
+        raise ValueError("Diagnostic observation identifiers must be unique")
+    for observation in observations:
+        if len(observation.evaluation_result_ids) != len(
+            set(observation.evaluation_result_ids)
+        ):
+            raise ValueError(
+                "Diagnostic evaluation identifiers must be unique"
+            )
+
+    existing_observation = (
+        db.query(ObservationModel.observation_id)
+        .filter(ObservationModel.observation_id.in_(observation_ids))
+        .first()
+    )
+    if existing_observation is not None:
+        raise DiagnosticPersistenceInvariantError(
+            "Diagnostic observation identifier already exists"
+        )
+
+    activity_by_id = {activity.activity_id: activity for activity in activities}
+    owner_by_production = {
+        association.production_id: association for association in associations
+    }
+    production_ids = {
+        observation.production_id
+        for observation in observations
+        if observation.production_id is not None
+    }
+    productions = (
+        db.query(LearnerProductionModel)
+        .filter(LearnerProductionModel.id.in_(production_ids))
+        .all()
+        if production_ids
+        else []
+    )
+    production_by_id = {production.id: production for production in productions}
+    if production_ids - set(production_by_id):
+        raise DiagnosticReferenceNotFoundError(
+            "Referenced learner production does not exist"
+        )
+
+    evaluation_ids = {
+        evaluation_id
+        for observation in observations
+        for evaluation_id in observation.evaluation_result_ids
+    }
+    evaluations = (
+        db.query(EvaluationResultModel)
+        .filter(EvaluationResultModel.id.in_(evaluation_ids))
+        .all()
+        if evaluation_ids
+        else []
+    )
+    evaluation_by_id = {
+        evaluation.id: evaluation for evaluation in evaluations
+    }
+    if evaluation_ids - set(evaluation_by_id):
+        raise DiagnosticReferenceNotFoundError(
+            "Referenced production evaluation does not exist"
+        )
+
+    validate_diagnostic_context_references(context, observations)
+    for observation in observations:
+        activity = activity_by_id.get(observation.activity_id)
+        if activity is None:
+            raise DiagnosticReferenceNotFoundError(
+                "Diagnostic observation activity does not exist"
+            )
+        validate_diagnostic_observation(session, activity, observation)
+
+        matching_usages: list[DiagnosticSupportUsage] = []
+        if observation.production_id is not None:
+            owner = owner_by_production.get(observation.production_id)
+            if owner is None:
+                raise DiagnosticReferenceNotFoundError(
+                    "Diagnostic activity-production association does not exist"
+                )
+            if owner.activity_id != observation.activity_id:
+                raise ValueError(
+                    "Diagnostic observation production belongs to another activity"
+                )
+            production = production_by_id[observation.production_id]
+            validate_diagnostic_activity_production(
+                activity,
+                LearnerProductionRecord(
+                    production_id=production.id,
+                    prompt_id=production.prompt_id,
+                    turn_id=production.turn_id,
+                    modality=production.modality,
+                    response_text=production.response_text,
+                    audio_reference=production.audio_reference,
+                ),
+                observation,
+            )
+            matching_usages = list(owner.support_usages)
+
+        validate_diagnostic_observation_support(
+            session,
+            activity,
+            observation,
+            matching_usages,
+        )
+        validate_diagnostic_observation_evaluations(
+            observation,
+            [
+                _evaluation_contract(evaluation_by_id[evaluation_id])
+                for evaluation_id in observation.evaluation_result_ids
+            ],
+        )
+
+    activity_order = {
+        activity.activity_id: activity.sequence_order for activity in activities
+    }
+    return sorted(
+        observations,
+        key=lambda observation: (
+            activity_order[observation.activity_id],
+            observation.activity_id,
+            observation.observed_at.isoformat(),
+            observation.observation_id,
+        ),
+    )
+
+
+def _add_observations(
+    observations: list[ConversationalDiagnosticObservation],
+    db: Session,
+) -> None:
+    for observation in observations:
+        db.add(
+            ObservationModel(
+                observation_id=observation.observation_id,
+                diagnostic_session_id=observation.diagnostic_session_id,
+                activity_id=observation.activity_id,
+                production_id=observation.production_id,
+                dimension=observation.dimension,
+                evidence_role=observation.evidence_role,
+                context_reference=observation.context_reference,
+                description=observation.description,
+                support_level=observation.support_level,
+                observer_id=observation.observer_id,
+                observer_version=observation.observer_version,
+                observed_at=observation.observed_at,
+            )
+        )
+    if observations:
+        db.flush()
+
+    for observation in sorted(
+        observations,
+        key=lambda item: item.observation_id,
+    ):
+        for evaluation_result_id in sorted(observation.evaluation_result_ids):
+            assert observation.production_id is not None
+            db.add(
+                ObservationEvaluationModel(
+                    diagnostic_session_id=observation.diagnostic_session_id,
+                    observation_id=observation.observation_id,
+                    evaluation_result_id=evaluation_result_id,
+                    production_id=observation.production_id,
+                )
+            )
+    if observations:
+        db.flush()
+
+
 def save_conversational_diagnostic_session_setup(
     setup: ConversationalDiagnosticSessionSetup,
     db: Session,
@@ -474,6 +773,14 @@ def save_conversational_diagnostic_session_setup(
                 setup.session,
                 setup.activities,
                 setup.production_supports,
+                db,
+            )
+            prepared_observations = _prepare_observations(
+                setup.session,
+                setup.context,
+                setup.activities,
+                prepared_associations,
+                setup.observations,
                 db,
             )
 
@@ -530,6 +837,7 @@ def save_conversational_diagnostic_session_setup(
             {activity.activity_id: activity for activity in setup.activities},
             db,
         )
+        _add_observations(prepared_observations, db)
         persisted = _build_setup(*_load_setup_models(
             setup.session.diagnostic_session_id,
             db,
@@ -572,9 +880,15 @@ def save_conversational_diagnostic_production_supports(
     Enriquece atómicamente una sesión existente con propiedad de producciones.
     """
     try:
-        session_model, _context, activity_models, _associations, _usages = (
-            _load_setup_models(batch.diagnostic_session_id, db)
-        )
+        (
+            session_model,
+            _context,
+            activity_models,
+            _associations,
+            _usages,
+            _observations,
+            _observation_evaluations,
+        ) = _load_setup_models(batch.diagnostic_session_id, db)
         session = _session_contract(session_model)
         activities = [
             _activity_contract(activity) for activity in activity_models
@@ -616,6 +930,74 @@ def save_conversational_diagnostic_production_supports(
         db.rollback()
         raise ConversationalDiagnosticPersistenceError(
             "Diagnostic production support batch could not be persisted"
+        ) from exc
+    except Exception:
+        db.rollback()
+        raise
+
+
+def save_conversational_diagnostic_observations(
+    batch: ConversationalDiagnosticObservationsBatch,
+    db: Session,
+) -> ConversationalDiagnosticSessionSetup:
+    """Enrich an existing session with observations atomically.
+
+    Enriquece atómicamente una sesión existente con observaciones.
+    """
+    try:
+        (
+            session_model,
+            context_model,
+            activity_models,
+            association_models,
+            usage_models,
+            _observations,
+            _observation_evaluations,
+        ) = _load_setup_models(batch.diagnostic_session_id, db)
+        session = _session_contract(session_model)
+        context = _context_contract(context_model)
+        activities = [
+            _activity_contract(activity) for activity in activity_models
+        ]
+        associations = _association_contracts(
+            association_models,
+            usage_models,
+        )
+        with db.no_autoflush:
+            prepared_observations = _prepare_observations(
+                session,
+                context,
+                activities,
+                associations,
+                batch.observations,
+                db,
+            )
+        _add_observations(prepared_observations, db)
+        persisted = _build_setup(
+            *_load_setup_models(batch.diagnostic_session_id, db)
+        )
+        db.commit()
+        return persisted
+    except (
+        DiagnosticReferenceNotFoundError,
+        DiagnosticPersistenceInvariantError,
+    ):
+        db.rollback()
+        raise
+    except ValueError as exc:
+        db.rollback()
+        raise DiagnosticPersistenceInvariantError(
+            "Diagnostic observation batch violates an invariant"
+        ) from exc
+    except IntegrityError as exc:
+        db.rollback()
+        raise DiagnosticPersistenceInvariantError(
+            "Diagnostic observation batch conflicts with persisted data"
+        ) from exc
+    except SQLAlchemyError as exc:
+        db.rollback()
+        raise ConversationalDiagnosticPersistenceError(
+            "Diagnostic observation batch could not be persisted"
         ) from exc
     except Exception:
         db.rollback()

@@ -12,18 +12,23 @@ from app.db.models import (
     ConversationalDiagnosticActivity as ActivityModel,
     ConversationalDiagnosticActivityProduction as ActivityProductionModel,
     ConversationalDiagnosticContext as ContextModel,
+    ConversationalDiagnosticObservation as ObservationModel,
+    ConversationalDiagnosticObservationEvaluation as ObservationEvaluationModel,
     ConversationalDiagnosticSession as SessionModel,
     ConversationalDiagnosticSupportUsage as SupportUsageModel,
     LearnerProduction as LearnerProductionModel,
+    ProductionEvaluationResult as EvaluationResultModel,
 )
 from app.schemas.conversational_diagnostic import (
     ConversationalDiagnosticActivity,
     ConversationalDiagnosticContext,
+    ConversationalDiagnosticObservation,
     ConversationalDiagnosticSession,
     DiagnosticSupportUsage,
 )
 from app.schemas.conversational_diagnostic_persistence import (
     ConversationalDiagnosticActivityProductionSetup,
+    ConversationalDiagnosticObservationsBatch,
     ConversationalDiagnosticProductionSupportsBatch,
     ConversationalDiagnosticSessionSetup,
 )
@@ -33,6 +38,7 @@ from app.services.conversational_diagnostic_persistence_service import (
     DiagnosticReferenceNotFoundError,
     DiagnosticSessionAlreadyExistsError,
     get_conversational_diagnostic_session_setup,
+    save_conversational_diagnostic_observations,
     save_conversational_diagnostic_production_supports,
     save_conversational_diagnostic_session_setup,
 )
@@ -157,6 +163,58 @@ def build_association(
         activity_id=activity_id,
         production_id=production_id,
         support_usages=usages,
+    )
+
+
+def add_evaluation(db, production_id, *, suffix="one"):
+    evaluation = EvaluationResultModel(
+        production_id=production_id,
+        criterion_id=f"criterion-{suffix}",
+        status="passed",
+        score=0.8,
+        evaluator_id="technical-evaluator",
+        evaluator_version="1.0",
+        evaluated_at=STARTED_AT,
+    )
+    db.add(evaluation)
+    db.commit()
+    return evaluation
+
+
+def build_observation(
+    production_id=None,
+    *,
+    evaluation_result_ids=None,
+    observation_id="observation-one",
+    session_id="session-one",
+    activity_id="activity-one-1",
+    dimension=None,
+    support_level=None,
+    observed_at=STARTED_AT,
+):
+    if evaluation_result_ids is None:
+        evaluation_result_ids = []
+    if dimension is None:
+        dimension = (
+            "response_initiation"
+            if production_id is not None
+            else "listening_comprehension"
+        )
+    if support_level is None:
+        support_level = "minimal" if production_id is not None else "none"
+    return ConversationalDiagnosticObservation(
+        observation_id=observation_id,
+        diagnostic_session_id=session_id,
+        activity_id=activity_id,
+        production_id=production_id,
+        evaluation_result_ids=evaluation_result_ids,
+        dimension=dimension,
+        evidence_role="strength",
+        description="Observable diagnostic evidence",
+        support_level=support_level,
+        observer_id="diagnostic-observer",
+        observer_version="1.0",
+        observed_at=observed_at,
     )
 
 
@@ -901,3 +959,552 @@ def test_get_enriched_setup_never_commits(db, monkeypatch):
         "session-one", db
     ) == setup
     assert commits == 0
+
+
+def test_previous_aggregates_remain_compatible_without_observations():
+    setup = build_setup()
+    association = build_association(1, supports=False)
+
+    assert setup.observations == []
+    assert setup.model_copy(
+        update={"production_supports": [association]}
+    ).observations == []
+
+
+def test_initial_save_round_trips_observations_and_evaluations(db):
+    production = add_production(db)
+    evaluation = add_evaluation(db, production.id)
+    observation = build_observation(
+        production.id,
+        evaluation_result_ids=[evaluation.id],
+    )
+    setup = build_setup().model_copy(
+        update={
+            "production_supports": [build_association(production.id)],
+            "observations": [observation],
+        }
+    )
+
+    saved = save_conversational_diagnostic_session_setup(setup, db)
+    loaded = get_conversational_diagnostic_session_setup("session-one", db)
+
+    assert saved == setup
+    assert loaded == setup
+    assert db.query(ObservationModel).count() == 1
+    assert db.query(ObservationEvaluationModel).count() == 1
+
+
+def test_enriches_existing_session_with_observations(db):
+    production = add_production(db)
+    evaluation = add_evaluation(db, production.id)
+    setup = build_setup().model_copy(
+        update={"production_supports": [build_association(production.id)]}
+    )
+    save_conversational_diagnostic_session_setup(setup, db)
+    observation = build_observation(
+        production.id,
+        evaluation_result_ids=[evaluation.id],
+    )
+    batch = ConversationalDiagnosticObservationsBatch(
+        diagnostic_session_id="session-one",
+        observations=[observation],
+    )
+
+    enriched = save_conversational_diagnostic_observations(batch, db)
+
+    assert enriched.observations == [observation]
+    assert db.query(ObservationEvaluationModel).count() == 1
+
+
+def test_get_orders_observations_and_evaluation_ids_stably(db):
+    production = add_production(db)
+    first_evaluation = add_evaluation(db, production.id, suffix="first")
+    second_evaluation = add_evaluation(db, production.id, suffix="second")
+    later = build_observation(
+        production.id,
+        evaluation_result_ids=[second_evaluation.id, first_evaluation.id],
+        observation_id="observation-later",
+        observed_at=STARTED_AT.replace(hour=11),
+    )
+    earlier = build_observation(
+        production.id,
+        observation_id="observation-earlier",
+    )
+    setup = build_setup().model_copy(
+        update={
+            "production_supports": [build_association(production.id)],
+            "observations": [later, earlier],
+        }
+    )
+
+    save_conversational_diagnostic_session_setup(setup, db)
+    loaded = get_conversational_diagnostic_session_setup("session-one", db)
+
+    assert [item.observation_id for item in loaded.observations] == [
+        "observation-earlier",
+        "observation-later",
+    ]
+    assert loaded.observations[1].evaluation_result_ids == sorted(
+        [first_evaluation.id, second_evaluation.id]
+    )
+
+
+def test_accepts_observation_without_evaluations(db):
+    production = add_production(db)
+    setup = build_setup().model_copy(
+        update={"production_supports": [build_association(production.id)]}
+    )
+    save_conversational_diagnostic_session_setup(setup, db)
+
+    saved = save_conversational_diagnostic_observations(
+        ConversationalDiagnosticObservationsBatch(
+            diagnostic_session_id="session-one",
+            observations=[build_observation(production.id)],
+        ),
+        db,
+    )
+
+    assert saved.observations[0].evaluation_result_ids == []
+
+
+def test_one_evaluation_can_support_multiple_compatible_observations(db):
+    production = add_production(db)
+    evaluation = add_evaluation(db, production.id)
+    setup = build_setup().model_copy(
+        update={"production_supports": [build_association(production.id)]}
+    )
+    save_conversational_diagnostic_session_setup(setup, db)
+    observations = [
+        build_observation(
+            production.id,
+            evaluation_result_ids=[evaluation.id],
+            observation_id=f"observation-{suffix}",
+        )
+        for suffix in ("first", "second")
+    ]
+
+    save_conversational_diagnostic_observations(
+        ConversationalDiagnosticObservationsBatch(
+            diagnostic_session_id="session-one",
+            observations=observations,
+        ),
+        db,
+    )
+
+    assert db.query(ObservationEvaluationModel).count() == 2
+
+
+def test_rejects_unknown_session_for_observation_batch(db):
+    batch = ConversationalDiagnosticObservationsBatch(
+        diagnostic_session_id="unknown-session",
+        observations=[
+            build_observation(
+                session_id="unknown-session",
+                activity_id="unknown-activity",
+            )
+        ],
+    )
+
+    with pytest.raises(DiagnosticReferenceNotFoundError):
+        save_conversational_diagnostic_observations(batch, db)
+
+
+def test_rejects_unknown_observation_activity(db):
+    save_conversational_diagnostic_session_setup(build_setup(), db)
+    batch = ConversationalDiagnosticObservationsBatch(
+        diagnostic_session_id="session-one",
+        observations=[build_observation(activity_id="unknown-activity")],
+    )
+
+    with pytest.raises(DiagnosticReferenceNotFoundError, match="activity"):
+        save_conversational_diagnostic_observations(batch, db)
+
+
+def test_rejects_unknown_observation_production(db):
+    save_conversational_diagnostic_session_setup(build_setup(), db)
+    batch = ConversationalDiagnosticObservationsBatch(
+        diagnostic_session_id="session-one",
+        observations=[build_observation(999, support_level="none")],
+    )
+
+    with pytest.raises(DiagnosticReferenceNotFoundError, match="production"):
+        save_conversational_diagnostic_observations(batch, db)
+
+
+def test_rejects_unknown_evaluation(db):
+    production = add_production(db)
+    setup = build_setup().model_copy(
+        update={"production_supports": [build_association(production.id)]}
+    )
+    save_conversational_diagnostic_session_setup(setup, db)
+
+    with pytest.raises(DiagnosticReferenceNotFoundError, match="evaluation"):
+        save_conversational_diagnostic_observations(
+            ConversationalDiagnosticObservationsBatch(
+                diagnostic_session_id="session-one",
+                observations=[
+                    build_observation(
+                        production.id,
+                        evaluation_result_ids=[999],
+                    )
+                ],
+            ),
+            db,
+        )
+
+
+def test_batch_rejects_duplicate_observation_identifier():
+    observation = build_observation()
+
+    with pytest.raises(ValidationError, match="unique identifiers"):
+        ConversationalDiagnosticObservationsBatch(
+            diagnostic_session_id="session-one",
+            observations=[observation, observation],
+        )
+
+
+def test_batch_rejects_observation_from_another_session():
+    with pytest.raises(ValidationError, match="diagnostic session"):
+        ConversationalDiagnosticObservationsBatch(
+            diagnostic_session_id="session-one",
+            observations=[
+                build_observation(session_id="another-session")
+            ],
+        )
+
+
+def test_rejects_existing_observation_identifier(db):
+    save_conversational_diagnostic_session_setup(build_setup(), db)
+    batch = ConversationalDiagnosticObservationsBatch(
+        diagnostic_session_id="session-one",
+        observations=[build_observation()],
+    )
+    save_conversational_diagnostic_observations(batch, db)
+
+    with pytest.raises(
+        DiagnosticPersistenceInvariantError,
+        match="already exists",
+    ):
+        save_conversational_diagnostic_observations(batch, db)
+
+
+def test_observation_contract_rejects_duplicate_evaluation_identifier():
+    with pytest.raises(ValidationError, match="unique values"):
+        build_observation(evaluation_result_ids=[1, 1])
+
+
+def test_rejects_production_owned_by_another_activity(db):
+    production = add_production(db)
+    setup = build_setup().model_copy(
+        update={"production_supports": [build_association(production.id)]}
+    )
+    save_conversational_diagnostic_session_setup(setup, db)
+    observation = build_observation(
+        production.id,
+        activity_id="activity-one-2",
+        support_level="none",
+    )
+
+    with pytest.raises(DiagnosticPersistenceInvariantError) as captured:
+        save_conversational_diagnostic_observations(
+            ConversationalDiagnosticObservationsBatch(
+                diagnostic_session_id="session-one",
+                observations=[observation],
+            ),
+            db,
+        )
+
+    assert "another activity" in str(captured.value.__cause__)
+
+
+def test_rejects_evaluation_of_another_production(db):
+    production = add_production(db, suffix="first")
+    other = add_production(db, suffix="second")
+    evaluation = add_evaluation(db, other.id)
+    setup = build_setup().model_copy(
+        update={"production_supports": [build_association(production.id)]}
+    )
+    save_conversational_diagnostic_session_setup(setup, db)
+
+    with pytest.raises(DiagnosticPersistenceInvariantError) as captured:
+        save_conversational_diagnostic_observations(
+            ConversationalDiagnosticObservationsBatch(
+                diagnostic_session_id="session-one",
+                observations=[
+                    build_observation(
+                        production.id,
+                        evaluation_result_ids=[evaluation.id],
+                    )
+                ],
+            ),
+            db,
+        )
+
+    assert "observed production" in str(captured.value.__cause__)
+
+
+def test_batch_rejects_production_required_dimension_without_production():
+    observation = build_observation().model_copy(
+        update={"dimension": "response_initiation"}
+    )
+
+    with pytest.raises(ValidationError, match="requires a production"):
+        ConversationalDiagnosticObservationsBatch(
+            diagnostic_session_id="session-one",
+            observations=[observation],
+        )
+
+
+def test_accepts_legitimate_observation_without_production(db):
+    save_conversational_diagnostic_session_setup(build_setup(), db)
+
+    saved = save_conversational_diagnostic_observations(
+        ConversationalDiagnosticObservationsBatch(
+            diagnostic_session_id="session-one",
+            observations=[build_observation()],
+        ),
+        db,
+    )
+
+    assert saved.observations[0].production_id is None
+
+
+def test_batch_rejects_evaluation_without_production():
+    observation = build_observation().model_copy(
+        update={"evaluation_result_ids": [1]}
+    )
+
+    with pytest.raises(ValidationError, match="observed production"):
+        ConversationalDiagnosticObservationsBatch(
+            diagnostic_session_id="session-one",
+            observations=[observation],
+        )
+
+
+def test_rejects_observation_support_level_not_actually_used(db):
+    production = add_production(db)
+    setup = build_setup().model_copy(
+        update={"production_supports": [build_association(production.id)]}
+    )
+    save_conversational_diagnostic_session_setup(setup, db)
+
+    with pytest.raises(DiagnosticPersistenceInvariantError) as captured:
+        save_conversational_diagnostic_observations(
+            ConversationalDiagnosticObservationsBatch(
+                diagnostic_session_id="session-one",
+                observations=[
+                    build_observation(production.id, support_level="full")
+                ],
+            ),
+            db,
+        )
+
+    assert "support level" in str(captured.value.__cause__)
+
+
+def test_rejects_unknown_motivating_context(db):
+    save_conversational_diagnostic_session_setup(build_setup(), db)
+    observation = ConversationalDiagnosticObservation(
+        observation_id="observation-context",
+        diagnostic_session_id="session-one",
+        activity_id="activity-one-1",
+        dimension="motivating_context",
+        evidence_role="context_relevance",
+        context_reference="unknown interest",
+        description="Context evidence",
+        support_level="none",
+        observer_id="observer",
+        observer_version="1.0",
+        observed_at=STARTED_AT,
+    )
+
+    with pytest.raises(DiagnosticPersistenceInvariantError) as captured:
+        save_conversational_diagnostic_observations(
+            ConversationalDiagnosticObservationsBatch(
+                diagnostic_session_id="session-one",
+                observations=[observation],
+            ),
+            db,
+        )
+
+    assert "authorized general interests" in str(captured.value.__cause__)
+
+
+@pytest.mark.parametrize("enrichment", [False, True])
+def test_observation_writes_commit_exactly_once(
+    db,
+    monkeypatch,
+    enrichment,
+):
+    production = add_production(db)
+    evaluation = add_evaluation(db, production.id)
+    association = build_association(production.id)
+    observation = build_observation(
+        production.id,
+        evaluation_result_ids=[evaluation.id],
+    )
+    setup = build_setup().model_copy(
+        update={"production_supports": [association]}
+    )
+    if enrichment:
+        save_conversational_diagnostic_session_setup(setup, db)
+    commits = 0
+    original_commit = db.commit
+
+    def counted_commit():
+        nonlocal commits
+        commits += 1
+        return original_commit()
+
+    monkeypatch.setattr(db, "commit", counted_commit)
+    if enrichment:
+        save_conversational_diagnostic_observations(
+            ConversationalDiagnosticObservationsBatch(
+                diagnostic_session_id="session-one",
+                observations=[observation],
+            ),
+            db,
+        )
+    else:
+        save_conversational_diagnostic_session_setup(
+            setup.model_copy(update={"observations": [observation]}),
+            db,
+        )
+
+    assert commits == 1
+
+
+@pytest.mark.parametrize("failing_flush_call", [1, 2])
+def test_observation_flush_failure_rolls_back_all_evidence(
+    db,
+    monkeypatch,
+    failing_flush_call,
+):
+    production = add_production(db)
+    evaluation = add_evaluation(db, production.id)
+    setup = build_setup().model_copy(
+        update={"production_supports": [build_association(production.id)]}
+    )
+    save_conversational_diagnostic_session_setup(setup, db)
+    batch = ConversationalDiagnosticObservationsBatch(
+        diagnostic_session_id="session-one",
+        observations=[
+            build_observation(
+                production.id,
+                evaluation_result_ids=[evaluation.id],
+            )
+        ],
+    )
+    original_flush = db.flush
+    calls = 0
+
+    def failing_flush(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        if calls == failing_flush_call:
+            raise SQLAlchemyError("injected observation flush failure")
+        return original_flush(*args, **kwargs)
+
+    monkeypatch.setattr(db, "flush", failing_flush)
+
+    with pytest.raises(ConversationalDiagnosticPersistenceError):
+        save_conversational_diagnostic_observations(batch, db)
+
+    assert db.query(ObservationModel).count() == 0
+    assert db.query(ObservationEvaluationModel).count() == 0
+
+
+def test_get_observations_never_commits(db, monkeypatch):
+    save_conversational_diagnostic_session_setup(build_setup(), db)
+    save_conversational_diagnostic_observations(
+        ConversationalDiagnosticObservationsBatch(
+            diagnostic_session_id="session-one",
+            observations=[build_observation()],
+        ),
+        db,
+    )
+    commits = 0
+
+    def counted_commit():
+        nonlocal commits
+        commits += 1
+
+    monkeypatch.setattr(db, "commit", counted_commit)
+    loaded = get_conversational_diagnostic_session_setup("session-one", db)
+
+    assert loaded.observations
+    assert commits == 0
+
+
+def test_observations_are_isolated_between_sessions(db):
+    first = build_setup("first")
+    second = build_setup("second")
+    save_conversational_diagnostic_session_setup(first, db)
+    save_conversational_diagnostic_session_setup(second, db)
+    save_conversational_diagnostic_observations(
+        ConversationalDiagnosticObservationsBatch(
+            diagnostic_session_id="session-first",
+            observations=[
+                build_observation(
+                    observation_id="observation-first",
+                    session_id="session-first",
+                    activity_id="activity-first-1",
+                )
+            ],
+        ),
+        db,
+    )
+
+    assert get_conversational_diagnostic_session_setup(
+        "session-second", db
+    ).observations == []
+
+
+def test_observation_enrichment_does_not_mutate_sources(db):
+    production = add_production(db)
+    evaluation = add_evaluation(db, production.id)
+    production_snapshot = (
+        production.prompt_id,
+        production.modality,
+        production.response_text,
+    )
+    evaluation_snapshot = (
+        evaluation.production_id,
+        evaluation.criterion_id,
+        evaluation.status,
+        evaluation.score,
+    )
+    setup = build_setup().model_copy(
+        update={"production_supports": [build_association(production.id)]}
+    )
+    save_conversational_diagnostic_session_setup(setup, db)
+    save_conversational_diagnostic_observations(
+        ConversationalDiagnosticObservationsBatch(
+            diagnostic_session_id="session-one",
+            observations=[
+                build_observation(
+                    production.id,
+                    evaluation_result_ids=[evaluation.id],
+                )
+            ],
+        ),
+        db,
+    )
+
+    persisted_production = db.query(LearnerProductionModel).one()
+    persisted_evaluation = db.query(EvaluationResultModel).one()
+    assert db.query(LearnerProductionModel).count() == 1
+    assert db.query(EvaluationResultModel).count() == 1
+    assert (
+        persisted_production.prompt_id,
+        persisted_production.modality,
+        persisted_production.response_text,
+    ) == production_snapshot
+    assert (
+        persisted_evaluation.production_id,
+        persisted_evaluation.criterion_id,
+        persisted_evaluation.status,
+        persisted_evaluation.score,
+    ) == evaluation_snapshot
+    assert not hasattr(persisted_evaluation, "mastery")
+    assert not hasattr(persisted_evaluation, "consensus")
