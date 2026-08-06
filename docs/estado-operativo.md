@@ -13,36 +13,17 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### B178 — Sistematización profesional del método de trabajo
-
-Estado: último bloque completamente cerrado.
-
-Capacidades completadas:
-
-- checkpoint operativo compacto y validable;
-- detección de estado desactualizado y límite de tamaño;
-- generación de resumen operativo corto;
-- orquestación sobre `block_close.py`;
-- interrupción temprana ante contexto operativo inválido.
-
-Validación final:
-
-- pruebas específicas: 8 passed;
-- suite backend: 923 passed;
-- `git diff --check`: limpio;
-- commit técnico: `c08196d`.
-
-## Bloque activo
-
 ### B179 — Diagnóstico conversacional persistente y consultable
 
-Hito A — modelos persistentes y migración Alembic: cerrado técnicamente mediante validación directa de respaldo.
+Estado: cerrado técnica e integralmente.
 
-Hito S1 — contrato ejecutable de seguridad DevSecOps: cerrado técnicamente.
+Hito A — modelos persistentes y migración Alembic: cerrado.
 
-Hito S2 — adaptador PostgreSQL seguro: cerrado técnicamente mediante integración aislada ejecutada en Kitty.
+Hito S1 — contrato ejecutable de seguridad DevSecOps: cerrado.
 
-Hito B — incrementos 1–3, 4A y 4B: cerrado técnicamente; B179 continúa activo hasta su cierre integral.
+Hito S2 — adaptador PostgreSQL seguro: cerrado mediante integración aislada ejecutada en Kitty.
+
+Hito B — persistencia transaccional e historial consultable: cerrado.
 
 Capacidades completadas:
 
@@ -95,11 +76,18 @@ Validación de S2:
 Validación del primer incremento de Hito B: 16 específicas, 190 de regresión, suite backend 983 passed in 5.55s, revisión sin defectos y commit `56a3d42`.
 Validación del segundo incremento: 41 específicas en 0.72 s, 190 de regresión en 1.29 s, suite backend 1008 passed in 5.60s, revisión sin defectos y commit `719aa74`.
 Validación del tercero: 69 específicas, suite backend 1036 passed; 4A: suite backend 1066 passed in 6.66s, commit `94a620e`; 4B: 309 relacionadas en 3.17s, marcador `B179_HITO_B_INCREMENTO_4B_VALIDATED`, commit `c9e3bab`; revisiones sin defectos.
+
+Validación integral directa en Kitty: suite backend 1086 passed in 6.93s; `operational_state.py validate` correcto; `git diff --check` limpio; Git sincronizado `master...origin/master`; marcador `B179_INTEGRAL_VALIDATED`.
+
 Límites vigentes:
 
 - sin API ni Flutter;
 - sin progreso, mastery, retención, adaptación automática ni historial de transiciones;
 - S2 no autoriza migraciones en desarrollo, staging o producción reales.
+
+## Bloque activo
+
+Ninguno. El siguiente bloque requiere diseño pedagógico explícito.
 
 ## Deuda operativa separada
 
@@ -125,7 +113,7 @@ Cada hito pasa por definición, implementación técnica, validación específic
 
 ## Próximo objetivo
 
-B179 — cierre integral del bloque, sin ampliar el alcance técnico ni autorizar operaciones sobre bases reales.
+Diseñar el siguiente bloque desde una capacidad observable del estudiante y el modelo pedagógico maestro. El historial técnico no determina automáticamente ese bloque.
 
 Toda futura aplicación sobre entornos reales requerirá una autorización y controles adicionales fuera de S2.
 

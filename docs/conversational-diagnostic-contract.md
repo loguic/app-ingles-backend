@@ -198,9 +198,11 @@ Validación confirmada: 105 pruebas de persistencia transaccional, 20 de perfile
 
 Hito B queda cerrado técnicamente: el agregado consultable reconstruye de forma estructurada y ordenada configuración, producciones y apoyos, observaciones y evaluaciones técnicas, y perfiles históricos con sus evidencias. Esta consulta interna no constituye una API pública ni incluye historial de transiciones.
 
+B179 queda cerrado técnica e integralmente con Hitos A, S1, S2 y B completos. La validación final directa en Kitty registró 1086 pruebas backend superadas en 6.93 s, `operational_state.py validate` correcto, `git diff --check` limpio, Git sincronizado en `master...origin/master` y marcador `B179_INTEGRAL_VALIDATED`. La trazabilidad técnica corresponde a `40a30b3`, `0472093`, `d0efe1e`, `56a3d42`, `719aa74`, `f30887f`, `94a620e` y `c9e3bab`.
+
 ## Límites vigentes
 
-B179 continúa activo hasta su cierre integral. Permanecen fuera el historial de transiciones, API, Flutter, progreso, mastery, retención y adaptación automática. S2 no autoriza operaciones sobre bases reales.
+Permanecen fuera el historial de transiciones, API, Flutter, progreso, mastery, retención y adaptación automática. S2 no autoriza operaciones sobre bases reales.
 
 ## Validación confirmada de la Etapa B
 

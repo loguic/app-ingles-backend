@@ -3738,3 +3738,23 @@ Validación final:
 - commit técnico: `c9e3bab`.
 
 El agregado recuperado ya constituye el historial consultable interno comprometido: reúne configuración, producciones y apoyos, observaciones y evaluaciones técnicas, y perfiles con evidencias, todo estructurado y ordenado. No queda otro incremento técnico interno para Hito B. Permanecen fuera historial de transiciones, API, Flutter, progreso, mastery, retención y adaptación; S2 no autoriza operaciones sobre bases reales.
+
+## B179 — cierre integral definitivo
+
+Estado: cerrado técnica e integralmente. Quedan cerrados Hito A, Puerta DevSecOps S1 y S2, y Hito B con sus incrementos 1–3, 4A y 4B.
+
+La trazabilidad técnica final comprende: modelo relacional y migración `3c4f1a2b7d90` (`40a30b3`); puerta preventiva fail-closed (`0472093`); PostgreSQL temporal con backup, SHA-256, restauración y Alembic reversible (`d0efe1e`); configuración transaccional (`56a3d42`); producciones y apoyos (`719aa74`); observaciones y evaluaciones normalizadas (`f30887f`); máquina de estados con actualización condicional (`94a620e`); perfiles históricos append-only y evidencias (`c9e3bab`).
+
+El resultado conserva validación previa, un commit por operación pública, rollback integral, rechazo de duplicados y sobrescrituras, referencias técnicas preexistentes e inmutables y recuperación explícita, estructurada y ordenada sin lazy loading. Se mantienen producción ≠ evaluación técnica, evaluación técnica ≠ observación diagnóstica, observación diagnóstica ≠ perfil inicial, perfil inicial ≠ progreso y progreso ≠ mastery.
+
+Validación final directa en Kitty:
+
+- suite backend: 1086 passed in 6.93s;
+- `operational_state.py validate`: correcto;
+- `git diff --check`: limpio;
+- Git: `## master...origin/master`;
+- marcador: `B179_INTEGRAL_VALIDATED`.
+
+Permanecen fuera API y endpoints, Flutter, progreso, mastery, retención, adaptación automática, historial persistente de transiciones y migraciones sobre bases reales. S2 no autoriza desarrollo, staging o producción reales. La deuda de interrupción de `block_workflow.py` continúa separada.
+
+El siguiente bloque deberá diseñarse desde una capacidad observable del estudiante y el modelo pedagógico maestro. El historial técnico no determina automáticamente cuál será.

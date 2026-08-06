@@ -775,7 +775,7 @@ Los commits y el push continúan bajo confirmación humana.
 
 ## B179 — Diagnóstico conversacional persistente y consultable
 
-Estado: bloque activo; Hito A cerrado técnicamente.
+Estado: bloque cerrado técnica e integralmente; Hitos A, S1, S2 y B cerrados.
 
 El Hito A incorporó modelos SQLAlchemy y la revisión Alembic `3c4f1a2b7d90` para las siete entidades principales del diagnóstico. Añadió las tablas normalizadas `conversational_diagnostic_activity_productions` y `conversational_diagnostic_observation_evaluations` para proteger:
 
@@ -845,7 +845,7 @@ S2 no autoriza migraciones sobre desarrollo, staging o producción reales. Sigui
 
 ### Hito B — persistencia transaccional incremental
 
-Estado: incremento cerrado técnicamente; Hito B continúa activo.
+Estado final: Hito B cerrado técnicamente mediante sus incrementos 1–3, 4A y 4B.
 
 Se añadió `ConversationalDiagnosticSessionSetup` y las operaciones públicas `save_conversational_diagnostic_session_setup(setup, db)` y `get_conversational_diagnostic_session_setup(diagnostic_session_id, db)`. El alcance actual cubre sesión, contexto y actividades.
 
@@ -881,4 +881,12 @@ Validación de 4B: 105 pruebas de persistencia, 20 de perfiles, 88 de validació
 
 Hito B queda cerrado técnicamente: `get_conversational_diagnostic_session_setup` ofrece el historial interno estructurado y ordenado de configuración, producciones y apoyos, observaciones y evaluaciones, y perfiles con evidencias. No se requiere otro incremento interno para el alcance comprometido.
 
-Límites: sin historial de transiciones, API, Flutter, progreso, mastery, retención ni adaptación. S2 no autoriza bases reales; B179 permanece activo hasta su cierre integral.
+Límites: sin historial de transiciones, API, Flutter, progreso, mastery, retención ni adaptación. S2 no autoriza bases reales.
+
+### Cierre integral de B179
+
+B179 queda cerrado técnica e integralmente. Hito A aportó el modelo normalizado y la migración `3c4f1a2b7d90` (`40a30b3`); S1, la puerta preventiva fail-closed (`0472093`); S2, el ensayo PostgreSQL aislado y reversible (`d0efe1e`); Hito B, la configuración transaccional (`56a3d42`), producciones y apoyos (`719aa74`), observaciones y evaluaciones (`f30887f`), transición condicional (`94a620e`) y perfiles append-only (`c9e3bab`).
+
+La validación final directa en Kitty registró 1086 pruebas backend superadas en 6.93 s, `operational_state.py validate` correcto, `git diff --check` limpio, Git sincronizado en `master...origin/master` y marcador `B179_INTEGRAL_VALIDATED`.
+
+Permanecen fuera API, Flutter, progreso, mastery, retención, adaptación automática, historial persistente de transiciones y operaciones sobre bases reales. El próximo objetivo es diseñar un bloque desde una capacidad observable del estudiante y el modelo pedagógico maestro; el historial técnico no selecciona automáticamente dicho bloque.
