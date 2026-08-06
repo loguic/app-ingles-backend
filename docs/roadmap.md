@@ -871,6 +871,14 @@ El comando aporta estado esperado y timestamp explícitos. La actualización con
 
 Validación de 4A: 88 pruebas de validación, 85 de persistencia, 20 de perfiles, 82 de esquemas, 14 de persistencia relacional y suite backend 1066 passed in 6.66s. `operational_state.py validate` correcto, `git diff --check` limpio, revisión sin defectos accionables y commit `94a620e`. No se modificaron modelos ni migraciones.
 
-Pendiente: perfiles iniciales, evidencias perfil–observación e historial completo orientado a consulta. Siguiente incremento recomendado: persistencia append-only de perfiles y evidencias sobre observaciones preexistentes, sin convertir observación en decisión pedagógica automática.
+El Incremento 4B añadió `InitialConversationalProfileSetup`, `ConversationalDiagnosticProfilesBatch`, `profiles=[]` y `save_conversational_diagnostic_profiles(batch, db)`. Los perfiles ya generados se incorporan solo por enriquecimiento posterior: provisional con provisional y completed con confirmed; in_progress y cancelled se rechazan.
 
-Límites: sin API, Flutter, progreso ni mastery. S2 no autoriza bases reales.
+La persistencia es append-only, admite varios perfiles históricos con identificadores distintos y rechaza duplicados, sobrescritura e idempotencia implícita. Las evidencias son obligatorias, únicas y apuntan a observaciones preexistentes de la misma sesión; una observación puede reutilizarse entre perfiles sin modificarse. Los perfiles confirmed exigen cobertura completa. `first_lesson_id` se conserva sin consultar contenido.
+
+La escritura valida antes del primer `add`, realiza dos `flush`, exactamente un commit y rollback integral. La lectura reconstruye perfiles por `generated_at` y `profile_id` y sus evidencias por orden diagnóstico, sin lazy loading, commit ni reinterpretación histórica.
+
+Validación de 4B: 105 pruebas de persistencia, 20 de perfiles, 88 de validación, 82 de esquemas y 14 relacionales; 309 relacionadas en 3.17 s, marcador `B179_HITO_B_INCREMENTO_4B_VALIDATED`, revisión sin defectos accionables y commit `c9e3bab`. No se modificaron modelos ni migraciones.
+
+Hito B queda cerrado técnicamente: `get_conversational_diagnostic_session_setup` ofrece el historial interno estructurado y ordenado de configuración, producciones y apoyos, observaciones y evaluaciones, y perfiles con evidencias. No se requiere otro incremento interno para el alcance comprometido.
+
+Límites: sin historial de transiciones, API, Flutter, progreso, mastery, retención ni adaptación. S2 no autoriza bases reales; B179 permanece activo hasta su cierre integral.

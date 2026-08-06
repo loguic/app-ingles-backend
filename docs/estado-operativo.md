@@ -42,7 +42,7 @@ Hito S1 — contrato ejecutable de seguridad DevSecOps: cerrado técnicamente.
 
 Hito S2 — adaptador PostgreSQL seguro: cerrado técnicamente mediante integración aislada ejecutada en Kitty.
 
-Hito B — incrementos 1–3 y 4A transaccionales: cerrados técnicamente; Hito B continúa activo.
+Hito B — incrementos 1–3, 4A y 4B: cerrado técnicamente; B179 continúa activo hasta su cierre integral.
 
 Capacidades completadas:
 
@@ -50,6 +50,7 @@ Capacidades completadas:
 - propiedad exclusiva actividad–producción;
 - coincidencia relacional de sesión, actividad, `prompt_id` y producción;
 - observaciones transaccionales y enlaces normalizados con evaluaciones técnicas inmutables;
+- perfiles iniciales append-only, evidencias y su historial interno estructurado y ordenado;
 - máquina de estados explícita y concurrentemente segura, sin reapertura ni historial de transiciones;
 - producción obligatoria para las ocho dimensiones dependientes;
 - revisión Alembic `3c4f1a2b7d90` con `upgrade` y `downgrade` validados aisladamente.
@@ -93,12 +94,11 @@ Validación de S2:
 
 Validación del primer incremento de Hito B: 16 específicas, 190 de regresión, suite backend 983 passed in 5.55s, revisión sin defectos y commit `56a3d42`.
 Validación del segundo incremento: 41 específicas en 0.72 s, 190 de regresión en 1.29 s, suite backend 1008 passed in 5.60s, revisión sin defectos y commit `719aa74`.
-Validación del tercero: 69 específicas, suite backend 1036 passed; 4A: 88 de validación, 85 de persistencia, suite backend 1066 passed in 6.66s y commit `94a620e`; revisiones sin defectos.
+Validación del tercero: 69 específicas, suite backend 1036 passed; 4A: suite backend 1066 passed in 6.66s, commit `94a620e`; 4B: 309 relacionadas en 3.17s, marcador `B179_HITO_B_INCREMENTO_4B_VALIDATED`, commit `c9e3bab`; revisiones sin defectos.
 Límites vigentes:
 
 - sin API ni Flutter;
-- sin progreso ni mastery;
-- pendientes perfiles append-only, evidencias perfil–observación e historial completo orientado a consulta; sin historial de transiciones;
+- sin progreso, mastery, retención, adaptación automática ni historial de transiciones;
 - S2 no autoriza migraciones en desarrollo, staging o producción reales.
 
 ## Deuda operativa separada
@@ -125,7 +125,7 @@ Cada hito pasa por definición, implementación técnica, validación específic
 
 ## Próximo objetivo
 
-B179 Hito B — persistir perfiles iniciales append-only y evidencias sobre observaciones preexistentes, sin decisión pedagógica automática.
+B179 — cierre integral del bloque, sin ampliar el alcance técnico ni autorizar operaciones sobre bases reales.
 
 Toda futura aplicación sobre entornos reales requerirá una autorización y controles adicionales fuera de S2.
 

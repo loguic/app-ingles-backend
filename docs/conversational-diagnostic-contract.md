@@ -188,9 +188,19 @@ El comando exige `expected_current_status` y `transitioned_at`. La actualizació
 
 Validación confirmada: 88 pruebas de validación, 85 de persistencia transaccional, 20 de perfiles, 82 de esquemas, 14 de persistencia relacional, suite backend de 1066 pruebas en 6.66 s y commit técnico `94a620e`. Revisión sin defectos accionables; no se modificaron modelos ni migraciones.
 
+El Incremento 4B añade `InitialConversationalProfileSetup`, `ConversationalDiagnosticProfilesBatch` y `save_conversational_diagnostic_profiles(batch, db)`. `ConversationalDiagnosticSessionSetup` incorpora `profiles=[]` sin romper los agregados anteriores. Los perfiles se reciben ya generados y solo se añaden mediante enriquecimiento posterior: una sesión provisional admite perfiles provisionales y una completed, perfiles confirmed; in_progress y cancelled los rechazan.
+
+La política es append-only: cada `profile_id` es nuevo, varios perfiles históricos pueden pertenecer a una sesión y no existe update, delete, overwrite ni idempotencia implícita. Cada perfil exige evidencias únicas sobre observaciones preexistentes de su sesión; una observación puede respaldar perfiles históricos diferentes sin ser modificada. Los perfiles confirmed reutilizan el validador canónico de cobertura completa. `first_lesson_id` se conserva exactamente, sin consultar el catálogo desde persistencia.
+
+La escritura valida antes del primer `add`, usa un `flush` para perfiles y otro para evidencias, ejecuta exactamente un commit y rollback integral. La lectura amplía `get_conversational_diagnostic_session_setup`: recupera perfiles por `generated_at` y `profile_id`, y evidencias por secuencia de actividad, `activity_id`, `observed_at` y `observation_id`, sin lazy loading, commit ni reinterpretación destructiva del historial.
+
+Validación confirmada: 105 pruebas de persistencia transaccional, 20 de perfiles, 88 de validación, 82 de esquemas y 14 de persistencia relacional; total relacionado de 309 pruebas en 3.17 s, marcador `B179_HITO_B_INCREMENTO_4B_VALIDATED`, revisión sin defectos accionables y commit técnico `c9e3bab`. No se modificaron modelos ni migraciones.
+
+Hito B queda cerrado técnicamente: el agregado consultable reconstruye de forma estructurada y ordenada configuración, producciones y apoyos, observaciones y evaluaciones técnicas, y perfiles históricos con sus evidencias. Esta consulta interna no constituye una API pública ni incluye historial de transiciones.
+
 ## Límites vigentes
 
-Hito B continúa activo. Todavía no persiste transaccionalmente perfiles iniciales, evidencias perfil–observación ni el historial completo orientado a consulta; el historial de transiciones queda fuera. No incluye API, Flutter, progreso o mastery. El siguiente incremento incorporará perfiles append-only y evidencias sobre observaciones preexistentes.
+B179 continúa activo hasta su cierre integral. Permanecen fuera el historial de transiciones, API, Flutter, progreso, mastery, retención y adaptación automática. S2 no autoriza operaciones sobre bases reales.
 
 ## Validación confirmada de la Etapa B
 

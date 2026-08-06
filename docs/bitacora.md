@@ -3712,3 +3712,29 @@ Validación final:
 - commit técnico: `94a620e`.
 
 No se modificaron modelos ni migraciones. El siguiente incremento recomendado persistirá perfiles iniciales append-only y evidencias perfil–observación sobre observaciones preexistentes. Permanecen fuera el historial de transiciones, API, Flutter, progreso, mastery, retención y adaptación; S2 no autoriza operaciones sobre bases reales.
+
+## B179 — Hito B, Incremento 4B: perfiles iniciales append-only
+
+Estado: incremento y Hito B cerrados técnicamente; B179 permanece activo hasta su cierre integral.
+
+Se añadieron `InitialConversationalProfileSetup`, `ConversationalDiagnosticProfilesBatch` y `save_conversational_diagnostic_profiles(batch, db)`; el agregado incorpora `profiles=[]` con compatibilidad hacia los incrementos anteriores. Los perfiles llegan ya generados y se guardan solo mediante enriquecimiento: sesión provisional con perfil provisional y completed con confirmed; in_progress y cancelled no admiten perfiles.
+
+La política es exclusivamente append-only. Admite múltiples perfiles históricos con `profile_id` distintos y rechaza duplicados persistidos o dentro del lote, sobrescritura e idempotencia implícita. Las evidencias son obligatorias, únicas y enlazan observaciones preexistentes de la misma sesión. Una observación puede respaldar perfiles históricos distintos sin crearse, modificarse ni eliminarse. Los perfiles confirmed reutilizan la cobertura diagnóstica completa canónica.
+
+`first_lesson_id` se conserva exactamente sin consultas al catálogo desde persistencia. La escritura valida antes del primer `add`, ejecuta dos `flush`, exactamente un commit y rollback integral. La recuperación ordena perfiles por `generated_at` y `profile_id`, y evidencias por secuencia de actividad, `activity_id`, `observed_at` y `observation_id`; no usa lazy loading, no hace commit y no reinterpreta perfiles históricos contra el estado actual.
+
+Validación final:
+
+- persistencia transaccional: 105 passed;
+- perfiles: 20 passed;
+- validación diagnóstica: 88 passed;
+- esquemas diagnósticos: 82 passed;
+- persistencia relacional: 14 passed;
+- total relacionado: 309 passed in 3.17s;
+- marcador: `B179_HITO_B_INCREMENTO_4B_VALIDATED`;
+- `operational_state.py validate`: correcto;
+- `git diff --check`: limpio;
+- revisión sin defectos accionables;
+- commit técnico: `c9e3bab`.
+
+El agregado recuperado ya constituye el historial consultable interno comprometido: reúne configuración, producciones y apoyos, observaciones y evaluaciones técnicas, y perfiles con evidencias, todo estructurado y ordenado. No queda otro incremento técnico interno para Hito B. Permanecen fuera historial de transiciones, API, Flutter, progreso, mastery, retención y adaptación; S2 no autoriza operaciones sobre bases reales.
