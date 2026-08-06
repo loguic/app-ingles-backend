@@ -3543,3 +3543,30 @@ Validación final:
 - `git diff --check` limpio.
 
 Commit técnico: `c08196d`.
+
+## B179 — Hito A: modelos persistentes y migración Alembic
+
+Estado: cerrado técnicamente mediante validación directa de respaldo.
+
+Se persistieron las siete entidades principales del diagnóstico conversacional y se normalizaron dos relaciones críticas:
+
+- `conversational_diagnostic_activity_productions`, con propiedad exclusiva y coincidencia obligatoria de sesión, actividad, `prompt_id` y producción;
+- `conversational_diagnostic_observation_evaluations`, con integridad relacional entre observación, evaluación técnica y producción.
+
+Los perfiles iniciales conservan un historial acumulativo, sin sobrescritura destructiva. `ck_diagnostic_observation_required_production` exige producción para las ocho dimensiones que dependen de ella. La revisión Alembic `3c4f1a2b7d90` incluye `upgrade` y `downgrade` validados de forma aislada.
+
+Validación final:
+
+- 14 pruebas específicas en 1.13 s;
+- 7 pruebas de regresión relacionada en 0.31 s;
+- 937 pruebas backend en 2.91 s;
+- `operational_state.py validate`: correcto;
+- `git diff --check`: limpio;
+- revisión final de Codex: sin defectos accionables;
+- commit técnico: `40a30b3`.
+
+El intento de cierre con `block_workflow.py` no finalizó correctamente. Codex quedó esperando una terminal secundaria sin recuperar el resultado; al interrumpirlo permaneció un proceso hijo activo que tuvo que detenerse manualmente. La evidencia final se obtuvo ejecutando la validación directamente en Kitty.
+
+Se registra como deuda operativa separada que la interrupción de `block_workflow.py` puede dejar procesos hijos activos o perder la salida final. No se corrige dentro de B179 Hito A.
+
+Límites conservados: sin servicio transaccional, API, Flutter, progreso ni mastery. La conversión entre contratos Pydantic y tablas normalizadas corresponde al Hito B.

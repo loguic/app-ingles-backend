@@ -135,9 +135,30 @@ Validación confirmada:
 - `git diff --check` limpio;
 - commit técnico `d0004fd`.
 
+## B179 — Hito A: persistencia relacional
+
+El Hito A persiste las siete entidades principales del diagnóstico:
+
+- `ConversationalDiagnosticSession`;
+- `ConversationalDiagnosticContext`;
+- `ConversationalDiagnosticActivity`;
+- `ConversationalDiagnosticSupportUsage`;
+- `ConversationalDiagnosticObservation`;
+- `InitialConversationalProfile`;
+- `InitialConversationalProfileEvidence`.
+
+Dos tablas normalizadas adicionales protegen la trazabilidad cruzada:
+
+- `conversational_diagnostic_activity_productions` asigna cada producción a una única actividad y exige coincidencia de sesión, actividad, `prompt_id` y producción;
+- `conversational_diagnostic_observation_evaluations` vincula observaciones y evaluaciones técnicas de la misma producción, sin identificadores JSON sin integridad relacional.
+
+Los perfiles se conservan como historial acumulativo y revisable, sin sobrescritura destructiva. La restricción `ck_diagnostic_observation_required_production` exige producción para `response_initiation`, `direct_english_construction`, `oral_production`, `continuity`, `linguistic_retrieval`, `intelligibility`, `support_need` y `transfer`.
+
+La revisión Alembic `3c4f1a2b7d90` dispone de `upgrade` y `downgrade`, ambos validados en una base aislada.
+
 ## Límites vigentes
 
-Todavía no se incluyen persistencia, migraciones, API, contenido piloto ni integración Flutter.
+El Hito A no incluye servicio transaccional, API ni Flutter. Tampoco incorpora progreso o mastery. La conversión entre los contratos Pydantic y las tablas normalizadas corresponde al Hito B.
 
 ## Validación confirmada de la Etapa B
 

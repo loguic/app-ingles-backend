@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-05
+Actualizado: 2026-08-06
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -15,53 +15,69 @@ Formato: checkpoint operativo compacto
 
 ### B178 — Sistematización profesional del método de trabajo
 
-Estado: implementación técnica y documentación completadas; pendiente publicación final.
+Estado: último bloque completamente cerrado.
 
 Capacidades completadas:
 
 - checkpoint operativo compacto y validable;
-- detección de estado desactualizado;
-- límite automático de tamaño del checkpoint;
+- detección de estado desactualizado y límite de tamaño;
 - generación de resumen operativo corto;
-- validación frente al último commit Git;
-- orquestador único sobre `block_close.py`;
-- interrupción del flujo antes de ejecutar validaciones si el estado es inválido;
-- delegación transparente de argumentos al cierre técnico existente.
+- orquestación sobre `block_close.py`;
+- interrupción temprana ante contexto operativo inválido.
 
 Validación final:
 
-- pruebas específicas de automatización: 8 passed;
-- suite backend completa: 923 passed;
+- pruebas específicas: 8 passed;
+- suite backend: 923 passed;
 - `git diff --check`: limpio;
 - commit técnico: `c08196d`.
 
 ## Bloque activo
 
-Ninguno.
+### B179 — Diagnóstico conversacional persistente y consultable
 
-B178 queda pendiente únicamente de publicación y verificación final de Git.
+Hito A — modelos persistentes y migración Alembic: cerrado técnicamente mediante validación directa de respaldo.
+
+Capacidades completadas:
+
+- persistencia de las siete entidades diagnósticas principales;
+- propiedad exclusiva actividad–producción;
+- coincidencia relacional de sesión, actividad, `prompt_id` y producción;
+- integridad observación–evaluación–producción;
+- perfiles iniciales históricos y acumulativos;
+- producción obligatoria para las ocho dimensiones dependientes;
+- revisión Alembic `3c4f1a2b7d90` con `upgrade` y `downgrade` validados aisladamente.
+
+Validación final directa en Kitty:
+
+- pruebas específicas: 14 passed in 1.13s;
+- regresión relacionada: 7 passed in 0.31s;
+- suite backend: 937 passed in 2.91s;
+- `operational_state.py validate`: correcto;
+- `git diff --check`: limpio;
+- revisión final de Codex: sin defectos accionables;
+- commit técnico: `40a30b3`.
+
+Límites vigentes:
+
+- sin servicio transaccional;
+- sin API ni Flutter;
+- sin progreso ni mastery;
+- conversión Pydantic–tablas normalizadas pendiente del Hito B.
+
+## Deuda operativa separada
+
+El cierre mediante `block_workflow.py` no terminó correctamente. La espera de una terminal secundaria no devolvió el resultado y la interrupción dejó un proceso hijo activo que tuvo que detenerse manualmente. La herramienta puede perder la salida final o dejar procesos hijos al interrumpirse; esta deuda no pertenece al alcance de B179 Hito A.
 
 ## Automatización disponible
 
-- `scripts/engineering/block_close.py` automatiza validaciones y staging técnico controlado.
-- Debe extenderse o reutilizarse antes de crear herramientas duplicadas.
-- No automatiza todavía diseño, documentación, commits ni push.
+- `operational_state.py` valida y resume este checkpoint.
+- `block_close.py` ejecuta validaciones técnicas y staging controlado.
+- `block_workflow.py` requiere resolver la deuda de interrupción antes de considerarse fiable para cierres desatendidos.
 
 ## Método operativo vigente
 
-Cada bloque utiliza tres puertas:
-
-1. Definición: capacidad, alcance, evidencia y límites.
-2. Ejecución automatizada: cambio, pruebas específicas y validación de formato.
-3. Cierre: suite completa, documentación, commits, push y Git limpio.
-
-Reglas:
-
-- una confirmación humana por hito significativo;
-- inspección manual solo cuando falta información real o aparece un error inesperado;
-- no repetir búsquedas o validaciones con resultados todavía vigentes;
-- una sola acción o comando por paso;
-- detener el avance si el método vuelve a degradarse.
+Cada hito pasa por definición, implementación técnica, validación específica, regresión relacionada, suite completa y cierre documental. Los commits y la publicación permanecen bajo confirmación humana.
 
 ## Fronteras obligatorias
 
@@ -69,18 +85,13 @@ Reglas:
 - evaluación técnica ≠ observación diagnóstica;
 - observación diagnóstica ≠ decisión pedagógica;
 - perfil inicial ≠ progreso;
-- progreso ≠ mastery;
-- score técnico ≠ juicio humano;
-- contexto motivador ≠ clasificación personal.
+- progreso ≠ mastery.
 
 ## Próximo objetivo
 
-Definir el siguiente bloque pedagógico desde una capacidad observable del estudiante, utilizando el nuevo flujo:
+B179 Hito B — persistencia transaccional e historial consultable.
 
-1. validar el checkpoint;
-2. recuperar el resumen operativo;
-3. ejecutar el incremento mediante un hito técnico agrupado;
-4. cerrar con validación, documentación y Git limpio.
+Debe implementar la conversión entre contratos Pydantic y tablas normalizadas sin mezclar producción, evaluación técnica, observación diagnóstica, decisión pedagógica, progreso ni mastery.
 
 ## Archivos clave
 
@@ -88,5 +99,4 @@ Definir el siguiente bloque pedagógico desde una capacidad observable del estud
 - `docs/modelo-pedagogico-maestro.md`;
 - `docs/conversational-diagnostic-contract.md`;
 - `docs/roadmap.md`;
-- `docs/bitacora.md`;
-- `scripts/engineering/block_close.py`.
+- `docs/bitacora.md`.

@@ -772,3 +772,32 @@ Validación:
 - commit técnico `c08196d`.
 
 Los commits y el push continúan bajo confirmación humana.
+
+## B179 — Diagnóstico conversacional persistente y consultable
+
+Estado: bloque activo; Hito A cerrado técnicamente.
+
+El Hito A incorporó modelos SQLAlchemy y la revisión Alembic `3c4f1a2b7d90` para las siete entidades principales del diagnóstico. Añadió las tablas normalizadas `conversational_diagnostic_activity_productions` y `conversational_diagnostic_observation_evaluations` para proteger:
+
+- propiedad exclusiva actividad–producción;
+- coincidencia de sesión, actividad, `prompt_id` y producción;
+- integridad observación–evaluación–producción;
+- perfiles iniciales históricos sin sobrescritura destructiva;
+- producción obligatoria en las ocho dimensiones dependientes mediante `ck_diagnostic_observation_required_production`.
+
+Validación técnica directa de respaldo:
+
+- 14 pruebas específicas superadas;
+- 7 pruebas de regresión relacionada superadas;
+- 937 pruebas del backend superadas;
+- migración validada mediante `upgrade` y `downgrade` aislados;
+- `operational_state.py validate` correcto;
+- `git diff --check` limpio;
+- revisión final de Codex sin defectos accionables;
+- commit técnico `40a30b3`.
+
+El cierre mediante `block_workflow.py` no terminó correctamente: la interrupción perdió la salida final y dejó un proceso hijo que requirió detención manual. La validación final se ejecutó directamente en Kitty. Esta deuda operativa se tratará fuera de B179 Hito A.
+
+Siguiente objetivo: Hito B, persistencia transaccional e historial consultable, incluida la conversión entre contratos Pydantic y tablas normalizadas.
+
+Límites: sin API, Flutter, progreso ni mastery.
