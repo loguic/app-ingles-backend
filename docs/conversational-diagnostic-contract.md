@@ -156,9 +156,17 @@ Los perfiles se conservan como historial acumulativo y revisable, sin sobrescrit
 
 La revisión Alembic `3c4f1a2b7d90` dispone de `upgrade` y `downgrade`, ambos validados en una base aislada.
 
+## B179 — Hito B: primer incremento transaccional
+
+`ConversationalDiagnosticSessionSetup` agrega sesión, contexto y actividades usando los contratos Pydantic existentes. `save_conversational_diagnostic_session_setup` valida el agregado antes del primer `add`, rechaza identificadores existentes sin idempotencia ni sobrescritura, ejecuta tres `flush`, un único `commit` y rollback ante errores esperados o inesperados.
+
+`get_conversational_diagnostic_session_setup` reconstruye el agregado desde SQLAlchemy a Pydantic, ordena actividades por `sequence_order` y `activity_id`, y no ejecuta commit ni depende de lazy loading. Los errores públicos distinguen sesión existente, referencia ausente, invariante inválido y fallo general de persistencia.
+
+Validación confirmada: 16 pruebas específicas, 190 pruebas de regresión diagnóstica, suite backend de 983 pruebas y commit técnico `56a3d42`.
+
 ## Límites vigentes
 
-El Hito A no incluye servicio transaccional, API ni Flutter. Tampoco incorpora progreso o mastery. La conversión entre los contratos Pydantic y las tablas normalizadas corresponde al Hito B.
+Hito B continúa activo. Todavía no persiste propiedad actividad–producción, apoyos, observaciones, enlaces con evaluaciones, perfiles, evidencias de perfil ni historial completo. No incluye API, Flutter, progreso o mastery.
 
 ## Validación confirmada de la Etapa B
 

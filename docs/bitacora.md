@@ -3615,3 +3615,25 @@ Validación final:
 - commit técnico: `d0efe1e`.
 
 S2 no autoriza migraciones sobre desarrollo, staging o producción reales. Persisten riesgos no ensayados de volumen, permisos, configuración y datos reales, que requieren controles y autorización adicionales.
+
+## B179 — Hito B, primer incremento transaccional
+
+Estado: incremento cerrado técnicamente; Hito B permanece activo.
+
+Se creó `ConversationalDiagnosticSessionSetup` para agrupar sesión, contexto y actividades sin redefinir sus contratos. La operación de guardado valida todo antes del primer `add`, rechaza identificadores existentes sin sobrescribir ni aceptar reintentos idempotentes, realiza tres `flush`, exactamente un `commit` y rollback ante errores esperados e inesperados.
+
+La consulta reconstruye el agregado Pydantic desde los modelos SQLAlchemy, ordena actividades por `sequence_order` y `activity_id`, no ejecuta commit y no depende de lazy loading. Se incorporaron errores públicos para sesión existente, referencia ausente, invariantes y fallos generales de persistencia.
+
+Validación final:
+
+- 16 pruebas específicas;
+- 190 pruebas de regresión diagnóstica;
+- suite backend: 983 passed in 5.55s;
+- `operational_state.py validate`: correcto;
+- `git diff --check`: limpio;
+- revisión sin defectos accionables;
+- commit técnico: `56a3d42`.
+
+No se modificaron modelos ni migraciones. Permanecen pendientes propiedad actividad–producción, apoyos, observaciones, enlaces observación–evaluación, perfiles, evidencias e historial completo. El siguiente incremento recomendado resolverá producciones preexistentes y persistirá atómicamente propiedad y usos de apoyo.
+
+Límites: sin API, Flutter, progreso ni mastery; S2 no autoriza operaciones sobre bases reales.

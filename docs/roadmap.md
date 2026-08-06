@@ -842,3 +842,17 @@ Validación:
 - commit técnico `d0efe1e`.
 
 S2 no autoriza migraciones sobre desarrollo, staging o producción reales. Siguiente objetivo funcional de B179: Hito B, persistencia transaccional e historial consultable.
+
+### Hito B — primer incremento transaccional
+
+Estado: incremento cerrado técnicamente; Hito B continúa activo.
+
+Se añadió `ConversationalDiagnosticSessionSetup` y las operaciones públicas `save_conversational_diagnostic_session_setup(setup, db)` y `get_conversational_diagnostic_session_setup(diagnostic_session_id, db)`. El alcance actual cubre sesión, contexto y actividades.
+
+La escritura valida antes del primer `add`, rechaza duplicados sin idempotencia implícita, utiliza tres `flush`, exactamente un `commit` y rollback ante cualquier fallo. La lectura reconstruye Pydantic desde SQLAlchemy, conserva el orden por `sequence_order` y `activity_id`, no ejecuta commit ni usa lazy loading.
+
+Validación: 16 pruebas específicas, 190 de regresión diagnóstica, suite backend 983 passed in 5.55s, `operational_state.py validate` correcto, `git diff --check` limpio, revisión sin defectos accionables y commit `56a3d42`.
+
+Pendiente: propiedad actividad–producción, apoyos, observaciones, enlaces con evaluaciones, perfiles, evidencias e historial completo. Siguiente incremento recomendado: resolver producciones preexistentes y persistir atómicamente propiedad actividad–producción y usos de apoyo.
+
+Límites: sin API, Flutter, progreso ni mastery. S2 no autoriza bases reales.
