@@ -3570,3 +3570,25 @@ El intento de cierre con `block_workflow.py` no finalizó correctamente. Codex q
 Se registra como deuda operativa separada que la interrupción de `block_workflow.py` puede dejar procesos hijos activos o perder la salida final. No se corrige dentro de B179 Hito A.
 
 Límites conservados: sin servicio transaccional, API, Flutter, progreso ni mastery. La conversión entre contratos Pydantic y tablas normalizadas corresponde al Hito B.
+
+## B179 — Puerta DevSecOps, Hito S1
+
+Estado: contrato ejecutable de seguridad cerrado técnicamente.
+
+Se añadió una puerta pura y reutilizable para impedir que una operación potencialmente destructiva avance sin evidencia verificable de recuperación. El plan JSON exige entorno explícito, identidad no secreta, backup existente y verificable por SHA-256, restauración satisfactoria del backup exacto y dentro de la antigüedad permitida, ensayo aislado con upgrade y downgrade, revisiones compatibles y rollback explícito.
+
+El comportamiento es fail-closed y producción se rechaza siempre en S1. El núcleo no conecta a bases, ejecuta Alembic, crea o restaura backups, inicia procesos externos ni accede a red. Tampoco sustituye una prueba real de restauración.
+
+Validación final:
+
+- 17 pruebas específicas;
+- 27 pruebas de regresión de ingeniería;
+- suite backend: 954 passed in 2.89s;
+- revisión de Codex: sin defectos accionables;
+- `operational_state.py validate`: válido;
+- `git diff --check`: limpio;
+- commit técnico: `0472093`.
+
+LOGUIC English será el piloto. El núcleo común se extraerá posteriormente a un repositorio independiente versionado; CNAPP-Lite, AutoRadar ES, AgencyForge y otros usarán adaptadores propios para base, backups, migraciones, pruebas y entornos. No se copiarán scripts manualmente ni se propagará el sistema antes de validar backup y restauración reales en un entorno aislado.
+
+La deuda por procesos hijos y pérdida de salida al interrumpir `block_workflow.py` permanece separada y no se corrige en S1.

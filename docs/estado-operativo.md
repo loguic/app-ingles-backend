@@ -38,6 +38,8 @@ Validación final:
 
 Hito A — modelos persistentes y migración Alembic: cerrado técnicamente mediante validación directa de respaldo.
 
+Hito S1 — contrato ejecutable de seguridad DevSecOps: cerrado técnicamente.
+
 Capacidades completadas:
 
 - persistencia de las siete entidades diagnósticas principales;
@@ -47,6 +49,9 @@ Capacidades completadas:
 - perfiles iniciales históricos y acumulativos;
 - producción obligatoria para las ocho dimensiones dependientes;
 - revisión Alembic `3c4f1a2b7d90` con `upgrade` y `downgrade` validados aisladamente.
+- puerta preventiva fail-closed con entorno e identidad explícitos;
+- evidencias verificables de backup, restauración, ensayo y rollback;
+- producción rechazada incondicionalmente en S1.
 
 Validación final directa en Kitty:
 
@@ -58,6 +63,15 @@ Validación final directa en Kitty:
 - revisión final de Codex: sin defectos accionables;
 - commit técnico: `40a30b3`.
 
+Validación de S1:
+
+- pruebas específicas: 17 passed;
+- regresión de ingeniería: 27 passed;
+- suite backend: 954 passed in 2.89s;
+- revisión de Codex: sin defectos accionables;
+- `operational_state.py validate` y `git diff --check`: correctos;
+- commit técnico: `0472093`.
+
 Límites vigentes:
 
 - sin servicio transaccional;
@@ -67,7 +81,7 @@ Límites vigentes:
 
 ## Deuda operativa separada
 
-El cierre mediante `block_workflow.py` no terminó correctamente. La espera de una terminal secundaria no devolvió el resultado y la interrupción dejó un proceso hijo activo que tuvo que detenerse manualmente. La herramienta puede perder la salida final o dejar procesos hijos al interrumpirse; esta deuda no pertenece al alcance de B179 Hito A.
+El cierre mediante `block_workflow.py` no terminó correctamente. La herramienta puede perder la salida final o dejar procesos hijos al interrumpirse; esta deuda permanece separada de B179.
 
 ## Automatización disponible
 
@@ -89,14 +103,15 @@ Cada hito pasa por definición, implementación técnica, validación específic
 
 ## Próximo objetivo
 
-B179 Hito B — persistencia transaccional e historial consultable.
+B179 Hito S2 — diseñar el adaptador PostgreSQL seguro para backup y restauración aislada, sin aplicarlo todavía a datos reales.
 
-Debe implementar la conversión entre contratos Pydantic y tablas normalizadas sin mezclar producción, evaluación técnica, observación diagnóstica, decisión pedagógica, progreso ni mastery.
+El diseño debe conservar el núcleo común sin red ni ejecución y preparar adaptadores específicos antes de cualquier propagación transversal.
 
 ## Archivos clave
 
 - `docs/estado-operativo.md`;
 - `docs/modelo-pedagogico-maestro.md`;
 - `docs/conversational-diagnostic-contract.md`;
+- `docs/devsecops-gate.md`;
 - `docs/roadmap.md`;
 - `docs/bitacora.md`.

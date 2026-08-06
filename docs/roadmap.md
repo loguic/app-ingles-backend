@@ -801,3 +801,25 @@ El cierre mediante `block_workflow.py` no terminó correctamente: la interrupci�
 Siguiente objetivo: Hito B, persistencia transaccional e historial consultable, incluida la conversión entre contratos Pydantic y tablas normalizadas.
 
 Límites: sin API, Flutter, progreso ni mastery.
+
+### Hito S1 — contrato ejecutable de seguridad DevSecOps
+
+Estado: cerrado técnicamente.
+
+S1 añadió una puerta preventiva y fail-closed que impide avanzar una operación potencialmente destructiva sin evidencia verificable de recuperación. Valida entorno e identidad no secreta del objetivo, backup regular y no vacío con SHA-256 correcto, restauración satisfactoria del backup exacto con antigüedad configurable, ensayo aislado con upgrade y downgrade, compatibilidad de revisiones y rollback explícito. Producción permanece siempre rechazada.
+
+El núcleo no conecta a bases, ejecuta Alembic, crea o restaura backups, inicia procesos externos, accede a red ni sustituye una prueba real de restauración.
+
+Validación:
+
+- 17 pruebas específicas;
+- 27 pruebas de regresión de ingeniería;
+- suite backend: 954 passed in 2.89s;
+- revisión de Codex sin defectos accionables;
+- `operational_state.py validate` válido;
+- `git diff --check` limpio;
+- commit técnico `0472093`.
+
+Estrategia transversal: LOGUIC English será el piloto. Tras validar backup y restauración reales en un entorno aislado, el núcleo común se extraerá a un repositorio independiente versionado y cada proyecto incorporará un adaptador propio; no se copiarán scripts manualmente. Proyectos previstos: CNAPP-Lite, AutoRadar ES, AgencyForge y otros.
+
+Siguiente objetivo: diseñar S2, adaptador PostgreSQL seguro para backup y restauración aislada, sin aplicarlo todavía a datos reales.
