@@ -3687,3 +3687,28 @@ Validación final:
 No se modificaron modelos ni migraciones. Permanecen pendientes perfiles iniciales, evidencias perfil–observación e historial completo orientado a consulta. El siguiente incremento recomendado persistirá perfiles y evidencias sobre observaciones preexistentes.
 
 Límites: sin API, Flutter, progreso ni mastery; S2 no autoriza operaciones sobre bases reales.
+
+## B179 — Hito B, Incremento 4A: transición de sesión
+
+Estado: incremento cerrado técnicamente; Hito B permanece activo.
+
+Se añadió `ConversationalDiagnosticSessionTransition` y la operación `transition_conversational_diagnostic_session(command, db)`. Las sesiones nuevas solo se crean `in_progress` con `completed_at=None`. Se permiten `in_progress → provisional|completed|cancelled` y `provisional → completed|cancelled`; completed y cancelled son terminales.
+
+El comando exige `expected_current_status` y `transitioned_at`. La actualización se condiciona por `diagnostic_session_id` y estado esperado y exige exactamente una fila afectada. No admite reapertura, repetición ni idempotencia implícita. `completed_at` representa el cierre del estado vigente, pero no se conserva un historial de transiciones.
+
+Completed requiere cobertura diagnóstica completa. Esta regla quedó consolidada en un único validador canónico reutilizado por perfiles confirmados; provisional y cancelled no requieren cobertura completa. La operación realiza exactamente un commit y rollback integral sin generar perfiles ni modificar actividades, producciones, apoyos, observaciones o evaluaciones.
+
+Validación final:
+
+- validación diagnóstica: 88 passed;
+- persistencia transaccional: 85 passed;
+- perfiles: 20 passed;
+- esquemas diagnósticos: 82 passed;
+- persistencia relacional: 14 passed;
+- suite backend: 1066 passed in 6.66s;
+- `operational_state.py validate`: correcto;
+- `git diff --check`: limpio;
+- revisión sin defectos accionables;
+- commit técnico: `94a620e`.
+
+No se modificaron modelos ni migraciones. El siguiente incremento recomendado persistirá perfiles iniciales append-only y evidencias perfil–observación sobre observaciones preexistentes. Permanecen fuera el historial de transiciones, API, Flutter, progreso, mastery, retención y adaptación; S2 no autoriza operaciones sobre bases reales.

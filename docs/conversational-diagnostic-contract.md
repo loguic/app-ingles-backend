@@ -180,9 +180,17 @@ La validación ocurre antes del primer `add`. Las observaciones y sus enlaces us
 
 Validación confirmada: 69 pruebas específicas en 1.28 s, 190 de regresión diagnóstica en 1.35 s, suite backend de 1036 pruebas en 6.10 s, revisión sin defectos accionables y commit técnico `f30887f`. No se modificaron modelos ni migraciones.
 
+El Incremento 4A añade `ConversationalDiagnosticSessionTransition` y `transition_conversational_diagnostic_session(command, db)`. Las sesiones nuevas se crean exclusivamente como `in_progress`, sin `completed_at`. Las transiciones permitidas son `in_progress → provisional|completed|cancelled` y `provisional → completed|cancelled`; `completed` y `cancelled` son terminales.
+
+El comando exige `expected_current_status` y `transitioned_at`. La actualización condiciona `diagnostic_session_id` y estado esperado y exige `rowcount == 1`, evitando actualizaciones perdidas sin idempotencia implícita. `completed_at` conserva el cierre del estado actual; no existe historial persistente de transiciones.
+
+`completed` exige la cobertura diagnóstica completa consolidada en un único validador canónico, compartido con perfiles confirmados. `provisional` y `cancelled` no exigen cobertura completa. La operación ejecuta exactamente un commit y rollback integral, sin crear perfiles ni modificar actividades, producciones, apoyos, observaciones o evaluaciones; tampoco deriva progreso, mastery, retención o adaptación.
+
+Validación confirmada: 88 pruebas de validación, 85 de persistencia transaccional, 20 de perfiles, 82 de esquemas, 14 de persistencia relacional, suite backend de 1066 pruebas en 6.66 s y commit técnico `94a620e`. Revisión sin defectos accionables; no se modificaron modelos ni migraciones.
+
 ## Límites vigentes
 
-Hito B continúa activo. Todavía no persiste transaccionalmente perfiles iniciales, evidencias perfil–observación ni el historial completo orientado a consulta. No incluye API, Flutter, progreso o mastery. El siguiente incremento incorporará perfiles y evidencias sobre observaciones preexistentes.
+Hito B continúa activo. Todavía no persiste transaccionalmente perfiles iniciales, evidencias perfil–observación ni el historial completo orientado a consulta; el historial de transiciones queda fuera. No incluye API, Flutter, progreso o mastery. El siguiente incremento incorporará perfiles append-only y evidencias sobre observaciones preexistentes.
 
 ## Validación confirmada de la Etapa B
 

@@ -865,6 +865,12 @@ El tercer incremento añadió `ConversationalDiagnosticObservationsBatch`, `obse
 
 Validación del tercer incremento: 69 pruebas específicas en 1.28 s, 190 de regresión diagnóstica en 1.35 s, suite backend 1036 passed in 6.10s, `operational_state.py validate` correcto, `git diff --check` limpio, revisión sin defectos accionables y commit `f30887f`. No se modificaron modelos ni migraciones.
 
-Pendiente: perfiles iniciales, evidencias perfil–observación e historial completo orientado a consulta. Siguiente incremento recomendado: persistir perfiles y evidencias sobre observaciones preexistentes, sin convertir observación en decisión pedagógica automática.
+El Incremento 4A añadió una máquina de estados explícita mediante `ConversationalDiagnosticSessionTransition` y `transition_conversational_diagnostic_session(command, db)`. Toda sesión nueva comienza `in_progress`; puede pasar a provisional, completed o cancelled, y provisional puede pasar a completed o cancelled. Completed y cancelled son terminales, sin reapertura, repetición ni idempotencia implícita.
+
+El comando aporta estado esperado y timestamp explícitos. La actualización condicional exige coincidencia de sesión y estado, además de `rowcount == 1`; realiza exactamente un commit y rollback integral. Completed exige la cobertura completa compartida con perfiles confirmados. La transición no genera perfiles ni modifica evidencia diagnóstica. `completed_at` representa el cierre actual y no se conserva historial de transiciones.
+
+Validación de 4A: 88 pruebas de validación, 85 de persistencia, 20 de perfiles, 82 de esquemas, 14 de persistencia relacional y suite backend 1066 passed in 6.66s. `operational_state.py validate` correcto, `git diff --check` limpio, revisión sin defectos accionables y commit `94a620e`. No se modificaron modelos ni migraciones.
+
+Pendiente: perfiles iniciales, evidencias perfil–observación e historial completo orientado a consulta. Siguiente incremento recomendado: persistencia append-only de perfiles y evidencias sobre observaciones preexistentes, sin convertir observación en decisión pedagógica automática.
 
 Límites: sin API, Flutter, progreso ni mastery. S2 no autoriza bases reales.
