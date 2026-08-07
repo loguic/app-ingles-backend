@@ -63,6 +63,30 @@ class TransferPromptVariant(BaseModel):
         return self
 
 
+class AudioFirstPresentationPolicy(BaseModel):
+    """Declare audio-first delivery without claiming learner comprehension.
+
+    Declara presentación primero por audio sin afirmar comprensión.
+    """
+
+    primary_presentation: Literal["audio"]
+    audio_replay_allowed: bool
+    transcript_initially_hidden: bool
+    transcript_access: Literal["contingency_accessibility"]
+    transcript_use_interpretation: Literal[
+        "assisted_not_exclusively_auditory"
+    ]
+    transcript_is_answer_model: Literal[False]
+
+    @model_validator(mode="after")
+    def validate_audio_first_policy(self) -> "AudioFirstPresentationPolicy":
+        if not self.audio_replay_allowed:
+            raise ValueError("Audio-first policy must allow audio replay")
+        if not self.transcript_initially_hidden:
+            raise ValueError("Audio-first transcript must be initially hidden")
+        return self
+
+
 class LearnerProductionPrompt(BaseModel):
     """Define how one learner turn accepts personal production.
 
@@ -75,7 +99,13 @@ class LearnerProductionPrompt(BaseModel):
     )
     required: bool = True
     production_function: Optional[
-        Literal["guided", "expanded", "transfer"]
+        Literal[
+            "guided",
+            "expanded",
+            "transfer",
+            "contingent_response",
+            "unexpected_contingent_response",
+        ]
     ] = None
     primary_modality: Optional[Literal["text", "voice"]] = None
     fallback_modalities: List[Literal["text", "voice"]] = Field(
@@ -90,6 +120,7 @@ class LearnerProductionPrompt(BaseModel):
         default_factory=list,
         max_length=4,
     )
+    visible_support: List[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def validate_unique_modalities(self) -> "LearnerProductionPrompt":
@@ -173,6 +204,14 @@ class LearnerProductionPrompt(BaseModel):
         ):
             raise ValueError("Transfer production requires no support")
 
+        normalized_support = [item.strip() for item in self.visible_support]
+        if any(not item for item in normalized_support):
+            raise ValueError("Visible production support cannot be blank")
+        if len(normalized_support) != len(set(normalized_support)):
+            raise ValueError("Visible production support must be unique")
+        if self.support_level == "none" and self.visible_support:
+            raise ValueError("No-support production cannot expose visible support")
+
         return self
 
 
@@ -204,6 +243,12 @@ class ConversationTurn(BaseModel):
     # Respuestas alternativas del estudiante disponibles desde este turno.
     choices: List[ConversationChoice] = Field(default_factory=list)
 
+    # Optional structural role; it does not evaluate the learner response.
+    # Rol estructural opcional; no evalúa la respuesta del estudiante.
+    interaction_function: Optional[
+        Literal["unexpected_follow_up", "reaction_closure"]
+    ] = None
+
 
 class Conversation(BaseModel):
     # Stable identifier for the complete conversational activity.
@@ -222,6 +267,7 @@ class Conversation(BaseModel):
     start_turn_id: Optional[str] = None
 
     turns: List[ConversationTurn] = Field(default_factory=list)
+    audio_first_policy: Optional[AudioFirstPresentationPolicy] = None
 
     @model_validator(mode="after")
     def validate_conversation_graph(self) -> "Conversation":
@@ -453,6 +499,10 @@ class EvidenceDefinition(BaseModel):
         le=1.0,
     )
     required: bool = True
+    production_prompt_id: Optional[str] = None
+    external_review_requirements: List[
+        "ExternalReviewRequirement"
+    ] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def validate_success_threshold(self) -> "EvidenceDefinition":
@@ -474,6 +524,34 @@ class EvidenceDefinition(BaseModel):
                 "Only score evidence can define success_threshold"
             )
 
+        dimensions = [
+            requirement.dimension
+            for requirement in self.external_review_requirements
+        ]
+        if len(dimensions) != len(set(dimensions)):
+            raise ValueError("External review dimensions must be unique")
+        return self
+
+
+class ExternalReviewRequirement(BaseModel):
+    """Require an external judgment without storing or deriving its result.
+
+    Exige un juicio externo sin almacenar ni derivar su resultado.
+    """
+
+    dimension: Literal["intention_understanding", "contingent_response"]
+    allowed_results: List[Literal["positive", "negative", "pending"]]
+    question: str
+    positive_required_for_completion: bool = True
+
+    @model_validator(mode="after")
+    def validate_review_requirement(self) -> "ExternalReviewRequirement":
+        if self.allowed_results != ["positive", "negative", "pending"]:
+            raise ValueError("External review results must use canonical order")
+        if not self.question.strip():
+            raise ValueError("External review question cannot be blank")
+        if not self.positive_required_for_completion:
+            raise ValueError("External review must require a positive result")
         return self
 
 
@@ -554,7 +632,10 @@ class LessonExperience(BaseModel):
 
     contract_version: Literal["2.0"] = "2.0"
     pedagogical_method: Optional[
-        Literal["direct_english_construction"]
+        Literal[
+            "direct_english_construction",
+            "short_connected_exchange",
+        ]
     ] = None
     mission: Mission
     skill_ids: List[str] = Field(min_length=1)
@@ -896,6 +977,19 @@ class Lesson(BaseModel):
                         "Contextual response must use completion "
                         "measurement"
                     )
+
+                if evidence.production_prompt_id is not None:
+                    prompt_ids = {
+                        turn.production_prompt.id
+                        for turn in conversation.turns
+                        if turn.production_prompt is not None
+                    }
+                    if evidence.production_prompt_id not in prompt_ids:
+                        raise ValueError(
+                            "Contextual response references unknown "
+                            "production prompt: "
+                            + evidence.production_prompt_id
+                        )
 
             elif evidence.evidence_type == "conversation_completion":
                 if evidence.activity_id not in conversation_id_set:

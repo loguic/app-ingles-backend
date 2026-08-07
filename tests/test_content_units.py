@@ -27,3 +27,5 @@ def test_get_lessons_by_unit_returns_lessons():
     assert response.status_code == 200
     assert data[0]["id"] == "a1-u1-l1"
     assert data[0]["title"] == "Introduce yourself directly"
+    assert data[1]["id"] == "a1-u1-l2"
+    assert data[1]["title"] == "Keep the conversation going"

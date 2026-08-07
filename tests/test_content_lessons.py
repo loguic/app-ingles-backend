@@ -73,12 +73,24 @@ def test_get_existing_lesson_returns_lesson_data():
     assert all(item["ipa"] for item in second_partner_pronunciations)
 
 
-def test_lesson_without_conversations_remains_compatible():
-    """Verify that older lessons return an empty conversation list."""
+def test_second_lesson_exposes_connected_audio_first_conversation():
+    """Expose the B181 connected exchange without changing its identity."""
     response = client.get("/api/v1/content/lessons/a1-u1-l2")
 
     assert response.status_code == 200
-    assert response.json()["conversations"] == []
+    lesson = response.json()
+    assert lesson["id"] == "a1-u1-l2"
+    assert lesson["title"] == "Keep the conversation going"
+    assert lesson["experience"]["skill_ids"] == [
+        "a1_maintain_short_connected_exchange"
+    ]
+    assert len(lesson["conversations"][0]["turns"]) == 7
+    assert (
+        lesson["conversations"][0]["audio_first_policy"][
+            "primary_presentation"
+        ]
+        == "audio"
+    )
 
 
 def test_branching_conversation_exposes_professional_graph_contract():

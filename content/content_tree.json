@@ -511,7 +511,297 @@
             },
             {
               "id": "a1-u1-l2",
-              "title": "Introducing yourself"
+              "title": "Keep the conversation going",
+              "objective": "Listen and respond across three connected exchanges with decreasing support.",
+              "experience": {
+                "contract_version": "2.0",
+                "pedagogical_method": "short_connected_exchange",
+                "mission": {
+                  "id": "a1-u1-l2-m1",
+                  "title": "Keep a short conversation going",
+                  "situation": "Continue talking with a person you have just met.",
+                  "observable_outcome": "Listen to three related interventions, respond orally in your own words, and reach a natural closing reaction.",
+                  "success_criteria": [
+                    "Respond by voice to three related interventions.",
+                    "Keep the same topic through an unexpected follow-up.",
+                    "Use support that decreases and never increases.",
+                    "Require external review of intention and contingency."
+                  ]
+                },
+                "skill_ids": [
+                  "a1_maintain_short_connected_exchange"
+                ],
+                "stages": [
+                  {
+                    "id": "a1-u1-l2-s1",
+                    "type": "encounter",
+                    "instruction": "Listen before using transcript contingency.",
+                    "activity_ids": [
+                      "a1-u1-l2-c1"
+                    ],
+                    "mode": "required",
+                    "completion_condition": "any_activity_completed"
+                  },
+                  {
+                    "id": "a1-u1-l2-s2",
+                    "type": "applied_conversation",
+                    "instruction": "Respond in your own words and keep the exchange connected.",
+                    "activity_ids": [
+                      "a1-u1-l2-c1"
+                    ],
+                    "mode": "required",
+                    "completion_condition": "evidence_recorded"
+                  },
+                  {
+                    "id": "a1-u1-l2-s3",
+                    "type": "closure",
+                    "instruction": "Listen to the partner reaction and natural closing.",
+                    "activity_ids": [
+                      "a1-u1-l2-c1"
+                    ],
+                    "mode": "required",
+                    "completion_condition": "all_activities_completed"
+                  }
+                ],
+                "language_support": [],
+                "evidence_definitions": [
+                  {
+                    "id": "a1-u1-l2-ev-place-response",
+                    "skill_ids": [
+                      "a1_maintain_short_connected_exchange"
+                    ],
+                    "stage_id": "a1-u1-l2-s2",
+                    "activity_id": "a1-u1-l2-c1",
+                    "production_prompt_id": "a1-u1-l2-p-place",
+                    "evidence_type": "contextual_response",
+                    "measurement_mode": "completion",
+                    "required": true,
+                    "external_review_requirements": [
+                      {
+                        "dimension": "intention_understanding",
+                        "allowed_results": ["positive", "negative", "pending"],
+                        "question": "¿La respuesta demuestra comprensión suficiente de la intención principal de la intervención?",
+                        "positive_required_for_completion": true
+                      },
+                      {
+                        "dimension": "contingent_response",
+                        "allowed_results": ["positive", "negative", "pending"],
+                        "question": "¿La respuesta constituye una reacción pertinente a esa intervención y mantiene el intercambio?",
+                        "positive_required_for_completion": true
+                      }
+                    ]
+                  },
+                  {
+                    "id": "a1-u1-l2-ev-interest-response",
+                    "skill_ids": [
+                      "a1_maintain_short_connected_exchange"
+                    ],
+                    "stage_id": "a1-u1-l2-s2",
+                    "activity_id": "a1-u1-l2-c1",
+                    "production_prompt_id": "a1-u1-l2-p-interest",
+                    "evidence_type": "contextual_response",
+                    "measurement_mode": "completion",
+                    "required": true,
+                    "external_review_requirements": [
+                      {
+                        "dimension": "intention_understanding",
+                        "allowed_results": ["positive", "negative", "pending"],
+                        "question": "¿La respuesta demuestra comprensión suficiente de la intención principal de la intervención?",
+                        "positive_required_for_completion": true
+                      },
+                      {
+                        "dimension": "contingent_response",
+                        "allowed_results": ["positive", "negative", "pending"],
+                        "question": "¿La respuesta constituye una reacción pertinente a esa intervención y mantiene el intercambio?",
+                        "positive_required_for_completion": true
+                      }
+                    ]
+                  },
+                  {
+                    "id": "a1-u1-l2-ev-unexpected-followup-response",
+                    "skill_ids": [
+                      "a1_maintain_short_connected_exchange"
+                    ],
+                    "stage_id": "a1-u1-l2-s2",
+                    "activity_id": "a1-u1-l2-c1",
+                    "production_prompt_id": "a1-u1-l2-p-unexpected-where",
+                    "evidence_type": "contextual_response",
+                    "measurement_mode": "completion",
+                    "required": true,
+                    "external_review_requirements": [
+                      {
+                        "dimension": "intention_understanding",
+                        "allowed_results": ["positive", "negative", "pending"],
+                        "question": "¿La respuesta demuestra comprensión suficiente de la intención principal de la intervención?",
+                        "positive_required_for_completion": true
+                      },
+                      {
+                        "dimension": "contingent_response",
+                        "allowed_results": ["positive", "negative", "pending"],
+                        "question": "¿La respuesta constituye una reacción pertinente a esa intervención y mantiene el intercambio?",
+                        "positive_required_for_completion": true
+                      }
+                    ]
+                  }
+                ],
+                "completion_policy": {
+                  "practiced_stage_ids": [
+                    "a1-u1-l2-s1",
+                    "a1-u1-l2-s2",
+                    "a1-u1-l2-s3"
+                  ],
+                  "required_evidence_ids": [
+                    "a1-u1-l2-ev-place-response",
+                    "a1-u1-l2-ev-interest-response",
+                    "a1-u1-l2-ev-unexpected-followup-response"
+                  ],
+                  "reinforcement_on_failure": true,
+                  "allow_retry": true
+                }
+              },
+              "conversations": [
+                {
+                  "id": "a1-u1-l2-c1",
+                  "title": "A connected first conversation",
+                  "context": "Continue talking with a person you have just met.",
+                  "mode": "free",
+                  "start_turn_id": "a1-u1-l2-c1-t1",
+                  "audio_first_policy": {
+                    "primary_presentation": "audio",
+                    "audio_replay_allowed": true,
+                    "transcript_initially_hidden": true,
+                    "transcript_access": "contingency_accessibility",
+                    "transcript_use_interpretation": "assisted_not_exclusively_auditory",
+                    "transcript_is_answer_model": false
+                  },
+                  "turns": [
+                    {
+                      "id": "a1-u1-l2-c1-t1",
+                      "speaker": "partner",
+                      "en": "Where are you from?",
+                      "pronunciations": [
+                        {
+                          "locale": "en-US",
+                          "ipa": "/wer ɑr ju frʌm/",
+                          "audio_asset": "audio/a1_u1_l2_c1_t1_us.wav"
+                        },
+                        {
+                          "locale": "en-GB",
+                          "ipa": "/weər ɑː juː frɒm/",
+                          "audio_asset": "audio/a1_u1_l2_c1_t1_uk.wav"
+                        }
+                      ],
+                      "next_turn_id": "a1-u1-l2-c1-t2"
+                    },
+                    {
+                      "id": "a1-u1-l2-c1-t2",
+                      "speaker": "learner",
+                      "en": "Answer the question about your place. You may use fictitious information.",
+                      "production_prompt": {
+                        "id": "a1-u1-l2-p-place",
+                        "accepted_modalities": ["voice", "text"],
+                        "required": true,
+                        "production_function": "contingent_response",
+                        "primary_modality": "voice",
+                        "fallback_modalities": ["text"],
+                        "support_level": "anchors",
+                        "allow_full_answer_model": false,
+                        "visible_support": ["Place", "I", "am from", "live"]
+                      },
+                      "next_turn_id": "a1-u1-l2-c1-t3"
+                    },
+                    {
+                      "id": "a1-u1-l2-c1-t3",
+                      "speaker": "partner",
+                      "en": "Oh, nice! What do you like doing in your free time?",
+                      "pronunciations": [
+                        {
+                          "locale": "en-US",
+                          "ipa": "/oʊ naɪs | wʌt də ju laɪk ˈduɪŋ ɪn jʊr fri taɪm/",
+                          "audio_asset": "audio/a1_u1_l2_c1_t3_us.wav"
+                        },
+                        {
+                          "locale": "en-GB",
+                          "ipa": "/əʊ naɪs | wɒt də juː laɪk ˈduːɪŋ ɪn jɔː friː taɪm/",
+                          "audio_asset": "audio/a1_u1_l2_c1_t3_uk.wav"
+                        }
+                      ],
+                      "next_turn_id": "a1-u1-l2-c1-t4"
+                    },
+                    {
+                      "id": "a1-u1-l2-c1-t4",
+                      "speaker": "learner",
+                      "en": "Answer with one activity or interest that you choose.",
+                      "production_prompt": {
+                        "id": "a1-u1-l2-p-interest",
+                        "accepted_modalities": ["voice", "text"],
+                        "required": true,
+                        "production_function": "contingent_response",
+                        "primary_modality": "voice",
+                        "fallback_modalities": ["text"],
+                        "support_level": "initial_word",
+                        "allow_full_answer_model": false,
+                        "visible_support": ["Interest / free time", "I"]
+                      },
+                      "next_turn_id": "a1-u1-l2-c1-t5"
+                    },
+                    {
+                      "id": "a1-u1-l2-c1-t5",
+                      "speaker": "partner",
+                      "en": "Nice. Where do you usually do that?",
+                      "pronunciations": [
+                        {
+                          "locale": "en-US",
+                          "ipa": "/naɪs | wer də ju ˈjuʒuəli du ðæt/",
+                          "audio_asset": "audio/a1_u1_l2_c1_t5_us.wav"
+                        },
+                        {
+                          "locale": "en-GB",
+                          "ipa": "/naɪs | weə də juː ˈjuːʒuəli duː ðæt/",
+                          "audio_asset": "audio/a1_u1_l2_c1_t5_uk.wav"
+                        }
+                      ],
+                      "next_turn_id": "a1-u1-l2-c1-t6",
+                      "interaction_function": "unexpected_follow_up"
+                    },
+                    {
+                      "id": "a1-u1-l2-c1-t6",
+                      "speaker": "learner",
+                      "en": "React to the new question with your own information.",
+                      "production_prompt": {
+                        "id": "a1-u1-l2-p-unexpected-where",
+                        "accepted_modalities": ["voice", "text"],
+                        "required": true,
+                        "production_function": "unexpected_contingent_response",
+                        "primary_modality": "voice",
+                        "fallback_modalities": ["text"],
+                        "support_level": "none",
+                        "allow_full_answer_model": false,
+                        "visible_support": []
+                      },
+                      "next_turn_id": "a1-u1-l2-c1-t7"
+                    },
+                    {
+                      "id": "a1-u1-l2-c1-t7",
+                      "speaker": "partner",
+                      "en": "Oh, I see. Thanks for telling me. It was nice talking with you. See you!",
+                      "pronunciations": [
+                        {
+                          "locale": "en-US",
+                          "ipa": "/oʊ aɪ si | θæŋks fər ˈtɛlɪŋ mi | ɪt wəz naɪs ˈtɔkɪŋ wɪð ju | si ju/",
+                          "audio_asset": "audio/a1_u1_l2_c1_t7_us.wav"
+                        },
+                        {
+                          "locale": "en-GB",
+                          "ipa": "/əʊ aɪ siː | θæŋks fə ˈtelɪŋ miː | ɪt wəz naɪs ˈtɔːkɪŋ wɪð juː | siː juː/",
+                          "audio_asset": "audio/a1_u1_l2_c1_t7_uk.wav"
+                        }
+                      ],
+                      "interaction_function": "reaction_closure"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
