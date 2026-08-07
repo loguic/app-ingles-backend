@@ -7,7 +7,10 @@ from app.schemas.direct_english_construction_execution import (
     DirectEnglishConstructionAttemptFinalize,
     DirectEnglishConstructionAttemptStart,
     DirectEnglishConstructionOrientationCreate,
+    DirectEnglishConstructionOrientationRecord,
     DirectEnglishConstructionProductionCapture,
+    DirectEnglishConstructionRetryPreparation,
+    DirectEnglishConstructionRetryPreparationRequest,
 )
 
 
@@ -170,3 +173,93 @@ def test_orientation_rejects_invalid_contract(updates, message):
         DirectEnglishConstructionOrientationCreate.model_validate(
             orientation_payload(**updates)
         )
+
+
+@pytest.mark.parametrize("production_function", ["guided", "expanded", "transfer"])
+def test_retry_preparation_request_accepts_each_function(production_function):
+    request = DirectEnglishConstructionRetryPreparationRequest(
+        previous_attempt_id="attempt-1",
+        production_function=production_function,
+    )
+
+    assert request.production_function == production_function
+
+
+@pytest.mark.parametrize(
+    ("payload", "message"),
+    [
+        (
+            {"previous_attempt_id": " ", "production_function": "guided"},
+            "cannot be blank",
+        ),
+        (
+            {"previous_attempt_id": "attempt-1", "production_function": "other"},
+            "Input should be",
+        ),
+    ],
+)
+def test_retry_preparation_request_rejects_invalid_identity(payload, message):
+    with pytest.raises(ValidationError, match=message):
+        DirectEnglishConstructionRetryPreparationRequest.model_validate(payload)
+
+
+def retry_orientation_record():
+    return DirectEnglishConstructionOrientationRecord(
+        orientation_id="orientation-1",
+        priority="direct_english_construction",
+        guidance_text="Build from I plus a verb.",
+        source_type="human",
+        source_id="teacher-1",
+        created_at=datetime.now(UTC),
+    )
+
+
+def test_retry_preparation_contract_requires_new_attempt_id():
+    preparation = DirectEnglishConstructionRetryPreparation(
+        previous_attempt_id="attempt-1",
+        production_function="guided",
+        orientation=retry_orientation_record(),
+        conversation_id="conversation-guided",
+        prompt_id="prompt-guided",
+        previous_configured_support_level="anchors",
+        previous_support_used="model",
+        next_support_level="anchors",
+    )
+
+    assert preparation.requires_new_attempt_id is True
+    assert preparation.transfer_selection_policy is None
+
+    with pytest.raises(ValidationError, match="requires a new attempt_id"):
+        DirectEnglishConstructionRetryPreparation.model_validate(
+            preparation.model_dump() | {"requires_new_attempt_id": False}
+        )
+
+
+def test_transfer_retry_preparation_requires_coherent_metadata():
+    payload = {
+        "previous_attempt_id": "attempt-1",
+        "production_function": "transfer",
+        "orientation": retry_orientation_record(),
+        "conversation_id": "conversation-transfer",
+        "prompt_id": "prompt-transfer",
+        "previous_configured_support_level": "none",
+        "previous_support_used": "none",
+        "next_support_level": "none",
+        "transfer_bank_id": "bank-1",
+        "previous_transfer_variant_id": "variant-1",
+        "previous_transfer_prompt_snapshot": "What do you enjoy?",
+        "transfer_selection_policy": "new_attempt_selector",
+    }
+    preparation = DirectEnglishConstructionRetryPreparation.model_validate(payload)
+
+    assert preparation.transfer_selection_policy == "new_attempt_selector"
+
+    for missing_field in (
+        "transfer_bank_id",
+        "previous_transfer_variant_id",
+        "previous_transfer_prompt_snapshot",
+        "transfer_selection_policy",
+    ):
+        invalid = payload | {missing_field: None}
+        with pytest.raises(ValidationError, match="complete metadata"):
+            DirectEnglishConstructionRetryPreparation.model_validate(invalid)

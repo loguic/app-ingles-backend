@@ -19,6 +19,8 @@ from app.schemas.direct_english_construction_execution import (
     DirectEnglishConstructionAttemptRecord,
     DirectEnglishConstructionAttemptStart,
     DirectEnglishConstructionOrientationCreate,
+    DirectEnglishConstructionRetryPreparation,
+    DirectEnglishConstructionRetryPreparationRequest,
 )
 from app.services.content_service import get_lesson_by_id
 from app.services.direct_english_construction_execution_service import (
@@ -30,6 +32,7 @@ from app.services.direct_english_construction_execution_service import (
     DirectEnglishConstructionStateConflictError,
     finalize_direct_english_construction_attempt,
     get_direct_english_construction_attempt,
+    prepare_direct_english_construction_retry,
     save_direct_english_construction_orientation,
     select_direct_english_transfer_variant,
     start_direct_english_construction_attempt,
@@ -749,3 +752,161 @@ def test_get_with_orientations_does_not_commit_or_select_automatically(
     assert {"semantic_result", "score", "progress", "mastery"}.isdisjoint(
         type(record.productions[0].orientation).model_fields
     )
+
+
+def retry_request(function="guided", attempt_id="attempt-1"):
+    return DirectEnglishConstructionRetryPreparationRequest(
+        previous_attempt_id=attempt_id,
+        production_function=function,
+    )
+
+
+def finalized_attempt_with_orientation(db, function="guided"):
+    started = start_direct_english_construction_attempt(start_command(), db)
+    finalized = finalize_direct_english_construction_attempt(
+        finalize_command(started), db
+    )
+    orientation = save_direct_english_construction_orientation(
+        orientation_command(function=function), db
+    )
+    return finalized, orientation
+
+
+def test_prepare_retry_requires_existing_finalized_attempt(db):
+    with pytest.raises(DirectEnglishConstructionReferenceNotFoundError):
+        prepare_direct_english_construction_retry(retry_request(), db)
+
+    start_direct_english_construction_attempt(start_command(), db)
+    with pytest.raises(DirectEnglishConstructionStateConflictError):
+        prepare_direct_english_construction_retry(retry_request(), db)
+
+
+@pytest.mark.parametrize("function", FUNCTIONS)
+def test_prepare_retry_requires_orientation_for_exact_function(db, function):
+    started = start_direct_english_construction_attempt(start_command(), db)
+    finalize_direct_english_construction_attempt(finalize_command(started), db)
+
+    with pytest.raises(
+        DirectEnglishConstructionReferenceNotFoundError,
+        match="has no orientation",
+    ):
+        prepare_direct_english_construction_retry(retry_request(function), db)
+
+
+@pytest.mark.parametrize(
+    ("configured", "used", "expected"),
+    [
+        ("anchors", "model", "anchors"),
+        ("initial_word", "anchors", "initial_word"),
+        ("anchors", "initial_word", "none"),
+        ("anchors", "none", "none"),
+        ("none", "anchors", "none"),
+        ("anchors", "anchors", "initial_word"),
+    ],
+)
+def test_prepare_retry_withdraws_support_deterministically(
+    db, configured, used, expected
+):
+    _finalized, orientation = finalized_attempt_with_orientation(db)
+    link = db.query(DirectEnglishConstructionAttemptProduction).filter_by(
+        attempt_id="attempt-1", production_function="guided"
+    ).one()
+    link.configured_support_level = configured
+    link.support_used = used
+    db.commit()
+
+    prepared = prepare_direct_english_construction_retry(retry_request(), db)
+
+    assert prepared.orientation == orientation
+    assert prepared.previous_configured_support_level == configured
+    assert prepared.previous_support_used == used
+    assert prepared.next_support_level == expected
+    assert prepared.conversation_id == "a1-u1-l1-c-direct-guided"
+    assert prepared.prompt_id == "a1-u1-l1-p-guided"
+
+
+def test_prepare_transfer_returns_history_and_does_not_select_variant(
+    db, monkeypatch
+):
+    finalized, orientation = finalized_attempt_with_orientation(db, "transfer")
+    monkeypatch.setattr(
+        execution_service,
+        "select_direct_english_transfer_variant",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            AssertionError("prepare must not run the selector")
+        ),
+    )
+
+    prepared = prepare_direct_english_construction_retry(
+        retry_request("transfer"), db
+    )
+
+    assert prepared.orientation == orientation
+    assert prepared.next_support_level == "none"
+    assert prepared.transfer_bank_id == finalized.transfer_bank_id
+    assert prepared.previous_transfer_variant_id == finalized.transfer_variant_id
+    assert (
+        prepared.previous_transfer_prompt_snapshot
+        == finalized.transfer_prompt_snapshot
+    )
+    assert prepared.transfer_selection_policy == "new_attempt_selector"
+    assert prepared.requires_new_attempt_id is True
+
+
+def test_prepare_retry_is_read_only_and_preserves_all_rows(db, monkeypatch):
+    finalized_attempt_with_orientation(db, "expanded")
+    attempt = db.get(DirectEnglishConstructionAttempt, "attempt-1")
+    link = db.query(DirectEnglishConstructionAttemptProduction).filter_by(
+        attempt_id="attempt-1", production_function="expanded"
+    ).one()
+    production = db.get(LearnerProduction, link.learner_production_id)
+    orientation = db.query(DirectEnglishConstructionProductionOrientation).one()
+    snapshots = tuple(
+        persisted_values(item) for item in (attempt, link, production, orientation)
+    )
+    db.autoflush = False
+
+    for method in ("add", "flush", "commit", "rollback"):
+        monkeypatch.setattr(
+            db,
+            method,
+            lambda *args, method=method, **kwargs: (_ for _ in ()).throw(
+                AssertionError(f"prepare must not call {method}")
+            ),
+        )
+
+    prepared = prepare_direct_english_construction_retry(
+        retry_request("expanded"), db
+    )
+
+    assert prepared.production_function == "expanded"
+    assert snapshots == tuple(
+        persisted_values(item) for item in (attempt, link, production, orientation)
+    )
+    assert {
+        "orientation_applied",
+        "semantic_result",
+        "score",
+        "progress",
+        "mastery",
+        "adaptation",
+        "new_attempt_id",
+    }.isdisjoint(DirectEnglishConstructionRetryPreparation.model_fields)
+
+
+def test_prepare_retry_rejects_active_content_mismatch(db, monkeypatch):
+    finalized_attempt_with_orientation(db)
+    original = execution_service._execution_entries
+
+    def incompatible_entries(lesson):
+        entries = original(lesson)
+        conversation, turn, prompt, evidence = entries["guided"]
+        prompt = prompt.model_copy(update={"id": "changed-prompt"})
+        return entries | {"guided": (conversation, turn, prompt, evidence)}
+
+    monkeypatch.setattr(execution_service, "_execution_entries", incompatible_entries)
+    with pytest.raises(
+        DirectEnglishConstructionInvariantError,
+        match="contradicts active retry content",
+    ):
+        prepare_direct_english_construction_retry(retry_request(), db)

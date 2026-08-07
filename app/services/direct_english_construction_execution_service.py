@@ -25,6 +25,8 @@ from app.schemas.direct_english_construction_execution import (
     DirectEnglishConstructionAttemptStart,
     DirectEnglishConstructionOrientationCreate,
     DirectEnglishConstructionOrientationRecord,
+    DirectEnglishConstructionRetryPreparation,
+    DirectEnglishConstructionRetryPreparationRequest,
 )
 from app.services.content_service import build_content_tree
 from app.services.conversation_production_persistence_service import (
@@ -214,6 +216,129 @@ def _orientation_record(
         source_id=orientation.source_id,
         source_version=orientation.source_version,
         created_at=orientation.created_at,
+    )
+
+
+def _next_retry_support_level(
+    configured_support_level: str,
+    support_used: str,
+    production_function: str,
+) -> str:
+    """Withdraw support without interpreting learner performance.
+
+    Retira apoyo sin interpretar el rendimiento del estudiante.
+    """
+    if production_function == "transfer":
+        return "none"
+    reduced_rank = max(SUPPORT_RANK[support_used] - 1, SUPPORT_RANK["none"])
+    next_rank = min(reduced_rank, SUPPORT_RANK[configured_support_level])
+    return next(
+        level for level, rank in SUPPORT_RANK.items() if rank == next_rank
+    )
+
+
+def prepare_direct_english_construction_retry(
+    request: DirectEnglishConstructionRetryPreparationRequest,
+    db: Session,
+) -> DirectEnglishConstructionRetryPreparation:
+    """Prepare one focused retry without writing or selecting a variant.
+
+    Prepara un reintento focal sin escribir ni seleccionar una variante.
+    """
+    attempt = (
+        db.query(AttemptModel)
+        .filter(AttemptModel.attempt_id == request.previous_attempt_id)
+        .one_or_none()
+    )
+    if attempt is None:
+        raise DirectEnglishConstructionReferenceNotFoundError(
+            "Previous direct-English construction attempt does not exist"
+        )
+    if attempt.status != "finalized":
+        raise DirectEnglishConstructionStateConflictError(
+            "Previous direct-English construction attempt is not finalized"
+        )
+    row = (
+        db.query(
+            AttemptProductionModel,
+            ProductionModel,
+            SubmissionModel,
+            OrientationModel,
+        )
+        .join(
+            ProductionModel,
+            ProductionModel.id
+            == AttemptProductionModel.learner_production_id,
+        )
+        .join(
+            SubmissionModel,
+            SubmissionModel.id == ProductionModel.submission_id,
+        )
+        .outerjoin(
+            OrientationModel,
+            OrientationModel.attempt_production_id
+            == AttemptProductionModel.id,
+        )
+        .filter(
+            AttemptProductionModel.attempt_id == request.previous_attempt_id,
+            AttemptProductionModel.production_function
+            == request.production_function,
+        )
+        .one_or_none()
+    )
+    if row is None:
+        raise DirectEnglishConstructionReferenceNotFoundError(
+            "Previous direct-English attempt production does not exist"
+        )
+    link, production, submission, orientation = row
+    orientation_record = _orientation_record(orientation)
+    if orientation_record is None:
+        raise DirectEnglishConstructionReferenceNotFoundError(
+            "Previous direct-English production has no orientation"
+        )
+    lesson = _resolve_lesson(
+        attempt.level_id,
+        attempt.unit_id,
+        attempt.lesson_id,
+    )
+    entry = _execution_entries(lesson).get(request.production_function)
+    if entry is None:
+        raise DirectEnglishConstructionInvariantError(
+            "Active content has no retry production function"
+        )
+    conversation, _turn, prompt, _evidence = entry
+    if (
+        submission.conversation_id != conversation.id
+        or production.prompt_id != prompt.id
+    ):
+        raise DirectEnglishConstructionInvariantError(
+            "Previous production contradicts active retry content"
+        )
+    is_transfer = request.production_function == "transfer"
+    return DirectEnglishConstructionRetryPreparation(
+        previous_attempt_id=attempt.attempt_id,
+        production_function=request.production_function,
+        orientation=orientation_record,
+        conversation_id=conversation.id,
+        prompt_id=prompt.id,
+        previous_configured_support_level=link.configured_support_level,
+        previous_support_used=link.support_used,
+        next_support_level=_next_retry_support_level(
+            link.configured_support_level,
+            link.support_used,
+            link.production_function,
+        ),
+        transfer_bank_id=attempt.transfer_bank_id if is_transfer else None,
+        previous_transfer_variant_id=(
+            attempt.transfer_variant_id if is_transfer else None
+        ),
+        previous_transfer_prompt_snapshot=(
+            attempt.transfer_prompt_snapshot if is_transfer else None
+        ),
+        transfer_selection_policy=(
+            "new_attempt_selector" if is_transfer else None
+        ),
+        requires_new_attempt_id=True,
     )
 
 

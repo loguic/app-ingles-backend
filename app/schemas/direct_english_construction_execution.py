@@ -166,6 +166,68 @@ class DirectEnglishConstructionOrientationRecord(BaseModel):
     created_at: datetime
 
 
+class DirectEnglishConstructionRetryPreparationRequest(BaseModel):
+    """Request preparation for one focused function of a new attempt.
+
+    Solicita preparar una función focal de un nuevo intento.
+    """
+
+    previous_attempt_id: str
+    production_function: ProductionFunction
+
+    @model_validator(mode="after")
+    def validate_request(
+        self,
+    ) -> "DirectEnglishConstructionRetryPreparationRequest":
+        if not self.previous_attempt_id.strip():
+            raise ValueError("previous_attempt_id cannot be blank")
+        return self
+
+
+class DirectEnglishConstructionRetryPreparation(BaseModel):
+    """Describe a read-only guided retry without claiming improvement.
+
+    Describe un reintento guiado de solo lectura sin afirmar mejora.
+    """
+
+    previous_attempt_id: str
+    production_function: ProductionFunction
+    orientation: DirectEnglishConstructionOrientationRecord
+    conversation_id: str
+    prompt_id: str
+    previous_configured_support_level: SupportLevel
+    previous_support_used: SupportLevel
+    next_support_level: SupportLevel
+    transfer_bank_id: Optional[str] = None
+    previous_transfer_variant_id: Optional[str] = None
+    previous_transfer_prompt_snapshot: Optional[str] = None
+    transfer_selection_policy: Optional[
+        Literal["new_attempt_selector"]
+    ] = None
+    requires_new_attempt_id: bool = True
+
+    @model_validator(mode="after")
+    def validate_transfer_metadata(
+        self,
+    ) -> "DirectEnglishConstructionRetryPreparation":
+        transfer_values = (
+            self.transfer_bank_id,
+            self.previous_transfer_variant_id,
+            self.previous_transfer_prompt_snapshot,
+            self.transfer_selection_policy,
+        )
+        if self.production_function == "transfer":
+            if any(value is None or not value.strip() for value in transfer_values):
+                raise ValueError("Transfer retry requires complete metadata")
+            if self.next_support_level != "none":
+                raise ValueError("Transfer retry requires no support")
+        elif any(value is not None for value in transfer_values):
+            raise ValueError("Only transfer retry can include transfer metadata")
+        if self.requires_new_attempt_id is not True:
+            raise ValueError("Retry preparation requires a new attempt_id")
+        return self
+
+
 class DirectEnglishConstructionAttemptProductionRecord(BaseModel):
     """Expose one persisted production without interpreting its meaning.
 
