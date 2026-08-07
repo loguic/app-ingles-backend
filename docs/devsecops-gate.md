@@ -86,7 +86,7 @@ Validación confirmada:
 
 Tras la migración B180 `7d8e9f0a1b2c`, S2 dejó de usar un target fijo. `target_revision` es opcional: si se omite, el adaptador resuelve el único head mediante `AlembicConfig` y `ScriptDirectory`; si se declara, debe coincidir exactamente con él. Se rechazan heads múltiples, revisiones inexistentes, una frontera inicial no ancestral y cualquier target obsoleto. La resolución precede al workspace, `initdb` y los procesos, y el rango de hashes concretos queda congelado para upgrade, downgrade y evidencia.
 
-La frontera `f81a78f8c1c4` permanece deliberadamente fija para probar recuperación histórica. El ensayo completo confirmó `f81a78f8c1c4 → 7d8e9f0a1b2c → f81a78f8c1c4`; la migración B180 tuvo además una validación focal PostgreSQL `3c4f1a2b7d90 → 7d8e9f0a1b2c → 3c4f1a2b7d90`.
+La frontera `f81a78f8c1c4` permanece deliberadamente fija para probar recuperación histórica. Con el head vigente `a4c8e2f6b901`, el ensayo completo confirmó `f81a78f8c1c4 → a4c8e2f6b901 → f81a78f8c1c4` en 2.38s. La migración del Incremento 3 tuvo además validación focal PostgreSQL `7d8e9f0a1b2c → a4c8e2f6b901 → 7d8e9f0a1b2c` en 2.48s. El hash vigente es evidencia del ensayo, no un target fijo del adaptador.
 
 ## Preflight y Postflight de Impacto
 

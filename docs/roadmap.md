@@ -893,7 +893,7 @@ Permanecen fuera API, Flutter, progreso, mastery, retención, adaptación autom�
 
 ## B180 — Construcción directa en inglés
 
-Estado: bloque activo; Incrementos 1 y 2 cerrados técnicamente.
+Estado: bloque activo; Incrementos 1, 2 y 3 cerrados técnicamente.
 
 La capacidad observable de B180 es construir oralmente una respuesta directamente en inglés desde una intención comunicativa, ampliarla con información pertinente y transferir el patrón ante una variación inesperada con ayuda mínima, sin copiar una frase completa.
 
@@ -927,4 +927,16 @@ La escritura reutiliza un helper transaccional sin commit de la persistencia de 
 
 Validación: 34 pruebas específicas; 148 relacionadas y 1 omitida; suite backend 1149 passed in 9.59s; migración focal PostgreSQL 1 passed in 2.30s; ensayo S2 completo reversible hasta el head; revisión sin defectos accionables; commit `f77f560`.
 
-Siguiente incremento recomendado: registrar y recuperar una única orientación pedagógica prioritaria por producción, aportada explícitamente y enlazada con un reintento nuevo. No seleccionará automáticamente la corrección ni introducirá evaluación semántica, API o Flutter.
+Al cierre del Incremento 2 se recomendó registrar y recuperar una única orientación pedagógica prioritaria por producción, aportada explícitamente y sin selección automática, evaluación semántica, API o Flutter.
+
+### Incremento 3 — orientación pedagógica prioritaria
+
+Se añadió `DirectEnglishConstructionProductionOrientation` y la revisión `a4c8e2f6b901`, enlazando cada orientación exclusivamente con `DirectEnglishConstructionAttemptProduction`. La tabla no duplica intento, producción, función, modalidad o apoyo. Admite cero o una orientación por enlace y rechaza toda segunda escritura, actualización, borrado, sobrescritura o idempotencia implícita.
+
+`DirectEnglishConstructionOrientationCreate`, su record y `save_direct_english_construction_orientation` conservan una decisión ya tomada: prioridad, guidance exacta de hasta 2000 caracteres, fuente no secreta y timestamp. `human` permite versión opcional; `external` exige versión. La lectura incorpora la orientación opcional a guided, expanded y transfer sin inferir ausencias ni recalcular decisiones.
+
+La prioridad debe pertenecer a la `CorrectionGuidancePolicy` activa, pero el backend no decide cuál es correcta. `ProductionFeedback` no se reutiliza porque depende de evaluación técnica y representa otro historial. Se preservan orientación ≠ evaluación semántica o técnica ≠ verdad pedagógica ≠ progreso o mastery.
+
+Validación: PostgreSQL focal 1 passed in 2.48s para `7d8e9f0a1b2c → a4c8e2f6b901 → 7d8e9f0a1b2c`; S2 completo 1 passed in 2.38s desde el límite histórico `f81a78f8c1c4`; suite backend 1171 passed in 10.30s; revisión sin defectos; commit `2f396d3`.
+
+La infraestructura interna ya es suficiente para dejar de añadir persistencia por defecto: existen contenido validado, intento completo, producciones reales, modalidad, apoyo, transferencia y orientación trazable. El siguiente incremento recomendado ejecutará un reintento pedagógico interno que presente una sola orientación antes de una nueva producción y retire otra vez el apoyo. No seleccionará la orientación ni incorporará evaluación automática, API o Flutter.

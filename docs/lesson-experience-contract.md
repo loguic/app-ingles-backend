@@ -1065,3 +1065,11 @@ Los enlaces del intento asocian guided, expanded y transfer con su evidencia, ap
 `completion_requirements_met` es una conclusión estructural calculada: exige las tres funciones, modalidad de voz y retirada de apoyos conforme al contrato. No evalúa significado, pertinencia, literalidad, pronunciación, progreso o mastery. La escritura es transaccional y la recuperación conserva el orden y el snapshot histórico.
 
 Estado: Incremento 2 cerrado técnicamente mediante commit `f77f560`; suite backend 1149 passed in 9.59s. Permanecen fuera corrección automática, evaluación semántica, API, Flutter y Karaoke Fonético completo.
+
+### Orientación prioritaria en B180 Incremento 3
+
+Cada producción guided, expanded o transfer puede recuperar cero o una orientación append-only. La orientación conserva una prioridad admitida por `CorrectionGuidancePolicy`, una guidance exacta y una fuente identificada, pero no demuestra que esa prioridad sea correcta: registra una decisión humana o externa ya tomada.
+
+La relación utiliza exclusivamente el enlace del intento con `LearnerProduction`; no duplica identidad, función, modalidad o apoyo y no modifica la producción. `human` permite versión opcional y `external` exige versión. No se reutiliza el feedback asociado a evaluaciones técnicas.
+
+Esta orientación no es evaluación semántica o técnica, verdad pedagógica, progreso, mastery ni selección automática. Estado: Incremento 3 cerrado mediante commit `2f396d3`; suite backend 1171 passed in 10.30s.

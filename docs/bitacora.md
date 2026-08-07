@@ -3799,4 +3799,18 @@ Validación final: 34 específicas; 148 relacionadas y 1 omitida; S2 unitario 22
 
 El Preflight de Impacto identificó el target fijo obsoleto de S2. El adaptador conserva `f81a78f8c1c4` como frontera histórica, descubre un único head con las APIs de Alembic, valida ascendencia y congela hashes concretos antes de crear recursos. En adelante, todo cambio estructural aplicará Preflight de Impacto y demostrará en Postflight que sus dependencias no quedaron desactualizadas, limitado al radio real del cambio.
 
-Siguiente incremento recomendado: registrar una única orientación pedagógica prioritaria por producción y vincularla con un reintento append-only, sin selección automática, semántica libre, API, Flutter, progreso o mastery. El Karaoke Fonético continúa pospuesto, no descartado.
+Al cierre del Incremento 2 se recomendó registrar una única orientación pedagógica prioritaria por producción, sin selección automática, semántica libre, API, Flutter, progreso o mastery. El Karaoke Fonético continuó pospuesto, no descartado.
+
+## B180 — Incremento 3: orientación prioritaria por producción
+
+Estado: incremento cerrado técnicamente; B180 permanece activo.
+
+Se añadió `DirectEnglishConstructionProductionOrientation`, asociada mediante una única FK a `DirectEnglishConstructionAttemptProduction`, y la migración `a4c8e2f6b901`. Cada enlace admite cero o una orientación: la primera escritura se conserva y toda segunda escritura, update, delete, overwrite o idempotencia implícita queda fuera.
+
+La orientación guarda prioridad, `guidance_text` exacta de hasta 2000 caracteres, fuente y fecha. Las fuentes `human` admiten versión opcional; `external` exige una versión no blanca y ambas requieren `source_id` no secreto. `get_direct_english_construction_attempt` recupera orientación opcional para guided, expanded y transfer sin lazy loading, commit, inferencia o recálculo.
+
+La prioridad se valida contra `CorrectionGuidancePolicy`, pero llega ya seleccionada: el backend no determina su corrección. `ProductionFeedback` no se reutilizó porque depende de evaluación técnica y tiene otra semántica. La orientación no modifica `LearnerProduction`, el enlace ni el intento y permanece separada de evaluación, verdad pedagógica, progreso, mastery y selección automática.
+
+Postflight: nuevo head `a4c8e2f6b901`; S2 lo descubrió sin cambiar su adaptador ni fijar target. PostgreSQL focal: 1 passed in 2.48s; S2 completo: 1 passed in 2.38s; suite backend 1171 passed in 10.30s; `operational_state.py validate` correcto; `git diff --check` limpio; revisión sin defectos; commit `2f396d3`.
+
+La infraestructura interna ya cubre las responsabilidades necesarias. El siguiente incremento debe demostrar comportamiento pedagógico: presentar una única orientación ya registrada antes de un nuevo intento y retirar de nuevo el apoyo, sin sumar persistencia salvo necesidad probada. Karaoke Fonético sigue pospuesto, no descartado.
