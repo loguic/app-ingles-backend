@@ -890,3 +890,27 @@ B179 queda cerrado técnica e integralmente. Hito A aportó el modelo normalizad
 La validación final directa en Kitty registró 1086 pruebas backend superadas en 6.93 s, `operational_state.py validate` correcto, `git diff --check` limpio, Git sincronizado en `master...origin/master` y marcador `B179_INTEGRAL_VALIDATED`.
 
 Permanecen fuera API, Flutter, progreso, mastery, retención, adaptación automática, historial persistente de transiciones y operaciones sobre bases reales. El próximo objetivo es diseñar un bloque desde una capacidad observable del estudiante y el modelo pedagógico maestro; el historial técnico no selecciona automáticamente dicho bloque.
+
+## B180 — Construcción directa en inglés
+
+Estado: bloque activo; Incremento 1 cerrado técnicamente.
+
+La capacidad observable de B180 es construir oralmente una respuesta directamente en inglés desde una intención comunicativa, ampliarla con información pertinente y transferir el patrón ante una variación inesperada con ayuda mínima, sin copiar una frase completa.
+
+### Incremento 1 — primera lección
+
+`a1-u1-l1` mantiene su identificador y adopta el título `Introduce yourself directly`. Reutiliza la Skill `a1_introduce_yourself`, la situación de conocer a una persona y el andamio Persona + Verbo. La experiencia queda organizada en cinco etapas: modelo consciente con refuerzo fonético, construcción guiada, ampliación, transferencia inesperada y cierre.
+
+Las tres evidencias son `guided`, `expanded` y `transfer`. Voz es la modalidad principal y texto solo respaldo. La ayuda disminuye de `anchors` a `initial_word` y `none`; ampliación y transferencia no admiten un modelo completo. Un banco validable aporta cuatro preguntas relacionadas de transferencia, sin implementar todavía su selección en runtime.
+
+La política de corrección limita cada producción a una orientación y ordena las prioridades como pertinencia, construcción directa, inteligibilidad y precisión secundaria. El incremento representa y valida esta política, pero no selecciona automáticamente una corrección.
+
+El refuerzo fonético reutiliza audio e IPA en-US/en-GB para escucha breve, seguimiento de ritmo, shadowing y el objetivo `/iː/` cuando aparece naturalmente. Es preparatorio y no cuenta como transferencia independiente. El Karaoke Fonético permanece pospuesto, no descartado: una capacidad futura aislada podrá incorporar audio sincronizado, texto, fonemas, colores, shadowing, dictado y grabación, sin que B180 implemente ahora ese motor o su interfaz.
+
+Los contratos retrocompatibles incorporan función pedagógica, modalidad principal y de respaldo, nivel de apoyo, permiso de modelo completo, banco de variantes, política de corrección y refuerzo de pronunciación. Un validador puro comprueba estructura, secuencia, evidencias, retirada de apoyos, modalidades, transferencia y finalización sin clasificar significado libre, progreso o mastery.
+
+Validación final: suite backend 1104 passed in 9.20s, `operational_state.py validate` correcto, `git diff --check` limpio, revisión sin defectos accionables y commit técnico `ccafaaa`.
+
+Permanecen fuera la selección runtime de variantes, comprobación semántica de ampliación y transferencia, captura efectiva de modalidad y apoyo, selección real de la corrección, persistencia adicional no demostrada, API, Flutter, progreso, mastery y adaptación automática.
+
+Siguiente incremento recomendado: una ejecución pedagógica interna mínima que seleccione una variante de transferencia y registre la modalidad y el apoyo realmente utilizados, manteniendo separadas la evidencia observada y cualquier futura evaluación semántica. No incluirá todavía API ni Flutter.

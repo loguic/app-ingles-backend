@@ -3758,3 +3758,27 @@ Validación final directa en Kitty:
 Permanecen fuera API y endpoints, Flutter, progreso, mastery, retención, adaptación automática, historial persistente de transiciones y migraciones sobre bases reales. S2 no autoriza desarrollo, staging o producción reales. La deuda de interrupción de `block_workflow.py` continúa separada.
 
 El siguiente bloque deberá diseñarse desde una capacidad observable del estudiante y el modelo pedagógico maestro. El historial técnico no determina automáticamente cuál será.
+
+## B180 — Incremento 1: construcción directa en la primera lección
+
+Estado: incremento cerrado técnicamente; B180 permanece activo.
+
+Se rediseñó `a1-u1-l1`, sin cambiar su identificador, como `Introduce yourself directly`. La capacidad observable es construir oralmente una respuesta directamente en inglés desde una intención, ampliarla con información pertinente y transferir el patrón ante una variación inesperada con ayuda mínima y sin copiar una frase completa.
+
+La lección reutiliza `a1_introduce_yourself` y Persona + Verbo. Sus cinco etapas son modelo consciente con refuerzo fonético, construcción guiada, ampliación, transferencia y cierre. Las evidencias independientes `guided`, `expanded` y `transfer` reducen el apoyo de anclas a palabra inicial y ninguno. Voz queda declarada como modalidad principal y texto como respaldo; ampliación y transferencia prohíben el modelo completo.
+
+Se incorporó un banco de cuatro variantes de transferencia y una política de máximo una orientación por producción, con prioridad de pertinencia, construcción directa, inteligibilidad y precisión secundaria. El validador determinista comprueba estos contratos sin decidir la corrección ni evaluar semántica libre, progreso o mastery.
+
+El refuerzo previo reutiliza audio e IPA en-US/en-GB para escucha, ritmo, shadowing y `/iː/` natural. No es evidencia de transferencia y no introduce infraestructura fonética nueva. El Karaoke Fonético queda pospuesto, no descartado, para una capacidad aislada posterior con audio sincronizado, texto, fonemas, colores, shadowing, dictado y grabación; no se implementaron timestamps, sincronización ni UI.
+
+Validación final:
+
+- suite backend: 1104 passed in 9.20s;
+- `operational_state.py validate`: correcto;
+- `git diff --check`: limpio;
+- revisión sin defectos accionables;
+- commit técnico: `ccafaaa`.
+
+Quedan fuera selección runtime de variantes, comprobación semántica, captura efectiva de modalidad y apoyo, elección real de corrección, persistencia adicional no demostrada, API, Flutter, progreso, mastery y adaptación automática.
+
+El siguiente incremento recomendado implementará primero el comportamiento pedagógico interno mínimo para seleccionar una variante y registrar modalidad y apoyo realmente utilizados, sin saltar todavía a API o Flutter.

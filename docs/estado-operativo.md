@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-06
+Actualizado: 2026-08-07
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -87,7 +87,17 @@ Límites vigentes:
 
 ## Bloque activo
 
-Ninguno. El siguiente bloque requiere diseño pedagógico explícito.
+### B180 — Construcción directa en inglés
+
+Estado: activo; Incremento 1 cerrado técnicamente.
+
+Capacidad observable: construir oralmente una respuesta desde una intención, ampliarla con información pertinente y transferir el patrón ante una variación inesperada con ayuda mínima, sin copiar una frase completa.
+
+`a1-u1-l1` conserva su identificador y pasa a `Introduce yourself directly`, con la Skill `a1_introduce_yourself`, patrón Persona + Verbo y cinco etapas: modelo con refuerzo fonético, construcción guiada, ampliación, transferencia y cierre. Las evidencias `guided`, `expanded` y `transfer` retiran apoyo de `anchors` a `initial_word` y `none`; voz es principal y texto, respaldo.
+
+La corrección admite como máximo una orientación y prioriza pertinencia, construcción directa, inteligibilidad y precisión secundaria. El refuerzo reutiliza audio e IPA regionales para escucha, ritmo, shadowing y `/iː/`; no constituye evidencia independiente.
+
+Validación: suite backend 1104 passed in 9.20s; `operational_state.py validate` correcto; `git diff --check` limpio; revisión sin defectos accionables; commit `ccafaaa`.
 
 ## Deuda operativa separada
 
@@ -113,7 +123,9 @@ Cada hito pasa por definición, implementación técnica, validación específic
 
 ## Próximo objetivo
 
-Diseñar el siguiente bloque desde una capacidad observable del estudiante y el modelo pedagógico maestro. El historial técnico no determina automáticamente ese bloque.
+Incremento 2 de B180: diseñar la ejecución interna mínima que seleccione una variante de transferencia y registre modalidad y apoyo realmente utilizados, sin evaluación semántica, progreso, mastery, API ni Flutter.
+
+El Karaoke Fonético queda pospuesto, no descartado, como capacidad aislada posterior; B180 no implementa todavía sincronización, timestamps, colores, dictado, grabación guiada ni UI específica.
 
 Toda futura aplicación sobre entornos reales requerirá una autorización y controles adicionales fuera de S2.
 

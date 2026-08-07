@@ -2,10 +2,10 @@
 
 ## Estado del documento
 
-- Bloque: B116.
-- Estado: diseño en progreso.
+- Bloque de origen: B116.
+- Estado: contrato base vigente con aplicación incremental.
 - Fuente de verdad para backend, frontend y contenido pedagógico.
-- Ninguna decisión de este documento modifica todavía código ni contenido activo.
+- Las aplicaciones sobre contenido activo se registran y validan en su bloque correspondiente.
 
 ## Propósito
 
@@ -1041,3 +1041,17 @@ B116 solo podrá cerrarse cuando:
 - se realice commit y push;
 - el repositorio quede limpio y sincronizado;
 - no se haya modificado código ni contenido activo.
+
+## Aplicación en B180 — construcción directa
+
+El Incremento 1 de B180 aplica el contrato v2 a `a1-u1-l1` mediante extensiones opcionales y retrocompatibles. `LearnerProductionPrompt` puede declarar función `guided`, `expanded` o `transfer`, modalidad principal y de respaldo, nivel de apoyo, permiso explícito de modelo completo y un banco estable de variantes de transferencia.
+
+`LessonExperience` puede declarar una política acotada de corrección y un refuerzo preparatorio de pronunciación. En la primera lección, voz es la modalidad principal, texto solo respaldo, la ayuda disminuye de anclas a palabra inicial y ausencia de apoyo, y ampliación y transferencia no permiten respuesta completa para copiar.
+
+La corrección admite un máximo de una orientación y conserva este orden: pertinencia, construcción directa, inteligibilidad y precisión secundaria. El contrato no selecciona la corrección ni clasifica significado libre.
+
+El refuerzo fonético referencia audio e IPA existentes, texto breve, objetivo de escucha, shadowing y objetivos fonéticos opcionales. No almacena timestamps, sincronización palabra a palabra, colores o puntuación, y no cuenta como evidencia independiente.
+
+La finalización de `a1-u1-l1` exige evidencias diferenciadas de construcción guiada, ampliación y transferencia. Completar estas evidencias no equivale a progreso ni mastery.
+
+Estado: aplicación técnica validada en B180 Incremento 1 mediante commit `ccafaaa`; suite backend 1104 passed in 9.20s.
