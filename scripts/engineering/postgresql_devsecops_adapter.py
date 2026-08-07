@@ -20,6 +20,11 @@ from pathlib import Path
 from typing import Callable, Mapping, Sequence
 from urllib.parse import quote
 
+from alembic.config import Config as AlembicConfig
+from alembic.script import ScriptDirectory
+from alembic.script.revision import ResolutionError
+from alembic.util.exc import CommandError
+
 from scripts.engineering.devsecops_gate import (
     calculate_sha256,
     load_safety_plan,
@@ -104,8 +109,19 @@ class AdapterConfig:
     repository_root: Path
     authorized_temp_parent: Path
     initial_revision: str = "f81a78f8c1c4"
-    target_revision: str = "3c4f1a2b7d90"
+    target_revision: str | None = None
     timeout_seconds: int = DEFAULT_TIMEOUT
+
+
+@dataclass(frozen=True)
+class ResolvedMigrationRange:
+    """Freeze one verified migration boundary for the complete rehearsal.
+
+    Fija una frontera de migración verificada para todo el ensayo.
+    """
+
+    initial_revision: str
+    target_revision: str
 
 
 @dataclass(frozen=True)
@@ -175,6 +191,85 @@ def validate_config(config: AdapterConfig) -> None:
     parent = config.authorized_temp_parent.resolve()
     if parent != Path(tempfile.gettempdir()).resolve():
         raise AdapterError("temporary parent is not authorized")
+
+
+def resolve_migration_range(
+    config: AdapterConfig,
+    *,
+    script_directory_factory: Callable[
+        [AlembicConfig], ScriptDirectory
+    ] = ScriptDirectory.from_config,
+) -> ResolvedMigrationRange:
+    """Resolve one linear Alembic head without opening a database.
+
+    Resuelve un único head lineal de Alembic sin abrir una base de datos.
+    """
+    alembic_config = AlembicConfig(
+        str(config.repository_root / "alembic.ini")
+    )
+    alembic_config.set_main_option(
+        "script_location",
+        str(config.repository_root / "alembic"),
+    )
+    try:
+        scripts = script_directory_factory(alembic_config)
+        heads = tuple(scripts.get_heads())
+    except Exception as exc:
+        raise AdapterError("Alembic revision graph could not be loaded") from exc
+    if len(heads) != 1:
+        raise AdapterError("Alembic revision graph must have exactly one head")
+
+    target_revision = heads[0]
+    try:
+        initial_script = scripts.get_revision(config.initial_revision)
+        target_script = scripts.get_revision(target_revision)
+    except (CommandError, ResolutionError) as exc:
+        raise AdapterError("configured Alembic revision does not exist") from exc
+    if initial_script is None or target_script is None:
+        raise AdapterError("configured Alembic revision does not exist")
+
+    if config.target_revision is not None:
+        try:
+            explicit_target = scripts.get_revision(config.target_revision)
+        except (CommandError, ResolutionError) as exc:
+            raise AdapterError(
+                "configured target Alembic revision does not exist"
+            ) from exc
+        if explicit_target is None:
+            raise AdapterError(
+                "configured target Alembic revision does not exist"
+            )
+        if (
+            config.target_revision != target_revision
+            or explicit_target.revision != target_revision
+        ):
+            raise AdapterError(
+                "configured target Alembic revision is not the current head"
+            )
+
+    if initial_script.revision == target_revision:
+        raise AdapterError(
+            "initial Alembic revision must precede the current head"
+        )
+
+    current = target_script
+    while current.revision != initial_script.revision:
+        parent = current.down_revision
+        if parent is None or not isinstance(parent, str):
+            raise AdapterError(
+                "Alembic head is not on one linear path from initial revision"
+            )
+        try:
+            current = scripts.get_revision(parent)
+        except (CommandError, ResolutionError) as exc:
+            raise AdapterError("Alembic revision chain is incomplete") from exc
+        if current is None:
+            raise AdapterError("Alembic revision chain is incomplete")
+
+    return ResolvedMigrationRange(
+        initial_revision=initial_script.revision,
+        target_revision=target_revision,
+    )
 
 
 def create_workspace(authorized_parent: Path) -> ManagedWorkspace:
@@ -568,7 +663,7 @@ def current_revision(cluster: PostgreSQLCluster, database: str) -> str:
 
 def write_evidence_plan(
     *,
-    config: AdapterConfig,
+    migration_range: ResolvedMigrationRange,
     workspace: ManagedWorkspace,
     backup_path: Path,
     backup_sha256: str,
@@ -583,8 +678,8 @@ def write_evidence_plan(
             "fingerprint": hashlib.sha256(
                 str(workspace.root).encode("utf-8")
             ).hexdigest(),
-            "current_revision": config.initial_revision,
-            "target_revision": config.target_revision,
+            "current_revision": migration_range.initial_revision,
+            "target_revision": migration_range.target_revision,
         },
         "backup": {
             "artifact_path": str(backup_path),
@@ -599,14 +694,14 @@ def write_evidence_plan(
         },
         "migration_rehearsal": {
             "environment_id": "isolated-postgresql-cluster",
-            "initial_revision": config.initial_revision,
-            "final_revision": config.target_revision,
+            "initial_revision": migration_range.initial_revision,
+            "final_revision": migration_range.target_revision,
             "upgrade_succeeded": True,
             "downgrade_succeeded": True,
             "performed_at": rehearsal_at.isoformat(),
         },
         "rollback": {
-            "return_revision": config.initial_revision,
+            "return_revision": migration_range.initial_revision,
             "procedure": "Run the reviewed downgrade in the isolated cluster.",
         },
     }
@@ -626,6 +721,7 @@ def run_isolated_rehearsal(
     Ejecuta el ensayo S2 completo y limpia siempre su workspace.
     """
     validate_config(config)
+    migration_range = resolve_migration_range(config)
     workspace = create_workspace(config.authorized_temp_parent)
     runner = runner_factory(config.timeout_seconds)
     cluster = PostgreSQLCluster(workspace, binaries, runner, config.port)
@@ -644,7 +740,7 @@ def run_isolated_rehearsal(
             cluster,
             source_database,
             "upgrade",
-            config.initial_revision,
+            migration_range.initial_revision,
             config.repository_root,
         )
         create_control_data(cluster, source_database)
@@ -665,31 +761,31 @@ def run_isolated_rehearsal(
             encoding="utf-8",
         )
         initial = current_revision(cluster, destination_database)
-        if initial != config.initial_revision:
+        if initial != migration_range.initial_revision:
             raise AdapterError("restored initial revision differs")
         run_alembic(
             cluster,
             destination_database,
             "upgrade",
-            config.target_revision,
+            migration_range.target_revision,
             config.repository_root,
         )
         final = current_revision(cluster, destination_database)
-        if final != config.target_revision:
+        if final != migration_range.target_revision:
             raise AdapterError("isolated upgrade revision differs")
         run_alembic(
             cluster,
             destination_database,
             "downgrade",
-            config.initial_revision,
+            migration_range.initial_revision,
             config.repository_root,
         )
         restored = current_revision(cluster, destination_database)
-        if restored != config.initial_revision:
+        if restored != migration_range.initial_revision:
             raise AdapterError("isolated downgrade revision differs")
         rehearsal_at = datetime.now(UTC)
         plan_path = write_evidence_plan(
-            config=config,
+            migration_range=migration_range,
             workspace=workspace,
             backup_path=backup_path,
             backup_sha256=backup_digest,

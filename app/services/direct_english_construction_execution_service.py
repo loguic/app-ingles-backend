@@ -1,0 +1,468 @@
+"""Persist deterministic direct-English construction executions.
+
+Persiste ejecuciones deterministas de construcción directa en inglés.
+"""
+
+from datetime import UTC, datetime
+import hashlib
+
+from sqlalchemy import case
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.orm import Session
+
+from app.db.models import (
+    ConversationProductionSubmission as SubmissionModel,
+    DirectEnglishConstructionAttempt as AttemptModel,
+    DirectEnglishConstructionAttemptProduction as AttemptProductionModel,
+    LearnerProduction as ProductionModel,
+)
+from app.schemas.content import Lesson, TransferPromptVariant
+from app.schemas.direct_english_construction_execution import (
+    DirectEnglishConstructionAttemptFinalize,
+    DirectEnglishConstructionAttemptProductionRecord,
+    DirectEnglishConstructionAttemptRecord,
+    DirectEnglishConstructionAttemptStart,
+)
+from app.services.content_service import build_content_tree
+from app.services.conversation_production_persistence_service import (
+    _add_validated_conversation_production_submission,
+)
+from app.services.conversation_production_validation import (
+    validate_conversation_production_submission,
+)
+from app.services.direct_english_construction_content_validation import (
+    validate_direct_english_construction_lesson,
+)
+
+
+SELECTOR_VERSION = "sha256-v1"
+FUNCTION_ORDER = {"guided": 0, "expanded": 1, "transfer": 2}
+SUPPORT_RANK = {"none": 0, "initial_word": 1, "anchors": 2, "model": 3}
+
+
+class DirectEnglishConstructionExecutionError(Exception):
+    """Base error for direct-English execution persistence."""
+
+
+class DirectEnglishConstructionAttemptAlreadyExistsError(
+    DirectEnglishConstructionExecutionError
+):
+    """Raised when an attempt identity already exists."""
+
+
+class DirectEnglishConstructionReferenceNotFoundError(
+    DirectEnglishConstructionExecutionError
+):
+    """Raised when required content or persistence is absent."""
+
+
+class DirectEnglishConstructionInvariantError(
+    DirectEnglishConstructionExecutionError
+):
+    """Raised when execution evidence contradicts its content."""
+
+
+class DirectEnglishConstructionStateConflictError(
+    DirectEnglishConstructionExecutionError
+):
+    """Raised when persisted attempt state changed concurrently."""
+
+
+def _resolve_lesson(
+    level_id: str,
+    unit_id: str,
+    lesson_id: str,
+) -> Lesson:
+    tree = build_content_tree()
+    for level in tree.levels:
+        if level.code != level_id:
+            continue
+        for unit in level.units:
+            if unit.id != unit_id:
+                continue
+            for lesson in unit.lessons:
+                if lesson.id == lesson_id:
+                    try:
+                        validate_direct_english_construction_lesson(lesson)
+                    except ValueError as exc:
+                        raise DirectEnglishConstructionInvariantError(
+                            "Direct-English lesson content is invalid"
+                        ) from exc
+                    if (
+                        lesson.experience is None
+                        or lesson.experience.pedagogical_method
+                        != "direct_english_construction"
+                    ):
+                        raise DirectEnglishConstructionInvariantError(
+                            "Lesson is not a direct-English construction experience"
+                        )
+                    return lesson
+    raise DirectEnglishConstructionReferenceNotFoundError(
+        "Direct-English lesson hierarchy does not exist"
+    )
+
+
+def _transfer_prompt(lesson: Lesson):
+    for conversation in lesson.conversations:
+        for turn in conversation.turns:
+            prompt = turn.production_prompt
+            if prompt is not None and prompt.production_function == "transfer":
+                return prompt
+    raise DirectEnglishConstructionInvariantError(
+        "Direct-English lesson has no transfer prompt"
+    )
+
+
+def select_direct_english_transfer_variant(
+    lesson: Lesson,
+    attempt_id: str,
+) -> tuple[str, TransferPromptVariant]:
+    """Select one transfer variant without random or global state.
+
+    Selecciona una variante sin aleatoriedad ni estado global.
+    """
+    prompt = _transfer_prompt(lesson)
+    if prompt.transfer_bank_id is None or not prompt.transfer_variants:
+        raise DirectEnglishConstructionInvariantError(
+            "Transfer prompt bank is unavailable"
+        )
+    variants = sorted(prompt.transfer_variants, key=lambda item: item.id)
+    canonical_input = "\x1f".join(
+        (
+            SELECTOR_VERSION,
+            attempt_id,
+            lesson.id,
+            prompt.transfer_bank_id,
+        )
+    ).encode("utf-8")
+    index = int.from_bytes(
+        hashlib.sha256(canonical_input).digest(),
+        byteorder="big",
+    ) % len(variants)
+    return prompt.transfer_bank_id, variants[index]
+
+
+def _execution_entries(lesson: Lesson) -> dict[str, tuple]:
+    if lesson.experience is None:
+        raise DirectEnglishConstructionInvariantError(
+            "Direct-English lesson has no experience"
+        )
+    evidence_by_activity = {
+        item.activity_id: item
+        for item in lesson.experience.evidence_definitions
+    }
+    entries: dict[str, tuple] = {}
+    for conversation in lesson.conversations:
+        for turn in conversation.turns:
+            prompt = turn.production_prompt
+            if prompt is None or prompt.production_function is None:
+                continue
+            evidence = evidence_by_activity.get(conversation.id)
+            if evidence is None:
+                raise DirectEnglishConstructionInvariantError(
+                    "Production conversation has no evidence definition"
+                )
+            entries[prompt.production_function] = (
+                conversation,
+                turn,
+                prompt,
+                evidence,
+            )
+    return entries
+
+
+def _normalize_timestamp(value: datetime) -> datetime:
+    if value.tzinfo is None or value.utcoffset() is None:
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
+
+
+def _completion_requirements_met(
+    status: str,
+    records: list[DirectEnglishConstructionAttemptProductionRecord],
+) -> bool:
+    if status != "finalized" or len(records) != 3:
+        return False
+    if {item.production_function for item in records} != set(FUNCTION_ORDER):
+        return False
+    for item in records:
+        if item.modality_used != "voice":
+            return False
+        if (
+            SUPPORT_RANK[item.support_used]
+            > SUPPORT_RANK[item.configured_support_level]
+        ):
+            return False
+        if item.production_function == "transfer" and item.support_used != "none":
+            return False
+    return True
+
+
+def get_direct_english_construction_attempt(
+    attempt_id: str,
+    db: Session,
+) -> DirectEnglishConstructionAttemptRecord:
+    """Recover one attempt explicitly without committing or lazy loading.
+
+    Recupera un intento explícitamente sin commit ni lazy loading.
+    """
+    attempt = (
+        db.query(AttemptModel)
+        .filter(AttemptModel.attempt_id == attempt_id)
+        .one_or_none()
+    )
+    if attempt is None:
+        raise DirectEnglishConstructionReferenceNotFoundError(
+            "Direct-English construction attempt does not exist"
+        )
+
+    rows = (
+        db.query(AttemptProductionModel, ProductionModel)
+        .join(
+            ProductionModel,
+            ProductionModel.id
+            == AttemptProductionModel.learner_production_id,
+        )
+        .filter(AttemptProductionModel.attempt_id == attempt_id)
+        .order_by(
+            case(
+                FUNCTION_ORDER,
+                value=AttemptProductionModel.production_function,
+            )
+        )
+        .all()
+    )
+    productions = [
+        DirectEnglishConstructionAttemptProductionRecord(
+            production_function=link.production_function,
+            evidence_id=link.evidence_id,
+            production_id=production.id,
+            prompt_id=production.prompt_id,
+            modality_used=production.modality,
+            configured_support_level=link.configured_support_level,
+            support_used=link.support_used,
+        )
+        for link, production in rows
+    ]
+    return DirectEnglishConstructionAttemptRecord(
+        attempt_id=attempt.attempt_id,
+        user_id=attempt.user_id,
+        level_id=attempt.level_id,
+        unit_id=attempt.unit_id,
+        lesson_id=attempt.lesson_id,
+        status=attempt.status,
+        transfer_bank_id=attempt.transfer_bank_id,
+        transfer_variant_id=attempt.transfer_variant_id,
+        transfer_prompt_snapshot=attempt.transfer_prompt_snapshot,
+        selector_version=attempt.selector_version,
+        started_at=attempt.started_at,
+        finalized_at=attempt.finalized_at,
+        productions=productions,
+        completion_requirements_met=_completion_requirements_met(
+            attempt.status,
+            productions,
+        ),
+    )
+
+
+def start_direct_english_construction_attempt(
+    command: DirectEnglishConstructionAttemptStart,
+    db: Session,
+) -> DirectEnglishConstructionAttemptRecord:
+    """Select and persist one immutable transfer variant.
+
+    Selecciona y persiste una variante de transferencia inmutable.
+    """
+    lesson = _resolve_lesson(
+        command.level_id,
+        command.unit_id,
+        command.lesson_id,
+    )
+    if (
+        db.query(AttemptModel.attempt_id)
+        .filter(AttemptModel.attempt_id == command.attempt_id)
+        .first()
+        is not None
+    ):
+        raise DirectEnglishConstructionAttemptAlreadyExistsError(
+            "Direct-English construction attempt already exists"
+        )
+    bank_id, variant = select_direct_english_transfer_variant(
+        lesson,
+        command.attempt_id,
+    )
+    attempt = AttemptModel(
+        attempt_id=command.attempt_id,
+        user_id=command.user_id,
+        level_id=command.level_id,
+        unit_id=command.unit_id,
+        lesson_id=command.lesson_id,
+        transfer_bank_id=bank_id,
+        transfer_variant_id=variant.id,
+        transfer_prompt_snapshot=variant.prompt,
+        selector_version=SELECTOR_VERSION,
+        status="started",
+        started_at=command.started_at,
+        finalized_at=None,
+    )
+    try:
+        db.add(attempt)
+        db.flush()
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise DirectEnglishConstructionAttemptAlreadyExistsError(
+            "Direct-English construction attempt already exists"
+        ) from exc
+    except SQLAlchemyError as exc:
+        db.rollback()
+        raise DirectEnglishConstructionExecutionError(
+            "Could not start direct-English construction attempt"
+        ) from exc
+    except Exception:
+        db.rollback()
+        raise
+    return get_direct_english_construction_attempt(command.attempt_id, db)
+
+
+def finalize_direct_english_construction_attempt(
+    command: DirectEnglishConstructionAttemptFinalize,
+    db: Session,
+) -> DirectEnglishConstructionAttemptRecord:
+    """Persist three productions and finalize their attempt atomically.
+
+    Persiste tres producciones y finaliza su intento atómicamente.
+    """
+    attempt = (
+        db.query(AttemptModel)
+        .filter(AttemptModel.attempt_id == command.attempt_id)
+        .one_or_none()
+    )
+    if attempt is None:
+        raise DirectEnglishConstructionReferenceNotFoundError(
+            "Direct-English construction attempt does not exist"
+        )
+    if attempt.status != "started":
+        raise DirectEnglishConstructionStateConflictError(
+            "Direct-English construction attempt is not started"
+        )
+    if _normalize_timestamp(command.finalized_at) < _normalize_timestamp(
+        attempt.started_at
+    ):
+        raise DirectEnglishConstructionInvariantError(
+            "finalized_at cannot precede started_at"
+        )
+
+    lesson = _resolve_lesson(
+        attempt.level_id,
+        attempt.unit_id,
+        attempt.lesson_id,
+    )
+    entries = _execution_entries(lesson)
+    captures = {
+        item.production_function: item for item in command.captures
+    }
+    ordered_functions = ("guided", "expanded", "transfer")
+
+    # Validate the complete aggregate before adding any row.
+    # Valida el agregado completo antes de añadir ninguna fila.
+    for function in ordered_functions:
+        capture = captures[function]
+        conversation, turn, prompt, _evidence = entries[function]
+        submission = capture.submission
+        if (
+            submission.user_id != attempt.user_id
+            or submission.level_id != attempt.level_id
+            or submission.unit_id != attempt.unit_id
+            or submission.lesson_id != attempt.lesson_id
+        ):
+            raise DirectEnglishConstructionInvariantError(
+                "Production submission hierarchy or user is incompatible"
+            )
+        if submission.conversation_id != conversation.id:
+            raise DirectEnglishConstructionInvariantError(
+                "Production conversation is incompatible with its function"
+            )
+        if len(submission.productions) != 1:
+            raise DirectEnglishConstructionInvariantError(
+                "Each direct-English function requires one production"
+            )
+        captured = submission.productions[0]
+        if captured.prompt_id != prompt.id or captured.turn_id != turn.id:
+            raise DirectEnglishConstructionInvariantError(
+                "Production prompt or turn is incompatible with its function"
+            )
+        if function == "transfer" and (
+            capture.transfer_variant_id != attempt.transfer_variant_id
+        ):
+            raise DirectEnglishConstructionInvariantError(
+                "Transfer capture does not use the selected variant"
+            )
+        try:
+            validate_conversation_production_submission(
+                submission,
+                conversation,
+            )
+        except ValueError as exc:
+            raise DirectEnglishConstructionInvariantError(
+                "Production submission contradicts active content"
+            ) from exc
+
+    try:
+        for function in ordered_functions:
+            capture = captures[function]
+            conversation, _turn, prompt, evidence = entries[function]
+            _submission, productions = (
+                _add_validated_conversation_production_submission(
+                    capture.submission,
+                    conversation,
+                    db,
+                )
+            )
+            db.add(
+                AttemptProductionModel(
+                    attempt_id=attempt.attempt_id,
+                    learner_production_id=productions[0].id,
+                    production_function=function,
+                    evidence_id=evidence.id,
+                    configured_support_level=prompt.support_level,
+                    support_used=capture.support_used,
+                )
+            )
+        db.flush()
+        rowcount = (
+            db.query(AttemptModel)
+            .filter(
+                AttemptModel.attempt_id == attempt.attempt_id,
+                AttemptModel.status == "started",
+            )
+            .update(
+                {
+                    AttemptModel.status: "finalized",
+                    AttemptModel.finalized_at: command.finalized_at,
+                },
+                synchronize_session=False,
+            )
+        )
+        if rowcount != 1:
+            raise DirectEnglishConstructionStateConflictError(
+                "Direct-English construction attempt changed concurrently"
+            )
+        db.commit()
+    except DirectEnglishConstructionExecutionError:
+        db.rollback()
+        raise
+    except IntegrityError as exc:
+        db.rollback()
+        raise DirectEnglishConstructionInvariantError(
+            "Direct-English execution violates persistent integrity"
+        ) from exc
+    except SQLAlchemyError as exc:
+        db.rollback()
+        raise DirectEnglishConstructionExecutionError(
+            "Could not finalize direct-English construction attempt"
+        ) from exc
+    except Exception:
+        db.rollback()
+        raise
+    return get_direct_english_construction_attempt(command.attempt_id, db)

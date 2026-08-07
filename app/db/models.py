@@ -107,6 +107,117 @@ class LearnerProduction(Base):
     audio_reference = Column(String, nullable=True)
 
 
+class DirectEnglishConstructionAttempt(Base):
+    """Persist one complete direct-English execution identity.
+
+    Persiste la identidad de una ejecución completa de inglés directo.
+    """
+
+    __tablename__ = "direct_english_construction_attempts"
+    __table_args__ = (
+        CheckConstraint(
+            "length(trim(attempt_id)) > 0",
+            name="ck_direct_english_attempt_id_not_blank",
+        ),
+        CheckConstraint(
+            "length(trim(user_id)) > 0 "
+            "AND length(trim(level_id)) > 0 "
+            "AND length(trim(unit_id)) > 0 "
+            "AND length(trim(lesson_id)) > 0",
+            name="ck_direct_english_attempt_hierarchy_not_blank",
+        ),
+        CheckConstraint(
+            "length(trim(transfer_bank_id)) > 0 "
+            "AND length(trim(transfer_variant_id)) > 0 "
+            "AND length(trim(transfer_prompt_snapshot)) > 0 "
+            "AND length(trim(selector_version)) > 0",
+            name="ck_direct_english_attempt_selection_not_blank",
+        ),
+        CheckConstraint(
+            "status IN ('started', 'finalized')",
+            name="ck_direct_english_attempt_status",
+        ),
+        CheckConstraint(
+            "(status = 'started' AND finalized_at IS NULL) OR "
+            "(status = 'finalized' AND finalized_at IS NOT NULL)",
+            name="ck_direct_english_attempt_finalization",
+        ),
+        CheckConstraint(
+            "finalized_at IS NULL OR finalized_at >= started_at",
+            name="ck_direct_english_attempt_timeline",
+        ),
+    )
+
+    attempt_id = Column(String, primary_key=True)
+    user_id = Column(String, nullable=False)
+    level_id = Column(String, nullable=False)
+    unit_id = Column(String, nullable=False)
+    lesson_id = Column(String, nullable=False)
+    transfer_bank_id = Column(String, nullable=False)
+    transfer_variant_id = Column(String, nullable=False)
+    transfer_prompt_snapshot = Column(Text, nullable=False)
+    selector_version = Column(String, nullable=False)
+    status = Column(String, nullable=False)
+    started_at = Column(DateTime(timezone=True), nullable=False)
+    finalized_at = Column(DateTime(timezone=True), nullable=True)
+
+
+class DirectEnglishConstructionAttemptProduction(Base):
+    """Link one real production to its direct-English function.
+
+    Vincula una producción real con su función de inglés directo.
+    """
+
+    __tablename__ = "direct_english_construction_attempt_productions"
+    __table_args__ = (
+        UniqueConstraint(
+            "attempt_id",
+            "production_function",
+            name="uq_direct_english_attempt_function",
+        ),
+        UniqueConstraint(
+            "learner_production_id",
+            name="uq_direct_english_attempt_learner_production",
+        ),
+        CheckConstraint(
+            "production_function IN ('guided', 'expanded', 'transfer')",
+            name="ck_direct_english_attempt_production_function",
+        ),
+        CheckConstraint(
+            "configured_support_level IN "
+            "('model', 'anchors', 'initial_word', 'none')",
+            name="ck_direct_english_attempt_configured_support",
+        ),
+        CheckConstraint(
+            "support_used IN ('model', 'anchors', 'initial_word', 'none')",
+            name="ck_direct_english_attempt_support_used",
+        ),
+        CheckConstraint(
+            "length(trim(evidence_id)) > 0",
+            name="ck_direct_english_attempt_evidence_not_blank",
+        ),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    attempt_id = Column(
+        String,
+        ForeignKey(
+            "direct_english_construction_attempts.attempt_id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+    )
+    learner_production_id = Column(
+        Integer,
+        ForeignKey("learner_productions.id"),
+        nullable=False,
+    )
+    production_function = Column(String, nullable=False)
+    evidence_id = Column(String, nullable=False)
+    configured_support_level = Column(String, nullable=False)
+    support_used = Column(String, nullable=False)
+
+
 class ProductionEvaluationResult(Base):
     """Persist one evaluation separately from the captured production.
 
