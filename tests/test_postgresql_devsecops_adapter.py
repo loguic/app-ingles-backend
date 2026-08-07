@@ -80,16 +80,16 @@ def test_resolves_current_single_head_from_repository():
 
     assert resolved == ResolvedMigrationRange(
         initial_revision="f81a78f8c1c4",
-        target_revision="7d8e9f0a1b2c",
+        target_revision="a4c8e2f6b901",
     )
 
 
 def test_accepts_explicit_current_head_expectation():
     resolved = resolve_migration_range(
-        config(target_revision="7d8e9f0a1b2c")
+        config(target_revision="a4c8e2f6b901")
     )
 
-    assert resolved.target_revision == "7d8e9f0a1b2c"
+    assert resolved.target_revision == "a4c8e2f6b901"
 
 
 def test_rejects_obsolete_or_symbolic_target_expectation():
@@ -111,7 +111,7 @@ def test_rejects_unknown_initial_or_target_revision():
 def test_rejects_initial_revision_that_does_not_precede_head():
     with pytest.raises(AdapterError, match="must precede"):
         resolve_migration_range(
-            config(initial_revision="7d8e9f0a1b2c")
+            config(initial_revision="a4c8e2f6b901")
         )
 
 
@@ -266,7 +266,7 @@ def test_stop_and_cleanup_when_stage_fails(monkeypatch, tmp_path):
         lambda _config: resolutions.append(True)
         or ResolvedMigrationRange(
             initial_revision="f81a78f8c1c4",
-            target_revision="7d8e9f0a1b2c",
+            target_revision="a4c8e2f6b901",
         ),
     )
     monkeypatch.setattr(
@@ -430,7 +430,7 @@ def test_evidence_uses_concrete_resolved_revision_hashes(tmp_path):
         plan_path = write_evidence_plan(
             migration_range=ResolvedMigrationRange(
                 initial_revision="f81a78f8c1c4",
-                target_revision="7d8e9f0a1b2c",
+                target_revision="a4c8e2f6b901",
             ),
             workspace=workspace,
             backup_path=backup_path,
@@ -443,9 +443,9 @@ def test_evidence_uses_concrete_resolved_revision_hashes(tmp_path):
         cleanup_workspace(workspace)
 
     assert plan["target"]["current_revision"] == "f81a78f8c1c4"
-    assert plan["target"]["target_revision"] == "7d8e9f0a1b2c"
+    assert plan["target"]["target_revision"] == "a4c8e2f6b901"
     assert plan["migration_rehearsal"]["initial_revision"] == "f81a78f8c1c4"
-    assert plan["migration_rehearsal"]["final_revision"] == "7d8e9f0a1b2c"
+    assert plan["migration_rehearsal"]["final_revision"] == "a4c8e2f6b901"
     assert plan["rollback"]["return_revision"] == "f81a78f8c1c4"
 
 
@@ -457,11 +457,11 @@ def test_rehearsal_resolves_once_and_uses_frozen_range(
     resolutions = []
     alembic_calls = []
     revisions = iter(
-        ["f81a78f8c1c4", "7d8e9f0a1b2c", "f81a78f8c1c4"]
+        ["f81a78f8c1c4", "a4c8e2f6b901", "f81a78f8c1c4"]
     )
     resolved = ResolvedMigrationRange(
         initial_revision="f81a78f8c1c4",
-        target_revision="7d8e9f0a1b2c",
+        target_revision="a4c8e2f6b901",
     )
     monkeypatch.setattr(
         "scripts.engineering.postgresql_devsecops_adapter."
@@ -520,11 +520,11 @@ def test_rehearsal_resolves_once_and_uses_frozen_range(
     assert resolutions == [True]
     assert alembic_calls == [
         ("upgrade", "f81a78f8c1c4"),
-        ("upgrade", "7d8e9f0a1b2c"),
+        ("upgrade", "a4c8e2f6b901"),
         ("downgrade", "f81a78f8c1c4"),
     ]
     assert result.initial_revision == "f81a78f8c1c4"
-    assert result.final_revision == "7d8e9f0a1b2c"
+    assert result.final_revision == "a4c8e2f6b901"
     assert result.restored_revision == "f81a78f8c1c4"
     assert result.workspace_removed is True
 
@@ -543,7 +543,7 @@ def test_real_isolated_postgresql_backup_restore_and_alembic(monkeypatch):
     assert result.verified_row_count == 3
     assert result.gate_accepted is True
     assert result.initial_revision == "f81a78f8c1c4"
-    assert result.final_revision == "7d8e9f0a1b2c"
+    assert result.final_revision == "a4c8e2f6b901"
     assert result.restored_revision == "f81a78f8c1c4"
     assert result.evidence["environment"] == "test"
     assert result.workspace_removed is True

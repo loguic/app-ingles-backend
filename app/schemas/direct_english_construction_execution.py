@@ -15,6 +15,13 @@ from app.schemas.conversation_production import (
 
 ProductionFunction = Literal["guided", "expanded", "transfer"]
 SupportLevel = Literal["model", "anchors", "initial_word", "none"]
+OrientationPriority = Literal[
+    "relevance",
+    "direct_english_construction",
+    "intelligibility",
+    "secondary_accuracy",
+]
+OrientationSourceType = Literal["human", "external"]
 
 
 def _require_aware_timestamp(value: datetime, field_name: str) -> None:
@@ -108,6 +115,57 @@ class DirectEnglishConstructionAttemptFinalize(BaseModel):
         return self
 
 
+class DirectEnglishConstructionOrientationCreate(BaseModel):
+    """Register one already selected orientation for one production.
+
+    Registra una orientación ya seleccionada para una producción.
+    """
+
+    orientation_id: str
+    attempt_id: str
+    production_function: ProductionFunction
+    priority: OrientationPriority
+    guidance_text: str = Field(max_length=2000)
+    source_type: OrientationSourceType
+    source_id: str
+    source_version: Optional[str] = None
+    created_at: datetime
+
+    @model_validator(mode="after")
+    def validate_orientation(
+        self,
+    ) -> "DirectEnglishConstructionOrientationCreate":
+        required = (
+            self.orientation_id,
+            self.attempt_id,
+            self.guidance_text,
+            self.source_id,
+        )
+        if any(not value.strip() for value in required):
+            raise ValueError("Orientation values cannot be blank")
+        if self.source_version is not None and not self.source_version.strip():
+            raise ValueError("source_version cannot be blank")
+        if self.source_type == "external" and self.source_version is None:
+            raise ValueError("External orientation requires source_version")
+        _require_aware_timestamp(self.created_at, "created_at")
+        return self
+
+
+class DirectEnglishConstructionOrientationRecord(BaseModel):
+    """Expose one immutable registered orientation.
+
+    Expone una orientación registrada e inmutable.
+    """
+
+    orientation_id: str
+    priority: OrientationPriority
+    guidance_text: str
+    source_type: OrientationSourceType
+    source_id: str
+    source_version: Optional[str] = None
+    created_at: datetime
+
+
 class DirectEnglishConstructionAttemptProductionRecord(BaseModel):
     """Expose one persisted production without interpreting its meaning.
 
@@ -121,6 +179,7 @@ class DirectEnglishConstructionAttemptProductionRecord(BaseModel):
     modality_used: Literal["text", "voice"]
     configured_support_level: SupportLevel
     support_used: SupportLevel
+    orientation: Optional[DirectEnglishConstructionOrientationRecord] = None
 
 
 class DirectEnglishConstructionAttemptRecord(BaseModel):

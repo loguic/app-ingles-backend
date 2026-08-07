@@ -14,6 +14,7 @@ from app.db.models import (
     ConversationProductionSubmission as SubmissionModel,
     DirectEnglishConstructionAttempt as AttemptModel,
     DirectEnglishConstructionAttemptProduction as AttemptProductionModel,
+    DirectEnglishConstructionProductionOrientation as OrientationModel,
     LearnerProduction as ProductionModel,
 )
 from app.schemas.content import Lesson, TransferPromptVariant
@@ -22,6 +23,8 @@ from app.schemas.direct_english_construction_execution import (
     DirectEnglishConstructionAttemptProductionRecord,
     DirectEnglishConstructionAttemptRecord,
     DirectEnglishConstructionAttemptStart,
+    DirectEnglishConstructionOrientationCreate,
+    DirectEnglishConstructionOrientationRecord,
 )
 from app.services.content_service import build_content_tree
 from app.services.conversation_production_persistence_service import (
@@ -198,6 +201,22 @@ def _completion_requirements_met(
     return True
 
 
+def _orientation_record(
+    orientation: OrientationModel | None,
+) -> DirectEnglishConstructionOrientationRecord | None:
+    if orientation is None:
+        return None
+    return DirectEnglishConstructionOrientationRecord(
+        orientation_id=orientation.orientation_id,
+        priority=orientation.priority,
+        guidance_text=orientation.guidance_text,
+        source_type=orientation.source_type,
+        source_id=orientation.source_id,
+        source_version=orientation.source_version,
+        created_at=orientation.created_at,
+    )
+
+
 def get_direct_english_construction_attempt(
     attempt_id: str,
     db: Session,
@@ -217,11 +236,16 @@ def get_direct_english_construction_attempt(
         )
 
     rows = (
-        db.query(AttemptProductionModel, ProductionModel)
+        db.query(AttemptProductionModel, ProductionModel, OrientationModel)
         .join(
             ProductionModel,
             ProductionModel.id
             == AttemptProductionModel.learner_production_id,
+        )
+        .outerjoin(
+            OrientationModel,
+            OrientationModel.attempt_production_id
+            == AttemptProductionModel.id,
         )
         .filter(AttemptProductionModel.attempt_id == attempt_id)
         .order_by(
@@ -241,8 +265,9 @@ def get_direct_english_construction_attempt(
             modality_used=production.modality,
             configured_support_level=link.configured_support_level,
             support_used=link.support_used,
+            orientation=_orientation_record(orientation),
         )
-        for link, production in rows
+        for link, production, orientation in rows
     ]
     return DirectEnglishConstructionAttemptRecord(
         attempt_id=attempt.attempt_id,
@@ -323,6 +348,107 @@ def start_direct_english_construction_attempt(
         db.rollback()
         raise
     return get_direct_english_construction_attempt(command.attempt_id, db)
+
+
+def save_direct_english_construction_orientation(
+    command: DirectEnglishConstructionOrientationCreate,
+    db: Session,
+) -> DirectEnglishConstructionOrientationRecord:
+    """Persist one externally selected orientation without overwriting.
+
+    Persiste una orientación seleccionada externamente sin sobrescribir.
+    """
+    try:
+        attempt = (
+            db.query(AttemptModel)
+            .filter(AttemptModel.attempt_id == command.attempt_id)
+            .one_or_none()
+        )
+        if attempt is None:
+            raise DirectEnglishConstructionReferenceNotFoundError(
+                "Direct-English construction attempt does not exist"
+            )
+        if attempt.status != "finalized":
+            raise DirectEnglishConstructionStateConflictError(
+                "Direct-English construction attempt is not finalized"
+            )
+        link = (
+            db.query(AttemptProductionModel)
+            .filter(
+                AttemptProductionModel.attempt_id == command.attempt_id,
+                AttemptProductionModel.production_function
+                == command.production_function,
+            )
+            .one_or_none()
+        )
+        if link is None:
+            raise DirectEnglishConstructionReferenceNotFoundError(
+                "Direct-English attempt production does not exist"
+            )
+        lesson = _resolve_lesson(
+            attempt.level_id,
+            attempt.unit_id,
+            attempt.lesson_id,
+        )
+        correction_policy = (
+            lesson.experience.correction_policy
+            if lesson.experience is not None
+            else None
+        )
+        if (
+            correction_policy is None
+            or command.priority not in correction_policy.priorities
+        ):
+            raise DirectEnglishConstructionInvariantError(
+                "Orientation priority is not permitted by active content"
+            )
+        if (
+            db.query(OrientationModel.orientation_id)
+            .filter(
+                (OrientationModel.orientation_id == command.orientation_id)
+                | (OrientationModel.attempt_production_id == link.id)
+            )
+            .first()
+            is not None
+        ):
+            raise DirectEnglishConstructionInvariantError(
+                "Direct-English production already has an orientation"
+            )
+        orientation = OrientationModel(
+            orientation_id=command.orientation_id,
+            attempt_production_id=link.id,
+            priority=command.priority,
+            guidance_text=command.guidance_text,
+            source_type=command.source_type,
+            source_id=command.source_id,
+            source_version=command.source_version,
+            created_at=command.created_at,
+        )
+        db.add(orientation)
+        db.flush()
+        db.commit()
+        record = _orientation_record(orientation)
+        if record is None:  # pragma: no cover - construction guarantees it.
+            raise DirectEnglishConstructionExecutionError(
+                "Could not reconstruct direct-English orientation"
+            )
+        return record
+    except DirectEnglishConstructionExecutionError:
+        db.rollback()
+        raise
+    except IntegrityError as exc:
+        db.rollback()
+        raise DirectEnglishConstructionInvariantError(
+            "Direct-English production already has an orientation"
+        ) from exc
+    except SQLAlchemyError as exc:
+        db.rollback()
+        raise DirectEnglishConstructionExecutionError(
+            "Could not save direct-English construction orientation"
+        ) from exc
+    except Exception:
+        db.rollback()
+        raise
 
 
 def finalize_direct_english_construction_attempt(

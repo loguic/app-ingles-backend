@@ -5,6 +5,7 @@ from sqlalchemy import CheckConstraint, ForeignKeyConstraint, UniqueConstraint
 from app.db.models import (
     DirectEnglishConstructionAttempt,
     DirectEnglishConstructionAttemptProduction,
+    DirectEnglishConstructionProductionOrientation,
 )
 
 
@@ -14,6 +15,12 @@ MIGRATION = (
     / "alembic"
     / "versions"
     / "7d8e9f0a1b2c_add_direct_english_construction_execution.py"
+)
+ORIENTATION_MIGRATION = (
+    ROOT
+    / "alembic"
+    / "versions"
+    / "a4c8e2f6b901_add_direct_english_construction_orientations.py"
 )
 
 
@@ -90,3 +97,51 @@ def test_migration_is_linear_static_and_reversible():
         'op.drop_table("direct_english_construction_attempt_productions")'
     ) < source.index('op.drop_table("direct_english_construction_attempts")')
     assert "completion_requirements_met" not in source
+
+
+def test_orientation_model_is_minimal_and_append_only():
+    table = DirectEnglishConstructionProductionOrientation.__table__
+
+    assert set(table.columns.keys()) == {
+        "orientation_id",
+        "attempt_production_id",
+        "priority",
+        "guidance_text",
+        "source_type",
+        "source_id",
+        "source_version",
+        "created_at",
+    }
+    assert constraint_names(table, UniqueConstraint) == {
+        "uq_direct_english_orientation_attempt_production"
+    }
+    assert constraint_names(table, CheckConstraint) >= {
+        "ck_direct_english_orientation_id_not_blank",
+        "ck_direct_english_orientation_priority",
+        "ck_direct_english_orientation_source_type",
+        "ck_direct_english_orientation_guidance",
+        "ck_direct_english_orientation_source_id",
+        "ck_direct_english_orientation_source_version",
+    }
+    targets = {
+        element.target_fullname
+        for constraint in table.constraints
+        if isinstance(constraint, ForeignKeyConstraint)
+        for element in constraint.elements
+    }
+    assert targets == {
+        "direct_english_construction_attempt_productions.id"
+    }
+    assert {"attempt_id", "learner_production_id", "modality"}.isdisjoint(
+        table.columns.keys()
+    )
+
+
+def test_orientation_migration_is_linear_and_reversible():
+    source = ORIENTATION_MIGRATION.read_text(encoding="utf-8")
+
+    assert 'revision: str = "a4c8e2f6b901"' in source
+    assert 'down_revision: Union[str, Sequence[str], None] = "7d8e9f0a1b2c"' in source
+    assert source.count("op.create_table(") == 1
+    assert source.count("op.drop_table(") == 1
+    assert "direct_english_construction_production_orientations" in source

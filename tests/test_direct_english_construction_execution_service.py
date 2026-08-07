@@ -11,12 +11,14 @@ from app.db.models import (
     ConversationProductionSubmission,
     DirectEnglishConstructionAttempt,
     DirectEnglishConstructionAttemptProduction,
+    DirectEnglishConstructionProductionOrientation,
     LearnerProduction,
 )
 from app.schemas.direct_english_construction_execution import (
     DirectEnglishConstructionAttemptFinalize,
     DirectEnglishConstructionAttemptRecord,
     DirectEnglishConstructionAttemptStart,
+    DirectEnglishConstructionOrientationCreate,
 )
 from app.services.content_service import get_lesson_by_id
 from app.services.direct_english_construction_execution_service import (
@@ -28,6 +30,7 @@ from app.services.direct_english_construction_execution_service import (
     DirectEnglishConstructionStateConflictError,
     finalize_direct_english_construction_attempt,
     get_direct_english_construction_attempt,
+    save_direct_english_construction_orientation,
     select_direct_english_transfer_variant,
     start_direct_english_construction_attempt,
 )
@@ -137,12 +140,41 @@ def finalize_command(record, *, captures=None, finalized_at=None):
     )
 
 
+def orientation_command(
+    *,
+    attempt_id="attempt-1",
+    function="guided",
+    orientation_id="orientation-1",
+    **updates,
+):
+    payload = {
+        "orientation_id": orientation_id,
+        "attempt_id": attempt_id,
+        "production_function": function,
+        "priority": "relevance",
+        "guidance_text": "Answer the question before adding detail.",
+        "source_type": "human",
+        "source_id": "teacher-1",
+        "source_version": None,
+        "created_at": NOW + timedelta(minutes=6),
+    }
+    payload.update(updates)
+    return DirectEnglishConstructionOrientationCreate.model_validate(payload)
+
+
 def counts(db):
     return (
         db.query(ConversationProductionSubmission).count(),
         db.query(LearnerProduction).count(),
         db.query(DirectEnglishConstructionAttemptProduction).count(),
     )
+
+
+def persisted_values(model):
+    return {
+        column.name: getattr(model, column.name)
+        for column in model.__table__.columns
+    }
 
 
 def test_selector_is_reproducible_auditable_and_uses_no_random():
@@ -519,3 +551,201 @@ def test_get_missing_attempt_and_no_semantic_or_mastery_fields(db):
     assert "mastery" not in record_fields
     assert "semantic_result" not in record_fields
     assert "correction" not in record_fields
+
+
+@pytest.mark.parametrize("function", FUNCTIONS)
+def test_save_and_recover_one_orientation_per_function(db, function):
+    started = start_direct_english_construction_attempt(start_command(), db)
+    finalized = finalize_direct_english_construction_attempt(
+        finalize_command(started), db
+    )
+    before = next(
+        item for item in finalized.productions if item.production_function == function
+    )
+
+    saved = save_direct_english_construction_orientation(
+        orientation_command(function=function), db
+    )
+    recovered = get_direct_english_construction_attempt("attempt-1", db)
+    after = next(
+        item for item in recovered.productions if item.production_function == function
+    )
+
+    assert saved.guidance_text == "Answer the question before adding detail."
+    assert after.orientation == saved
+    assert after.production_id == before.production_id
+    assert [item.production_function for item in recovered.productions] == list(
+        FUNCTIONS
+    )
+
+
+def test_orientation_requires_existing_finalized_attempt_and_function(db):
+    with pytest.raises(DirectEnglishConstructionReferenceNotFoundError):
+        save_direct_english_construction_orientation(
+            orientation_command(attempt_id="missing"), db
+        )
+    start_direct_english_construction_attempt(start_command(), db)
+    with pytest.raises(DirectEnglishConstructionStateConflictError):
+        save_direct_english_construction_orientation(orientation_command(), db)
+
+    started = get_direct_english_construction_attempt("attempt-1", db)
+    finalize_direct_english_construction_attempt(finalize_command(started), db)
+    db.query(DirectEnglishConstructionAttemptProduction).filter(
+        DirectEnglishConstructionAttemptProduction.production_function == "guided"
+    ).delete()
+    db.commit()
+    with pytest.raises(DirectEnglishConstructionReferenceNotFoundError):
+        save_direct_english_construction_orientation(orientation_command(), db)
+
+
+def test_orientation_priority_must_belong_to_active_policy(db, monkeypatch):
+    started = start_direct_english_construction_attempt(start_command(), db)
+    finalize_direct_english_construction_attempt(finalize_command(started), db)
+    original = execution_service._resolve_lesson
+
+    def lesson_without_priority(*args):
+        lesson = original(*args).model_copy(deep=True)
+        lesson.experience.correction_policy.priorities = ["intelligibility"]
+        return lesson
+
+    monkeypatch.setattr(execution_service, "_resolve_lesson", lesson_without_priority)
+    with pytest.raises(DirectEnglishConstructionInvariantError, match="priority"):
+        save_direct_english_construction_orientation(orientation_command(), db)
+
+
+def test_orientation_is_append_only_and_retries_are_independent(db):
+    records = []
+    for attempt_id in ("attempt-1", "attempt-2"):
+        started = start_direct_english_construction_attempt(
+            start_command(attempt_id), db
+        )
+        finalize_direct_english_construction_attempt(finalize_command(started), db)
+        records.append(
+            save_direct_english_construction_orientation(
+                orientation_command(
+                    attempt_id=attempt_id,
+                    orientation_id="orientation-" + attempt_id,
+                ),
+                db,
+            )
+        )
+    with pytest.raises(DirectEnglishConstructionInvariantError):
+        save_direct_english_construction_orientation(
+            orientation_command(orientation_id="another"), db
+        )
+
+    assert records[0].orientation_id != records[1].orientation_id
+    assert db.query(DirectEnglishConstructionProductionOrientation).count() == 2
+
+
+def test_orientation_unique_race_is_translated_with_cause(db, monkeypatch):
+    started = start_direct_english_construction_attempt(start_command(), db)
+    finalize_direct_english_construction_attempt(finalize_command(started), db)
+    original_flush = db.flush
+
+    def fail_as_concurrent_duplicate(*args, **kwargs):
+        if any(
+            isinstance(item, DirectEnglishConstructionProductionOrientation)
+            for item in db.new
+        ):
+            raise IntegrityError("duplicate orientation", {}, Exception("unique"))
+        return original_flush(*args, **kwargs)
+
+    monkeypatch.setattr(db, "flush", fail_as_concurrent_duplicate)
+    with pytest.raises(DirectEnglishConstructionInvariantError) as exc_info:
+        save_direct_english_construction_orientation(orientation_command(), db)
+
+    assert isinstance(exc_info.value.__cause__, IntegrityError)
+    assert db.query(DirectEnglishConstructionProductionOrientation).count() == 0
+
+
+def test_orientation_uses_one_commit_and_preserves_existing_rows(db, monkeypatch):
+    started = start_direct_english_construction_attempt(start_command(), db)
+    finalized = finalize_direct_english_construction_attempt(
+        finalize_command(started), db
+    )
+    attempt_before = persisted_values(
+        db.get(DirectEnglishConstructionAttempt, "attempt-1")
+    )
+    links_before = [persisted_values(item) for item in db.query(
+        DirectEnglishConstructionAttemptProduction
+    ).order_by(DirectEnglishConstructionAttemptProduction.id).all()]
+    productions_before = [persisted_values(item) for item in db.query(
+        LearnerProduction
+    ).order_by(LearnerProduction.id).all()]
+    commits = 0
+    original_commit = db.commit
+
+    def count_commit():
+        nonlocal commits
+        commits += 1
+        original_commit()
+
+    monkeypatch.setattr(db, "commit", count_commit)
+    save_direct_english_construction_orientation(orientation_command(), db)
+
+    assert commits == 1
+    assert persisted_values(
+        db.get(DirectEnglishConstructionAttempt, "attempt-1")
+    ) == attempt_before
+    assert [persisted_values(item) for item in db.query(
+        DirectEnglishConstructionAttemptProduction
+    ).order_by(DirectEnglishConstructionAttemptProduction.id).all()] == links_before
+    assert [persisted_values(item) for item in db.query(
+        LearnerProduction
+    ).order_by(LearnerProduction.id).all()] == productions_before
+    assert finalized.completion_requirements_met is True
+
+
+@pytest.mark.parametrize("failure", ["flush", "commit"])
+def test_orientation_rolls_back_database_failures(db, monkeypatch, failure):
+    started = start_direct_english_construction_attempt(start_command(), db)
+    finalize_direct_english_construction_attempt(finalize_command(started), db)
+
+    original_flush = db.flush
+
+    def fail_flush(*args, **kwargs):
+        if any(
+            isinstance(item, DirectEnglishConstructionProductionOrientation)
+            for item in db.new
+        ):
+            raise SQLAlchemyError("forced orientation failure")
+        return original_flush(*args, **kwargs)
+
+    def fail_commit():
+        raise SQLAlchemyError("forced orientation failure")
+
+    monkeypatch.setattr(
+        db,
+        failure,
+        fail_flush if failure == "flush" else fail_commit,
+    )
+    with pytest.raises(DirectEnglishConstructionExecutionError) as exc_info:
+        save_direct_english_construction_orientation(orientation_command(), db)
+
+    assert isinstance(exc_info.value.__cause__, SQLAlchemyError)
+    assert db.query(DirectEnglishConstructionProductionOrientation).count() == 0
+
+
+def test_get_with_orientations_does_not_commit_or_select_automatically(
+    db, monkeypatch
+):
+    started = start_direct_english_construction_attempt(start_command(), db)
+    finalize_direct_english_construction_attempt(finalize_command(started), db)
+    save_direct_english_construction_orientation(
+        orientation_command(priority="intelligibility"), db
+    )
+
+    monkeypatch.setattr(
+        db,
+        "commit",
+        lambda: (_ for _ in ()).throw(AssertionError("get must not commit")),
+    )
+    record = get_direct_english_construction_attempt("attempt-1", db)
+
+    assert record.productions[0].orientation.priority == "intelligibility"
+    assert record.productions[1].orientation is None
+    assert record.productions[2].orientation is None
+    assert {"semantic_result", "score", "progress", "mastery"}.isdisjoint(
+        type(record.productions[0].orientation).model_fields
+    )

@@ -22,10 +22,11 @@ from scripts.engineering.postgresql_devsecops_adapter import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE_REVISION = "3c4f1a2b7d90"
-B180_REVISION = "7d8e9f0a1b2c"
+BASE_REVISION = "7d8e9f0a1b2c"
+B180_REVISION = "a4c8e2f6b901"
 ATTEMPTS_TABLE = "direct_english_construction_attempts"
 PRODUCTIONS_TABLE = "direct_english_construction_attempt_productions"
+ORIENTATIONS_TABLE = "direct_english_construction_production_orientations"
 
 
 def _table_exists(
@@ -102,13 +103,15 @@ def test_b180_migration_upgrade_and_downgrade_in_isolated_postgresql(
 
             run_alembic(cluster, database, "upgrade", BASE_REVISION, ROOT)
             assert current_revision(cluster, database) == BASE_REVISION
-            assert not _table_exists(cluster, database, ATTEMPTS_TABLE)
-            assert not _table_exists(cluster, database, PRODUCTIONS_TABLE)
+            assert _table_exists(cluster, database, ATTEMPTS_TABLE)
+            assert _table_exists(cluster, database, PRODUCTIONS_TABLE)
+            assert not _table_exists(cluster, database, ORIENTATIONS_TABLE)
 
             run_alembic(cluster, database, "upgrade", B180_REVISION, ROOT)
             assert current_revision(cluster, database) == B180_REVISION
             assert _table_exists(cluster, database, ATTEMPTS_TABLE)
             assert _table_exists(cluster, database, PRODUCTIONS_TABLE)
+            assert _table_exists(cluster, database, ORIENTATIONS_TABLE)
 
             attempt_constraints = _constraint_rows(
                 cluster,
@@ -119,6 +122,11 @@ def test_b180_migration_upgrade_and_downgrade_in_isolated_postgresql(
                 cluster,
                 database,
                 PRODUCTIONS_TABLE,
+            )
+            orientation_constraints = _constraint_rows(
+                cluster,
+                database,
+                ORIENTATIONS_TABLE,
             )
             assert any(
                 row.startswith("ck_direct_english_attempt_status|c|")
@@ -189,11 +197,38 @@ def test_b180_migration_upgrade_and_downgrade_in_isolated_postgresql(
                 and "UNIQUE (learner_production_id)" in row
                 for row in production_constraints
             )
+            assert any(
+                "|f|" in row
+                and "FOREIGN KEY (attempt_production_id)" in row
+                and "REFERENCES "
+                "direct_english_construction_attempt_productions(id)" in row
+                for row in orientation_constraints
+            )
+            assert any(
+                row.startswith(
+                    "uq_direct_english_orientation_attempt_production|u|"
+                )
+                and "UNIQUE (attempt_production_id)" in row
+                for row in orientation_constraints
+            )
+            for constraint_name in (
+                "ck_direct_english_orientation_id_not_blank",
+                "ck_direct_english_orientation_priority",
+                "ck_direct_english_orientation_source_type",
+                "ck_direct_english_orientation_guidance",
+                "ck_direct_english_orientation_source_id",
+                "ck_direct_english_orientation_source_version",
+            ):
+                assert any(
+                    row.startswith(constraint_name + "|c|")
+                    for row in orientation_constraints
+                )
 
             run_alembic(cluster, database, "downgrade", BASE_REVISION, ROOT)
             assert current_revision(cluster, database) == BASE_REVISION
-            assert not _table_exists(cluster, database, PRODUCTIONS_TABLE)
-            assert not _table_exists(cluster, database, ATTEMPTS_TABLE)
+            assert not _table_exists(cluster, database, ORIENTATIONS_TABLE)
+            assert _table_exists(cluster, database, PRODUCTIONS_TABLE)
+            assert _table_exists(cluster, database, ATTEMPTS_TABLE)
             assert _table_exists(cluster, database, "learner_productions")
             assert execute_sql(cluster, database, "SELECT 1;") == "1"
         except AdapterError as exc:
