@@ -3761,7 +3761,7 @@ El siguiente bloque deberá diseñarse desde una capacidad observable del estudi
 
 ## B180 — Incremento 1: construcción directa en la primera lección
 
-Estado: incremento cerrado técnicamente; B180 permanece activo.
+Estado: incremento cerrado técnicamente; B180 quedó cerrado integralmente tras completar sus cuatro incrementos.
 
 Se rediseñó `a1-u1-l1`, sin cambiar su identificador, como `Introduce yourself directly`. La capacidad observable es construir oralmente una respuesta directamente en inglés desde una intención, ampliarla con información pertinente y transferir el patrón ante una variación inesperada con ayuda mínima y sin copiar una frase completa.
 
@@ -3785,7 +3785,7 @@ El siguiente incremento recomendado implementará primero el comportamiento peda
 
 ## B180 — Incremento 2: ejecución interna de construcción directa
 
-Estado: incremento cerrado técnicamente; B180 permanece activo.
+Estado: incremento cerrado técnicamente; B180 quedó cerrado integralmente tras completar sus cuatro incrementos.
 
 Se añadieron intentos completos persistentes y sus enlaces con `LearnerProduction`, sin duplicar la producción real. Las operaciones internas inician, finalizan y recuperan el intento en una sola transacción. La persistencia conversacional existente aporta un helper sin commit; su operación pública conserva el comportamiento previo.
 
@@ -3803,7 +3803,7 @@ Al cierre del Incremento 2 se recomendó registrar una única orientación pedag
 
 ## B180 — Incremento 3: orientación prioritaria por producción
 
-Estado: incremento cerrado técnicamente; B180 permanece activo.
+Estado: incremento cerrado técnicamente; B180 quedó cerrado integralmente tras completar sus cuatro incrementos.
 
 Se añadió `DirectEnglishConstructionProductionOrientation`, asociada mediante una única FK a `DirectEnglishConstructionAttemptProduction`, y la migración `a4c8e2f6b901`. Cada enlace admite cero o una orientación: la primera escritura se conserva y toda segunda escritura, update, delete, overwrite o idempotencia implícita queda fuera.
 
@@ -3817,7 +3817,7 @@ La infraestructura interna ya cubre las responsabilidades necesarias. El siguien
 
 ## B180 — Incremento 4: preparación de reintento guiado
 
-Estado: incremento cerrado técnicamente; B180 permanece activo y preparado para cierre integral bajo confirmación humana.
+Estado: incremento cerrado técnicamente; B180 queda cerrado integralmente en el cierre posterior.
 
 Se añadieron `DirectEnglishConstructionRetryPreparationRequest`, `DirectEnglishConstructionRetryPreparation` y la operación read-only `prepare_direct_english_construction_retry`. La lectura exige un intento previo finalizado, localiza la producción guided, expanded o transfer y recupera su orientación exacta, conversación, prompt y apoyos configurado y usado. No crea un intento, genera identificadores, escribe en base de datos ni modifica intento, producción u orientación.
 
@@ -3827,4 +3827,14 @@ La orientación señala el foco del reintento completo, pero no demuestra aplica
 
 Validación: 71 pruebas focales en 1.23s; 50 de regresión pura/SQLite en 0.37s; suite backend 1191 passed in 10.33s; `operational_state.py validate` correcto; `git diff --check` limpio; revisión sin defectos accionables; commit `70c3dbf`.
 
-El ciclo interno `contenido → producción → orientación → preparación de reintento con menor apoyo → nuevo intento` ya satisface el objetivo comprometido de B180. No se identifica una brecha observable imprescindible para un Incremento 5; corresponde preparar el cierre integral bajo control humano. Karaoke Fonético permanece pospuesto, no descartado.
+El ciclo interno `contenido → producción → orientación → preparación de reintento con menor apoyo → nuevo intento` ya satisface el objetivo comprometido de B180. No se identifica una brecha observable imprescindible para un Incremento 5. Karaoke Fonético permanece pospuesto, no descartado.
+
+## Cierre integral de B180
+
+Estado: bloque cerrado técnica e integralmente; Incrementos 1–4 documentados y publicados.
+
+La primera lección permite construir desde Persona + Verbo, ampliar y transferir mediante producciones guided, expanded y transfer con voz principal, apoyo decreciente y variantes auditables. Los intentos append-only conservan modalidad y apoyo reales; `completion_requirements_met` solo describe estructura. Una orientación prioritaria append-only puede guiar la preparación read-only de un nuevo intento con menor ayuda sin afirmar aplicación, mejora, aprendizaje, progreso o mastery.
+
+Trazabilidad: Incremento 1 `ccafaaa`; Incremento 2 `f77f560`; Incremento 3 `2f396d3`; Incremento 4 `70c3dbf`. Evidencia final: suite backend 1191 passed in 10.33s; migraciones PostgreSQL focales y S2 completo validados; head Alembic `a4c8e2f6b901`; `operational_state.py validate` correcto; `git diff --check` limpio; Git sincronizado antes del cierre.
+
+La siguiente brecha observable, aún sin número, es comprender la intención principal de una intervención oral nueva, responder de forma contingente y mantener un intercambio breve con ayuda reducida. No incluye más persistencia o infraestructura sin necesidad, API, Flutter, progreso, mastery, adaptación automática ni Karaoke Fonético completo.

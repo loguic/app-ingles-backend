@@ -893,7 +893,7 @@ Permanecen fuera API, Flutter, progreso, mastery, retención, adaptación autom�
 
 ## B180 — Construcción directa en inglés
 
-Estado: bloque activo; Incrementos 1, 2, 3 y 4 cerrados técnicamente; preparado para cierre integral bajo confirmación humana.
+Estado: bloque cerrado técnica e integralmente; Incrementos 1, 2, 3 y 4 cerrados, documentados y publicados.
 
 La capacidad observable de B180 es construir oralmente una respuesta directamente en inglés desde una intención comunicativa, ampliarla con información pertinente y transferir el patrón ante una variación inesperada con ayuda mínima, sin copiar una frase completa.
 
@@ -939,7 +939,7 @@ La prioridad debe pertenecer a la `CorrectionGuidancePolicy` activa, pero el bac
 
 Validación: PostgreSQL focal 1 passed in 2.48s para `7d8e9f0a1b2c → a4c8e2f6b901 → 7d8e9f0a1b2c`; S2 completo 1 passed in 2.38s desde el límite histórico `f81a78f8c1c4`; suite backend 1171 passed in 10.30s; revisión sin defectos; commit `2f396d3`.
 
-La infraestructura interna ya es suficiente para dejar de añadir persistencia por defecto: existen contenido validado, intento completo, producciones reales, modalidad, apoyo, transferencia y orientación trazable. El siguiente incremento recomendado ejecutará un reintento pedagógico interno que presente una sola orientación antes de una nueva producción y retire otra vez el apoyo. No seleccionará la orientación ni incorporará evaluación automática, API o Flutter.
+La infraestructura interna quedó suficiente para dejar de añadir persistencia por defecto: contenido validado, intento completo, producciones reales, modalidad, apoyo, transferencia y orientación trazable. El Incremento 4 posterior asumió la brecha pedagógica restante: presentar una sola orientación antes de una nueva producción y retirar otra vez el apoyo, sin selección automática, evaluación, API o Flutter.
 
 ### Incremento 4 — preparación de reintento guiado
 
@@ -949,4 +949,12 @@ El apoyo usado retrocede un peldaño (`model → anchors → initial_word → no
 
 Presentar la orientación no demuestra que se aplicó ni que hubo mejora. El nuevo intento continúa siendo completo y append-only mediante `start` y `finalize` existentes. No se añadieron persistencia, modelos, Alembic o S2. Validación: 71 pruebas focales, 50 de regresión pura/SQLite, suite backend 1191 passed in 10.33s, validaciones operativas correctas, revisión sin defectos y commit `70c3dbf`.
 
-Con este incremento, el ciclo interno `contenido → producción → orientación → preparación con menor apoyo → nuevo intento` cubre el objetivo técnico y pedagógico interno de B180. No queda una capacidad observable imprescindible que justifique un Incremento 5; el siguiente paso recomendado es el cierre integral del bloque bajo confirmación humana. API, Flutter, evaluación semántica, progreso, mastery, adaptación y Karaoke Fonético permanecen fuera.
+Con este incremento, el ciclo interno `contenido → producción → orientación → preparación con menor apoyo → nuevo intento` cubre el objetivo técnico y pedagógico interno de B180. No queda una capacidad observable imprescindible que justifique un Incremento 5. API, Flutter, evaluación semántica, progreso, mastery, adaptación y Karaoke Fonético permanecen fuera.
+
+### Cierre integral de B180
+
+B180 queda cerrado técnica e integralmente. El Incremento 1 aportó contenido y validación (`ccafaaa`); el 2, ejecución, trazabilidad y la migración `7d8e9f0a1b2c` (`f77f560`); el 3, orientación prioritaria append-only y el head `a4c8e2f6b901` (`2f396d3`); y el 4, preparación read-only del reintento con menor apoyo (`70c3dbf`).
+
+La validación final registra suite backend 1191 passed in 10.33s, migraciones focales PostgreSQL y S2 completo validados, `operational_state.py validate` correcto y `git diff --check` limpio. `completion_requirements_met`, la orientación y la preparación preservan sus fronteras: estructura no es mastery, orientación presentada no es aplicación demostrada y reintento preparado no es mejora.
+
+La siguiente brecha observable recomendada, todavía sin número, es comprender la intención principal de una intervención oral nueva, responder de manera contingente y mantener un intercambio breve con ayuda reducida. Debe preceder a más infraestructura porque conecta la construcción directa ya lograda con escucha, reacción y continuidad conversacional. Quedan fuera persistencia no demostrada, API, Flutter, progreso, mastery, adaptación automática y Karaoke Fonético completo.

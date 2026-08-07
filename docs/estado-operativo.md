@@ -11,7 +11,7 @@ Formato: checkpoint operativo compacto
 - Todo bloque nuevo debe partir de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
-## Último bloque cerrado
+## Bloques cerrados recientes
 
 ### B179 — Diagnóstico conversacional persistente y consultable
 
@@ -85,11 +85,11 @@ Límites vigentes:
 - sin progreso, mastery, retención, adaptación automática ni historial de transiciones;
 - S2 no autoriza migraciones en desarrollo, staging o producción reales.
 
-## Bloque activo
+## Último bloque cerrado
 
 ### B180 — Construcción directa en inglés
 
-Estado: activo; Incrementos 1, 2, 3 y 4 cerrados técnicamente; preparado para cierre integral bajo confirmación humana.
+Estado: cerrado técnica e integralmente; Incrementos 1, 2, 3 y 4 cerrados y publicados.
 Capacidad observable: construir oralmente una respuesta desde una intención, ampliarla con información pertinente y transferir el patrón ante una variación inesperada con ayuda mínima, sin copiar una frase completa.
 `a1-u1-l1` conserva su identificador y pasa a `Introduce yourself directly`, con la Skill `a1_introduce_yourself`, patrón Persona + Verbo y cinco etapas: modelo con refuerzo fonético, construcción guiada, ampliación, transferencia y cierre. Las evidencias `guided`, `expanded` y `transfer` retiran apoyo de `anchors` a `initial_word` y `none`; voz es principal y texto, respaldo.
 La corrección admite como máximo una orientación y prioriza pertinencia, construcción directa, inteligibilidad y precisión secundaria. El refuerzo reutiliza audio e IPA regionales para escucha, ritmo, shadowing y `/iː/`; no constituye evidencia independiente.
@@ -100,7 +100,7 @@ La revisión `7d8e9f0a1b2c` fue validada en PostgreSQL `3c4f1a2b7d90 → 7d8e9f0
 El Incremento 3 añade una orientación append-only opcional por producción B180, enlazada solo a `DirectEnglishConstructionAttemptProduction`. Conserva prioridad, guidance exacta (máximo 2000), fuente `human|external` y trazabilidad, sin modificar intento o producción ni reutilizar feedback evaluativo. El backend valida la prioridad contra la política activa, pero no la selecciona ni la declara verdadera.
 La revisión `a4c8e2f6b901` es el nuevo head. PostgreSQL focal validó `7d8e9f0a1b2c → a4c8e2f6b901 → 7d8e9f0a1b2c` en 2.48s; S2 completo validó desde y hacia `f81a78f8c1c4` en 2.38s. Suite backend: 1171 passed in 10.30s; commit `2f396d3`.
 El Incremento 4 añade `prepare_direct_english_construction_retry`, una lectura que recupera el intento finalizado, la producción y orientación exactas y prepara menor apoyo sin escribir ni afirmar mejora. Retira un peldaño desde el apoyo usado y nunca supera el configurado; transfer queda en `none` y conserva su contexto previo, mientras el nuevo intento aplicará el selector existente con un `attempt_id` nuevo. Suite backend: 1191 passed in 10.33s; commit `70c3dbf`.
-El ciclo interno `contenido → producción → orientación → reintento con menor apoyo` satisface la capacidad comprometida. No existe una brecha observable que justifique un Incremento 5; procede el cierre integral de B180 bajo control humano.
+El ciclo interno `contenido → producción → orientación → reintento con menor apoyo` satisface la capacidad comprometida. B180 queda cerrado sin Incremento 5; trazabilidad técnica: `ccafaaa`, `f77f560`, `2f396d3` y `70c3dbf`. Validación final: suite backend 1191 passed in 10.33s, migraciones PostgreSQL focales y S2 completo correctos, head `a4c8e2f6b901`, estado operativo válido y diff limpio.
 
 ## Deuda operativa separada
 
@@ -124,8 +124,11 @@ Cada hito pasa por definición, implementación técnica, validación específic
 - perfil inicial ≠ progreso;
 - progreso ≠ mastery.
 
+## Bloque activo
+Ningún bloque numerado activo.
+
 ## Próximo objetivo
-Cerrar integralmente B180 bajo confirmación humana; no añadir otro incremento técnico sin una capacidad observable imprescindible aún ausente.
+Definir una capacidad de comprensión y reacción oral para comprender la intención principal de una intervención nueva, responder de forma contingente y mantener un intercambio breve con ayuda reducida. Es la brecha inmediata entre producir respuestas aisladas y conversar funcionalmente. Quedan fuera persistencia o infraestructura no demostradas, API, Flutter, progreso, mastery, adaptación automática y Karaoke Fonético completo.
 
 El Karaoke Fonético queda pospuesto, no descartado, como capacidad aislada posterior; B180 no implementa todavía sincronización, timestamps, colores, dictado, grabación guiada ni UI específica.
 
@@ -134,7 +137,4 @@ Toda futura aplicación sobre entornos reales requerirá una autorización y con
 ## Archivos clave
 
 - `docs/estado-operativo.md`;
-- `docs/modelo-pedagogico-maestro.md`;
-- `docs/conversational-diagnostic-contract.md`;
-- `docs/devsecops-gate.md`;
-- `docs/roadmap.md` y `docs/bitacora.md`.
+- `docs/modelo-pedagogico-maestro.md`, `docs/conversational-diagnostic-contract.md`, `docs/devsecops-gate.md`, `docs/roadmap.md` y `docs/bitacora.md`.

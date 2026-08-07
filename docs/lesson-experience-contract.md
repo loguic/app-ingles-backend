@@ -1080,4 +1080,10 @@ Una producción de un intento finalizado que ya tenga orientación puede prepara
 
 El contexto de transferencia anterior se conserva para trazabilidad, pero el nuevo `attempt_id` utilizará el selector determinista vigente; repetir variante es válido y no activa adaptación. La operación no crea el intento ni afirma que la orientación se aplicó, que hubo mejora o que existe aprendizaje, progreso o mastery.
 
-Estado: Incremento 4 cerrado mediante commit `70c3dbf`; suite backend 1191 passed in 10.33s. El ciclo interno de construcción directa queda completo y B180 está preparado para cierre integral bajo confirmación humana. API, Flutter y Karaoke Fonético completo permanecen fuera.
+Estado: Incremento 4 cerrado mediante commit `70c3dbf`; suite backend 1191 passed in 10.33s. El ciclo interno de construcción directa queda completo.
+
+### Cierre integral de B180
+
+B180 queda cerrado técnica e integralmente con sus cuatro incrementos publicados. La experiencia enlaza contenido validado, producción real, orientación registrada y preparación de un nuevo intento con menor apoyo, conservando que finalización estructural no es mastery, orientación presentada no es aplicación demostrada y reintento preparado no es mejora.
+
+La validación final registra 1191 pruebas backend superadas en 10.33s, migraciones PostgreSQL focales y S2 completo validados y head Alembic `a4c8e2f6b901`. API, Flutter, evaluación semántica, progreso, mastery, adaptación y Karaoke Fonético completo permanecen fuera.
