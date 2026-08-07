@@ -893,7 +893,7 @@ Permanecen fuera API, Flutter, progreso, mastery, retención, adaptación autom�
 
 ## B180 — Construcción directa en inglés
 
-Estado: bloque activo; Incrementos 1, 2 y 3 cerrados técnicamente.
+Estado: bloque activo; Incrementos 1, 2, 3 y 4 cerrados técnicamente; preparado para cierre integral bajo confirmación humana.
 
 La capacidad observable de B180 es construir oralmente una respuesta directamente en inglés desde una intención comunicativa, ampliarla con información pertinente y transferir el patrón ante una variación inesperada con ayuda mínima, sin copiar una frase completa.
 
@@ -940,3 +940,13 @@ La prioridad debe pertenecer a la `CorrectionGuidancePolicy` activa, pero el bac
 Validación: PostgreSQL focal 1 passed in 2.48s para `7d8e9f0a1b2c → a4c8e2f6b901 → 7d8e9f0a1b2c`; S2 completo 1 passed in 2.38s desde el límite histórico `f81a78f8c1c4`; suite backend 1171 passed in 10.30s; revisión sin defectos; commit `2f396d3`.
 
 La infraestructura interna ya es suficiente para dejar de añadir persistencia por defecto: existen contenido validado, intento completo, producciones reales, modalidad, apoyo, transferencia y orientación trazable. El siguiente incremento recomendado ejecutará un reintento pedagógico interno que presente una sola orientación antes de una nueva producción y retire otra vez el apoyo. No seleccionará la orientación ni incorporará evaluación automática, API o Flutter.
+
+### Incremento 4 — preparación de reintento guiado
+
+`DirectEnglishConstructionRetryPreparationRequest`, `DirectEnglishConstructionRetryPreparation` y `prepare_direct_english_construction_retry` preparan, mediante lectura explícita, un nuevo intento completo a partir de una producción guided, expanded o transfer de un intento finalizado y de su única orientación registrada. La operación devuelve conversación, prompt, apoyo configurado y usado y el foco de orientación, pero no crea `attempt_id`, escribe datos ni modifica intento, producción u orientación.
+
+El apoyo usado retrocede un peldaño (`model → anchors → initial_word → none`) y el resultado se limita al nivel que ofrezca menos ayuda frente al apoyo configurado. Transfer siempre queda en `none`; conserva banco, variante y prompt anteriores solo como trazabilidad e indica `new_attempt_selector`, de modo que el nuevo `attempt_id` usará el selector SHA-256 existente y puede seleccionar de nuevo la misma variante sin lógica adaptativa.
+
+Presentar la orientación no demuestra que se aplicó ni que hubo mejora. El nuevo intento continúa siendo completo y append-only mediante `start` y `finalize` existentes. No se añadieron persistencia, modelos, Alembic o S2. Validación: 71 pruebas focales, 50 de regresión pura/SQLite, suite backend 1191 passed in 10.33s, validaciones operativas correctas, revisión sin defectos y commit `70c3dbf`.
+
+Con este incremento, el ciclo interno `contenido → producción → orientación → preparación con menor apoyo → nuevo intento` cubre el objetivo técnico y pedagógico interno de B180. No queda una capacidad observable imprescindible que justifique un Incremento 5; el siguiente paso recomendado es el cierre integral del bloque bajo confirmación humana. API, Flutter, evaluación semántica, progreso, mastery, adaptación y Karaoke Fonético permanecen fuera.

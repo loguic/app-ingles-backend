@@ -1073,3 +1073,11 @@ Cada producción guided, expanded o transfer puede recuperar cero o una orientac
 La relación utiliza exclusivamente el enlace del intento con `LearnerProduction`; no duplica identidad, función, modalidad o apoyo y no modifica la producción. `human` permite versión opcional y `external` exige versión. No se reutiliza el feedback asociado a evaluaciones técnicas.
 
 Esta orientación no es evaluación semántica o técnica, verdad pedagógica, progreso, mastery ni selección automática. Estado: Incremento 3 cerrado mediante commit `2f396d3`; suite backend 1171 passed in 10.30s.
+
+### Preparación de reintento en B180 Incremento 4
+
+Una producción de un intento finalizado que ya tenga orientación puede preparar un nuevo intento completo sin escribir datos. La preparación recupera orientación, conversación, prompt y apoyos históricos y retira un peldaño desde el apoyo usado, limitado por el apoyo configurado para no ofrecer más ayuda que la prevista. Transfer siempre se prepara sin apoyo.
+
+El contexto de transferencia anterior se conserva para trazabilidad, pero el nuevo `attempt_id` utilizará el selector determinista vigente; repetir variante es válido y no activa adaptación. La operación no crea el intento ni afirma que la orientación se aplicó, que hubo mejora o que existe aprendizaje, progreso o mastery.
+
+Estado: Incremento 4 cerrado mediante commit `70c3dbf`; suite backend 1191 passed in 10.33s. El ciclo interno de construcción directa queda completo y B180 está preparado para cierre integral bajo confirmación humana. API, Flutter y Karaoke Fonético completo permanecen fuera.

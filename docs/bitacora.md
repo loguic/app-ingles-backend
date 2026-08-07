@@ -3814,3 +3814,17 @@ La prioridad se valida contra `CorrectionGuidancePolicy`, pero llega ya seleccio
 Postflight: nuevo head `a4c8e2f6b901`; S2 lo descubrió sin cambiar su adaptador ni fijar target. PostgreSQL focal: 1 passed in 2.48s; S2 completo: 1 passed in 2.38s; suite backend 1171 passed in 10.30s; `operational_state.py validate` correcto; `git diff --check` limpio; revisión sin defectos; commit `2f396d3`.
 
 La infraestructura interna ya cubre las responsabilidades necesarias. El siguiente incremento debe demostrar comportamiento pedagógico: presentar una única orientación ya registrada antes de un nuevo intento y retirar de nuevo el apoyo, sin sumar persistencia salvo necesidad probada. Karaoke Fonético sigue pospuesto, no descartado.
+
+## B180 — Incremento 4: preparación de reintento guiado
+
+Estado: incremento cerrado técnicamente; B180 permanece activo y preparado para cierre integral bajo confirmación humana.
+
+Se añadieron `DirectEnglishConstructionRetryPreparationRequest`, `DirectEnglishConstructionRetryPreparation` y la operación read-only `prepare_direct_english_construction_retry`. La lectura exige un intento previo finalizado, localiza la producción guided, expanded o transfer y recupera su orientación exacta, conversación, prompt y apoyos configurado y usado. No crea un intento, genera identificadores, escribe en base de datos ni modifica intento, producción u orientación.
+
+La retirada reduce un peldaño desde el apoyo realmente usado y escoge el nivel con menos ayuda frente al configurado, por lo que nunca excede el andamio permitido. Transfer siempre queda en `none`; banco, variante y prompt previos se devuelven como trazabilidad y `new_attempt_selector` declara que el futuro `attempt_id` utilizará el selector determinista existente, incluso si vuelve a elegir la misma variante.
+
+La orientación señala el foco del reintento completo, pero no demuestra aplicación, mejora, aprendizaje, progreso o mastery. No se incorporaron vínculos entre intentos, persistencia, modelos, Alembic, S2, evaluación semántica, API, Flutter o adaptación.
+
+Validación: 71 pruebas focales en 1.23s; 50 de regresión pura/SQLite en 0.37s; suite backend 1191 passed in 10.33s; `operational_state.py validate` correcto; `git diff --check` limpio; revisión sin defectos accionables; commit `70c3dbf`.
+
+El ciclo interno `contenido → producción → orientación → preparación de reintento con menor apoyo → nuevo intento` ya satisface el objetivo comprometido de B180. No se identifica una brecha observable imprescindible para un Incremento 5; corresponde preparar el cierre integral bajo control humano. Karaoke Fonético permanece pospuesto, no descartado.

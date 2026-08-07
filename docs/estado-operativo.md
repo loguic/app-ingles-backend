@@ -89,7 +89,7 @@ Límites vigentes:
 
 ### B180 — Construcción directa en inglés
 
-Estado: activo; Incrementos 1, 2 y 3 cerrados técnicamente.
+Estado: activo; Incrementos 1, 2, 3 y 4 cerrados técnicamente; preparado para cierre integral bajo confirmación humana.
 Capacidad observable: construir oralmente una respuesta desde una intención, ampliarla con información pertinente y transferir el patrón ante una variación inesperada con ayuda mínima, sin copiar una frase completa.
 `a1-u1-l1` conserva su identificador y pasa a `Introduce yourself directly`, con la Skill `a1_introduce_yourself`, patrón Persona + Verbo y cinco etapas: modelo con refuerzo fonético, construcción guiada, ampliación, transferencia y cierre. Las evidencias `guided`, `expanded` y `transfer` retiran apoyo de `anchors` a `initial_word` y `none`; voz es principal y texto, respaldo.
 La corrección admite como máximo una orientación y prioriza pertinencia, construcción directa, inteligibilidad y precisión secundaria. El refuerzo reutiliza audio e IPA regionales para escucha, ritmo, shadowing y `/iː/`; no constituye evidencia independiente.
@@ -99,6 +99,8 @@ El Incremento 2 añade intentos completos append-only, selección SHA-256 reprod
 La revisión `7d8e9f0a1b2c` fue validada en PostgreSQL `3c4f1a2b7d90 → 7d8e9f0a1b2c → 3c4f1a2b7d90` y mediante S2 completo desde `f81a78f8c1c4` al head y vuelta. S2 conserva esa frontera histórica, resuelve un único head antes de crear recursos, rechaza grafos o revisiones incompatibles y congela hashes concretos. Validación: 34 específicas; 148 relacionadas y 1 omitida; suite backend 1149 passed in 9.59s; commit `f77f560`.
 El Incremento 3 añade una orientación append-only opcional por producción B180, enlazada solo a `DirectEnglishConstructionAttemptProduction`. Conserva prioridad, guidance exacta (máximo 2000), fuente `human|external` y trazabilidad, sin modificar intento o producción ni reutilizar feedback evaluativo. El backend valida la prioridad contra la política activa, pero no la selecciona ni la declara verdadera.
 La revisión `a4c8e2f6b901` es el nuevo head. PostgreSQL focal validó `7d8e9f0a1b2c → a4c8e2f6b901 → 7d8e9f0a1b2c` en 2.48s; S2 completo validó desde y hacia `f81a78f8c1c4` en 2.38s. Suite backend: 1171 passed in 10.30s; commit `2f396d3`.
+El Incremento 4 añade `prepare_direct_english_construction_retry`, una lectura que recupera el intento finalizado, la producción y orientación exactas y prepara menor apoyo sin escribir ni afirmar mejora. Retira un peldaño desde el apoyo usado y nunca supera el configurado; transfer queda en `none` y conserva su contexto previo, mientras el nuevo intento aplicará el selector existente con un `attempt_id` nuevo. Suite backend: 1191 passed in 10.33s; commit `70c3dbf`.
+El ciclo interno `contenido → producción → orientación → reintento con menor apoyo` satisface la capacidad comprometida. No existe una brecha observable que justifique un Incremento 5; procede el cierre integral de B180 bajo control humano.
 
 ## Deuda operativa separada
 
@@ -123,8 +125,7 @@ Cada hito pasa por definición, implementación técnica, validación específic
 - progreso ≠ mastery.
 
 ## Próximo objetivo
-
-Incremento 4 de B180: ejecutar internamente un reintento guiado que presente una única orientación ya registrada antes de una nueva producción y vuelva a retirar apoyo, sin selección automática, evaluación semántica, progreso, mastery, API ni Flutter.
+Cerrar integralmente B180 bajo confirmación humana; no añadir otro incremento técnico sin una capacidad observable imprescindible aún ausente.
 
 El Karaoke Fonético queda pospuesto, no descartado, como capacidad aislada posterior; B180 no implementa todavía sincronización, timestamps, colores, dictado, grabación guiada ni UI específica.
 
@@ -136,5 +137,4 @@ Toda futura aplicación sobre entornos reales requerirá una autorización y con
 - `docs/modelo-pedagogico-maestro.md`;
 - `docs/conversational-diagnostic-contract.md`;
 - `docs/devsecops-gate.md`;
-- `docs/roadmap.md`;
-- `docs/bitacora.md`.
+- `docs/roadmap.md` y `docs/bitacora.md`.
