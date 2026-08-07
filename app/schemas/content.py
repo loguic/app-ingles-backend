@@ -47,6 +47,22 @@ class ConversationChoice(BaseModel):
     next_turn_id: Optional[str] = None
 
 
+class TransferPromptVariant(BaseModel):
+    """Declare one stable related prompt for transfer practice.
+
+    Declara una pregunta relacionada y estable para practicar transferencia.
+    """
+
+    id: str
+    prompt: str
+
+    @model_validator(mode="after")
+    def validate_non_blank_values(self) -> "TransferPromptVariant":
+        if not self.id.strip() or not self.prompt.strip():
+            raise ValueError("Transfer prompt variant values cannot be blank")
+        return self
+
+
 class LearnerProductionPrompt(BaseModel):
     """Define how one learner turn accepts personal production.
 
@@ -58,6 +74,22 @@ class LearnerProductionPrompt(BaseModel):
         min_length=1
     )
     required: bool = True
+    production_function: Optional[
+        Literal["guided", "expanded", "transfer"]
+    ] = None
+    primary_modality: Optional[Literal["text", "voice"]] = None
+    fallback_modalities: List[Literal["text", "voice"]] = Field(
+        default_factory=list
+    )
+    support_level: Optional[
+        Literal["model", "anchors", "initial_word", "none"]
+    ] = None
+    allow_full_answer_model: Optional[bool] = None
+    transfer_bank_id: Optional[str] = None
+    transfer_variants: List[TransferPromptVariant] = Field(
+        default_factory=list,
+        max_length=4,
+    )
 
     @model_validator(mode="after")
     def validate_unique_modalities(self) -> "LearnerProductionPrompt":
@@ -71,6 +103,75 @@ class LearnerProductionPrompt(BaseModel):
             raise ValueError(
                 "Production prompt modalities must be unique"
             )
+
+        if len(self.fallback_modalities) != len(
+            set(self.fallback_modalities)
+        ):
+            raise ValueError(
+                "Production prompt fallback modalities must be unique"
+            )
+
+        if self.primary_modality is not None:
+            if self.primary_modality not in self.accepted_modalities:
+                raise ValueError(
+                    "Production prompt primary modality must be accepted"
+                )
+            if self.primary_modality in self.fallback_modalities:
+                raise ValueError(
+                    "Production prompt primary modality cannot be a fallback"
+                )
+
+        if any(
+            modality not in self.accepted_modalities
+            for modality in self.fallback_modalities
+        ):
+            raise ValueError(
+                "Production prompt fallback modalities must be accepted"
+            )
+
+        variant_ids = [item.id for item in self.transfer_variants]
+        variant_prompts = [
+            item.prompt.strip().casefold()
+            for item in self.transfer_variants
+        ]
+        if len(variant_ids) != len(set(variant_ids)):
+            raise ValueError("Transfer prompt variant IDs must be unique")
+        if len(variant_prompts) != len(set(variant_prompts)):
+            raise ValueError("Transfer prompt variant prompts must be unique")
+
+        if self.transfer_bank_id is not None:
+            if not self.transfer_bank_id.strip():
+                raise ValueError("Transfer prompt bank ID cannot be blank")
+            if not 2 <= len(self.transfer_variants) <= 4:
+                raise ValueError(
+                    "Transfer prompt bank requires two to four variants"
+                )
+        elif self.transfer_variants:
+            raise ValueError(
+                "Transfer prompt variants require a transfer bank ID"
+            )
+
+        if (
+            self.production_function != "transfer"
+            and (self.transfer_bank_id is not None or self.transfer_variants)
+        ):
+            raise ValueError(
+                "Only transfer production can define prompt variants"
+            )
+
+        if (
+            self.production_function in {"expanded", "transfer"}
+            and self.allow_full_answer_model is True
+        ):
+            raise ValueError(
+                "Expanded and transfer production cannot allow a full answer model"
+            )
+
+        if (
+            self.production_function == "transfer"
+            and self.support_level not in {None, "none"}
+        ):
+            raise ValueError("Transfer production requires no support")
 
         return self
 
@@ -388,6 +489,63 @@ class CompletionPolicy(BaseModel):
     allow_retry: bool = True
 
 
+class CorrectionGuidancePolicy(BaseModel):
+    """Declare bounded feedback priorities without selecting feedback.
+
+    Declara prioridades de feedback acotadas sin seleccionar correcciones.
+    """
+
+    max_guidance_items: int = Field(gt=0)
+    priorities: List[
+        Literal[
+            "relevance",
+            "direct_english_construction",
+            "intelligibility",
+            "secondary_accuracy",
+        ]
+    ] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_unique_priorities(self) -> "CorrectionGuidancePolicy":
+        if len(self.priorities) != len(set(self.priorities)):
+            raise ValueError("Correction guidance priorities must be unique")
+        return self
+
+
+class PronunciationReinforcement(BaseModel):
+    """Reference a brief listen-and-shadow preparation stage.
+
+    Referencia una preparación breve de escucha y shadowing.
+    """
+
+    stage_id: str
+    reference_text: str
+    listening_objective: str
+    shadowing: bool = True
+    pronunciations: List[Pronunciation] = Field(min_length=1)
+    phonetic_targets: List[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_reinforcement(self) -> "PronunciationReinforcement":
+        text_values = {
+            "stage_id": self.stage_id,
+            "reference_text": self.reference_text,
+            "listening_objective": self.listening_objective,
+        }
+        if any(not value.strip() for value in text_values.values()):
+            raise ValueError(
+                "Pronunciation reinforcement values cannot be blank"
+            )
+        normalized_targets = [
+            target.strip() for target in self.phonetic_targets
+        ]
+        if any(not target for target in normalized_targets):
+            raise ValueError("Phonetic targets cannot contain blank values")
+        if len(normalized_targets) != len(set(normalized_targets)):
+            raise ValueError("Phonetic targets must be unique")
+        return self
+
+
 class LessonExperience(BaseModel):
     """Orchestrate the public professional lesson experience.
 
@@ -395,6 +553,9 @@ class LessonExperience(BaseModel):
     """
 
     contract_version: Literal["2.0"] = "2.0"
+    pedagogical_method: Optional[
+        Literal["direct_english_construction"]
+    ] = None
     mission: Mission
     skill_ids: List[str] = Field(min_length=1)
     stages: List[LessonStage] = Field(min_length=1)
@@ -403,6 +564,10 @@ class LessonExperience(BaseModel):
     )
     evidence_definitions: List[EvidenceDefinition] = Field(min_length=1)
     completion_policy: CompletionPolicy
+    correction_policy: Optional[CorrectionGuidancePolicy] = None
+    pronunciation_reinforcement: Optional[
+        PronunciationReinforcement
+    ] = None
 
     @model_validator(mode="after")
     def validate_internal_integrity(self) -> "LessonExperience":
@@ -458,6 +623,16 @@ class LessonExperience(BaseModel):
             stage.id: stage
             for stage in self.stages
         }
+
+        if (
+            self.pronunciation_reinforcement is not None
+            and self.pronunciation_reinforcement.stage_id
+            not in stage_id_set
+        ):
+            raise ValueError(
+                "Pronunciation reinforcement references unknown stage: "
+                + self.pronunciation_reinforcement.stage_id
+            )
 
         for item in self.language_support:
             reject_duplicates(

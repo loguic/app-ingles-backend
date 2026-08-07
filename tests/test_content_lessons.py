@@ -14,7 +14,7 @@ def test_get_existing_lesson_returns_lesson_data():
 
     assert response.status_code == 200
     assert response.json()["id"] == "a1-u1-l1"
-    assert response.json()["title"] == "Hello / Goodbye"
+    assert response.json()["title"] == "Introduce yourself directly"
 
     # Verify stable example identifiers for persisted learning activity.
     # Verifica identificadores estables para actividad de aprendizaje persistida.
