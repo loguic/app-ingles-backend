@@ -828,7 +828,7 @@ Siguiente objetivo: diseñar S2, adaptador PostgreSQL seguro para backup y resta
 
 Estado: cerrado técnicamente mediante integración real aislada.
 
-S2 añadió un adaptador para crear bajo `/tmp` un clúster PostgreSQL temporal con marcador, socket Unix, puerto dinámico distinto de `5432` y sin utilizar el servicio del sistema o la `DATABASE_URL` real. El flujo ejecuta backup custom, SHA-256, restauración en otra base, verificación determinista, upgrade Alembic hasta `3c4f1a2b7d90`, downgrade a la revisión inicial y limpieza comprobada. Alembic usa Psycopg 3 explícito mediante `postgresql+psycopg://`.
+S2 añadió un adaptador para crear bajo `/tmp` un clúster PostgreSQL temporal con marcador, socket Unix, puerto dinámico distinto de `5432` y sin utilizar el servicio del sistema o la `DATABASE_URL` real. El flujo ejecuta backup custom, SHA-256, restauración en otra base, verificación determinista, upgrade Alembic desde la frontera histórica `f81a78f8c1c4` hasta el único head resuelto, downgrade y limpieza comprobada. Alembic usa Psycopg 3 explícito mediante `postgresql+psycopg://`.
 
 Codex preparó y revisó el código; la integración real se ejecutó directamente en Kitty para conservar observabilidad externa.
 
@@ -893,7 +893,7 @@ Permanecen fuera API, Flutter, progreso, mastery, retención, adaptación autom�
 
 ## B180 — Construcción directa en inglés
 
-Estado: bloque activo; Incremento 1 cerrado técnicamente.
+Estado: bloque activo; Incrementos 1 y 2 cerrados técnicamente.
 
 La capacidad observable de B180 es construir oralmente una respuesta directamente en inglés desde una intención comunicativa, ampliarla con información pertinente y transferir el patrón ante una variación inesperada con ayuda mínima, sin copiar una frase completa.
 
@@ -911,6 +911,20 @@ Los contratos retrocompatibles incorporan función pedagógica, modalidad princi
 
 Validación final: suite backend 1104 passed in 9.20s, `operational_state.py validate` correcto, `git diff --check` limpio, revisión sin defectos accionables y commit técnico `ccafaaa`.
 
-Permanecen fuera la selección runtime de variantes, comprobación semántica de ampliación y transferencia, captura efectiva de modalidad y apoyo, selección real de la corrección, persistencia adicional no demostrada, API, Flutter, progreso, mastery y adaptación automática.
+Al cierre del Incremento 1 permanecían fuera la selección runtime de variantes, comprobación semántica de ampliación y transferencia, captura efectiva de modalidad y apoyo, selección real de la corrección, persistencia adicional no demostrada, API, Flutter, progreso, mastery y adaptación automática.
 
-Siguiente incremento recomendado: una ejecución pedagógica interna mínima que seleccione una variante de transferencia y registre la modalidad y el apoyo realmente utilizados, manteniendo separadas la evidencia observada y cualquier futura evaluación semántica. No incluirá todavía API ni Flutter.
+El siguiente incremento entonces recomendado fue una ejecución pedagógica interna mínima que seleccionara una variante de transferencia y registrara modalidad y apoyo realmente utilizados, manteniendo separada cualquier futura evaluación semántica.
+
+### Incremento 2 — ejecución pedagógica interna
+
+Se incorporaron `DirectEnglishConstructionAttempt` y `DirectEnglishConstructionAttemptProduction`, con la revisión Alembic lineal `7d8e9f0a1b2c`. Las operaciones internas permiten iniciar, finalizar y recuperar un intento completo sin crear una representación paralela de la producción: `LearnerProduction` continúa siendo la única producción real y su `modality`, la fuente de modalidad utilizada.
+
+La transferencia se selecciona de forma determinista mediante SHA-256 sobre `selector_version + attempt_id + lesson_id + transfer_bank_id`. El intento conserva el snapshot exacto de banco, variante, prompt y versión `sha256-v1`; no usa azar ni vuelve a seleccionar una variante histórica. Cada enlace registra por separado el apoyo configurado y el realmente utilizado.
+
+`completion_requirements_met` se calcula al reconstruir el intento. Solo expresa si existen guided, expanded y transfer, las tres son de voz, no exceden el apoyo previsto y transfer se realizó sin apoyo. El texto y el apoyo adicional se conservan como hechos, pero producen `false`; este resultado no evalúa significado, aprendizaje, progreso o mastery.
+
+La escritura reutiliza un helper transaccional sin commit de la persistencia de conversación, mantiene exactamente un commit público y rollback integral. Permanecen fuera evaluación semántica, pertinencia, literalidad, corrección automática, API, Flutter, progreso, mastery, adaptación y Karaoke Fonético.
+
+Validación: 34 pruebas específicas; 148 relacionadas y 1 omitida; suite backend 1149 passed in 9.59s; migración focal PostgreSQL 1 passed in 2.30s; ensayo S2 completo reversible hasta el head; revisión sin defectos accionables; commit `f77f560`.
+
+Siguiente incremento recomendado: registrar y recuperar una única orientación pedagógica prioritaria por producción, aportada explícitamente y enlazada con un reintento nuevo. No seleccionará automáticamente la corrección ni introducirá evaluación semántica, API o Flutter.

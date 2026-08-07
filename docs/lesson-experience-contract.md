@@ -1055,3 +1055,13 @@ El refuerzo fonético referencia audio e IPA existentes, texto breve, objetivo d
 La finalización de `a1-u1-l1` exige evidencias diferenciadas de construcción guiada, ampliación y transferencia. Completar estas evidencias no equivale a progreso ni mastery.
 
 Estado: aplicación técnica validada en B180 Incremento 1 mediante commit `ccafaaa`; suite backend 1104 passed in 9.20s.
+
+### Ejecución interna en B180 Incremento 2
+
+La definición estática y su ejecución permanecen separadas. Un `DirectEnglishConstructionAttempt` identifica el recorrido completo y fija una variante de transferencia mediante SHA-256 reproducible; su snapshot conserva banco, variante, prompt y versión del selector. `LearnerProduction` sigue siendo la única producción real y aporta la modalidad efectivamente utilizada.
+
+Los enlaces del intento asocian guided, expanded y transfer con su evidencia, apoyo configurado y apoyo realmente usado. El sistema registra texto o ayuda adicional sin descartarlos ni convertirlos automáticamente en evidencia oral o aprendizaje demostrado.
+
+`completion_requirements_met` es una conclusión estructural calculada: exige las tres funciones, modalidad de voz y retirada de apoyos conforme al contrato. No evalúa significado, pertinencia, literalidad, pronunciación, progreso o mastery. La escritura es transaccional y la recuperación conserva el orden y el snapshot histórico.
+
+Estado: Incremento 2 cerrado técnicamente mediante commit `f77f560`; suite backend 1149 passed in 9.59s. Permanecen fuera corrección automática, evaluación semántica, API, Flutter y Karaoke Fonético completo.

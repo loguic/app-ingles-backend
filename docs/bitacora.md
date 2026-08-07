@@ -3782,3 +3782,21 @@ Validación final:
 Quedan fuera selección runtime de variantes, comprobación semántica, captura efectiva de modalidad y apoyo, elección real de corrección, persistencia adicional no demostrada, API, Flutter, progreso, mastery y adaptación automática.
 
 El siguiente incremento recomendado implementará primero el comportamiento pedagógico interno mínimo para seleccionar una variante y registrar modalidad y apoyo realmente utilizados, sin saltar todavía a API o Flutter.
+
+## B180 — Incremento 2: ejecución interna de construcción directa
+
+Estado: incremento cerrado técnicamente; B180 permanece activo.
+
+Se añadieron intentos completos persistentes y sus enlaces con `LearnerProduction`, sin duplicar la producción real. Las operaciones internas inician, finalizan y recuperan el intento en una sola transacción. La persistencia conversacional existente aporta un helper sin commit; su operación pública conserva el comportamiento previo.
+
+La variante de transferencia se selecciona mediante SHA-256 determinista (`sha256-v1`) sobre la identidad canónica del intento y se conserva como snapshot histórico. La modalidad efectiva procede de `LearnerProduction`; apoyo configurado y usado se registran por separado. Texto o apoyo adicional permanecen como evidencia de lo ocurrido.
+
+`completion_requirements_met` se calcula estructuralmente al leer: exige guided, expanded y transfer, voz en las tres, retirada prevista y transfer sin apoyo. No se persiste como verdad pedagógica y `false` no equivale a fracaso, progreso o mastery.
+
+La migración `7d8e9f0a1b2c` fue validada en PostgreSQL mediante `3c4f1a2b7d90 → 7d8e9f0a1b2c → 3c4f1a2b7d90` (1 passed in 2.30s). El ensayo S2 completo validó `f81a78f8c1c4 → 7d8e9f0a1b2c → f81a78f8c1c4`. El defecto observado fue solo la concatenación ambigua de `pg_constraint.contype`; la prueba usa `contype::text` y conserva diagnósticos sanitizados. La migración no requirió cambios.
+
+Validación final: 34 específicas; 148 relacionadas y 1 omitida; S2 unitario 22 y 1 omitida; regresión segura S1/S2/B180 119 y 1 omitida; suite backend 1149 passed in 9.59s; `operational_state.py validate` correcto; `git diff --check` limpio; revisión sin defectos; commit `f77f560`.
+
+El Preflight de Impacto identificó el target fijo obsoleto de S2. El adaptador conserva `f81a78f8c1c4` como frontera histórica, descubre un único head con las APIs de Alembic, valida ascendencia y congela hashes concretos antes de crear recursos. En adelante, todo cambio estructural aplicará Preflight de Impacto y demostrará en Postflight que sus dependencias no quedaron desactualizadas, limitado al radio real del cambio.
+
+Siguiente incremento recomendado: registrar una única orientación pedagógica prioritaria por producción y vincularla con un reintento append-only, sin selección automática, semántica libre, API, Flutter, progreso o mastery. El Karaoke Fonético continúa pospuesto, no descartado.

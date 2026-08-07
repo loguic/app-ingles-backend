@@ -67,7 +67,7 @@ El flujo validado es:
 2. generar un backup custom y comprobar su SHA-256;
 3. restaurar en una base temporal distinta;
 4. verificar esquema y datos de control;
-5. ejecutar Alembic desde la revisión inicial hasta `3c4f1a2b7d90`;
+5. resolver y validar el único head Alembic antes de crear recursos, y ejecutar el ensayo desde la frontera histórica `f81a78f8c1c4` hasta ese hash concreto;
 6. volver mediante downgrade y comprobar la revisión inicial;
 7. generar evidencia compatible con S1;
 8. detener PostgreSQL y limpiar únicamente el workspace marcado.
@@ -84,10 +84,20 @@ Validación confirmada:
 - `git diff --check` limpio;
 - commit técnico `d0efe1e`.
 
+Tras la migración B180 `7d8e9f0a1b2c`, S2 dejó de usar un target fijo. `target_revision` es opcional: si se omite, el adaptador resuelve el único head mediante `AlembicConfig` y `ScriptDirectory`; si se declara, debe coincidir exactamente con él. Se rechazan heads múltiples, revisiones inexistentes, una frontera inicial no ancestral y cualquier target obsoleto. La resolución precede al workspace, `initdb` y los procesos, y el rango de hashes concretos queda congelado para upgrade, downgrade y evidencia.
+
+La frontera `f81a78f8c1c4` permanece deliberadamente fija para probar recuperación histórica. El ensayo completo confirmó `f81a78f8c1c4 → 7d8e9f0a1b2c → f81a78f8c1c4`; la migración B180 tuvo además una validación focal PostgreSQL `3c4f1a2b7d90 → 7d8e9f0a1b2c → 3c4f1a2b7d90`.
+
+## Preflight y Postflight de Impacto
+
+Antes de modificar un componente estructural, el Preflight identifica dentro del radio real del cambio sus dependencias directas, invariantes, identificadores o revisiones, contratos y pruebas susceptibles de quedar obsoletos. Después, el Postflight demuestra que ninguna dependencia identificada permanece desactualizada.
+
+El flujo operativo es: `estado canónico → contrato → dependencias → Codex → evidencia`. Esta regla evita tanto la sustitución repetida de hashes fijos como auditorías generales sin relación con el cambio.
+
 S2 demuestra backup, restauración y reversibilidad en infraestructura temporal controlada. No autoriza migraciones sobre desarrollo, staging o producción reales y no elimina los riesgos propios de datos, volumen, permisos o configuración de esos entornos.
 
-## Siguiente hito
+## Límite operativo vigente
 
-B179 continúa con el Hito B de persistencia transaccional e historial consultable. Cualquier futura ejecución DevSecOps sobre entornos reales requerirá una puerta adicional y autorización explícita.
+Cualquier futura ejecución DevSecOps sobre entornos reales requerirá una puerta adicional y autorización explícita.
 
 La deuda de `block_workflow.py`, cuya interrupción puede perder la salida final o dejar procesos hijos activos, permanece separada y fuera de este hito.
