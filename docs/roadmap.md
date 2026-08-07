@@ -958,3 +958,25 @@ B180 queda cerrado técnica e integralmente. El Incremento 1 aportó contenido y
 La validación final registra suite backend 1191 passed in 10.33s, migraciones focales PostgreSQL y S2 completo validados, `operational_state.py validate` correcto y `git diff --check` limpio. `completion_requirements_met`, la orientación y la preparación preservan sus fronteras: estructura no es mastery, orientación presentada no es aplicación demostrada y reintento preparado no es mejora.
 
 La siguiente brecha observable recomendada, todavía sin número, es comprender la intención principal de una intervención oral nueva, responder de manera contingente y mantener un intercambio breve con ayuda reducida. Debe preceder a más infraestructura porque conecta la construcción directa ya lograda con escucha, reacción y continuidad conversacional. Quedan fuera persistencia no demostrada, API, Flutter, progreso, mastery, adaptación automática y Karaoke Fonético completo.
+
+## B181 — Comprensión contingente y continuidad conversacional breve
+
+Estado: Incremento 1 técnicamente implementado; B181 no está cerrado integralmente.
+
+La capacidad observable es escuchar tres intervenciones breves relacionadas de una persona recién conocida, identificar suficientemente su intención comunicativa, responder oralmente con palabras propias y mantener tres intercambios conectados hasta una reacción o cierre natural, con apoyo visible decreciente.
+
+### Incremento 1 — conversación breve conectada
+
+`a1-u1-l2` adopta el título `Keep the conversation going` y la nueva Skill `a1_maintain_short_connected_exchange`; `a1-u1-l1` permanece sin cambios. `a1-u1-l2-c1` contiene siete turnos, tres producciones propias y cuatro intervenciones del interlocutor: pregunta de procedencia, pregunta por intereses, seguimiento inesperado relacionado y reacción/cierre natural.
+
+La experiencia prioriza voz y presenta el audio antes del transcript. El transcript comienza oculto y solo actúa como contingencia o accesibilidad; cuando se usa, la comprensión es asistida y no exclusivamente auditiva. Los apoyos visibles disminuyen `anchors → initial_word → none`; la tercera producción es `unexpected_contingent_response`, el seguimiento inesperado y el cierre quedan marcados explícitamente y ninguna producción permite copiar un modelo completo.
+
+Las evidencias `a1-u1-l2-ev-place-response`, `a1-u1-l2-ev-interest-response` y `a1-u1-l2-ev-unexpected-followup-response` se asocian una a una con los prompts. Cada una declara revisión humana o externa estática de `intention_understanding` y `contingent_response`, con estados `positive | negative | pending`. Ambas dimensiones necesitan `positive`; `negative` o `pending` impiden considerar satisfecha la revisión, sin crear progreso o mastery automático.
+
+El backend solo valida la estructura prevista. No persiste juicios ni infiere comprensión real, pertinencia semántica, contingencia real, no literalidad, progreso, aprendizaje, mastery o fluidez; finalización estructural no equivale a éxito pedagógico. No se añadieron persistencia, modelos SQLAlchemy, Alembic, S2, API ni Flutter runtime. Karaoke Fonético continúa pospuesto, no descartado.
+
+Trazabilidad backend: `c246876`. La suite backend completa posterior al cambio terminó correctamente y `git diff --check` pasó, sin un número de tests disponible que deba reconstruirse. Trazabilidad frontend de audios: `8235449`, ya publicado; `flutter analyze` correcto, 37 tests passed en `flutter test` y `git diff --check` limpio.
+
+Los ocho WAV en-US/en-GB correspondientes a t1, t3, t5 y t7 fueron escuchados y aprobados humanamente. Todos cumplen PCM s16le, 22050 Hz, mono y 16-bit, y las ocho rutas backend coinciden exactamente con los ocho assets físicos del frontend.
+
+El siguiente objetivo deriva solo de la brecha observable restante: comprobar en una ejecución real, mediante revisión humana o externa efectiva, que el estudiante comprende suficientemente las intervenciones, responde de forma pertinente con palabras propias y mantiene los tres intercambios hasta el cierre con apoyo decreciente. No se define por ahora una secuencia de incrementos futuros ni se presupone infraestructura para resolverlo.

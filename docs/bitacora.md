@@ -3838,3 +3838,21 @@ La primera lección permite construir desde Persona + Verbo, ampliar y transferi
 Trazabilidad: Incremento 1 `ccafaaa`; Incremento 2 `f77f560`; Incremento 3 `2f396d3`; Incremento 4 `70c3dbf`. Evidencia final: suite backend 1191 passed in 10.33s; migraciones PostgreSQL focales y S2 completo validados; head Alembic `a4c8e2f6b901`; `operational_state.py validate` correcto; `git diff --check` limpio; Git sincronizado antes del cierre.
 
 La siguiente brecha observable, aún sin número, es comprender la intención principal de una intervención oral nueva, responder de forma contingente y mantener un intercambio breve con ayuda reducida. No incluye más persistencia o infraestructura sin necesidad, API, Flutter, progreso, mastery, adaptación automática ni Karaoke Fonético completo.
+
+## B181 — Incremento 1: comprensión contingente y continuidad conversacional breve
+
+Estado: incremento cerrado técnicamente; B181 no queda cerrado integralmente.
+
+La capacidad observable definida es escuchar tres intervenciones breves relacionadas de una persona recién conocida, identificar suficientemente su intención comunicativa, responder oralmente con palabras propias y mantener tres intercambios conectados hasta una reacción o cierre natural, con apoyo visible decreciente.
+
+Se rediseñó `a1-u1-l2`, ahora titulada `Keep the conversation going`, y se añadió la Skill `a1_maintain_short_connected_exchange`. `a1-u1-l1` no se amplió y permanece sin cambios. La conversación `a1-u1-l2-c1` contiene siete turnos: el interlocutor pregunta `Where are you from?`, continúa con `Oh, nice! What do you like doing in your free time?`, introduce el seguimiento inesperado `Nice. Where do you usually do that?` y termina con `Oh, I see. Thanks for telling me. It was nice talking with you. See you!`. Entre esas cuatro intervenciones se requieren tres producciones propias del estudiante.
+
+La voz es la modalidad principal y el texto queda como respaldo. El apoyo visible disminuye `anchors → initial_word → none`; el tercer prompt usa `unexpected_contingent_response`, el seguimiento queda marcado como `unexpected_follow_up` y el último turno como `reaction_closure`. La presentación es audio-first: el audio precede al transcript, que empieza oculto y solo se ofrece como contingencia o accesibilidad. Usarlo representa comprensión asistida, no comprensión exclusivamente auditiva, y nunca funciona como modelo de respuesta.
+
+Las evidencias `a1-u1-l2-ev-place-response`, `a1-u1-l2-ev-interest-response` y `a1-u1-l2-ev-unexpected-followup-response` se asocian una a una con sus prompts. Cada una prevé revisión humana o externa estática en `intention_understanding` y `contingent_response`, con resultados `positive | negative | pending`; ambas dimensiones requieren `positive` para considerar satisfecha esa revisión. Un resultado `negative` o `pending` la impide, pero no genera progreso ni mastery.
+
+El backend solo valida que la revisión esté prevista y correctamente estructurada. No persiste esos juicios ni infiere comprensión real, pertinencia semántica, contingencia real, no literalidad, progreso, aprendizaje, mastery o fluidez. La finalización estructural no equivale a éxito pedagógico. Tampoco se añadieron persistencia, modelos SQLAlchemy, Alembic, S2, API ni Flutter runtime. Karaoke Fonético continúa pospuesto, no descartado.
+
+Validación técnica: la suite backend completa posterior al cambio terminó correctamente y `git diff --check` pasó; no se conserva un número de pruebas disponible para documentar. Commit backend: `c246876`. En frontend, tras incorporar los audios, `flutter analyze` fue correcto, `flutter test` registró 37 tests passed y `git diff --check` quedó limpio; commit publicado `8235449`.
+
+Los ocho WAV en-US/en-GB de los turnos t1, t3, t5 y t7 fueron escuchados y aprobados humanamente. Los ocho usan PCM s16le, 22050 Hz, mono y 16-bit, y las ocho rutas declaradas por backend coinciden exactamente con los ocho assets físicos del frontend.

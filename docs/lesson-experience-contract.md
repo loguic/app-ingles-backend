@@ -1087,3 +1087,17 @@ Estado: Incremento 4 cerrado mediante commit `70c3dbf`; suite backend 1191 passe
 B180 queda cerrado técnica e integralmente con sus cuatro incrementos publicados. La experiencia enlaza contenido validado, producción real, orientación registrada y preparación de un nuevo intento con menor apoyo, conservando que finalización estructural no es mastery, orientación presentada no es aplicación demostrada y reintento preparado no es mejora.
 
 La validación final registra 1191 pruebas backend superadas en 10.33s, migraciones PostgreSQL focales y S2 completo validados y head Alembic `a4c8e2f6b901`. API, Flutter, evaluación semántica, progreso, mastery, adaptación y Karaoke Fonético completo permanecen fuera.
+
+## Aplicación en B181 — comprensión contingente y continuidad conversacional breve
+
+El Incremento 1 de B181 aplica el contrato v2 a `a1-u1-l2` mediante extensiones opcionales y retrocompatibles; `a1-u1-l1` permanece sin cambios. La política audio-first declara audio como presentación principal, permite repetición y exige que el transcript esté inicialmente oculto. Su acceso queda limitado a `contingency_accessibility`: es contingencia o accesibilidad, no modalidad normal ni modelo de respuesta, y su uso se interpreta como comprensión asistida, no exclusivamente auditiva.
+
+`LearnerProductionPrompt` amplía sus funciones con `contingent_response` y `unexpected_contingent_response` y puede declarar `visible_support`. En las tres producciones de `a1-u1-l2-c1`, voz es principal, texto solo respaldo, no existe modelo completo y el apoyo visible disminuye de `anchors` a `initial_word` y `none`; el último nivel exige una lista visible vacía.
+
+Los turnos del interlocutor pueden incorporar marcadores retrocompatibles de función interactiva. `unexpected_follow_up` identifica el tercer prompt relacionado pero inesperado y `reaction_closure` identifica la reacción y el cierre naturales, sin crear por sí mismos una evaluación del estudiante.
+
+Cada definición de evidencia puede asociarse mediante `production_prompt_id` con un prompt concreto y declarar `external_review_requirements`. Las tres evidencias contextuales de B181 se enlazan una a una con las tres producciones y requieren las dimensiones `intention_understanding` y `contingent_response`. La rúbrica humana o externa estática admite `positive`, `negative` y `pending`, formula la pregunta de revisión y exige `positive` en ambas dimensiones para considerar satisfecha la revisión; `negative` o `pending` la impiden.
+
+El backend valida la existencia, orden, unicidad y estructura de estas declaraciones, la secuencia conversacional, la retirada de apoyo, los marcadores y la asociación evidencia-prompt. No persiste los juicios ni los produce automáticamente. Estructura validada ≠ comprensión real ≠ pertinencia semántica o contingencia real ≠ progreso o mastery. Tampoco se infieren no literalidad, aprendizaje o fluidez, y finalización estructural no equivale a éxito pedagógico.
+
+Estado: Incremento 1 cerrado técnicamente mediante commit backend `c246876`. No se añadieron persistencia, modelos SQLAlchemy, Alembic, S2, API ni Flutter runtime; B181 no queda cerrado integralmente.
