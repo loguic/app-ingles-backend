@@ -3872,3 +3872,21 @@ Validación frontend: 9 pruebas focales finales superadas; `flutter analyze` cor
 Trazabilidad publicada: commit técnico frontend `8baf7a6` (`feat ejecutar conversación audio-first B181`) y commit documental frontend `4fe98ad` (`docs documentar ejecución audio-first B181`). Estado final frontend: `## master...origin/master`.
 
 Persistir tres respuestas no demuestra comprensión, progreso, mastery o fluidez, y recorrer la conversación no equivale a éxito pedagógico. Permanecen fuera el uso persistido del transcript, fallback textual, resultados efectivos de `intention_understanding` y `contingent_response`, rollback remoto de WAV parciales, scoring, semántica automática, progreso, mastery, adaptación y Karaoke Fonético.
+
+## B181 — Incremento 3: revisión efectiva independiente
+
+Estado: incremento cerrado técnicamente mediante commit `21d34e5`; B181 permanece abierto y no queda cerrado integralmente.
+
+Se añadió `ShortConnectedExchangeProductionReview` para registrar de forma append-only y trazable resultados independientes `positive`, `negative` o `pending` en `intention_understanding` y `contingent_response`. Cada revisión conserva `review_id`, `production_id`, dimensión, resultado, `source_type`, `source_id`, `source_version` y `reviewed_at`. La FK directa a `LearnerProduction.id` mantiene la producción real como fuente de verdad y evita duplicar submission, prompt, turno, evidencia, lección o conversación.
+
+Se permiten múltiples revisiones históricas para una misma producción y dimensión. No existen update, overwrite, consenso, mayoría, precedencia ni resultado vigente; `pending` es un resultado normal. Un mismo batch rechaza repetir `production_id + dimension`, pero lotes posteriores pueden añadir nuevas revisiones independientes.
+
+`save_short_connected_exchange_production_reviews` valida antes de escribir las referencias, la única submission B181 con sus tres producciones canónicas y la rúbrica activa derivada desde prompt y evidencia. Puede registrar las seis decisiones —tres producciones por dos dimensiones— con exactamente un commit y rollback integral ante referencia inválida, conflicto de `review_id` o error SQL. `get_short_connected_exchange_reviews_by_submission` recupera las tres producciones y todo el historial ordenado por `reviewed_at` y `review_id`, sin agregar, priorizar o transformar resultados.
+
+La revisión `b181c3e4f5a6`, lineal desde `a4c8e2f6b901`, crea la tabla con PK `review_id`, FK `production_id → learner_productions.id` y `ON DELETE CASCADE`, índice por producción, índice `(production_id, dimension, reviewed_at, review_id)` y checks de dimensión, resultado, fuente, identidad y versión. Deliberadamente no existe unicidad sobre `production_id + dimension`.
+
+Validación: esquema/modelo/servicio focal 22 passed; regresión relacionada inicial 122 passed; Postflight relacionado final 149 passed y 1 deselected; migración PostgreSQL focal reversible 1 passed in 2.31s; S2 unitario 22 passed y 1 deselected; S2 completo reversible 1 passed in 2.33s; suite backend completa final 1230 passed in 13.38s; head Alembic único `b181c3e4f5a6`; `git diff --check` limpio. S2 descubrió el head dinámicamente sin cambiar adaptador ni frontera histórica.
+
+Revisión humana o externa no es evaluación técnica, diagnóstico u orientación B180. `positive` no crea progreso o mastery, `negative` no determina fracaso global y `pending` no es error. No se añadieron consenso, mayoría, scoring, semántica o comprensión automáticas, adaptación, API ni Flutter; B180 y el contenido y la rúbrica B181 permanecen intactos.
+
+Permanecen fuera endpoints/API, superficie Flutter para revisión, persistencia del uso del transcript, fallback textual, rollback remoto de WAV, scoring, semántica automática, consenso, progreso, mastery, aprendizaje, fluidez, adaptación y Karaoke Fonético.

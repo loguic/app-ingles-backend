@@ -1111,3 +1111,15 @@ Las tres producciones de voz se conservan por `prompt_id` y `turn_id`. Flutter r
 Producción persistida ≠ comprensión demostrada; reconocimiento técnico ≠ evaluación pedagógica; submission persistida ≠ progreso o mastery. La finalización del recorrido tampoco afirma pertinencia, aprendizaje o fluidez. No existe todavía persistencia runtime de la revisión `intention_understanding` o `contingent_response`.
 
 Estado: Incremento 2 cerrado técnica, documental y operativamente mediante los commits frontend publicados `8baf7a6` y `4fe98ad`; B181 permanece abierto.
+
+### Revisión efectiva runtime en B181 Incremento 3
+
+`ShortConnectedExchangeProductionReview` materializa por separado la revisión humana o externa prevista por la rúbrica. Cada fila enlaza directamente con `LearnerProduction.id` y conserva identidad propia, `intention_understanding` o `contingent_response`, resultado `positive | negative | pending`, fuente, identidad y versión de fuente y timestamp. Submission, prompt, turno, evidencia, lección y conversación se derivan desde la producción y el contenido activo, sin duplicarlos.
+
+La persistencia es append-only y admite múltiples revisiones históricas para una misma producción y dimensión. Un batch no puede repetir esa pareja, pero otro batch puede añadir una revisión posterior. No existen overwrite, consenso, mayoría, precedencia o resultado vigente; `pending` no se transforma ni representa un error.
+
+La escritura valida la única submission B181, sus tres producciones canónicas y la dimensión y resultado contra la evidencia y rúbrica activas antes de realizar un único commit. La lectura devuelve las tres producciones y todo el historial en orden `reviewed_at`, `review_id`, sin agregar ni priorizar resultados.
+
+Una colección de revisiones no constituye consenso ni demuestra comprensión. Revisión humana o externa ≠ evaluación técnica ≠ diagnóstico ≠ orientación B180; `positive` ≠ progreso o mastery y `negative` ≠ fracaso global. No existe todavía API o Flutter para registrar estas revisiones durante el uso del producto.
+
+Estado: Incremento 3 cerrado técnicamente mediante commit `21d34e5`; revisión Alembic `b181c3e4f5a6`; B181 permanece abierto.

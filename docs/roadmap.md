@@ -961,7 +961,7 @@ La siguiente brecha observable recomendada, todavía sin número, es comprender 
 
 ## B181 — Comprensión contingente y continuidad conversacional breve
 
-Estado: Incrementos 1 y 2 cerrados y publicados; B181 permanece abierto y no está cerrado integralmente.
+Estado: Incrementos 1 y 2 cerrados y publicados e Incremento 3 cerrado técnicamente; B181 permanece abierto y no está cerrado integralmente.
 
 La capacidad observable es escuchar tres intervenciones breves relacionadas de una persona recién conocida, identificar suficientemente su intención comunicativa, responder oralmente con palabras propias y mantener tres intercambios conectados hasta una reacción o cierre natural, con apoyo visible decreciente.
 
@@ -989,4 +989,14 @@ Trazabilidad frontend publicada: implementación `8baf7a6` y documentación `4fe
 
 Persistir las tres respuestas y completar el recorrido no demuestra comprensión, pertinencia, progreso, mastery o fluidez; el reconocimiento técnico tampoco es evaluación pedagógica. Permanecen fuera uso persistido del transcript, fallback textual, resultados efectivos de revisión, rollback remoto de WAV parciales, scoring, semántica automática, adaptación y Karaoke Fonético.
 
-El siguiente objetivo deriva únicamente de la brecha observable restante: realizar y registrar separadamente la revisión efectiva de `intention_understanding` y `contingent_response` sobre las tres producciones reales persistidas. No se presupone solución, modelo de datos, API ni otro incremento.
+### Incremento 3 — revisión efectiva independiente
+
+`ShortConnectedExchangeProductionReview` registra historiales append-only de `intention_understanding` y `contingent_response` con resultados `positive | negative | pending`, fuente humana o externa y trazabilidad temporal. Cada fila enlaza directamente con `LearnerProduction.id`; no duplica identidad derivable. Múltiples revisiones pueden coexistir para una producción y dimensión, sin update, overwrite, consenso, mayoría o resultado vigente.
+
+La escritura valida referencias, las tres producciones canónicas y la rúbrica activa antes de insertar hasta las seis decisiones en un batch con un commit y rollback integral. La lectura recupera las tres producciones y todo el historial ordenado, sin agregar, priorizar ni transformar resultados.
+
+La revisión `b181c3e4f5a6` sucede linealmente a `a4c8e2f6b901` y añade PK, FK con cascade, checks e índices de producción e historial, deliberadamente sin unicidad `production_id + dimension`. S2 descubrió el nuevo head sin cambios de adaptador o frontera. Validación: 22 focales; regresiones 122 y 149 passed con 1 deselected en el Postflight; PostgreSQL focal 1 passed in 2.31s; S2 unitario 22 passed y 1 deselected; S2 completo 1 passed in 2.33s; suite backend final 1230 passed in 13.38s; `git diff --check` limpio. Commit técnico `21d34e5`.
+
+Revisión no es evaluación técnica, diagnóstico u orientación B180; ningún resultado crea consenso, fracaso global, progreso o mastery. Permanecen fuera API, Flutter, transcript persistido, fallback textual, rollback remoto de WAV, scoring, semántica o comprensión automáticas, aprendizaje, fluidez, adaptación y Karaoke Fonético. B180 y el contenido y rúbrica B181 permanecen intactos.
+
+El siguiente objetivo describe únicamente la brecha observable restante: habilitar una superficie real, aún no definida, desde la que una persona o sistema externo pueda registrar durante el uso del producto las revisiones que el backend ya persiste internamente. No se presupone solución, API concreta, UI ni otro incremento.
