@@ -999,4 +999,18 @@ La revisión `b181c3e4f5a6` sucede linealmente a `a4c8e2f6b901` y añade PK, FK 
 
 Revisión no es evaluación técnica, diagnóstico u orientación B180; ningún resultado crea consenso, fracaso global, progreso o mastery. Permanecen fuera API, Flutter, transcript persistido, fallback textual, rollback remoto de WAV, scoring, semántica o comprensión automáticas, aprendizaje, fluidez, adaptación y Karaoke Fonético. B180 y el contenido y rúbrica B181 permanecen intactos.
 
-El siguiente objetivo describe únicamente la brecha observable restante: habilitar una superficie real, aún no definida, desde la que una persona o sistema externo pueda registrar durante el uso del producto las revisiones que el backend ya persiste internamente. No se presupone solución, API concreta, UI ni otro incremento.
+### Incremento 4 — revisión humana local controlada
+
+La CLI `scripts/review/short_connected_exchange_review.py` y el servicio read-only asociado permiten a un revisor humano local, identificado mediante una etiqueta declarada pero no autenticada, seleccionar una submission real de `a1-u1-l2-c1`. La preparación exige sus tres producciones canónicas de voz y deriva del contenido activo las intervenciones, evidencias, preguntas y resultados permitidos, sin duplicar la rúbrica.
+
+Los tres WAV se resuelven mediante `resolve_production_audio_path`, conservando URI opaca, UUID, directorio privado, confinamiento y existencia. La consola muestra la ruta local para reproducción externa, pero no la persiste ni incorpora reproductor. Tampoco muestra o usa `recognized_text`, scoring, evaluación técnica, feedback, diagnóstico, progreso o mastery.
+
+La CLI recoge en memoria las seis decisiones de `intention_understanding` y `contingent_response`, presenta el lote y exige confirmación. Una única llamada persiste el `ShortConnectedExchangeProductionReviewBatch`; después se recupera todo el historial append-only, sin consenso, mayoría o resultado vigente. Cancelar antes de confirmar no escribe y no existe retry automático. Commit técnico `6a67763`.
+
+La corrección transversal DevSecOps `687e394` añadió un wrapper que ejecuta pytest contra un PostgreSQL efímero: workspace S2 marcado, socket confinado, puerto dinámico distinto de 5432, base `isolated_pytest`, `alembic upgrade head` y `DATABASE_URL` inyectada antes de colección. Rechaza `app_ingles_db`, usa subprocess con `shell=False`, propaga el exit code y limpia en `finally`, sin modificar el adaptador S2 o su frontera histórica.
+
+Validación: 50 pruebas focales y dependencias SQLite; 21 relacionadas con contenido y producciones; PostgreSQL aislado 8 passed in 0.32s; wrapper 12 passed in 0.19s; suite backend completa aislada 1262 passed in 12.38s; `git diff --check` limpio y EOF correcto. No cambiaron modelos, migraciones, endpoints, contenido B181, B180, persistencia I3, Flutter ni S2.
+
+Revisión local no es identidad autenticada, reconocimiento, evaluación técnica, consenso o resultado vigente; `positive`, `negative` y `pending` no crean progreso, mastery o fracaso global. API, HTTP, Flutter, panel administrativo, autenticación, integración externa, reproductor, semántica automática, adaptación, fallback textual, transcript persistido, rollback remoto de WAV y Karaoke Fonético permanecen fuera.
+
+B181 permanece abierto. El siguiente objetivo se limita a la brecha observable restante: ejecutar y demostrar una revisión humana real mediante la CLI sobre una submission real de producto. No se presupone otro incremento ni una solución posterior.

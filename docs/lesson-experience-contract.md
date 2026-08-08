@@ -1123,3 +1123,15 @@ La escritura valida la única submission B181, sus tres producciones canónicas 
 Una colección de revisiones no constituye consenso ni demuestra comprensión. Revisión humana o externa ≠ evaluación técnica ≠ diagnóstico ≠ orientación B180; `positive` ≠ progreso o mastery y `negative` ≠ fracaso global. No existe todavía API o Flutter para registrar estas revisiones durante el uso del producto.
 
 Estado: Incremento 3 cerrado técnicamente mediante commit `21d34e5`; revisión Alembic `b181c3e4f5a6`; B181 permanece abierto.
+
+### Superficie local controlada en B181 Incremento 4
+
+La CLI `scripts/review/short_connected_exchange_review.py` es un adaptador operativo local sobre la persistencia cerrada en el Incremento 3, no una nueva semántica ni una superficie final del producto. Recibe una submission B181 y una etiqueta `source_id` humana explícita pero no autenticada; el servicio read-only prepara exactamente las tres producciones canónicas, sus intervenciones, evidencias y requisitos de revisión desde el contenido activo.
+
+Cada producción de voz conserva su referencia opaca y se resuelve exclusivamente mediante `resolve_production_audio_path`. La resolución exige `production-audio://`, UUID válido, `PRODUCTION_AUDIO_DIR`, confinamiento y archivo existente. La ruta absoluta solo se presenta en la consola local para que el revisor use una herramienta externa; no se persiste ni se incorpora un reproductor al backend.
+
+La superficie no muestra ni utiliza `recognized_text`, scoring, evaluación técnica, feedback, diagnóstico, progreso o mastery. Recoge en memoria `intention_understanding` y `contingent_response` para las tres producciones, admite `positive | negative | pending` y, tras confirmación, entrega un único batch al servicio transaccional existente. Luego presenta todo el historial append-only, sin consenso, mayoría, priorización o resultado vigente.
+
+Cancelar antes de confirmar no escribe. Un error no activa retry automático y una interrupción ambigua exige consultar el historial antes de crear revisiones históricas nuevas. Revisión ≠ identidad autenticada ≠ reconocimiento o evaluación técnica; ningún resultado demuestra comprensión, fracaso global, progreso o mastery.
+
+Estado: Incremento 4 cerrado técnicamente mediante commit `6a67763`. La corrección transversal `687e394` ejecuta pytest sobre PostgreSQL efímero aislado mediante primitivas S2, sin cambiar el adaptador o su frontera histórica. La suite completa aislada registró 1262 passed in 12.38s. B181 permanece abierto porque todavía no se ha ejecutado y demostrado una revisión humana real sobre una submission real.
