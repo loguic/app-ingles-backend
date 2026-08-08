@@ -3856,3 +3856,19 @@ El backend solo valida que la revisión esté prevista y correctamente estructur
 Validación técnica: la suite backend completa posterior al cambio terminó correctamente y `git diff --check` pasó; no se conserva un número de pruebas disponible para documentar. Commit backend: `c246876`. En frontend, tras incorporar los audios, `flutter analyze` fue correcto, `flutter test` registró 37 tests passed y `git diff --check` quedó limpio; commit publicado `8235449`.
 
 Los ocho WAV en-US/en-GB de los turnos t1, t3, t5 y t7 fueron escuchados y aprobados humanamente. Los ocho usan PCM s16le, 22050 Hz, mono y 16-bit, y las ocho rutas declaradas por backend coinciden exactamente con los ocho assets físicos del frontend.
+
+## B181 — Incremento 2: ejecución audio-first y persistencia de producciones
+
+Estado: incremento cerrado técnica, documental y operativamente; B181 permanece abierto y no queda cerrado integralmente.
+
+El objetivo fue materializar en Flutter la ejecución completa de `a1-u1-l2-c1`: escuchar primero cada intervención, habilitar el transcript solo después de una escucha como contingencia o accesibilidad, responder tres veces por voz con apoyo visible `anchors → initial_word → none` y conservar las tres producciones reales hasta su envío conjunto.
+
+Flutter conserva las extensiones B181 necesarias y mantiene retrocompatibilidad. Las conversaciones heredadas `guided` y `branching` siguen usando su persistencia previa; B181 en modo `free` no utiliza `conversation-attempts`. El reconocimiento técnico puede continuar durante la práctica, pero permanece separado de comprensión, pertinencia y evaluación pedagógica.
+
+Se reutilizó sin cambios la infraestructura backend existente. Cada WAV se sube mediante `POST /api/v1/conversation-production-audio`, que devuelve una referencia `production-audio://...`; las grabaciones se conservan por `prompt_id` y `turn_id`, y las tres producciones se envían en una única `ConversationProductionSubmission` mediante `POST /api/v1/conversation-productions`. No se creó almacenamiento paralelo ni fue necesario modificar backend.
+
+Validación frontend: 9 pruebas focales finales superadas; `flutter analyze` correcto; regresión relacionada 36 passed; suite completa final 39 passed; `git diff --check` limpio; Postflight de compatibilidad superado. La primera ejecución focal detectó exclusivamente una notificación ausente en el doble de audio de prueba, corregida sin evidencia de defecto en runtime productivo.
+
+Trazabilidad publicada: commit técnico frontend `8baf7a6` (`feat ejecutar conversación audio-first B181`) y commit documental frontend `4fe98ad` (`docs documentar ejecución audio-first B181`). Estado final frontend: `## master...origin/master`.
+
+Persistir tres respuestas no demuestra comprensión, progreso, mastery o fluidez, y recorrer la conversación no equivale a éxito pedagógico. Permanecen fuera el uso persistido del transcript, fallback textual, resultados efectivos de `intention_understanding` y `contingent_response`, rollback remoto de WAV parciales, scoring, semántica automática, progreso, mastery, adaptación y Karaoke Fonético.

@@ -961,7 +961,7 @@ La siguiente brecha observable recomendada, todavía sin número, es comprender 
 
 ## B181 — Comprensión contingente y continuidad conversacional breve
 
-Estado: Incremento 1 técnicamente implementado; B181 no está cerrado integralmente.
+Estado: Incrementos 1 y 2 cerrados y publicados; B181 permanece abierto y no está cerrado integralmente.
 
 La capacidad observable es escuchar tres intervenciones breves relacionadas de una persona recién conocida, identificar suficientemente su intención comunicativa, responder oralmente con palabras propias y mantener tres intercambios conectados hasta una reacción o cierre natural, con apoyo visible decreciente.
 
@@ -979,4 +979,14 @@ Trazabilidad backend: `c246876`. La suite backend completa posterior al cambio t
 
 Los ocho WAV en-US/en-GB correspondientes a t1, t3, t5 y t7 fueron escuchados y aprobados humanamente. Todos cumplen PCM s16le, 22050 Hz, mono y 16-bit, y las ocho rutas backend coinciden exactamente con los ocho assets físicos del frontend.
 
-El siguiente objetivo deriva solo de la brecha observable restante: comprobar en una ejecución real, mediante revisión humana o externa efectiva, que el estudiante comprende suficientemente las intervenciones, responde de forma pertinente con palabras propias y mantiene los tres intercambios hasta el cierre con apoyo decreciente. No se define por ahora una secuencia de incrementos futuros ni se presupone infraestructura para resolverlo.
+### Incremento 2 — ejecución audio-first y persistencia de producciones
+
+Flutter ejecuta `a1-u1-l2-c1` completa: cada transcript comienza oculto, solo puede revelarse tras escuchar al menos una vez y el audio puede repetirse. El transcript continúa siendo contingencia o accesibilidad y comprensión asistida. Los tres prompts muestran exactamente `anchors → initial_word → none`, sin reconstruir respuestas completas.
+
+Las tres grabaciones se conservan por `prompt_id` y `turn_id` hasta el envío. La infraestructura backend existente recibe tres uploads mediante `/conversation-production-audio` y una única `ConversationProductionSubmission` mediante `/conversation-productions`; no hubo cambios backend ni almacenamiento paralelo. B181 `free` no utiliza `conversation-attempts`, mientras `guided` y `branching` conservan su persistencia anterior.
+
+Trazabilidad frontend publicada: implementación `8baf7a6` y documentación `4fe98ad`; Git final `## master...origin/master`. Validación: 9 pruebas focales finales, `flutter analyze` correcto, 36 pruebas de regresión relacionada, suite frontend completa 39 passed, `git diff --check` limpio y Postflight de compatibilidad superado.
+
+Persistir las tres respuestas y completar el recorrido no demuestra comprensión, pertinencia, progreso, mastery o fluidez; el reconocimiento técnico tampoco es evaluación pedagógica. Permanecen fuera uso persistido del transcript, fallback textual, resultados efectivos de revisión, rollback remoto de WAV parciales, scoring, semántica automática, adaptación y Karaoke Fonético.
+
+El siguiente objetivo deriva únicamente de la brecha observable restante: realizar y registrar separadamente la revisión efectiva de `intention_understanding` y `contingent_response` sobre las tres producciones reales persistidas. No se presupone solución, modelo de datos, API ni otro incremento.

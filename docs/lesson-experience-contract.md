@@ -1101,3 +1101,13 @@ Cada definición de evidencia puede asociarse mediante `production_prompt_id` co
 El backend valida la existencia, orden, unicidad y estructura de estas declaraciones, la secuencia conversacional, la retirada de apoyo, los marcadores y la asociación evidencia-prompt. No persiste los juicios ni los produce automáticamente. Estructura validada ≠ comprensión real ≠ pertinencia semántica o contingencia real ≠ progreso o mastery. Tampoco se infieren no literalidad, aprendizaje o fluidez, y finalización estructural no equivale a éxito pedagógico.
 
 Estado: Incremento 1 cerrado técnicamente mediante commit backend `c246876`. No se añadieron persistencia, modelos SQLAlchemy, Alembic, S2, API ni Flutter runtime; B181 no queda cerrado integralmente.
+
+### Ejecución runtime en B181 Incremento 2
+
+Flutter materializa la política audio-first conservando el transcript inicialmente oculto y habilitando su revelado solo después de una escucha. El audio puede repetirse; revelar el transcript permanece como contingencia o accesibilidad y representa comprensión asistida, no una modalidad normal ni un modelo de respuesta. Los prompts muestran exactamente el apoyo visible `anchors → initial_word → none` recibido desde backend, sin reconstruir respuestas completas.
+
+Las tres producciones de voz se conservan por `prompt_id` y `turn_id`. Flutter reutiliza `POST /conversation-production-audio` para obtener tres referencias opacas y envía una única `ConversationProductionSubmission` mediante `POST /conversation-productions`; no crea almacenamiento paralelo. B181 `free` no usa `conversation-attempts`, mientras `guided` y `branching` mantienen su comportamiento previo. El backend no requirió cambios.
+
+Producción persistida ≠ comprensión demostrada; reconocimiento técnico ≠ evaluación pedagógica; submission persistida ≠ progreso o mastery. La finalización del recorrido tampoco afirma pertinencia, aprendizaje o fluidez. No existe todavía persistencia runtime de la revisión `intention_understanding` o `contingent_response`.
+
+Estado: Incremento 2 cerrado técnica, documental y operativamente mediante los commits frontend publicados `8baf7a6` y `4fe98ad`; B181 permanece abierto.

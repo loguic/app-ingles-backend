@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-07
+Actualizado: 2026-08-08
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -125,10 +125,10 @@ Cada hito pasa por definición, implementación técnica, validación específic
 - progreso ≠ mastery.
 
 ## Bloque activo
-B181 — Comprensión contingente y continuidad conversacional breve. Su Incremento 1 está cerrado técnicamente, documentado y publicado; B181 no está cerrado integralmente. `a1-u1-l2`, `Keep the conversation going`, representa una conversación audio-first de siete turnos con tres respuestas propias por voz, retirada visible `anchors → initial_word → none`, seguimiento inesperado y cierre natural. La revisión humana o externa de `intention_understanding` y `contingent_response` está declarada estáticamente, pero el backend no persiste sus resultados ni infiere comprensión o pertinencia reales. Trazabilidad: backend `c246876`; audios frontend publicados en `8235449`.
+B181 — Comprensión contingente y continuidad conversacional breve. El Incremento 1, cerrado y publicado, define `a1-u1-l2`, `Keep the conversation going`, como conversación audio-first de siete turnos, tres respuestas por voz, apoyo `anchors → initial_word → none`, seguimiento inesperado y cierre natural; trazabilidad: backend `c246876`, checkpoint `2c7fa20` y audios frontend `8235449`. El Incremento 2 está cerrado técnica, documental y operativamente: Flutter ejecuta el flujo audio-first, conserva y sube tres WAV y envía una única `ConversationProductionSubmission`, reutilizando el backend sin cambios; commits frontend publicados `8baf7a6` y `4fe98ad`. B181 permanece abierto y no está cerrado integralmente.
 
 ## Próximo objetivo
-La capacidad ya está representada y validada técnicamente; la brecha observable restante es comprobar en una ejecución real que el estudiante comprende suficientemente cada intervención, responde de manera pertinente con palabras propias y sostiene los tres intercambios hasta el cierre con apoyo decreciente. Esa comprobación requiere juicio humano o externo efectivo: la estructura, por sí sola, no demuestra comprensión, contingencia, aprendizaje, progreso, mastery ni fluidez. No se prescribe todavía otro incremento ni infraestructura adicional.
+Ya existen tres producciones reales persistidas tras recorrer la conversación con transcript contingente y apoyo decreciente. La brecha observable restante es realizar y registrar separadamente la revisión efectiva de `intention_understanding` y `contingent_response` sobre esas producciones. Producción persistida, reconocimiento técnico y finalización no demuestran comprensión, pertinencia, aprendizaje, progreso, mastery ni fluidez; no se prescribe todavía solución, infraestructura ni otro incremento.
 
 El Karaoke Fonético queda pospuesto, no descartado, como capacidad aislada posterior; B181 tampoco implementa sincronización, timestamps, colores, dictado, grabación guiada ni UI específica.
 
