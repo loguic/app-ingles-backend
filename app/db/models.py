@@ -7,6 +7,7 @@ from sqlalchemy import (
     ForeignKeyConstraint,
     Float,
     Integer,
+    Index,
     JSON,
     String,
     Text,
@@ -105,6 +106,66 @@ class LearnerProduction(Base):
     modality = Column(String, nullable=False)
     response_text = Column(Text, nullable=True)
     audio_reference = Column(String, nullable=True)
+
+
+class ShortConnectedExchangeProductionReview(Base):
+    """Persist one independent append-only review of a real production.
+
+    Persiste una revisión independiente y append-only de una producción real.
+    """
+
+    __tablename__ = "short_connected_exchange_production_reviews"
+    __table_args__ = (
+        CheckConstraint(
+            "length(trim(review_id)) > 0",
+            name="ck_short_exchange_review_id_not_blank",
+        ),
+        CheckConstraint(
+            "dimension IN ('intention_understanding', "
+            "'contingent_response')",
+            name="ck_short_exchange_review_dimension",
+        ),
+        CheckConstraint(
+            "result IN ('positive', 'negative', 'pending')",
+            name="ck_short_exchange_review_result",
+        ),
+        CheckConstraint(
+            "source_type IN ('human', 'external')",
+            name="ck_short_exchange_review_source_type",
+        ),
+        CheckConstraint(
+            "length(trim(source_id)) > 0",
+            name="ck_short_exchange_review_source_id",
+        ),
+        CheckConstraint(
+            "(source_type = 'human' AND "
+            "(source_version IS NULL OR length(trim(source_version)) > 0)) "
+            "OR (source_type = 'external' AND source_version IS NOT NULL "
+            "AND length(trim(source_version)) > 0)",
+            name="ck_short_exchange_review_source_version",
+        ),
+        Index(
+            "ix_short_exchange_review_history",
+            "production_id",
+            "dimension",
+            "reviewed_at",
+            "review_id",
+        ),
+    )
+
+    review_id = Column(String, primary_key=True)
+    production_id = Column(
+        Integer,
+        ForeignKey("learner_productions.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    dimension = Column(String, nullable=False)
+    result = Column(String, nullable=False)
+    source_type = Column(String, nullable=False)
+    source_id = Column(String, nullable=False)
+    source_version = Column(String, nullable=True)
+    reviewed_at = Column(DateTime(timezone=True), nullable=False)
 
 
 class DirectEnglishConstructionAttempt(Base):
