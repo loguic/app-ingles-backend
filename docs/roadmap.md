@@ -1019,4 +1019,4 @@ La pausa no responde a un fallo técnico pendiente. `a1-u1-l1` debe entenderse e
 
 La dirección inmediata, sin abrir ni numerar un nuevo bloque, es revisar el Constructor Pedagógico existente y determinar cómo deberá generar y validar progresiones reales y mapas de prerrequisitos. Después deberán construirse canónicamente la entrada A1 y el candidato pedagógico necesario para B181 antes de reanudar su validación humana.
 
-Continúan pendientes de versionar, y no se consideran publicados ni cerrados, los cambios frontend locales asociados a B181 en `lib/widgets/lesson_conversation_card.dart`, `test/lesson_conversation_card_test.dart` y `lib/services/api_service.dart`, este último por el retry previo de guardado.
+El retry de persistencia B181 y la corrección UX consigna ≠ respuesta están versionados y publicados en frontend mediante el commit técnico `aabe4a4`; el commit documental frontend es `505549f`. Las validaciones asociadas permanecen: test focal PASS, `flutter analyze` PASS, `git diff --check` PASS y suite frontend completa 44 passed. Esta publicación no modifica la pausa pedagógica ni su condición de reanudación.

@@ -3937,4 +3937,4 @@ Decisión: no parchear manualmente L1→L2 para hacer pasar B181. La evidencia d
 
 La reanudación de B181 requiere revisar el Constructor Pedagógico existente; determinar cómo generará y validará progresiones y prerrequisitos reales; construir canónicamente la entrada A1; generar y revisar después el candidato necesario para B181; y solo entonces reanudar su validación humana.
 
-Continúan pendientes de versionar, sin declararse publicados ni cerrados, los cambios frontend locales en `lib/widgets/lesson_conversation_card.dart`, `test/lesson_conversation_card_test.dart` y `lib/services/api_service.dart`, este último asociado al retry previo de guardado.
+Actualización de trazabilidad posterior: el retry de persistencia B181 y la corrección UX consigna ≠ respuesta quedaron versionados y publicados en frontend mediante el commit técnico `aabe4a4`; su documentación frontend quedó publicada mediante `505549f`. Se mantienen como evidencia asociada el test focal PASS, `flutter analyze` PASS, `git diff --check` PASS y la suite frontend completa con 44 passed. Esta actualización no cambia el estado pedagógico ni completa la segunda validación humana.

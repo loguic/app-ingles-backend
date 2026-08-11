@@ -149,7 +149,7 @@ Evidencia técnica y operativa confirmada:
 
 La validación humana demostró además un defecto UX: la consigna se presentaba como si fuera «Tu respuesta» e inducía a repetir instrucciones. La corrección frontend local fue realizada y su nueva microcopy se comprendió correctamente durante una segunda validación. El test focal, `flutter analyze` y `git diff --check` pasaron; la suite frontend completa confirmó 44 passed. La segunda validación humana se pausó deliberadamente antes de completarse al detectarse el problema pedagógico más profundo.
 
-Continúan pendientes de versionar, y no se declaran publicados ni cerrados, los cambios frontend locales de B181 en `lib/widgets/lesson_conversation_card.dart`, `test/lesson_conversation_card_test.dart` y `lib/services/api_service.dart` —este último por el retry previo de guardado—.
+El retry de persistencia B181 y la corrección UX consigna ≠ respuesta están versionados y publicados en frontend mediante el commit técnico `aabe4a4`; el commit documental frontend es `505549f`. Sus validaciones asociadas permanecen: test focal PASS, `flutter analyze` PASS, `git diff --check` PASS y suite frontend completa 44 passed.
 
 ## Próximo objetivo
 
