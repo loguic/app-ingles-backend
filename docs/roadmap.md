@@ -961,7 +961,7 @@ La siguiente brecha observable recomendada, todavía sin número, es comprender 
 
 ## B181 — Comprensión contingente y continuidad conversacional breve
 
-Estado: Incrementos 1 y 2 cerrados y publicados e Incremento 3 cerrado técnicamente; B181 permanece abierto y no está cerrado integralmente.
+Estado: Incrementos 1, 2, 3 y 4 cerrados y publicados; B181 integral permanece **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**.
 
 La capacidad observable es escuchar tres intervenciones breves relacionadas de una persona recién conocida, identificar suficientemente su intención comunicativa, responder oralmente con palabras propias y mantener tres intercambios conectados hasta una reacción o cierre natural, con apoyo visible decreciente.
 
@@ -1013,4 +1013,10 @@ Validación: 50 pruebas focales y dependencias SQLite; 21 relacionadas con conte
 
 Revisión local no es identidad autenticada, reconocimiento, evaluación técnica, consenso o resultado vigente; `positive`, `negative` y `pending` no crean progreso, mastery o fracaso global. API, HTTP, Flutter, panel administrativo, autenticación, integración externa, reproductor, semántica automática, adaptación, fallback textual, transcript persistido, rollback remoto de WAV y Karaoke Fonético permanecen fuera.
 
-B181 permanece abierto. El siguiente objetivo se limita a la brecha observable restante: ejecutar y demostrar una revisión humana real mediante la CLI sobre una submission real de producto. No se presupone otro incremento ni una solución posterior.
+B181 ya demostró una revisión humana real mediante la CLI sobre la submission `555`, las producciones `1663`–`1665` y tres WAV reales. La primera validación no superó la rúbrica y reveló un defecto UX posteriormente corregido de forma local; una segunda validación confirmó la comprensión de la nueva microcopy y se pausó antes de completarse al detectarse una carencia pedagógica más profunda.
+
+La pausa no responde a un fallo técnico pendiente. `a1-u1-l1` debe entenderse en este recorrido como prototipo/candidato histórico utilizado para desarrollar y validar infraestructura pedagógica, contratos y runtime, no como la futura entrada A1 canónica ni como una L1 definitiva fallida. Por ello no se planifica un parche manual L1→L2 para hacer pasar B181.
+
+La dirección inmediata, sin abrir ni numerar un nuevo bloque, es revisar el Constructor Pedagógico existente y determinar cómo deberá generar y validar progresiones reales y mapas de prerrequisitos. Después deberán construirse canónicamente la entrada A1 y el candidato pedagógico necesario para B181 antes de reanudar su validación humana.
+
+Continúan pendientes de versionar, y no se consideran publicados ni cerrados, los cambios frontend locales asociados a B181 en `lib/widgets/lesson_conversation_card.dart`, `test/lesson_conversation_card_test.dart` y `lib/services/api_service.dart`, este último por el retry previo de guardado.

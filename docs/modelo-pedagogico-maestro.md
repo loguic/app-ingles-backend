@@ -53,6 +53,47 @@ La tecnología, la inteligencia artificial, los modelos acústicos, el reconocim
 
 Ninguna solución técnica se considerará valiosa únicamente por aumentar la sofisticación del sistema.
 
+## Naturaleza del contenido prototípico
+
+El contenido construido durante el desarrollo de infraestructura puede servir para demostrar contratos, contenido estructurado, runtime, producción, evaluación, persistencia y otras capacidades técnicas sin convertirse automáticamente en contenido pedagógico canónico.
+
+En particular, la `a1-u1-l1` actual es un prototipo/candidato histórico y no la futura puerta de entrada A1 definitiva. Su valor técnico y pedagógico experimental se preserva, pero no autoriza a tratarla como fundamento canónico de la progresión A1 ni a describirla retrospectivamente como una L1 definitiva fallida.
+
+## Separación de estados pedagógicos
+
+La regla permanente es:
+
+`EXPUESTO != ENSEÑADO != PRACTICADO != EVIDENCIADO != DOMINADO`
+
+- **Expuesto:** el estudiante ha encontrado una forma, significado o capacidad en contenido, audio o interacción; su aparición no demuestra comprensión.
+- **Enseñado:** la capacidad fue presentada con intención pedagógica, explicación o andamiaje suficiente para hacerla comprensible.
+- **Practicado:** el estudiante tuvo oportunidades reales de recuperar o producir la capacidad con una progresión de apoyo definida.
+- **Evidenciado:** existe desempeño observable y trazable bajo criterios explícitos; una evidencia aislada no implica dominio estable.
+- **Dominado:** la capacidad se demuestra de forma suficientemente consistente, transferible y retenida en contextos pertinentes.
+
+Ningún estado se inferirá automáticamente a partir del anterior. La mera aparición de lenguaje no equivale a aprendizaje adquirido.
+
+## Flujo de construcción pedagógica escalable
+
+El curso no se redactará manualmente lección por lección. Su flujo canónico será:
+
+Modelo pedagógico maestro → capacidad observable → Constructor Pedagógico con IA → mapa de prerrequisitos → candidato pedagógico → validadores deterministas → puerta humana de calidad → runtime → evidencia humana → retroalimentación al sistema.
+
+Las responsabilidades quedan separadas:
+
+- la IA construye candidatos pedagógicos;
+- los validadores deterministas comprueban invariantes y contratos;
+- la revisión humana actúa como puerta de calidad antes de la incorporación canónica;
+- la evidencia humana contrasta el diseño y su ejecución con la realidad y retroalimenta el sistema.
+
+### Regla anti-parche
+
+Un fallo o carencia descubierto mediante evidencia humana deberá alimentar primero las reglas, los prerrequisitos, los validadores o los criterios del sistema cuando sea generalizable. No se resolverá automáticamente parcheando una lección aislada para hacer superar una validación concreta.
+
+## Futura entrada A1
+
+La futura A1 L1 será la puerta de entrada pedagógica de LOGUIC English y un patrón de calidad para la progresión posterior. Deberá diseñarse minuciosamente para una persona con conocimiento muy bajo o nulo, buscando comprensión, confianza, éxito observable temprano, motivación para continuar y progresión real. Este principio no define todavía sus actividades, vocabulario, diálogos ni estructura detallada.
+
 ## Regla permanente de control del rumbo
 
 Antes de comenzar cualquier bloque futuro deberá definirse explícitamente:

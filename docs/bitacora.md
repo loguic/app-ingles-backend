@@ -6,8 +6,10 @@
 - Base de datos: PostgreSQL
 - ORM: SQLAlchemy
 - Driver: psycopg
-- Tests actuales: 12
-- Último bloque cerrado: B38
+- Última suite backend completa confirmada: 1262 passed en PostgreSQL aislado durante B181 I4
+- Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
+- Último bloque cerrado integralmente: B180
+- Bloque activo: B181, pausado en puerta pedagógica y no cerrado integralmente
 
 ## Historial anterior — B24 a B36
 
@@ -3910,3 +3912,29 @@ Validación: 50 pruebas focales y dependencias SQLite; 21 de contenido y producc
 Revisión no es identidad autenticada, evaluación técnica, reconocimiento, consenso, mayoría o resultado vigente. `positive` no crea progreso o mastery, `negative` no determina fracaso global y `pending` no es error. Permanecen fuera API, HTTP, Flutter, panel administrativo, autenticación, roles o permisos, integración externa, reproductor integrado, `recognized_text`, scoring, semántica o comprensión automáticas, adaptación, fallback textual, persistencia del transcript, rollback remoto de WAV y Karaoke Fonético.
 
 La brecha observable restante es ejecutar y demostrar una revisión humana real mediante la CLI sobre una submission real de producto. La infraestructura permite hacerlo, pero esa evidencia todavía no existe; no se define otro incremento ni una solución posterior.
+
+## B181 — Checkpoint canónico de pausa en puerta pedagógica
+
+Estado: **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**. Esta entrada actualiza el estado canónico sin reescribir la historia de I1–I4. No existe un fallo técnico pendiente que impida continuar.
+
+Antes del piloto se protegieron conjuntamente la base de datos y los audios mediante un recovery set DB + `production-audio`. El ensayo aislado de restauración y migración terminó correctamente. La migración segura de `app_ingles_db` recorrió `f81a78f8c1c4 → 3c4f1a2b7d90 → 7d8e9f0a1b2c → a4c8e2f6b901 → b181c3e4f5a6`, y el Postflight real confirmó `b181c3e4f5a6` como head.
+
+El piloto humano real produjo la submission `555`, enlazada a `LearnerProduction` `1663`, `1664` y `1665`. `wav_exists` fue `true` para las tres producciones. La revisión humana append-only persistió bajo `human:guiller-local` las seis decisiones siguientes:
+
+- `1663`: `intention_understanding=positive`, `contingent_response=positive`;
+- `1664`: `intention_understanding=negative`, `contingent_response=negative`;
+- `1665`: `intention_understanding=negative`, `contingent_response=negative`.
+
+La primera validación humana no superó la rúbrica, pero demostró end-to-end la infraestructura técnica de producción, audio y revisión humana persistente. También reveló un defecto UX real: presentar la consigna bajo «Tu respuesta» indujo al estudiante a repetir las instrucciones como si fueran el contenido que debía decir.
+
+La corrección frontend local diferencia consigna, respuesta y apoyo mediante «Responde con tus palabras», «Qué debes hacer» y «Responde con información propia. No repitas la instrucción.», además de tratar de forma diferenciada `anchors`, `initial_word` y `none`. El test focal pasó, `flutter analyze` pasó, `git diff --check` pasó y la suite frontend completa registró 44 passed.
+
+Durante una segunda validación humana la nueva microcopy se entendió correctamente. La validación se pausó deliberadamente antes de completarse al aparecer un problema pedagógico más profundo: el contenido A1 existente no constituye todavía una progresión canónica de prerrequisitos.
+
+La auditoría del recorrido desde la L1 prototipo hasta B181 mostró preparación insuficiente de prerrequisitos como procedencia, intereses, frecuencia, referencia anafórica, comprensión auditiva productiva audio-first y continuidad conversacional. Estos hallazgos no significan que una L1 pedagógica definitiva haya fallado: la `a1-u1-l1` actual fue un prototipo/candidato histórico utilizado para desarrollar y demostrar contratos, contenido estructurado, runtime, producción, evaluación, persistencia e infraestructura pedagógica; no es la futura puerta de entrada A1 canónica.
+
+Decisión: no parchear manualmente L1→L2 para hacer pasar B181. La evidencia deberá alimentar el Constructor Pedagógico, el mapa de prerrequisitos, los validadores y la puerta humana de calidad antes de generar un nuevo candidato pedagógico.
+
+La reanudación de B181 requiere revisar el Constructor Pedagógico existente; determinar cómo generará y validará progresiones y prerrequisitos reales; construir canónicamente la entrada A1; generar y revisar después el candidato necesario para B181; y solo entonces reanudar su validación humana.
+
+Continúan pendientes de versionar, sin declararse publicados ni cerrados, los cambios frontend locales en `lib/widgets/lesson_conversation_card.dart`, `test/lesson_conversation_card_test.dart` y `lib/services/api_service.dart`, este último asociado al retry previo de guardado.

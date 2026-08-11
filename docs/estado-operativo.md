@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-08
+Actualizado: 2026-08-11
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -125,10 +125,43 @@ Cada hito pasa por definición, implementación técnica, validación específic
 - progreso ≠ mastery.
 
 ## Bloque activo
-B181 — Comprensión contingente y continuidad conversacional breve. I1 cerró contenido audio-first; I2 (`8baf7a6`, `4fe98ad`) ejecutó Flutter y persistió tres WAV; I3 (`21d34e5`, `8a04f2e`) añadió revisión append-only enlazada a `LearnerProduction`, con head `b181c3e4f5a6`; e I4 cerró técnicamente la revisión humana local controlada mediante CLI (`6a67763`). La corrección DevSecOps `687e394` aisló pytest de `app_ingles_db`; la suite completa aislada registró 1262 passed in 12.38s. B181 permanece abierto y B180 continúa como último bloque integralmente cerrado.
+
+### B181 — Comprensión contingente y continuidad conversacional breve
+
+Estado: **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**.
+
+I1–I4 están implementados, documentados y publicados. I1 cerró contenido audio-first; I2 (`8baf7a6`, `4fe98ad`) ejecutó Flutter y persistió tres WAV; I3 (`21d34e5`, `8a04f2e`) añadió revisión append-only enlazada a `LearnerProduction`, con head `b181c3e4f5a6`; e I4 (`6a67763`) cerró la revisión humana local controlada mediante CLI. La corrección DevSecOps `687e394` aisló pytest de `app_ingles_db`; la suite backend completa aislada confirmó 1262 passed in 12.38s. B180 continúa como último bloque integralmente cerrado.
+
+No existe un fallo técnico pendiente que impida continuar. La pausa responde a que el contenido A1 existente todavía es prototípico y no constituye la progresión pedagógica canónica sobre la que B181 deba validarse definitivamente.
+
+Evidencia técnica y operativa confirmada:
+
+- `app_ingles_db` migrada y verificada en `b181c3e4f5a6`;
+- submission humana real `555`;
+- `LearnerProduction` `1663`, `1664` y `1665`;
+- tres WAV reales verificados;
+- revisión humana append-only ejecutada y seis decisiones persistidas como `human:guiller-local`:
+  - `1663`: `positive / positive`;
+  - `1664`: `negative / negative`;
+  - `1665`: `negative / negative`;
+- la primera validación humana no superó la rúbrica;
+- la infraestructura de revisión humana quedó demostrada end-to-end.
+
+La validación humana demostró además un defecto UX: la consigna se presentaba como si fuera «Tu respuesta» e inducía a repetir instrucciones. La corrección frontend local fue realizada y su nueva microcopy se comprendió correctamente durante una segunda validación. El test focal, `flutter analyze` y `git diff --check` pasaron; la suite frontend completa confirmó 44 passed. La segunda validación humana se pausó deliberadamente antes de completarse al detectarse el problema pedagógico más profundo.
+
+Continúan pendientes de versionar, y no se declaran publicados ni cerrados, los cambios frontend locales de B181 en `lib/widgets/lesson_conversation_card.dart`, `test/lesson_conversation_card_test.dart` y `lib/services/api_service.dart` —este último por el retry previo de guardado—.
 
 ## Próximo objetivo
-La CLI ya permite a un revisor humano local declarado, no autenticado, resolver de forma confinada los tres WAV, consultar la rúbrica activa y guardar las seis decisiones en un batch. La brecha observable restante es ejecutar y demostrar una revisión humana real sobre una submission real de producto. No se presupone otro incremento o solución; revisión, producción y finalización no demuestran automáticamente comprensión, aprendizaje, progreso, mastery o fluidez.
+
+La reanudación de B181 queda condicionada a:
+
+1. revisar el Constructor Pedagógico existente;
+2. determinar cómo generará y validará progresiones y prerrequisitos reales;
+3. construir canónicamente la entrada A1;
+4. generar y revisar posteriormente el candidato pedagógico necesario para B181;
+5. reanudar entonces la validación humana de B181.
+
+No corresponde repetir ahora la revisión humana ni parchear manualmente la transición L1→L2 para hacer pasar B181. Revisión, producción y finalización no demuestran automáticamente comprensión, aprendizaje, progreso, mastery o fluidez.
 
 El Karaoke Fonético queda pospuesto, no descartado, como capacidad aislada posterior; B181 tampoco implementa sincronización, timestamps, colores, dictado, grabación guiada ni UI específica.
 
