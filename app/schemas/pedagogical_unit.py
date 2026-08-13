@@ -27,6 +27,72 @@ LearningModality = Literal[
 CoverageStatus = Literal["complete", "incomplete", "pending_approval"]
 
 
+CurriculumPreparationState = Literal[
+    "EXPOSURE_AVAILABLE",
+    "INSTRUCTION_AVAILABLE",
+    "PRACTICE_AVAILABLE",
+    "EVIDENCE_GATE_AVAILABLE",
+]
+
+
+class LessonCapabilityClaim(BaseModel):
+    """Declare curricular preparation supported by lesson artifacts.
+
+    Declara preparación curricular respaldada por artefactos de la lección.
+    """
+
+    skill_id: str = Field(pattern=r"^[a-z0-9]+(?:_[a-z0-9]+)*$")
+    preparation_state: CurriculumPreparationState
+    artifact_ids: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_artifact_ids(self) -> "LessonCapabilityClaim":
+        """Require non-blank and unique supporting artifact IDs.
+
+        Exige IDs de artefactos justificativos no vacíos y únicos.
+        """
+        if any(not artifact_id.strip() for artifact_id in self.artifact_ids):
+            raise ValueError("Claim artifact IDs cannot be blank")
+        if len(self.artifact_ids) != len(set(self.artifact_ids)):
+            raise ValueError("Claim artifact IDs must be unique")
+        return self
+
+
+class SkillPrerequisite(BaseModel):
+    """Require prior curricular preparation for one Skill.
+
+    Exige preparación curricular previa para una Skill.
+    """
+
+    required_skill_id: str = Field(
+        pattern=r"^[a-z0-9]+(?:_[a-z0-9]+)*$"
+    )
+    required_state: CurriculumPreparationState
+    before_stage_id: str | None = None
+    reason: str
+
+    @model_validator(mode="after")
+    def validate_reason(self) -> "SkillPrerequisite":
+        """Require a non-blank pedagogical reason.
+
+        Exige una razón pedagógica no vacía.
+        """
+        if not self.reason.strip():
+            raise ValueError("Prerequisite reason cannot be blank")
+        return self
+
+
+class LessonCapabilityPlan(BaseModel):
+    """Group preparation claims and prerequisites for one lesson.
+
+    Agrupa claims de preparación y prerrequisitos de una lección.
+    """
+
+    lesson_id: str
+    claims: list[LessonCapabilityClaim] = Field(default_factory=list)
+    prerequisites: list[SkillPrerequisite] = Field(default_factory=list)
+
+
 class SkillCoverage(BaseModel):
     """Record observable coverage for one Skill.
 
