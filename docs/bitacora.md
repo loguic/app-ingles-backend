@@ -3968,3 +3968,15 @@ No se ejecutó la suite backend completa: la herramienta es de ingeniería read-
 El método permanente queda establecido así: antes de cambiar de conversación se actualiza `docs/estado-operativo.md`, se valida mediante `operational_state.py`, se ejecuta `conversation_checkpoint.py prepare` y solo se cambia si produce un checkpoint válido. Al reanudar se ejecuta `conversation_checkpoint.py resume`, se recupera el estado antes de proponer comandos, inspecciones o cambios y no se repiten validaciones vigentes.
 
 La capacidad cerrada incluye `prepare`, `resume`, operación read-only, fuente canónica única, inspección Git local, fail-closed, correspondencia entre cambios y rutas documentadas y representación segura y reversible de rutas. Permanece la limitación no bloqueante de que una ruta con backticks necesitaría otra convención documental. El próximo objetivo vuelve al desarrollo curricular desde el último punto canónico; no corresponde abrir otra mejora de ingeniería sin un problema real.
+
+## Contrato curricular v1 — Slice estructural 2
+
+Estado: implementación técnica cerrada mediante `aea6a26` (`feat integrate lesson capability plans`); cierre documental, push y sincronización final pendientes.
+
+`PedagogicalUnitCandidate` incorpora `lesson_capability_plans: list[LessonCapabilityPlan] = Field(default_factory=list)`. La consistencia local exige `lesson_id` únicos entre planes y pertenencia de cada uno a `candidate_unit.lessons`.
+
+La compatibilidad heredada se conserva: una candidata que omite el campo sigue validando con `lesson_capability_plans == []`; el candidato JSON canónico no se modificó y no se introdujo flag ni versionado adicional. Tampoco se exige un plan por lección.
+
+Validación: 26 pruebas específicas; 17 de regresión directa; suite backend completa 1305 passed; postflight independiente PASS; `git diff --check` PASS. La primera ejecución focal reveló solo una aserción incorrecta del nuevo test sobre `loc` de Pydantic; se corrigió para comprobar el comportamiento real sin debilitar la validación y la ejecución final pasó completa.
+
+Permanecen fuera resolución de `artifact_ids`, compatibilidad artefacto/estado, ledger, precedencia, orden curricular, ciclos, prerrequisitos interunidad e integración con validadores curriculares. `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage` y `required_stages` siguen intactos; no hubo cambios en runtime, progreso, mastery, fonética, feedback o B181.

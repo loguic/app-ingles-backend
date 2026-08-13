@@ -41,30 +41,29 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 - preparación curricular ≠ ejecución del estudiante ≠ evidencia real ≠ resultado de evaluación ≠ aprendizaje ≠ mastery;
 - `required_stages` y `SkillCoverage` son contratos heredados y no producen `CurriculumPreparationState`;
-- no integrar todavía `LessonCapabilityPlan` en `PedagogicalUnitCandidate`;
 - no modificar todavía `PedagogicalUnitSpecification.prerequisites`;
 - no modificar `SkillCoverage` ni `required_stages`;
-- no implementar todavía ledger, orden curricular, resolución de `artifact_ids`, precedencia ni ciclos;
+- no exigir un plan por lección ni implementar validadores curriculares, ledger, orden curricular, resolución de `artifact_ids`, compatibilidad artefacto/estado, precedencia, ciclos o prerrequisitos interunidad;
 - no modificar runtime individual, progreso, mastery, fonética, feedback ni B181.
 
 ## Bloque activo
 
-### Checkpoint de cambio de conversación — Slice estructural 1
+### Contrato curricular v1 — Slice estructural 2
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `bc288fc` y documental `83e562a`; push confirmado hasta `83e562a` en `origin/master`.
+Estado: implementación técnica validada y commiteada mediante `aea6a26` (`feat integrate lesson capability plans`); cierre documental, push y sincronización final pendientes.
 
 Archivos técnicos commiteados y sin cambios posteriores a las validaciones:
 
-- `scripts/engineering/conversation_checkpoint.py`;
-- `tests/test_conversation_checkpoint.py`.
+- `app/schemas/pedagogical_unit.py`;
+- `tests/test_pedagogical_unit_schema.py`.
 
-Capacidades: `prepare` y `resume` read-only; reutilización de `operational_state.py`; inspección Git local de HEAD, branch o detached, upstream, ahead/behind, staged, unstaged, untracked y rename; Markdown efímero; fail-closed; representación segura y reversible de rutas; y correspondencia exacta entre cambios locales y rutas documentadas.
+`PedagogicalUnitCandidate` incorpora `lesson_capability_plans: list[LessonCapabilityPlan] = Field(default_factory=list)`. Los `lesson_id` deben ser únicos y pertenecer a `candidate_unit.lessons`.
 
-Validación final, no repetir: 23 pruebas específicas PASS; regresión directa `tests/test_operational_state.py` + `tests/test_block_workflow.py`, 8 passed; pruebas funcionales `prepare` y `resume` PASS; fail-closed funcional PASS; postflight final PASS; `git diff --check` PASS.
+Compatibilidad heredada: candidatas que omiten el campo siguen siendo válidas y producen `lesson_capability_plans == []`; el candidato JSON canónico permanece intacto y no se añadió flag o versionado.
 
-Pruebas funcionales reales: `prepare` rechazó el estado canónico que omitía cambios locales; después generó correctamente el checkpoint con el estado actualizado; `resume` reconstruyó el mismo contexto actual.
+Validación vigente, no repetir: 26 pruebas específicas; 17 de regresión directa; suite backend completa 1305 passed; postflight independiente PASS; `git diff --check` PASS. Durante la primera ejecución se corrigió únicamente una aserción nueva sobre `loc` de Pydantic, sin debilitar la validación.
 
-Limitación no bloqueante: una ruta que contenga backticks requerirá otra convención documental si alguna vez aparece en el proyecto.
+Fronteras conservadas: sin cobertura obligatoria, resolución de artefactos, validación artefacto/estado, ledger, precedencia, orden, ciclos, prerrequisitos interunidad o integración con validadores; `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage` y `required_stages` siguen intactos.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -74,7 +73,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Volver al desarrollo curricular desde el último punto canónico. No abrir otra mejora de ingeniería salvo que aparezca un problema real.
+Crear el commit documental, publicar y verificar Git limpio y sincronizado para cerrar la slice 2.
 
 ## Archivos clave
 
