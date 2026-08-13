@@ -3955,7 +3955,7 @@ Siguiente objetivo, todavía no abierto: diseñar e implementar el «Checkpoint 
 
 ## Checkpoint de cambio de conversación — Slice estructural 1
 
-Estado: implementación técnica cerrada mediante `bc288fc` (`feat add conversation checkpoint tool`); cierre documental, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante el commit técnico `bc288fc` (`feat add conversation checkpoint tool`) y el commit documental `83e562a`; push confirmado hasta `83e562a` en `origin/master`.
 
 Se añadieron `scripts/engineering/conversation_checkpoint.py` y `tests/test_conversation_checkpoint.py`. Los comandos read-only `prepare` y `resume` validan `docs/estado-operativo.md` reutilizando `operational_state.py` y generan una vista Markdown efímera, sin persistencia ni red. La inspección Git local informa HEAD, asunto, branch o detached, upstream, ahead/behind, staged, unstaged, untracked y renames. El estado falla cerrado si el checkpoint canónico es inválido, está demostrablemente desactualizado o no reconoce exactamente las rutas con cambios locales.
 
@@ -3965,4 +3965,6 @@ Validación: 23 pruebas específicas PASS; regresión directa de `tests/test_ope
 
 No se ejecutó la suite backend completa: la herramienta es de ingeniería read-only, no modifica código productivo y las pruebas específicas, la regresión directa y las pruebas funcionales cubren el alcance. Limitación no bloqueante: una ruta con backticks requeriría una futura convención documental distinta para figurar literalmente en las secciones canónicas.
 
-El commit técnico existe pero todavía no está publicado. Faltan el commit documental, el push, la prueba final de `prepare` y `resume` con estado publicado y Git limpio, y la comprobación de sincronización final.
+El método permanente queda establecido así: antes de cambiar de conversación se actualiza `docs/estado-operativo.md`, se valida mediante `operational_state.py`, se ejecuta `conversation_checkpoint.py prepare` y solo se cambia si produce un checkpoint válido. Al reanudar se ejecuta `conversation_checkpoint.py resume`, se recupera el estado antes de proponer comandos, inspecciones o cambios y no se repiten validaciones vigentes.
+
+La capacidad cerrada incluye `prepare`, `resume`, operación read-only, fuente canónica única, inspección Git local, fail-closed, correspondencia entre cambios y rutas documentadas y representación segura y reversible de rutas. Permanece la limitación no bloqueante de que una ruta con backticks necesitaría otra convención documental. El próximo objetivo vuelve al desarrollo curricular desde el último punto canónico; no corresponde abrir otra mejora de ingeniería sin un problema real.

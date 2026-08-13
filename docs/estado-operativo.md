@@ -25,6 +25,7 @@ Validación final: revisión independiente PASS; 15 pruebas específicas; 74 de 
 ## Automatización disponible
 
 - `operational_state.py` valida y resume este checkpoint.
+- `conversation_checkpoint.py prepare|resume` prepara y recupera una vista efímera validada para cambiar de conversación.
 - `block_close.py` ejecuta validaciones técnicas y staging controlado.
 - `block_workflow.py` conserva una deuda de interrupción y no se considera fiable para cierres desatendidos.
 
@@ -33,6 +34,8 @@ Validación final: revisión independiente PASS; 15 pruebas específicas; 74 de 
 Cada slice pasa por definición, implementación técnica, validación específica, revisión independiente y cierre documental. Las regresiones y suites amplias se ejecutan solo cuando el alcance y riesgo las justifican. Los commits y la publicación permanecen bajo confirmación humana.
 
 El protocolo operativo conserva Codex CLI + Bash y `docs/estado-operativo.md` como fuente canónica para cambiar de conversación. No deben repetirse inspecciones ni validaciones vigentes si los archivos cubiertos no han cambiado.
+
+Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operational_state.py`, ejecutar `conversation_checkpoint.py prepare` y cambiar únicamente si genera un checkpoint válido. Al reanudar: ejecutar `conversation_checkpoint.py resume`, recuperar ese estado antes de proponer comandos, inspecciones o cambios, y no repetir validaciones vigentes.
 
 ## Fronteras obligatorias
 
@@ -48,7 +51,7 @@ El protocolo operativo conserva Codex CLI + Bash y `docs/estado-operativo.md` co
 
 ### Checkpoint de cambio de conversación — Slice estructural 1
 
-Estado: implementación técnica validada y commiteada mediante `bc288fc` (`feat add conversation checkpoint tool`); cierre documental, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `bc288fc` y documental `83e562a`; push confirmado hasta `83e562a` en `origin/master`.
 
 Archivos técnicos commiteados y sin cambios posteriores a las validaciones:
 
@@ -57,7 +60,7 @@ Archivos técnicos commiteados y sin cambios posteriores a las validaciones:
 
 Capacidades: `prepare` y `resume` read-only; reutilización de `operational_state.py`; inspección Git local de HEAD, branch o detached, upstream, ahead/behind, staged, unstaged, untracked y rename; Markdown efímero; fail-closed; representación segura y reversible de rutas; y correspondencia exacta entre cambios locales y rutas documentadas.
 
-Validación vigente, no repetir mientras esos dos archivos no cambien: 23 pruebas específicas PASS; regresión directa `tests/test_operational_state.py` + `tests/test_block_workflow.py`, 8 passed; `git diff --check` PASS; postflight final PASS. No se ejecutó la suite backend completa porque la herramienta es read-only, no modifica código productivo y la validación focal, regresión directa y pruebas funcionales cubren su alcance.
+Validación final, no repetir: 23 pruebas específicas PASS; regresión directa `tests/test_operational_state.py` + `tests/test_block_workflow.py`, 8 passed; pruebas funcionales `prepare` y `resume` PASS; fail-closed funcional PASS; postflight final PASS; `git diff --check` PASS.
 
 Pruebas funcionales reales: `prepare` rechazó el estado canónico que omitía cambios locales; después generó correctamente el checkpoint con el estado actualizado; `resume` reconstruyó el mismo contexto actual.
 
@@ -71,7 +74,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Crear el commit documental, publicar, ejecutar la prueba final de `prepare` y `resume` con el estado publicado y Git limpio, y verificar la sincronización final.
+Volver al desarrollo curricular desde el último punto canónico. No abrir otra mejora de ingeniería salvo que aparezca un problema real.
 
 ## Archivos clave
 
