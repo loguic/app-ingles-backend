@@ -306,6 +306,142 @@ def test_valid_pedagogical_unit_candidate_is_accepted():
     assert candidate.candidate_unit.id == candidate.specification.unit_id
     assert candidate.skill_coverage[0].status == "complete"
     assert candidate.validation_report.status == "passed"
+    assert candidate.lesson_capability_plans == []
+    assert candidate.model_dump()["lesson_capability_plans"] == []
+
+
+def add_candidate_lesson(payload: dict, lesson_id: str) -> None:
+    """Add one minimal lesson to a candidate payload.
+
+    Añade una lección mínima al paquete de una candidata.
+    """
+    payload["candidate_unit"]["lessons"].append(
+        {
+            "id": lesson_id,
+            "title": "Capability plan lesson",
+        }
+    )
+
+
+def capability_plan(lesson_id: str) -> dict:
+    """Return one valid capability plan payload.
+
+    Devuelve un paquete válido de plan de capacidades.
+    """
+    return {
+        "lesson_id": lesson_id,
+        "claims": [
+            {
+                "skill_id": "a1_introduce_yourself",
+                "preparation_state": "PRACTICE_AVAILABLE",
+                "artifact_ids": [lesson_id + "-q1"],
+            }
+        ],
+        "prerequisites": [
+            {
+                "required_skill_id": "a1_introduce_yourself",
+                "required_state": "INSTRUCTION_AVAILABLE",
+                "reason": "The practice requires prior instruction.",
+            }
+        ],
+    }
+
+
+def test_candidate_accepts_capability_plan_for_existing_lesson():
+    """Accept one capability plan owned by an existing lesson.
+
+    Acepta un plan de capacidades de una lección existente.
+    """
+    payload = build_valid_candidate_payload()
+    add_candidate_lesson(payload, "a1-u1-l1")
+    payload["lesson_capability_plans"] = [capability_plan("a1-u1-l1")]
+
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    assert candidate.lesson_capability_plans[0].lesson_id == "a1-u1-l1"
+    assert candidate.lesson_capability_plans[0].claims[0].skill_id == (
+        "a1_introduce_yourself"
+    )
+    assert candidate.lesson_capability_plans[0].prerequisites[0].reason == (
+        "The practice requires prior instruction."
+    )
+
+
+def test_candidate_accepts_distinct_capability_plan_lessons():
+    """Accept distinct plans for distinct existing lessons.
+
+    Acepta planes distintos para lecciones existentes distintas.
+    """
+    payload = build_valid_candidate_payload()
+    add_candidate_lesson(payload, "a1-u1-l1")
+    add_candidate_lesson(payload, "a1-u1-l2")
+    payload["lesson_capability_plans"] = [
+        capability_plan("a1-u1-l1"),
+        capability_plan("a1-u1-l2"),
+    ]
+
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    assert [
+        plan.lesson_id for plan in candidate.lesson_capability_plans
+    ] == ["a1-u1-l1", "a1-u1-l2"]
+
+
+def test_candidate_rejects_duplicate_capability_plan_lesson():
+    """Reject two capability plans owned by the same lesson.
+
+    Rechaza dos planes de capacidades de la misma lección.
+    """
+    payload = build_valid_candidate_payload()
+    add_candidate_lesson(payload, "a1-u1-l1")
+    payload["lesson_capability_plans"] = [
+        capability_plan("a1-u1-l1"),
+        capability_plan("a1-u1-l1"),
+    ]
+
+    with pytest.raises(
+        ValidationError,
+        match="Lesson capability plan lesson IDs must be unique",
+    ):
+        PedagogicalUnitCandidate.model_validate(payload)
+
+
+def test_candidate_rejects_unknown_capability_plan_lesson():
+    """Reject a capability plan owned by an unknown lesson.
+
+    Rechaza un plan de capacidades de una lección desconocida.
+    """
+    payload = build_valid_candidate_payload()
+    payload["lesson_capability_plans"] = [capability_plan("a1-u1-l9")]
+
+    with pytest.raises(
+        ValidationError,
+        match="Lesson capability plans reference unknown lessons: a1-u1-l9",
+    ):
+        PedagogicalUnitCandidate.model_validate(payload)
+
+
+def test_candidate_rejects_invalid_nested_capability_contract():
+    """Preserve nested claim and prerequisite validation in candidates.
+
+    Conserva la validación anidada de claims y prerrequisitos en candidatas.
+    """
+    payload = build_valid_candidate_payload()
+    add_candidate_lesson(payload, "a1-u1-l1")
+    plan = capability_plan("a1-u1-l1")
+    plan["claims"][0]["artifact_ids"] = []
+    plan["prerequisites"][0]["reason"] = "   "
+    payload["lesson_capability_plans"] = [plan]
+
+    with pytest.raises(ValidationError) as captured:
+        PedagogicalUnitCandidate.model_validate(payload)
+
+    errors = captured.value.errors()
+    assert any(error["loc"][-1] == "artifact_ids" for error in errors)
+    assert any(
+        "Prerequisite reason cannot be blank" in error["msg"]
+        for error in errors
+    )
 
 @pytest.mark.parametrize(
     ("mutation", "message"),

@@ -265,6 +265,9 @@ class PedagogicalUnitCandidate(BaseModel):
     feedback_plans: list[LessonProductionFeedbackPlan] = Field(
         default_factory=list
     )
+    lesson_capability_plans: list[LessonCapabilityPlan] = Field(
+        default_factory=list
+    )
     skill_coverage: list[SkillCoverage] = Field(min_length=1)
     required_resource_ids: list[str] = Field(default_factory=list)
     validation_report: ValidationReport
@@ -319,6 +322,25 @@ class PedagogicalUnitCandidate(BaseModel):
             raise ValueError(
                 "Feedback plans reference unknown lessons: "
                 + ", ".join(unknown_feedback_lesson_ids)
+            )
+
+        capability_lesson_ids = [
+            plan.lesson_id
+            for plan in self.lesson_capability_plans
+        ]
+
+        if len(capability_lesson_ids) != len(set(capability_lesson_ids)):
+            raise ValueError(
+                "Lesson capability plan lesson IDs must be unique"
+            )
+
+        unknown_capability_lesson_ids = sorted(
+            set(capability_lesson_ids) - lesson_ids
+        )
+        if unknown_capability_lesson_ids:
+            raise ValueError(
+                "Lesson capability plans reference unknown lessons: "
+                + ", ".join(unknown_capability_lesson_ids)
             )
 
 
