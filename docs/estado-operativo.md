@@ -1,173 +1,94 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-11
+Actualizado: 2026-08-13
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
 
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
-- Horizonte pedagógico: 3 meses como meta y 6 meses como máximo.
-- Todo bloque nuevo debe partir de una capacidad observable del estudiante.
+- Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
+- Último checkpoint estable publicado: contrato curricular v1 de prerrequisitos, commit `d6b6e7f`.
+- Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
-
-## Bloques cerrados recientes
-
-### B179 — Diagnóstico conversacional persistente y consultable
-
-Estado: cerrado técnica e integralmente.
-
-Hito A — modelos persistentes y migración Alembic: cerrado.
-
-Hito S1 — contrato ejecutable de seguridad DevSecOps: cerrado.
-
-Hito S2 — adaptador PostgreSQL seguro: cerrado mediante integración aislada ejecutada en Kitty.
-
-Hito B — persistencia transaccional e historial consultable: cerrado.
-
-Capacidades completadas:
-
-- persistencia de las siete entidades diagnósticas principales;
-- propiedad exclusiva actividad–producción;
-- coincidencia relacional de sesión, actividad, `prompt_id` y producción;
-- observaciones transaccionales y enlaces normalizados con evaluaciones técnicas inmutables;
-- perfiles iniciales append-only, evidencias y su historial interno estructurado y ordenado;
-- máquina de estados explícita y concurrentemente segura, sin reapertura ni historial de transiciones;
-- producción obligatoria para las ocho dimensiones dependientes;
-- revisión Alembic `3c4f1a2b7d90` con `upgrade` y `downgrade` validados aisladamente.
-- puerta preventiva fail-closed con entorno e identidad explícitos;
-- evidencias verificables de backup, restauración, ensayo y rollback;
-- producción rechazada incondicionalmente en S1.
-- clúster PostgreSQL temporal por socket Unix bajo `/tmp`, sin servicio del sistema, puerto `5432` ni `DATABASE_URL` real;
-- backup, SHA-256, restauración separada, verificación determinista y ensayo Alembic reversible;
-- limpieza protegida por workspace administrado y marcador.
-- round-trip de sesión, contexto, actividades, propiedad actividad–producción y apoyos;
-- enriquecimiento atómico sobre producciones preexistentes, sin sobrescritura ni idempotencia implícita.
-
-Validación final directa en Kitty:
-
-- pruebas específicas: 14 passed in 1.13s;
-- regresión relacionada: 7 passed in 0.31s;
-- suite backend: 937 passed in 2.91s;
-- `operational_state.py validate`: correcto;
-- `git diff --check`: limpio;
-- revisión final de Codex: sin defectos accionables;
-- commit técnico: `40a30b3`.
-
-Validación de S1:
-
-- pruebas específicas: 17 passed;
-- regresión de ingeniería: 27 passed;
-- suite backend: 954 passed in 2.89s;
-- revisión de Codex: sin defectos accionables;
-- `operational_state.py validate` y `git diff --check`: correctos;
-- commit técnico: `0472093`.
-
-Validación de S2:
-
-- integración real aislada: 1 passed in 2.47s; código 0;
-- suite backend: 967 passed in 5.56s;
-- sin procesos, sockets ni clústeres temporales residuales;
-- URL Alembic explícita `postgresql+psycopg://`;
-- Codex preparó y revisó; Kitty conservó la observabilidad de la integración;
-- `operational_state.py validate` y `git diff --check`: correctos;
-- commit técnico: `d0efe1e`.
-
-Validación del primer incremento de Hito B: 16 específicas, 190 de regresión, suite backend 983 passed in 5.55s, revisión sin defectos y commit `56a3d42`.
-Validación del segundo incremento: 41 específicas en 0.72 s, 190 de regresión en 1.29 s, suite backend 1008 passed in 5.60s, revisión sin defectos y commit `719aa74`.
-Validación del tercero: 69 específicas, suite backend 1036 passed; 4A: suite backend 1066 passed in 6.66s, commit `94a620e`; 4B: 309 relacionadas en 3.17s, marcador `B179_HITO_B_INCREMENTO_4B_VALIDATED`, commit `c9e3bab`; revisiones sin defectos.
-
-Validación integral directa en Kitty: suite backend 1086 passed in 6.93s; `operational_state.py validate` correcto; `git diff --check` limpio; Git sincronizado `master...origin/master`; marcador `B179_INTEGRAL_VALIDATED`.
-
-Límites vigentes:
-
-- sin API ni Flutter;
-- sin progreso, mastery, retención, adaptación automática ni historial de transiciones;
-- S2 no autoriza migraciones en desarrollo, staging o producción reales.
 
 ## Último bloque cerrado
 
 ### B180 — Construcción directa en inglés
 
-Estado: cerrado técnica e integralmente; Incrementos 1, 2, 3 y 4 cerrados y publicados.
+Estado: cerrado técnica e integralmente; Incrementos 1–4 publicados.
+
 Capacidad observable: construir oralmente una respuesta desde una intención, ampliarla con información pertinente y transferir el patrón ante una variación inesperada con ayuda mínima, sin copiar una frase completa.
-`a1-u1-l1` conserva su identificador y pasa a `Introduce yourself directly`, con la Skill `a1_introduce_yourself`, patrón Persona + Verbo y cinco etapas: modelo con refuerzo fonético, construcción guiada, ampliación, transferencia y cierre. Las evidencias `guided`, `expanded` y `transfer` retiran apoyo de `anchors` a `initial_word` y `none`; voz es principal y texto, respaldo.
-La corrección admite como máximo una orientación y prioriza pertinencia, construcción directa, inteligibilidad y precisión secundaria. El refuerzo reutiliza audio e IPA regionales para escucha, ritmo, shadowing y `/iː/`; no constituye evidencia independiente.
-Validación: suite backend 1104 passed in 9.20s; `operational_state.py validate` correcto; `git diff --check` limpio; revisión sin defectos accionables; commit `ccafaaa`.
 
-El Incremento 2 añade intentos completos append-only, selección SHA-256 reproducible y snapshot de banco, variante, prompt y `sha256-v1`. `LearnerProduction` sigue siendo la producción real y aporta `modality`; el enlace separa apoyo configurado y usado. `start`, `finalize` y `get` comparten una transacción sin commits parciales. `completion_requirements_met` se calcula: solo confirma las tres funciones con voz y retirada estructural; `false` no implica fracaso, progreso ni mastery.
-La revisión `7d8e9f0a1b2c` fue validada en PostgreSQL `3c4f1a2b7d90 → 7d8e9f0a1b2c → 3c4f1a2b7d90` y mediante S2 completo desde `f81a78f8c1c4` al head y vuelta. S2 conserva esa frontera histórica, resuelve un único head antes de crear recursos, rechaza grafos o revisiones incompatibles y congela hashes concretos. Validación: 34 específicas; 148 relacionadas y 1 omitida; suite backend 1149 passed in 9.59s; commit `f77f560`.
-El Incremento 3 añade una orientación append-only opcional por producción B180, enlazada solo a `DirectEnglishConstructionAttemptProduction`. Conserva prioridad, guidance exacta (máximo 2000), fuente `human|external` y trazabilidad, sin modificar intento o producción ni reutilizar feedback evaluativo. El backend valida la prioridad contra la política activa, pero no la selecciona ni la declara verdadera.
-La revisión `a4c8e2f6b901` es el nuevo head. PostgreSQL focal validó `7d8e9f0a1b2c → a4c8e2f6b901 → 7d8e9f0a1b2c` en 2.48s; S2 completo validó desde y hacia `f81a78f8c1c4` en 2.38s. Suite backend: 1171 passed in 10.30s; commit `2f396d3`.
-El Incremento 4 añade `prepare_direct_english_construction_retry`, una lectura que recupera el intento finalizado, la producción y orientación exactas y prepara menor apoyo sin escribir ni afirmar mejora. Retira un peldaño desde el apoyo usado y nunca supera el configurado; transfer queda en `none` y conserva su contexto previo, mientras el nuevo intento aplicará el selector existente con un `attempt_id` nuevo. Suite backend: 1191 passed in 10.33s; commit `70c3dbf`.
-El ciclo interno `contenido → producción → orientación → reintento con menor apoyo` satisface la capacidad comprometida. B180 queda cerrado sin Incremento 5; trazabilidad técnica: `ccafaaa`, `f77f560`, `2f396d3` y `70c3dbf`. Validación final: suite backend 1191 passed in 10.33s, migraciones PostgreSQL focales y S2 completo correctos, head `a4c8e2f6b901`, estado operativo válido y diff limpio.
-
-## Deuda operativa separada
-
-El cierre mediante `block_workflow.py` no terminó correctamente. La herramienta puede perder la salida final o dejar procesos hijos al interrumpirse; esta deuda permanece separada de B179.
+Trazabilidad técnica: `ccafaaa`, `f77f560`, `2f396d3` y `70c3dbf`. Validación final confirmada: suite backend 1191 passed, migraciones PostgreSQL focales y S2 completo correctos, head `a4c8e2f6b901`, estado operativo válido y diff limpio.
 
 ## Automatización disponible
 
 - `operational_state.py` valida y resume este checkpoint.
 - `block_close.py` ejecuta validaciones técnicas y staging controlado.
-- `block_workflow.py` requiere resolver la deuda de interrupción antes de considerarse fiable para cierres desatendidos.
+- `block_workflow.py` conserva una deuda de interrupción y no se considera fiable para cierres desatendidos.
 
 ## Método operativo vigente
 
-Cada hito pasa por definición, implementación técnica, validación específica, regresión relacionada, suite completa y cierre documental. Los commits y la publicación permanecen bajo confirmación humana.
+Cada slice pasa por definición, implementación técnica, validación específica, revisión independiente y cierre documental. Las regresiones y suites amplias se ejecutan solo cuando el alcance y riesgo las justifican. Los commits y la publicación permanecen bajo confirmación humana.
+
+No deben repetirse validaciones vigentes si los archivos cubiertos no han cambiado. El estado operativo debe permitir reanudar el trabajo sin repetir inspecciones ya cerradas.
 
 ## Fronteras obligatorias
 
-- producción ≠ evaluación técnica;
-- evaluación técnica ≠ observación diagnóstica;
-- observación diagnóstica ≠ decisión pedagógica;
-- perfil inicial ≠ progreso;
-- progreso ≠ mastery.
+- preparación curricular ≠ ejecución del estudiante ≠ evidencia real ≠ resultado de evaluación ≠ aprendizaje ≠ mastery;
+- `required_stages` y `SkillCoverage` son contratos heredados y no producen `CurriculumPreparationState`;
+- no integrar todavía `LessonCapabilityPlan` en `PedagogicalUnitCandidate`;
+- no modificar todavía `PedagogicalUnitSpecification.prerequisites`;
+- no modificar `SkillCoverage` ni `required_stages`;
+- no implementar todavía ledger, orden curricular, resolución de `artifact_ids`, precedencia ni ciclos;
+- no modificar runtime individual, progreso, mastery, fonética, feedback ni B181.
 
 ## Bloque activo
+
+### Primera slice estructural del contrato curricular v1
+
+Estado: implementación técnica validada y commiteada mediante `56e7394` (`feat add curriculum capability contracts v1`); pendiente de cierre documental y publicación.
+
+Archivos técnicos commiteados, sin cambios posteriores a la validación:
+
+- `app/schemas/pedagogical_unit.py`;
+- `tests/test_curriculum_capability_schema.py`.
+
+Contratos añadidos:
+
+- `CurriculumPreparationState`;
+- `LessonCapabilityClaim`;
+- `SkillPrerequisite`;
+- `LessonCapabilityPlan`.
+
+Validación vigente, no repetir mientras esos archivos no cambien:
+
+- `.venv/bin/pytest -q tests/test_curriculum_capability_schema.py`: 15 passed;
+- regresión seleccionada: 74 passed;
+- suite backend completa: 1277 passed;
+- revisión independiente Codex: PASS, sin hallazgos;
+- `git diff --check`: PASS.
+
+Estado Git: commit técnico local `56e7394`; falta el commit documental, el push y la comprobación final de Git limpio y sincronizado.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
 Estado: **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**.
 
-I1–I4 están implementados, documentados y publicados. I1 cerró contenido audio-first; I2 (`8baf7a6`, `4fe98ad`) ejecutó Flutter y persistió tres WAV; I3 (`21d34e5`, `8a04f2e`) añadió revisión append-only enlazada a `LearnerProduction`, con head `b181c3e4f5a6`; e I4 (`6a67763`) cerró la revisión humana local controlada mediante CLI. La corrección DevSecOps `687e394` aisló pytest de `app_ingles_db`; la suite backend completa aislada confirmó 1262 passed in 12.38s. B180 continúa como último bloque integralmente cerrado.
-
-No existe un fallo técnico pendiente que impida continuar. La pausa responde a que el contenido A1 existente todavía es prototípico y no constituye la progresión pedagógica canónica sobre la que B181 deba validarse definitivamente.
-
-Evidencia técnica y operativa confirmada:
-
-- `app_ingles_db` migrada y verificada en `b181c3e4f5a6`;
-- submission humana real `555`;
-- `LearnerProduction` `1663`, `1664` y `1665`;
-- tres WAV reales verificados;
-- revisión humana append-only ejecutada y seis decisiones persistidas como `human:guiller-local`:
-  - `1663`: `positive / positive`;
-  - `1664`: `negative / negative`;
-  - `1665`: `negative / negative`;
-- la primera validación humana no superó la rúbrica;
-- la infraestructura de revisión humana quedó demostrada end-to-end.
-
-La validación humana demostró además un defecto UX: la consigna se presentaba como si fuera «Tu respuesta» e inducía a repetir instrucciones. La corrección frontend local fue realizada y su nueva microcopy se comprendió correctamente durante una segunda validación. El test focal, `flutter analyze` y `git diff --check` pasaron; la suite frontend completa confirmó 44 passed. La segunda validación humana se pausó deliberadamente antes de completarse al detectarse el problema pedagógico más profundo.
-
-El retry de persistencia B181 y la corrección UX consigna ≠ respuesta están versionados y publicados en frontend mediante el commit técnico `aabe4a4`; el commit documental frontend es `505549f`. Sus validaciones asociadas permanecen: test focal PASS, `flutter analyze` PASS, `git diff --check` PASS y suite frontend completa 44 passed.
+I1–I4 y las correcciones frontend están publicados. No existe un fallo técnico pendiente. Su reanudación depende de la construcción pedagógica canónica A1 y de generar después un candidato adecuado para repetir la validación humana. La segunda validación humana permanece pausada, no completada.
 
 ## Próximo objetivo
 
-La reanudación de B181 queda condicionada a:
+Crear el commit documental de esta primera slice estructural, publicar los commits pendientes y comprobar finalmente Git limpio y sincronizado antes de abrir la siguiente.
 
-1. revisar el Constructor Pedagógico existente;
-2. determinar cómo generará y validará progresiones y prerrequisitos reales;
-3. construir canónicamente la entrada A1;
-4. generar y revisar posteriormente el candidato pedagógico necesario para B181;
-5. reanudar entonces la validación humana de B181.
-
-No corresponde repetir ahora la revisión humana ni parchear manualmente la transición L1→L2 para hacer pasar B181. Revisión, producción y finalización no demuestran automáticamente comprensión, aprendizaje, progreso, mastery o fluidez.
-
-El Karaoke Fonético queda pospuesto, no descartado, como capacidad aislada posterior; B181 tampoco implementa sincronización, timestamps, colores, dictado, grabación guiada ni UI específica.
-
-Toda futura aplicación sobre entornos reales requerirá una autorización y controles adicionales fuera de S2.
+No corresponde todavía integrar planes en candidatas ni implementar ledger, orden, referencias, precedencia o ciclos.
 
 ## Archivos clave
 
 - `docs/estado-operativo.md`;
-- `docs/modelo-pedagogico-maestro.md`, `docs/conversational-diagnostic-contract.md`, `docs/devsecops-gate.md`, `docs/roadmap.md` y `docs/bitacora.md`.
+- `docs/curriculum-preparation-prerequisites-contract-v1.md`;
+- `app/schemas/pedagogical_unit.py`;
+- `tests/test_curriculum_capability_schema.py`;
+- `docs/modelo-pedagogico-maestro.md`;
+- `docs/roadmap.md` y `docs/bitacora.md`.

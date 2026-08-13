@@ -6,10 +6,10 @@
 - Base de datos: PostgreSQL
 - ORM: SQLAlchemy
 - Driver: psycopg
-- Última suite backend completa confirmada: 1262 passed en PostgreSQL aislado durante B181 I4
+- Última suite backend completa confirmada: 1277 passed durante la primera slice estructural del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque activo: B181, pausado en puerta pedagógica y no cerrado integralmente
+- Bloque activo: primera slice estructural del contrato curricular v1, pendiente de cierre documental y publicación; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -3938,3 +3938,15 @@ Decisión: no parchear manualmente L1→L2 para hacer pasar B181. La evidencia d
 La reanudación de B181 requiere revisar el Constructor Pedagógico existente; determinar cómo generará y validará progresiones y prerrequisitos reales; construir canónicamente la entrada A1; generar y revisar después el candidato necesario para B181; y solo entonces reanudar su validación humana.
 
 Actualización de trazabilidad posterior: el retry de persistencia B181 y la corrección UX consigna ≠ respuesta quedaron versionados y publicados en frontend mediante el commit técnico `aabe4a4`; su documentación frontend quedó publicada mediante `505549f`. Se mantienen como evidencia asociada el test focal PASS, `flutter analyze` PASS, `git diff --check` PASS y la suite frontend completa con 44 passed. Esta actualización no cambia el estado pedagógico ni completa la segunda validación humana.
+
+## Contrato curricular v1 — Slice estructural 1
+
+Estado: implementación técnica commiteada; cierre documental y publicación pendientes.
+
+Sobre el contrato curricular v1 publicado en `d6b6e7f`, el commit técnico `56e7394` (`feat add curriculum capability contracts v1`) incorpora en `app/schemas/pedagogical_unit.py` los contratos aislados `CurriculumPreparationState`, `LessonCapabilityClaim`, `SkillPrerequisite` y `LessonCapabilityPlan`, con pruebas específicas en `tests/test_curriculum_capability_schema.py`.
+
+La revisión independiente de Codex concluyó PASS sin hallazgos. Evidencia vigente: 15 pruebas específicas, 74 de regresión seleccionada, suite backend completa 1277 passed y `git diff --check` PASS. Los archivos técnicos están commiteados y no han cambiado desde esas validaciones; no corresponde repetir pytest mientras se mantengan intactos.
+
+Se conservaron las fronteras de la slice: `LessonCapabilityPlan` no está integrado en `PedagogicalUnitCandidate`; `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage` y `required_stages` permanecen intactos; no se implementaron ledger, resolución de `artifact_ids`, orden curricular, precedencia, ciclos ni cambios en runtime, progreso, mastery, fonética, feedback o B181.
+
+El bloque no se declara todavía publicado o sincronizado: faltan el commit documental, el push y la comprobación final de Git limpio y sincronizado.
