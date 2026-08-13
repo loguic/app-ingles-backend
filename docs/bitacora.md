@@ -9,7 +9,7 @@
 - Última suite backend completa confirmada: 1421 passed durante la slice estructural 6 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 6 cerrada técnicamente mediante `2a4db09`, con documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 6 cerrada, publicada y sincronizada mediante los commits técnico `2a4db09` y documental `f5f982b`; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4025,7 +4025,7 @@ El próximo objetivo es hacer preflight de la siguiente slice desde el contrato 
 
 ## Contrato curricular v1 — Slice estructural 6
 
-Estado: cerrada técnicamente mediante el commit `2a4db09` (`feat validate capability claim state precedence`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `2a4db09` (`feat validate capability claim state precedence`) y documental `f5f982b`; push confirmado hasta `f5f982b` en `origin/master`.
 
 Se añadió el validador local `capability_claim_state_precedence`, que reutiliza exclusivamente el batch de disponibilidad derivado por slice 5. Para una misma `Skill` valida la cadena estricta `EXPOSURE_AVAILABLE < INSTRUCTION_AVAILABLE < PRACTICE_AVAILABLE < EVIDENCE_GATE_AVAILABLE`: cada estado superior exige el inmediato anterior, con su propia cadena válida, en una posición `(lesson_index, stage_index)` estrictamente menor. El mismo stage no satisface precedencia porque no existe orden canónico intra-stage, y los IDs nunca determinan orden.
 

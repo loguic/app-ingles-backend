@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `1578f9d`.
+- Último commit publicado y sincronizado: `f5f982b`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 6
 
-Estado: cerrada técnicamente mediante `2a4db09` (`feat validate capability claim state precedence`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `2a4db09` (`feat validate capability claim state precedence`) y documental `f5f982b`; push confirmado hasta `f5f982b` en `origin/master`.
 
 El validador `capability_claim_state_precedence` reutiliza exclusivamente la disponibilidad de slice 5 y exige, para una misma `Skill`, la cadena estricta `EXPOSURE_AVAILABLE < INSTRUCTION_AVAILABLE < PRACTICE_AVAILABLE < EVIDENCE_GATE_AVAILABLE`. Cada estado superior requiere el inmediato anterior, válidamente encadenado, en una posición `(lesson_index, stage_index)` estrictamente menor; el mismo stage no satisface precedencia y los IDs nunca expresan orden.
 
@@ -53,7 +53,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 6
 
-Estado: cerrada técnicamente mediante `2a4db09`; documentación, publicación y sincronización final pendientes. La precedencia estructural y su validación están descritas en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `2a4db09` y documental `f5f982b`; push confirmado hasta `f5f982b` en `origin/master`. La precedencia estructural y su validación están descritas en «Último bloque cerrado».
 
 Permanecen fuera `CurriculumCapabilityPreparationLedger`, ledger persistido, agregación definitiva por `Skill`, prerrequisitos y `PedagogicalUnitSpecification.prerequisites`, orden interunidad/CEFR, ciclos, orden intra-stage, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime y cambios en `SkillCoverage` o `required_stages`.
 
