@@ -3941,7 +3941,7 @@ Actualización de trazabilidad posterior: el retry de persistencia B181 y la cor
 
 ## Contrato curricular v1 — Slice estructural 1
 
-Estado: implementación técnica commiteada; cierre documental y publicación pendientes.
+Estado: cerrada, publicada y sincronizada.
 
 Sobre el contrato curricular v1 publicado en `d6b6e7f`, el commit técnico `56e7394` (`feat add curriculum capability contracts v1`) incorpora en `app/schemas/pedagogical_unit.py` los contratos aislados `CurriculumPreparationState`, `LessonCapabilityClaim`, `SkillPrerequisite` y `LessonCapabilityPlan`, con pruebas específicas en `tests/test_curriculum_capability_schema.py`.
 
@@ -3949,4 +3949,6 @@ La revisión independiente de Codex concluyó PASS sin hallazgos. Evidencia vige
 
 Se conservaron las fronteras de la slice: `LessonCapabilityPlan` no está integrado en `PedagogicalUnitCandidate`; `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage` y `required_stages` permanecen intactos; no se implementaron ledger, resolución de `artifact_ids`, orden curricular, precedencia, ciclos ni cambios en runtime, progreso, mastery, fonética, feedback o B181.
 
-El bloque no se declara todavía publicado o sincronizado: faltan el commit documental, el push y la comprobación final de Git limpio y sincronizado.
+El commit documental es `c74e259`. El push quedó confirmado hasta ese commit y Git terminó limpio y sincronizado como `## master...origin/master`.
+
+Siguiente objetivo, todavía no abierto: diseñar e implementar el «Checkpoint de cambio de conversación», una herramienta de ingeniería determinista para automatizar la preparación y recuperación de contexto entre conversaciones. `docs/estado-operativo.md` permanece como fuente canónica; se conserva el protocolo Codex CLI + Bash y la regla de no repetir inspecciones o validaciones vigentes.

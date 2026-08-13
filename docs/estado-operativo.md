@@ -14,13 +14,13 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### B180 — Construcción directa en inglés
+### Contrato curricular v1 — Slice estructural 1
 
-Estado: cerrado técnica e integralmente; Incrementos 1–4 publicados.
+Estado: cerrada, publicada y sincronizada.
 
-Capacidad observable: construir oralmente una respuesta desde una intención, ampliarla con información pertinente y transferir el patrón ante una variación inesperada con ayuda mínima, sin copiar una frase completa.
+Sobre el contrato autoritativo `d6b6e7f`, el commit técnico `56e7394` añadió `CurriculumPreparationState`, `LessonCapabilityClaim`, `SkillPrerequisite` y `LessonCapabilityPlan`; el commit documental es `c74e259`.
 
-Trazabilidad técnica: `ccafaaa`, `f77f560`, `2f396d3` y `70c3dbf`. Validación final confirmada: suite backend 1191 passed, migraciones PostgreSQL focales y S2 completo correctos, head `a4c8e2f6b901`, estado operativo válido y diff limpio.
+Validación final: revisión independiente PASS; 15 pruebas específicas; 74 de regresión seleccionada; suite backend completa 1277 passed; `git diff --check` PASS. Git confirmado limpio y sincronizado: `## master...origin/master` hasta `c74e259`.
 
 ## Automatización disponible
 
@@ -32,7 +32,7 @@ Trazabilidad técnica: `ccafaaa`, `f77f560`, `2f396d3` y `70c3dbf`. Validación 
 
 Cada slice pasa por definición, implementación técnica, validación específica, revisión independiente y cierre documental. Las regresiones y suites amplias se ejecutan solo cuando el alcance y riesgo las justifican. Los commits y la publicación permanecen bajo confirmación humana.
 
-No deben repetirse validaciones vigentes si los archivos cubiertos no han cambiado. El estado operativo debe permitir reanudar el trabajo sin repetir inspecciones ya cerradas.
+El protocolo operativo conserva Codex CLI + Bash y `docs/estado-operativo.md` como fuente canónica para cambiar de conversación. No deben repetirse inspecciones ni validaciones vigentes si los archivos cubiertos no han cambiado.
 
 ## Fronteras obligatorias
 
@@ -46,31 +46,13 @@ No deben repetirse validaciones vigentes si los archivos cubiertos no han cambia
 
 ## Bloque activo
 
-### Primera slice estructural del contrato curricular v1
+### Checkpoint de cambio de conversación
 
-Estado: implementación técnica validada y commiteada mediante `56e7394` (`feat add curriculum capability contracts v1`); pendiente de cierre documental y publicación.
+Estado: siguiente objetivo identificado; diseño e implementación todavía no abiertos.
 
-Archivos técnicos commiteados, sin cambios posteriores a la validación:
+Objetivo: diseñar e implementar una herramienta de ingeniería determinista que automatice la preparación y recuperación de contexto entre conversaciones, conservando `docs/estado-operativo.md` como fuente canónica y el protocolo Codex CLI + Bash.
 
-- `app/schemas/pedagogical_unit.py`;
-- `tests/test_curriculum_capability_schema.py`.
-
-Contratos añadidos:
-
-- `CurriculumPreparationState`;
-- `LessonCapabilityClaim`;
-- `SkillPrerequisite`;
-- `LessonCapabilityPlan`.
-
-Validación vigente, no repetir mientras esos archivos no cambien:
-
-- `.venv/bin/pytest -q tests/test_curriculum_capability_schema.py`: 15 passed;
-- regresión seleccionada: 74 passed;
-- suite backend completa: 1277 passed;
-- revisión independiente Codex: PASS, sin hallazgos;
-- `git diff --check`: PASS.
-
-Estado Git: commit técnico local `56e7394`; falta el commit documental, el push y la comprobación final de Git limpio y sincronizado.
+No se abre todavía su implementación ni se repiten inspecciones o validaciones cerradas.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -80,9 +62,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Crear el commit documental de esta primera slice estructural, publicar los commits pendientes y comprobar finalmente Git limpio y sincronizado antes de abrir la siguiente.
-
-No corresponde todavía integrar planes en candidatas ni implementar ledger, orden, referencias, precedencia o ciclos.
+Diseñar e implementar el «Checkpoint de cambio de conversación», una herramienta de ingeniería determinista para preparar y recuperar contexto entre conversaciones. Este checkpoint no está abierto todavía.
 
 ## Archivos clave
 
