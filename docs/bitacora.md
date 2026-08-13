@@ -9,7 +9,7 @@
 - Última suite backend completa confirmada: 1397 passed durante la slice estructural 5 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 5 cerrada técnicamente mediante `6c0871c`, con documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 5 cerrada, publicada y sincronizada mediante los commits técnico `6c0871c` y documental `1578f9d`; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4009,7 +4009,7 @@ Permanecen fuera calidad o suficiencia pedagógica, evidencia o resultados reale
 
 ## Contrato curricular v1 — Slice estructural 5
 
-Estado: cerrada técnicamente mediante el commit `6c0871c` (`feat derive capability claim availability`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `6c0871c` (`feat derive capability claim availability`) y documental `1578f9d`; push confirmado hasta `1578f9d` en `origin/master`.
 
 Se añadió en `app/services/pedagogical_capability_claim_availability.py` la derivación local, pura y determinista del punto de disponibilidad de cada `LessonCapabilityClaim`. La representación efímera usa `CapabilityClaimAvailability` y un resultado batch tipado e inmutable. `lesson_index` se deriva exclusivamente de `candidate_unit.lessons` y `stage_index` exclusivamente de `LessonExperience.stages`: los IDs expresan identidad, nunca orden. Cuando intervienen varios artefactos o stages, el resultado adopta el punto curricular más tardío necesario. `Mission` no recibe `lesson_start` ni otra posición inventada y permanece no posicionable mientras no exista una posición canónica explícita.
 

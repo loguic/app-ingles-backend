@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-13
+Actualizado: 2026-08-14
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `6115cfc`.
+- Último commit publicado y sincronizado: `1578f9d`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 5
 
-Estado: cerrada técnicamente mediante `6c0871c` (`feat derive capability claim availability`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `6c0871c` (`feat derive capability claim availability`) y documental `1578f9d`; push confirmado hasta `1578f9d` en `origin/master`.
 
 El servicio puro `pedagogical_capability_claim_availability.py` deriva local y determinísticamente la disponibilidad efímera e inmutable de cada claim. Los índices proceden solo de `candidate_unit.lessons` y `LessonExperience.stages`; los IDs expresan identidad, se usa el punto curricular más tardío necesario y `Mission` permanece no posicionable sin posición canónica explícita.
 
@@ -53,7 +53,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 5
 
-Estado: cerrada técnicamente mediante `6c0871c`; documentación, publicación y sincronización final pendientes. La derivación de disponibilidad y su validación están descritas en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `6c0871c` y documental `1578f9d`; push confirmado hasta `1578f9d` en `origin/master`. La derivación de disponibilidad y su validación están descritas en «Último bloque cerrado».
 
 Rutas propietarias confirmadas: `ConversationChoice → conversación → stage`; `LearnerProductionPrompt → turn/conversation → stage`; `EvidenceDefinition → stage`; `ProductionEvaluationCriterion → evidence → stage`; `SemanticEvaluationRule → criterion → evidence → stage`. Cada error conserva `lesson_id`, `skill_id`, `preparation_state`, `artifact_ids` y causa.
 
