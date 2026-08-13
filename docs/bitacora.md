@@ -3971,7 +3971,7 @@ La capacidad cerrada incluye `prepare`, `resume`, operación read-only, fuente c
 
 ## Contrato curricular v1 — Slice estructural 2
 
-Estado: implementación técnica cerrada mediante `aea6a26` (`feat integrate lesson capability plans`); cierre documental, push y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante el commit técnico `aea6a26` (`feat integrate lesson capability plans`) y el commit documental `297d8a3`; push confirmado hasta `297d8a3` en `origin/master`.
 
 `PedagogicalUnitCandidate` incorpora `lesson_capability_plans: list[LessonCapabilityPlan] = Field(default_factory=list)`. La consistencia local exige `lesson_id` únicos entre planes y pertenencia de cada uno a `candidate_unit.lessons`.
 
@@ -3980,3 +3980,5 @@ La compatibilidad heredada se conserva: una candidata que omite el campo sigue v
 Validación: 26 pruebas específicas; 17 de regresión directa; suite backend completa 1305 passed; postflight independiente PASS; `git diff --check` PASS. La primera ejecución focal reveló solo una aserción incorrecta del nuevo test sobre `loc` de Pydantic; se corrigió para comprobar el comportamiento real sin debilitar la validación y la ejecución final pasó completa.
 
 Permanecen fuera resolución de `artifact_ids`, compatibilidad artefacto/estado, ledger, precedencia, orden curricular, ciclos, prerrequisitos interunidad e integración con validadores curriculares. `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage` y `required_stages` siguen intactos; no hubo cambios en runtime, progreso, mastery, fonética, feedback o B181.
+
+El siguiente objetivo es diseñar una nueva slice curricular desde el contrato v1 autoritativo, sin reabrir esta integración ya cerrada ni repetir sus validaciones vigentes.

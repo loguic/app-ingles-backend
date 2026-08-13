@@ -50,7 +50,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 2
 
-Estado: implementación técnica validada y commiteada mediante `aea6a26` (`feat integrate lesson capability plans`); cierre documental, push y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `aea6a26` (`feat integrate lesson capability plans`) y documental `297d8a3`; push confirmado hasta `297d8a3` en `origin/master`.
 
 Archivos técnicos commiteados y sin cambios posteriores a las validaciones:
 
@@ -73,7 +73,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Crear el commit documental, publicar y verificar Git limpio y sincronizado para cerrar la slice 2.
+Diseñar la siguiente slice curricular desde `docs/curriculum-preparation-prerequisites-contract-v1.md`, sin reabrir trabajo ya cerrado.
 
 ## Archivos clave
 
