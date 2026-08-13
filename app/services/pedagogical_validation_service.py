@@ -1,6 +1,9 @@
 from app.services.pedagogical_content_limits_validation import (
     validate_content_limits,
 )
+from app.services.pedagogical_capability_artifact_reference_validation import (
+    validate_capability_artifact_references,
+)
 
 from app.services.pedagogical_identifier_validation import (
     validate_content_identifiers,
@@ -398,6 +401,7 @@ def validate_pedagogical_candidate(
         *validate_exercise_integrity(candidate),
         *validate_lesson_experience_skills(candidate),
         *validate_candidate_production_evaluation_plans(candidate),
+        *validate_capability_artifact_references(candidate),
         *validate_content_text_integrity(candidate),
         *validate_content_limits(candidate),
         *validate_content_identifiers(candidate),
