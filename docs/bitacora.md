@@ -6,10 +6,10 @@
 - Base de datos: PostgreSQL
 - ORM: SQLAlchemy
 - Driver: psycopg
-- Última suite backend completa confirmada: 1397 passed durante la slice estructural 5 del contrato curricular v1
+- Última suite backend completa confirmada: 1421 passed durante la slice estructural 6 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 5 cerrada, publicada y sincronizada mediante los commits técnico `6c0871c` y documental `1578f9d`; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 6 cerrada técnicamente mediante `2a4db09`, con documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4022,3 +4022,19 @@ Validación vigente, que no debe repetirse mientras no cambien los archivos téc
 Permanecen fuera comparación anterior/simultáneo/posterior, precedencia entre `CurriculumPreparationState`, ledger, agregación por `Skill`, prerrequisitos y `PedagogicalUnitSpecification.prerequisites`, orden interunidad o CEFR, ciclos, progreso, evidencia o resultados reales del learner, mastery, calidad pedagógica, runtime y cambios en `SkillCoverage` o `required_stages`. `CurriculumPreparationState` no equivale al recorrido del learner, la evidencia real, el progreso ni mastery.
 
 El próximo objetivo es hacer preflight de la siguiente slice desde el contrato v1 autoritativo y evaluar si corresponde precedencia estructural entre estados reutilizando esta derivación de disponibilidad, sin asumir ledger o prerrequisitos antes de confirmar sus dependencias.
+
+## Contrato curricular v1 — Slice estructural 6
+
+Estado: cerrada técnicamente mediante el commit `2a4db09` (`feat validate capability claim state precedence`); documentación, publicación y sincronización final pendientes.
+
+Se añadió el validador local `capability_claim_state_precedence`, que reutiliza exclusivamente el batch de disponibilidad derivado por slice 5. Para una misma `Skill` valida la cadena estricta `EXPOSURE_AVAILABLE < INSTRUCTION_AVAILABLE < PRACTICE_AVAILABLE < EVIDENCE_GATE_AVAILABLE`: cada estado superior exige el inmediato anterior, con su propia cadena válida, en una posición `(lesson_index, stage_index)` estrictamente menor. El mismo stage no satisface precedencia porque no existe orden canónico intra-stage, y los IDs nunca determinan orden.
+
+Los claims múltiples de un estado son independientes y cualquier predecesor inmediato válido y anterior puede sostener el siguiente; un claim inválido no contamina otro equivalente ni puede sostener estados posteriores. Los claims omitidos por `derivation_errors` de slice 5 no participan ni generan findings duplicados. Cada claim superior problemático produce un único finding con una causa determinista: `required_state_absent`, `required_state_same_position`, `required_state_only_later` o `required_state_not_validly_chained`.
+
+Las agrupaciones y marcas de cadena válida son efímeras, locales al validador y no constituyen un ledger encubierto. No se modificaron schemas, persistencia ni contenido canónico.
+
+Validación vigente, no repetir mientras no cambien archivos técnicos: 24 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 201 pruebas de regresión directa PASS; suite backend completa ejecutada directamente en Bash, 1421 passed in 13.14s; `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, Codex CLI + Bash y la ejecución directa de la suite completa en Bash si el background de Codex vuelve a interrumpirse.
+
+Permanecen fuera `CurriculumCapabilityPreparationLedger`, ledger persistido, agregación curricular definitiva por `Skill`, prerrequisitos y `PedagogicalUnitSpecification.prerequisites`, orden interunidad o CEFR, ciclos, orden intra-stage, progreso, ejecución del learner, evidencia real, resultados de evaluación, mastery, calidad pedagógica, runtime y cambios en `SkillCoverage` o `required_stages`. `CurriculumPreparationState` no equivale al recorrido del learner, la evidencia real, el progreso ni mastery.
+
+El próximo objetivo es hacer preflight de la siguiente slice desde el contrato v1 autoritativo y evaluar si ya corresponde construir el ledger curricular derivado o existe una dependencia estructural previa más pequeña, sin abordar prerrequisitos antes de demostrar sus dependencias.

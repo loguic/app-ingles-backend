@@ -14,15 +14,15 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 5
+### Contrato curricular v1 — Slice estructural 6
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `6c0871c` (`feat derive capability claim availability`) y documental `1578f9d`; push confirmado hasta `1578f9d` en `origin/master`.
+Estado: cerrada técnicamente mediante `2a4db09` (`feat validate capability claim state precedence`); documentación, publicación y sincronización final pendientes.
 
-El servicio puro `pedagogical_capability_claim_availability.py` deriva local y determinísticamente la disponibilidad efímera e inmutable de cada claim. Los índices proceden solo de `candidate_unit.lessons` y `LessonExperience.stages`; los IDs expresan identidad, se usa el punto curricular más tardío necesario y `Mission` permanece no posicionable sin posición canónica explícita.
+El validador `capability_claim_state_precedence` reutiliza exclusivamente la disponibilidad de slice 5 y exige, para una misma `Skill`, la cadena estricta `EXPOSURE_AVAILABLE < INSTRUCTION_AVAILABLE < PRACTICE_AVAILABLE < EVIDENCE_GATE_AVAILABLE`. Cada estado superior requiere el inmediato anterior, válidamente encadenado, en una posición `(lesson_index, stage_index)` estrictamente menor; el mismo stage no satisface precedencia y los IDs nunca expresan orden.
 
-La API batch procesa todos los claims en orden determinista, devuelve disponibilidades y errores tipados sin depender de `validation_report`, y el validador traduce cada error en un finding independiente. Omite referencias inválidas de slice 3 y claims incompatibles de slice 4. No hubo cambios de schemas ni persistencia.
+Los claims equivalentes son independientes y cualquier predecesor válido anterior puede sostener el siguiente; uno inválido no sostiene estados posteriores. Los errores de derivación de slice 5 se omiten sin findings duplicados. Las causas deterministas son `required_state_absent`, `required_state_same_position`, `required_state_only_later` y `required_state_not_validly_chained`, con un finding por claim superior problemático. El estado auxiliar es efímero y local: no existe ledger encubierto. No hubo cambios de schemas, persistencia ni contenido canónico.
 
-Validación vigente, no repetir mientras no cambien archivos técnicos: 20 pruebas específicas PASS; postflight independiente final PASS sin hallazgos; 203 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1397 passed in 13.08s, `PYTEST_EXIT=0`; `git diff --check` PASS.
+Validación vigente, no repetir mientras no cambien archivos técnicos: 24 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 201 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1421 passed in 13.14s, `PYTEST_EXIT=0`; `git diff --check` PASS.
 
 ## Automatización disponible
 
@@ -45,17 +45,17 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 - `required_stages` y `SkillCoverage` son contratos heredados y no producen `CurriculumPreparationState`;
 - no modificar todavía `PedagogicalUnitSpecification.prerequisites`;
 - no modificar `SkillCoverage` ni `required_stages`;
-- no exigir un plan por lección ni implementar comparación anterior/simultáneo/posterior, precedencia entre estados, ledger, agregación por `Skill`, orden interunidad o CEFR, ciclos o prerrequisitos;
+- no exigir un plan por lección ni implementar ledger, agregación curricular definitiva por `Skill`, orden interunidad o CEFR, ciclos, orden intra-stage o prerrequisitos;
 - no modificar runtime individual, progreso, mastery, fonética, feedback ni B181.
 - disponibilidad curricular ≠ recorrido del learner ≠ evidencia real ≠ progreso ≠ mastery.
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 5
+### Contrato curricular v1 — Slice estructural 6
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `6c0871c` y documental `1578f9d`; push confirmado hasta `1578f9d` en `origin/master`. La derivación de disponibilidad y su validación están descritas en «Último bloque cerrado».
+Estado: cerrada técnicamente mediante `2a4db09`; documentación, publicación y sincronización final pendientes. La precedencia estructural y su validación están descritas en «Último bloque cerrado».
 
-Rutas propietarias confirmadas: `ConversationChoice → conversación → stage`; `LearnerProductionPrompt → turn/conversation → stage`; `EvidenceDefinition → stage`; `ProductionEvaluationCriterion → evidence → stage`; `SemanticEvaluationRule → criterion → evidence → stage`. Cada error conserva `lesson_id`, `skill_id`, `preparation_state`, `artifact_ids` y causa.
+Permanecen fuera `CurriculumCapabilityPreparationLedger`, ledger persistido, agregación definitiva por `Skill`, prerrequisitos y `PedagogicalUnitSpecification.prerequisites`, orden interunidad/CEFR, ciclos, orden intra-stage, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime y cambios en `SkillCoverage` o `required_stages`.
 
 Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
 
@@ -63,7 +63,8 @@ Archivos técnicos commiteados:
 
 - `app/services/pedagogical_capability_artifact_state_validation.py`;
 - `app/services/pedagogical_validation_service.py`;
-- `tests/test_pedagogical_capability_artifact_state_validation.py`.
+- `app/services/pedagogical_capability_claim_precedence_validation.py`;
+- `tests/test_pedagogical_capability_claim_precedence_validation.py`.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -73,7 +74,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Hacer preflight de la siguiente slice curricular desde el contrato v1 autoritativo y evaluar si corresponde precedencia estructural entre estados reutilizando la derivación de disponibilidad de slice 5, sin asumir ledger ni prerrequisitos antes de confirmar dependencias.
+Hacer preflight de la siguiente slice curricular desde el contrato v1 autoritativo y evaluar si ya corresponde construir el ledger curricular derivado o existe una dependencia estructural previa más pequeña, sin abordar prerrequisitos antes de demostrar sus dependencias.
 
 ## Archivos clave
 
@@ -89,5 +90,7 @@ Hacer preflight de la siguiente slice curricular desde el contrato v1 autoritati
 - `app/services/pedagogical_capability_artifact_state_validation.py`;
 - `tests/test_pedagogical_capability_artifact_state_validation.py`;
 - `app/services/pedagogical_capability_claim_availability.py`;
+- `app/services/pedagogical_capability_claim_precedence_validation.py`;
+- `tests/test_pedagogical_capability_claim_precedence_validation.py`;
 - `docs/modelo-pedagogico-maestro.md`;
 - `docs/roadmap.md` y `docs/bitacora.md`.
