@@ -3997,7 +3997,7 @@ Permanecen fuera compatibilidad artefacto ↔ `CurriculumPreparationState`, inte
 
 ## Contrato curricular v1 — Slice estructural 4
 
-Estado: cerrada técnicamente mediante `b95c53c` (`feat validate capability artifact state compatibility`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `b95c53c` (`feat validate capability artifact state compatibility`) y documental `6115cfc`; push confirmado hasta `6115cfc` en `origin/master`.
 
 Se añadió `capability_artifact_state_compatibility` como validador independiente de combinaciones completas entre los artefactos resueltos de un `LessonCapabilityClaim` y su `CurriculumPreparationState`. Reutiliza el índice tipado de la slice 3, respeta relaciones reales y omite claims con referencias no resueltas o ambiguas para evitar findings duplicados. Cada claim incompatible produce un único finding determinista.
 

@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `83e830a`.
+- Último commit publicado y sincronizado: `6115cfc`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -50,7 +50,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 4
 
-Estado: cerrada técnicamente mediante `b95c53c` (`feat validate capability artifact state compatibility`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `b95c53c` (`feat validate capability artifact state compatibility`) y documental `6115cfc`; push confirmado hasta `6115cfc` en `origin/master`.
 
 El validador independiente `capability_artifact_state_compatibility`, integrado en `validate_pedagogical_candidate`, reutiliza la resolución tipada de la slice 3 y valida combinaciones completas y relaciones reales entre los artefactos de un claim y su `CurriculumPreparationState`, no una tabla simple tipo → estado. Omite claims con referencias inválidas o ambiguas y emite un único finding determinista por claim incompatible.
 
