@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado anterior a la slice activa: `56f2081`.
+- Último commit publicado y sincronizado: `83e830a`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -50,7 +50,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 3
 
-Estado: cerrada técnicamente mediante `779f770` (`feat validate capability artifact references`); cierre documental, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `779f770` (`feat validate capability artifact references`) y documental `83e830a`; push confirmado hasta `83e830a` en `origin/master`.
 
 El validador independiente `capability_artifact_reference_integrity`, integrado en `validate_pedagogical_candidate`, resuelve localmente cada `LessonCapabilityClaim.artifact_ids` dentro de la lección propietaria con identidad, tipo real, propietario y objeto original. Rechaza referencias desconocidas, pertenecientes a otra lección o ambiguas, sin prioridad implícita ante colisiones.
 
@@ -72,7 +72,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Completar el cierre documental, publicación y sincronización de la slice 3. Después, diseñar la slice 4 de compatibilidad tipada artefacto ↔ `CurriculumPreparationState`, reutilizando el índice y la resolución existentes.
+Diseñar la slice 4 de compatibilidad tipada artefacto ↔ `CurriculumPreparationState`, reutilizando el índice y la resolución cerrados en la slice 3.
 
 ## Archivos clave
 

@@ -9,7 +9,7 @@
 - Última suite backend completa confirmada: 1277 passed durante la primera slice estructural del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque activo: primera slice estructural del contrato curricular v1, pendiente de cierre documental y publicación; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 3 cerrada, publicada y sincronizada; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -3985,7 +3985,7 @@ El siguiente objetivo es diseñar una nueva slice curricular desde el contrato v
 
 ## Contrato curricular v1 — Slice estructural 3
 
-Estado: cerrada técnicamente mediante `779f770` (`feat validate capability artifact references`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `779f770` (`feat validate capability artifact references`) y documental `83e830a`; push confirmado hasta `83e830a` en `origin/master`.
 
 Se añadió la resolución local, tipada y determinista de `LessonCapabilityClaim.artifact_ids` dentro de la lección propietaria. El validador independiente `capability_artifact_reference_integrity`, integrado en `validate_pedagogical_candidate`, conserva identidad, tipo real, propietario y objeto original; las referencias desconocidas, externas o ambiguas producen findings y nunca se resuelven por prioridad implícita.
 
@@ -3993,4 +3993,4 @@ Los criterios y reglas semánticas solo se incorporan desde el plan de evaluaci�
 
 Validación: 21 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 82 pruebas de regresión directa PASS; suite backend completa posterior al incidente al 100 % con código 0; `git diff --check` PASS. Una ejecución anterior terminó con código 130 tras 26 pruebas sin intervención manual del usuario; el hecho no se reprodujo en la ejecución completa posterior y no constituye deuda activa ni evidencia actual de regresión.
 
-Permanecen fuera compatibilidad artefacto ↔ `CurriculumPreparationState`, interpretación o calidad pedagógica, secuencia de estados, ledger, precedencia, orden curricular, ciclos, prerrequisitos interunidad, cambios en `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage` o `required_stages`, runtime, progreso, mastery y contenido canónico. La siguiente slice prevista abordará la compatibilidad tipada reutilizando este índice, una vez publicado y sincronizado el cierre actual.
+Permanecen fuera compatibilidad artefacto ↔ `CurriculumPreparationState`, interpretación o calidad pedagógica, secuencia de estados, ledger, precedencia, orden curricular, ciclos, prerrequisitos interunidad, cambios en `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage` o `required_stages`, runtime, progreso, mastery y contenido canónico. La siguiente slice prevista abordará la compatibilidad tipada reutilizando este índice ya publicado y sincronizado.
