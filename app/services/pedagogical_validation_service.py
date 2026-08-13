@@ -10,6 +10,9 @@ from app.services.pedagogical_capability_artifact_state_validation import (
 from app.services.pedagogical_capability_claim_availability import (
     validate_capability_claim_availability,
 )
+from app.services.pedagogical_capability_claim_precedence_validation import (
+    validate_capability_claim_state_precedence,
+)
 
 from app.services.pedagogical_identifier_validation import (
     validate_content_identifiers,
@@ -410,6 +413,7 @@ def validate_pedagogical_candidate(
         *validate_capability_artifact_references(candidate),
         *validate_capability_artifact_state_compatibility(candidate),
         *validate_capability_claim_availability(candidate),
+        *validate_capability_claim_state_precedence(candidate),
         *validate_content_text_integrity(candidate),
         *validate_content_limits(candidate),
         *validate_content_identifiers(candidate),
