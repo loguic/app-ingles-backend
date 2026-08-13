@@ -8,19 +8,19 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `af47bb6`.
+- Último commit publicado y sincronizado anterior a la slice activa: `56f2081`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 1
+### Contrato curricular v1 — Slice estructural 2
 
-Estado: cerrada, publicada y sincronizada.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `aea6a26` y documental `297d8a3`.
 
-Sobre el contrato autoritativo `d6b6e7f`, el commit técnico `56e7394` añadió `CurriculumPreparationState`, `LessonCapabilityClaim`, `SkillPrerequisite` y `LessonCapabilityPlan`; el commit documental es `c74e259`.
+`PedagogicalUnitCandidate` incorpora `lesson_capability_plans` con `default_factory=list`, unicidad por `lesson_id` y pertenencia a `candidate_unit.lessons`. Las candidatas heredadas siguen siendo válidas con lista vacía y el candidato JSON canónico permanece intacto.
 
-Validación final: revisión independiente PASS; 15 pruebas específicas; 74 de regresión seleccionada; suite backend completa 1277 passed; `git diff --check` PASS. Git quedó publicado y sincronizado; el cierre documental posterior alcanzó `af47bb6`.
+Validación final vigente: 26 pruebas específicas; 17 de regresión directa; suite backend completa 1305 passed; postflight independiente PASS; `git diff --check` PASS.
 
 ## Automatización disponible
 
@@ -43,27 +43,26 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 - `required_stages` y `SkillCoverage` son contratos heredados y no producen `CurriculumPreparationState`;
 - no modificar todavía `PedagogicalUnitSpecification.prerequisites`;
 - no modificar `SkillCoverage` ni `required_stages`;
-- no exigir un plan por lección ni implementar validadores curriculares, ledger, orden curricular, resolución de `artifact_ids`, compatibilidad artefacto/estado, precedencia, ciclos o prerrequisitos interunidad;
+- no exigir un plan por lección ni implementar compatibilidad artefacto/estado, secuencia de estados, ledger, orden curricular, precedencia, ciclos o prerrequisitos interunidad;
 - no modificar runtime individual, progreso, mastery, fonética, feedback ni B181.
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 2
+### Contrato curricular v1 — Slice estructural 3
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `aea6a26` (`feat integrate lesson capability plans`) y documental `297d8a3`; push confirmado hasta `297d8a3` en `origin/master`.
+Estado: cerrada técnicamente mediante `779f770` (`feat validate capability artifact references`); cierre documental, publicación y sincronización final pendientes.
 
-Archivos técnicos commiteados y sin cambios posteriores a las validaciones:
+El validador independiente `capability_artifact_reference_integrity`, integrado en `validate_pedagogical_candidate`, resuelve localmente cada `LessonCapabilityClaim.artifact_ids` dentro de la lección propietaria con identidad, tipo real, propietario y objeto original. Rechaza referencias desconocidas, pertenecientes a otra lección o ambiguas, sin prioridad implícita ante colisiones.
 
-- `app/schemas/pedagogical_unit.py`;
-- `tests/test_pedagogical_unit_schema.py`.
+Solo indexa los tipos autorizados con identidad propia. `ProductionEvaluationCriterion` y `SemanticEvaluationRule` proceden exclusivamente del plan cuyo `lesson_id` coincide. No inventa IDs para `PronunciationReinforcement`, `ExternalReviewRequirement`, `Pronunciation` ni `audio_asset`. Las candidatas heredadas sin planes conservan su comportamiento.
 
-`PedagogicalUnitCandidate` incorpora `lesson_capability_plans: list[LessonCapabilityPlan] = Field(default_factory=list)`. Los `lesson_id` deben ser únicos y pertenecer a `candidate_unit.lessons`.
+Validación vigente, no repetir mientras no cambien los archivos técnicos: 21 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 82 pruebas de regresión directa PASS; suite backend completa posterior al incidente alcanzó 100 % y terminó con código 0; `git diff --check` PASS.
 
-Compatibilidad heredada: candidatas que omiten el campo siguen siendo válidas y producen `lesson_capability_plans == []`; el candidato JSON canónico permanece intacto y no se añadió flag o versionado.
+Archivos técnicos commiteados:
 
-Validación vigente, no repetir: 26 pruebas específicas; 17 de regresión directa; suite backend completa 1305 passed; postflight independiente PASS; `git diff --check` PASS. Durante la primera ejecución se corrigió únicamente una aserción nueva sobre `loc` de Pydantic, sin debilitar la validación.
-
-Fronteras conservadas: sin cobertura obligatoria, resolución de artefactos, validación artefacto/estado, ledger, precedencia, orden, ciclos, prerrequisitos interunidad o integración con validadores; `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage` y `required_stages` siguen intactos.
+- `app/services/pedagogical_capability_artifact_reference_validation.py`;
+- `app/services/pedagogical_validation_service.py`;
+- `tests/test_pedagogical_capability_artifact_reference_validation.py`.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -73,7 +72,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Diseñar la siguiente slice curricular desde `docs/curriculum-preparation-prerequisites-contract-v1.md`, sin reabrir trabajo ya cerrado.
+Completar el cierre documental, publicación y sincronización de la slice 3. Después, diseñar la slice 4 de compatibilidad tipada artefacto ↔ `CurriculumPreparationState`, reutilizando el índice y la resolución existentes.
 
 ## Archivos clave
 
@@ -83,5 +82,8 @@ Diseñar la siguiente slice curricular desde `docs/curriculum-preparation-prereq
 - `tests/test_conversation_checkpoint.py`;
 - `app/schemas/pedagogical_unit.py`;
 - `tests/test_curriculum_capability_schema.py`;
+- `app/services/pedagogical_capability_artifact_reference_validation.py`;
+- `app/services/pedagogical_validation_service.py`;
+- `tests/test_pedagogical_capability_artifact_reference_validation.py`;
 - `docs/modelo-pedagogico-maestro.md`;
 - `docs/roadmap.md` y `docs/bitacora.md`.

@@ -3982,3 +3982,15 @@ Validación: 26 pruebas específicas; 17 de regresión directa; suite backend co
 Permanecen fuera resolución de `artifact_ids`, compatibilidad artefacto/estado, ledger, precedencia, orden curricular, ciclos, prerrequisitos interunidad e integración con validadores curriculares. `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage` y `required_stages` siguen intactos; no hubo cambios en runtime, progreso, mastery, fonética, feedback o B181.
 
 El siguiente objetivo es diseñar una nueva slice curricular desde el contrato v1 autoritativo, sin reabrir esta integración ya cerrada ni repetir sus validaciones vigentes.
+
+## Contrato curricular v1 — Slice estructural 3
+
+Estado: cerrada técnicamente mediante `779f770` (`feat validate capability artifact references`); documentación, publicación y sincronización final pendientes.
+
+Se añadió la resolución local, tipada y determinista de `LessonCapabilityClaim.artifact_ids` dentro de la lección propietaria. El validador independiente `capability_artifact_reference_integrity`, integrado en `validate_pedagogical_candidate`, conserva identidad, tipo real, propietario y objeto original; las referencias desconocidas, externas o ambiguas producen findings y nunca se resuelven por prioridad implícita.
+
+Los criterios y reglas semánticas solo se incorporan desde el plan de evaluación cuyo `lesson_id` coincide exactamente. No se inventaron IDs para `PronunciationReinforcement`, `ExternalReviewRequirement`, `Pronunciation` ni `audio_asset`, y las candidatas heredadas sin `lesson_capability_plans` mantienen su comportamiento.
+
+Validación: 21 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 82 pruebas de regresión directa PASS; suite backend completa posterior al incidente al 100 % con código 0; `git diff --check` PASS. Una ejecución anterior terminó con código 130 tras 26 pruebas sin intervención manual del usuario; el hecho no se reprodujo en la ejecución completa posterior y no constituye deuda activa ni evidencia actual de regresión.
+
+Permanecen fuera compatibilidad artefacto ↔ `CurriculumPreparationState`, interpretación o calidad pedagógica, secuencia de estados, ledger, precedencia, orden curricular, ciclos, prerrequisitos interunidad, cambios en `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage` o `required_stages`, runtime, progreso, mastery y contenido canónico. La siguiente slice prevista abordará la compatibilidad tipada reutilizando este índice, una vez publicado y sincronizado el cierre actual.
