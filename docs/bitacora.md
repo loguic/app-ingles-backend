@@ -6,10 +6,10 @@
 - Base de datos: PostgreSQL
 - ORM: SQLAlchemy
 - Driver: psycopg
-- Última suite backend completa confirmada: 1277 passed durante la primera slice estructural del contrato curricular v1
+- Última suite backend completa confirmada: 1397 passed durante la slice estructural 5 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 3 cerrada, publicada y sincronizada; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 5 cerrada técnicamente mediante `6c0871c`, con documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4006,3 +4006,19 @@ Las cuatro preparaciones `*_AVAILABLE` quedan cubiertas estructuralmente. `EVIDE
 Validación: 51 pruebas específicas PASS; postflight independiente final PASS sin hallazgos; 154 pruebas de regresión directa PASS; suite backend completa ejecutada directamente en Bash, 1377 passed in 13.32s con código 0; `git diff --check` PASS. Dos ejecuciones mediante terminal background de Codex se detuvieron alrededor de las primeras 26 pruebas y terminaron con código 130 sin intervención manual del usuario; la ejecución directa posterior completó correctamente, por lo que no existe evidencia actual de regresión. Si se repite ese comportamiento operativo, la suite completa debe ejecutarse directamente en Bash.
 
 Permanecen fuera calidad o suficiencia pedagógica, evidencia o resultados reales, progreso, mastery, precedencia entre estados, ledger, orden curricular, ciclos, prerrequisitos interunidad, cambios en `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage` o `required_stages`, y contenido canónico. El siguiente paso requiere un preflight desde el contrato autoritativo, sin asumir todavía ledger o precedencia como continuación automática.
+
+## Contrato curricular v1 — Slice estructural 5
+
+Estado: cerrada técnicamente mediante el commit `6c0871c` (`feat derive capability claim availability`); documentación, publicación y sincronización final pendientes.
+
+Se añadió en `app/services/pedagogical_capability_claim_availability.py` la derivación local, pura y determinista del punto de disponibilidad de cada `LessonCapabilityClaim`. La representación efímera usa `CapabilityClaimAvailability` y un resultado batch tipado e inmutable. `lesson_index` se deriva exclusivamente de `candidate_unit.lessons` y `stage_index` exclusivamente de `LessonExperience.stages`: los IDs expresan identidad, nunca orden. Cuando intervienen varios artefactos o stages, el resultado adopta el punto curricular más tardío necesario. `Mission` no recibe `lesson_start` ni otra posición inventada y permanece no posicionable mientras no exista una posición canónica explícita.
+
+Las rutas propietarias confirmadas son `ConversationChoice → conversación propietaria → stage`, `LearnerProductionPrompt → turn/conversation → stage`, `EvidenceDefinition → stage`, `ProductionEvaluationCriterion → evidence → stage` y `SemanticEvaluationRule → criterion → evidence → stage`.
+
+La API batch pura no es fail-fast: procesa todos los claims en orden determinista y devuelve `availabilities` y `derivation_errors` sin depender de `validation_report`. Cada error conserva `lesson_id`, `skill_id`, `preparation_state`, `artifact_ids` y causa; el validador los traduce a findings independientes. Las referencias inválidas detectadas por la slice 3 y los claims incompatibles detectados por la slice 4 se omiten. No se modificaron schemas ni persistencia.
+
+Validación vigente, que no debe repetirse mientras no cambien los archivos técnicos: 20 pruebas específicas PASS; postflight independiente final PASS sin hallazgos; 203 pruebas de regresión directa PASS; suite backend completa ejecutada directamente en Bash, 1397 passed in 13.08s; `PYTEST_EXIT=0`; `git diff --check` PASS. Se conserva el protocolo `prepare`/`resume`, Codex CLI + Bash y la ejecución directa de la suite completa en Bash si el background de Codex vuelve a interrumpirse.
+
+Permanecen fuera comparación anterior/simultáneo/posterior, precedencia entre `CurriculumPreparationState`, ledger, agregación por `Skill`, prerrequisitos y `PedagogicalUnitSpecification.prerequisites`, orden interunidad o CEFR, ciclos, progreso, evidencia o resultados reales del learner, mastery, calidad pedagógica, runtime y cambios en `SkillCoverage` o `required_stages`. `CurriculumPreparationState` no equivale al recorrido del learner, la evidencia real, el progreso ni mastery.
+
+El próximo objetivo es hacer preflight de la siguiente slice desde el contrato v1 autoritativo y evaluar si corresponde precedencia estructural entre estados reutilizando esta derivación de disponibilidad, sin asumir ledger o prerrequisitos antes de confirmar sus dependencias.

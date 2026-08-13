@@ -14,13 +14,15 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 3
+### Contrato curricular v1 — Slice estructural 5
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `779f770` y documental `83e830a`.
+Estado: cerrada técnicamente mediante `6c0871c` (`feat derive capability claim availability`); documentación, publicación y sincronización final pendientes.
 
-El validador `capability_artifact_reference_integrity` resuelve local y tipadamente `LessonCapabilityClaim.artifact_ids`, rechazando referencias desconocidas, externas o ambiguas sin prioridad implícita. Las candidatas heredadas conservan su comportamiento.
+El servicio puro `pedagogical_capability_claim_availability.py` deriva local y determinísticamente la disponibilidad efímera e inmutable de cada claim. Los índices proceden solo de `candidate_unit.lessons` y `LessonExperience.stages`; los IDs expresan identidad, se usa el punto curricular más tardío necesario y `Mission` permanece no posicionable sin posición canónica explícita.
 
-Validación final vigente: 21 pruebas específicas; 82 de regresión directa; suite backend completa con código 0; postflight independiente PASS; `git diff --check` PASS.
+La API batch procesa todos los claims en orden determinista, devuelve disponibilidades y errores tipados sin depender de `validation_report`, y el validador traduce cada error en un finding independiente. Omite referencias inválidas de slice 3 y claims incompatibles de slice 4. No hubo cambios de schemas ni persistencia.
+
+Validación vigente, no repetir mientras no cambien archivos técnicos: 20 pruebas específicas PASS; postflight independiente final PASS sin hallazgos; 203 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1397 passed in 13.08s, `PYTEST_EXIT=0`; `git diff --check` PASS.
 
 ## Automatización disponible
 
@@ -43,20 +45,19 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 - `required_stages` y `SkillCoverage` son contratos heredados y no producen `CurriculumPreparationState`;
 - no modificar todavía `PedagogicalUnitSpecification.prerequisites`;
 - no modificar `SkillCoverage` ni `required_stages`;
-- no exigir un plan por lección ni implementar secuencia de estados, ledger, orden curricular, precedencia, ciclos o prerrequisitos interunidad;
+- no exigir un plan por lección ni implementar comparación anterior/simultáneo/posterior, precedencia entre estados, ledger, agregación por `Skill`, orden interunidad o CEFR, ciclos o prerrequisitos;
 - no modificar runtime individual, progreso, mastery, fonética, feedback ni B181.
+- disponibilidad curricular ≠ recorrido del learner ≠ evidencia real ≠ progreso ≠ mastery.
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 4
+### Contrato curricular v1 — Slice estructural 5
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `b95c53c` (`feat validate capability artifact state compatibility`) y documental `6115cfc`; push confirmado hasta `6115cfc` en `origin/master`.
+Estado: cerrada técnicamente mediante `6c0871c`; documentación, publicación y sincronización final pendientes. La derivación de disponibilidad y su validación están descritas en «Último bloque cerrado».
 
-El validador independiente `capability_artifact_state_compatibility`, integrado en `validate_pedagogical_candidate`, reutiliza la resolución tipada de la slice 3 y valida combinaciones completas y relaciones reales entre los artefactos de un claim y su `CurriculumPreparationState`, no una tabla simple tipo → estado. Omite claims con referencias inválidas o ambiguas y emite un único finding determinista por claim incompatible.
+Rutas propietarias confirmadas: `ConversationChoice → conversación → stage`; `LearnerProductionPrompt → turn/conversation → stage`; `EvidenceDefinition → stage`; `ProductionEvaluationCriterion → evidence → stage`; `SemanticEvaluationRule → criterion → evidence → stage`. Cada error conserva `lesson_id`, `skill_id`, `preparation_state`, `artifact_ids` y causa.
 
-Soporta las combinaciones estructurales de `EXPOSURE_AVAILABLE`, `INSTRUCTION_AVAILABLE`, `PRACTICE_AVAILABLE` y `EVIDENCE_GATE_AVAILABLE`. La puerta de evidencia admite rutas mediante `LearnerProductionPrompt` o mediante `ConversationChoice` sin prompt cuando existe una valoración compatible; una choice sin valoración sigue siendo inválida. `PronunciationReinforcement` y `ExternalReviewRequirement` participan indirectamente sin IDs inventados. No se modificaron schemas ni contenido canónico.
-
-Validación vigente, no repetir mientras no cambien los archivos técnicos: 51 pruebas específicas PASS; postflight independiente final PASS sin hallazgos; 154 pruebas de regresión directa PASS; suite backend completa ejecutada directamente en Bash, 1377 passed in 13.32s y código 0; `git diff --check` PASS. Si el terminal background de Codex vuelve a detenerse alrededor de las primeras pruebas, ejecutar la suite directamente en Bash; no existe evidencia de regresión del backend.
+Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
 
 Archivos técnicos commiteados:
 
@@ -72,7 +73,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Definir mediante preflight la siguiente slice curricular desde el contrato v1 autoritativo, comprobando dependencias reales antes de asumir ledger o precedencia como siguiente paso.
+Hacer preflight de la siguiente slice curricular desde el contrato v1 autoritativo y evaluar si corresponde precedencia estructural entre estados reutilizando la derivación de disponibilidad de slice 5, sin asumir ledger ni prerrequisitos antes de confirmar dependencias.
 
 ## Archivos clave
 
@@ -87,5 +88,6 @@ Definir mediante preflight la siguiente slice curricular desde el contrato v1 au
 - `tests/test_pedagogical_capability_artifact_reference_validation.py`;
 - `app/services/pedagogical_capability_artifact_state_validation.py`;
 - `tests/test_pedagogical_capability_artifact_state_validation.py`;
+- `app/services/pedagogical_capability_claim_availability.py`;
 - `docs/modelo-pedagogico-maestro.md`;
 - `docs/roadmap.md` y `docs/bitacora.md`.
