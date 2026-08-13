@@ -3952,3 +3952,17 @@ Se conservaron las fronteras de la slice: `LessonCapabilityPlan` no está integr
 El commit documental es `c74e259`. El push quedó confirmado hasta ese commit y Git terminó limpio y sincronizado como `## master...origin/master`.
 
 Siguiente objetivo, todavía no abierto: diseñar e implementar el «Checkpoint de cambio de conversación», una herramienta de ingeniería determinista para automatizar la preparación y recuperación de contexto entre conversaciones. `docs/estado-operativo.md` permanece como fuente canónica; se conserva el protocolo Codex CLI + Bash y la regla de no repetir inspecciones o validaciones vigentes.
+
+## Checkpoint de cambio de conversación — Slice estructural 1
+
+Estado: implementación técnica cerrada mediante `bc288fc` (`feat add conversation checkpoint tool`); cierre documental, publicación y sincronización final pendientes.
+
+Se añadieron `scripts/engineering/conversation_checkpoint.py` y `tests/test_conversation_checkpoint.py`. Los comandos read-only `prepare` y `resume` validan `docs/estado-operativo.md` reutilizando `operational_state.py` y generan una vista Markdown efímera, sin persistencia ni red. La inspección Git local informa HEAD, asunto, branch o detached, upstream, ahead/behind, staged, unstaged, untracked y renames. El estado falla cerrado si el checkpoint canónico es inválido, está demostrablemente desactualizado o no reconoce exactamente las rutas con cambios locales.
+
+El postflight detectó y corrigió dos findings: las rutas Git se serializan como JSON ASCII, determinista y reversible, protegiendo Markdown frente a backticks, saltos y controles; y los cambios locales se contrastan exactamente con rutas citadas en `Bloque activo` o `Archivos clave`, incluidos origen y destino de renames.
+
+Validación: 23 pruebas específicas PASS; regresión directa de `tests/test_operational_state.py` y `tests/test_block_workflow.py`, 8 passed; `git diff --check` PASS; postflight final PASS. Las pruebas funcionales reales demostraron rechazo del estado que omitía cambios locales, generación correcta mediante `prepare` tras actualizarlo y reconstrucción del mismo contexto mediante `resume`.
+
+No se ejecutó la suite backend completa: la herramienta es de ingeniería read-only, no modifica código productivo y las pruebas específicas, la regresión directa y las pruebas funcionales cubren el alcance. Limitación no bloqueante: una ruta con backticks requeriría una futura convención documental distinta para figurar literalmente en las secciones canónicas.
+
+El commit técnico existe pero todavía no está publicado. Faltan el commit documental, el push, la prueba final de `prepare` y `resume` con estado publicado y Git limpio, y la comprobación de sincronización final.
