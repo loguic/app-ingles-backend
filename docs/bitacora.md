@@ -9,7 +9,7 @@
 - Última suite backend completa confirmada: 1481 passed durante la slice estructural 10 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 10 cerrada, publicada y sincronizada mediante los commits técnico `0ace21a` y documental `c697d57`; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 11 cerrada, publicada y sincronizada mediante los commits técnico `bf92641` y documental `56e2098`; primer push confirmado hasta `56e2098`; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4103,7 +4103,7 @@ El próximo objetivo es hacer preflight de la siguiente slice desde el contrato 
 
 ## Contrato curricular v1 — Slice estructural 11
 
-Estado: técnicamente cerrada mediante el commit `bf92641` (`feat add local skill prerequisite consumption`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `bf92641` (`feat add local skill prerequisite consumption`) y documental `56e2098`; primer push confirmado hasta `56e2098` en `origin/master`.
 
 Se añadió `derive_local_skill_prerequisite_consumptions(candidate)`, una derivación pura, tipada, inmutable y efímera del punto local de consumo de cada `SkillPrerequisite`. Las estructuras `LocalSkillPrerequisiteConsumption`, `LocalSkillPrerequisiteConsumptionError` y `LocalSkillPrerequisiteConsumptionDerivation` conservan la relación con el `LessonCapabilityPlan` propietario: el `lesson_id` consumidor procede exclusivamente del plan.
 

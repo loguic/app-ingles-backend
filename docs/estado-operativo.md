@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `c697d57`.
+- Último commit publicado y sincronizado: `56e2098`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 11
 
-Estado: técnicamente cerrada mediante el commit `bf92641` (`feat add local skill prerequisite consumption`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `bf92641` (`feat add local skill prerequisite consumption`) y documental `56e2098`; primer push confirmado hasta `56e2098` en `origin/master`.
 
 La API pura `derive_local_skill_prerequisite_consumptions(candidate)` resuelve de forma tipada, inmutable y efímera el punto local de consumo de cada `SkillPrerequisite`. Cada prerequisite pertenece al `LessonCapabilityPlan` propietario y toma de él su `lesson_id`. Un `before_stage_id` explícito solo se resuelve dentro de los stages reales de esa lección; si está ausente, se usa su primer stage real (`stage_index == 0`), sin `lesson_start`, posiciones sintéticas, stages artificiales ni índices negativos.
 
@@ -53,7 +53,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 11
 
-Estado: técnicamente cerrada mediante el commit `bf92641`; documentación, publicación y sincronización final pendientes. La resolución local del punto de consumo está descrita en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `bf92641` y documental `56e2098`; primer push confirmado hasta `56e2098` en `origin/master`. La resolución local del punto de consumo está descrita en «Último bloque cerrado».
 
 Resolución del punto de consumo ≠ satisfacción del prerequisite ≠ progreso del learner ≠ aprendizaje ≠ mastery. Permanecen fuera evaluación de satisfacción de `SkillPrerequisite`, contexto interunidad/CEFR, `CurriculumCapabilityPreparationLedger` completo, comparación `actual_state` frente a `required_state`, estado no resuelto en contexto local, ciclos, progreso, ejecución del learner, evidencia real, resultados, aprendizaje, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
 
