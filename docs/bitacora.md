@@ -4100,3 +4100,19 @@ Validación vigente, no repetir mientras no cambien archivos técnicos: 22 prueb
 Permanecen fuera `CurriculumCapabilityPreparationLedger` completo, selección de cadena máxima, supporting IDs agregados, `SkillPrerequisite`, `PedagogicalUnitSpecification.prerequisites`, contexto interunidad/CEFR, ciclos, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime, persistencia y cambios en `SkillCoverage` o `required_stages`.
 
 El próximo objetivo es hacer preflight de la siguiente slice desde el contrato v1 autoritativo para determinar la dependencia mínima posterior a la vista local agregada por Skill, sin asumir todavía que corresponde construir el ledger completo.
+
+## Contrato curricular v1 — Slice estructural 11
+
+Estado: técnicamente cerrada mediante el commit `bf92641` (`feat add local skill prerequisite consumption`); documentación, publicación y sincronización final pendientes.
+
+Se añadió `derive_local_skill_prerequisite_consumptions(candidate)`, una derivación pura, tipada, inmutable y efímera del punto local de consumo de cada `SkillPrerequisite`. Las estructuras `LocalSkillPrerequisiteConsumption`, `LocalSkillPrerequisiteConsumptionError` y `LocalSkillPrerequisiteConsumptionDerivation` conservan la relación con el `LessonCapabilityPlan` propietario: el `lesson_id` consumidor procede exclusivamente del plan.
+
+Un `before_stage_id` explícito se resuelve solo dentro de `LessonExperience.stages` de la lección propietaria. Si está ausente se utiliza exclusivamente el primer stage real, con `stage_index == 0`; no existen `lesson_start`, posiciones sintéticas, stages artificiales ni índices negativos. `lesson_index` procede de `candidate_unit.lessons`, `stage_index` de `LessonExperience.stages`, y los IDs identifican sin aportar orden. Un stage presente únicamente en otra lección produce `unknown_stage_for_lesson`.
+
+Las cuatro causas derivativas son `unknown_lesson`, `ambiguous_lesson`, `lesson_without_experience` y `unknown_stage_for_lesson`. Cada prerequisite produce exactamente `consumption` XOR `resolution_error`; el procesamiento no es fail-fast, conserva el orden declarativo y mantiene `reason` sin ejecutar lógica. Todavía no se evalúan `satisfied`, `unsatisfied`, `unavailable`, `actual_state` ni comparación entre estados. No se añadieron findings, integración con `pedagogical_validation_service.py`, ledger o persistencia.
+
+Validación vigente, no repetir mientras no cambien archivos técnicos: 19 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 277 pruebas de regresión directa PASS; suite backend completa ejecutada directamente en Bash, 1500 passed in 13.05s; `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, Codex CLI + Bash y la ejecución directa de la suite completa en Bash si el background de Codex falla.
+
+Resolución del punto de consumo ≠ satisfacción del prerequisite ≠ progreso del learner ≠ aprendizaje ≠ mastery. Permanecen fuera evaluación de satisfacción de `SkillPrerequisite`, contexto interunidad/CEFR, `CurriculumCapabilityPreparationLedger` completo, comparación `actual_state` frente a `required_state`, estado no resuelto en contexto local, ciclos, progreso, ejecución del learner, evidencia real, resultados, aprendizaje, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
+
+El próximo objetivo es hacer preflight de la siguiente slice curricular para determinar la dependencia mínima necesaria para evaluar `SkillPrerequisite` sin declarar incorrectamente `unsatisfied` usando solo contexto local, sin asumir todavía que corresponde construir el ledger completo.

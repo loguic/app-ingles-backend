@@ -14,15 +14,15 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 10
+### Contrato curricular v1 — Slice estructural 11
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `0ace21a` (`feat add local skill preparation view`) y documental `c697d57`; push confirmado hasta `c697d57` en `origin/master`.
+Estado: técnicamente cerrada mediante el commit `bf92641` (`feat add local skill prerequisite consumption`); documentación, publicación y sincronización final pendientes.
 
-La API pura `derive_local_capability_preparation_view(...)` devuelve una `LocalCapabilityPreparationView` efímera e inmutable, agrupando por `skill_id` exclusivamente los `available_claims` del snapshot de slice 8. Cada `LocalSkillPreparation` conserva todos sus claims originales y deriva `highest_preparation_state` únicamente mediante el orden público de slice 9.
+La API pura `derive_local_skill_prerequisite_consumptions(candidate)` resuelve de forma tipada, inmutable y efímera el punto local de consumo de cada `SkillPrerequisite`. Cada prerequisite pertenece al `LessonCapabilityPlan` propietario y toma de él su `lesson_id`. Un `before_stage_id` explícito solo se resuelve dentro de los stages reales de esa lección; si está ausente, se usa su primer stage real (`stage_index == 0`), sin `lesson_start`, posiciones sintéticas, stages artificiales ni índices negativos.
 
-`highest_preparation_state` es solo el máximo curricular estructural antes del punto: no equivale a recorrido, ejecución, evidencia real, resultado, progreso, aprendizaje ni mastery. Se conservan todas las alternativas, no se selecciona cadena y las Skills sin claims quedan ausentes. `before_point` y los errores proceden directamente de slice 8; el orden por `skill_id` solo estabiliza la salida. No hubo findings ni integración con el validador general.
+`lesson_index` procede de `candidate_unit.lessons` y `stage_index` de `LessonExperience.stages`; los IDs identifican y nunca ordenan. Las causas derivativas son `unknown_lesson`, `ambiguous_lesson`, `lesson_without_experience` y `unknown_stage_for_lesson`. Cada prerequisite produce `consumption` XOR `resolution_error`, sin fail-fast y conservando el orden declarativo. `reason` se preserva sin ejecutar lógica. No se evalúa satisfacción, estado actual ni comparación de estados; no hubo findings, integración con el validador general, ledger ni persistencia.
 
-Validación vigente, no repetir mientras no cambien archivos técnicos: 22 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 159 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1481 passed in 13.06s, `PYTEST_EXIT=0`; `git diff --check` PASS.
+Validación vigente, no repetir mientras no cambien archivos técnicos: 19 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 277 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1500 passed in 13.05s, `PYTEST_EXIT=0`; `git diff --check` PASS.
 
 ## Automatización disponible
 
@@ -51,11 +51,11 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 10
+### Contrato curricular v1 — Slice estructural 11
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `0ace21a` y documental `c697d57`; push confirmado hasta `c697d57` en `origin/master`. La vista local agregada por Skill está descrita en «Último bloque cerrado».
+Estado: técnicamente cerrada mediante el commit `bf92641`; documentación, publicación y sincronización final pendientes. La resolución local del punto de consumo está descrita en «Último bloque cerrado».
 
-Permanecen fuera `CurriculumCapabilityPreparationLedger` completo, selección de cadena máxima, supporting IDs agregados, `SkillPrerequisite`, `PedagogicalUnitSpecification.prerequisites`, contexto interunidad/CEFR, ciclos, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime, persistencia y cambios en `SkillCoverage` o `required_stages`.
+Resolución del punto de consumo ≠ satisfacción del prerequisite ≠ progreso del learner ≠ aprendizaje ≠ mastery. Permanecen fuera evaluación de satisfacción de `SkillPrerequisite`, contexto interunidad/CEFR, `CurriculumCapabilityPreparationLedger` completo, comparación `actual_state` frente a `required_state`, estado no resuelto en contexto local, ciclos, progreso, ejecución del learner, evidencia real, resultados, aprendizaje, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
 
 Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
 
@@ -69,6 +69,8 @@ Archivos técnicos commiteados:
 - `tests/test_pedagogical_capability_preparation_snapshot.py`.
 - `app/services/pedagogical_local_capability_preparation_view.py`;
 - `tests/test_pedagogical_local_capability_preparation_view.py`.
+- `app/services/pedagogical_local_skill_prerequisite_consumption.py`;
+- `tests/test_pedagogical_local_skill_prerequisite_consumption.py`.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -78,7 +80,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Hacer preflight de la siguiente slice curricular para determinar la dependencia mínima posterior a la vista local agregada por Skill, sin asumir todavía que corresponde construir el ledger completo.
+Hacer preflight de la siguiente slice curricular para determinar la dependencia mínima necesaria para evaluar `SkillPrerequisite` sin declarar incorrectamente `unsatisfied` usando solo contexto local y sin asumir todavía que corresponde construir el ledger completo.
 
 ## Archivos clave
 
@@ -100,5 +102,7 @@ Hacer preflight de la siguiente slice curricular para determinar la dependencia 
 - `tests/test_pedagogical_capability_preparation_snapshot.py`;
 - `app/services/pedagogical_local_capability_preparation_view.py`;
 - `tests/test_pedagogical_local_capability_preparation_view.py`;
+- `app/services/pedagogical_local_skill_prerequisite_consumption.py`;
+- `tests/test_pedagogical_local_skill_prerequisite_consumption.py`;
 - `docs/modelo-pedagogico-maestro.md`;
 - `docs/roadmap.md` y `docs/bitacora.md`.
