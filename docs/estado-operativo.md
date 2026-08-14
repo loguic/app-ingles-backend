@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `2cb5d05`.
+- Último commit publicado y sincronizado: `67b147e`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 19
 
-Estado: técnicamente cerrada mediante el commit `4817d9398e65bb09c29c7834b1b348f24da2b372` (`feat add contextual curriculum prerequisite assessment`); publicación documental pendiente.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `4817d9398e65bb09c29c7834b1b348f24da2b372` (`feat add contextual curriculum prerequisite assessment`) y documental `67b147e`; primer push confirmado hasta `67b147e` en `origin/master`.
 
 La API batch pura `derive_curriculum_skill_prerequisite_assessments(...)` compone slice 11 para consumptions y sus errores, slice 18 para preparación acumulada y errores, y slice 9 para comparar estados. Sus únicos outcomes son `satisfied_in_context` y `unresolved_in_context`: Skill ausente o estado inferior quedan unresolved; estado igual o superior queda satisfied.
 
@@ -55,7 +55,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 19
 
-Estado: técnicamente cerrada mediante el commit `4817d93`; publicación documental pendiente. La evaluación batch contextual está descrita en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `4817d93` y documental `67b147e`; primer push confirmado hasta `67b147e` en `origin/master`. La evaluación batch contextual está descrita en «Último bloque cerrado».
 
 Permanecen fuera authoritative curriculum origin, `globally_complete`, el criterio para transformar ciertos `unresolved_in_context` en una conclusión curricular negativa más fuerte, `unsatisfied` curricular, ciclos de prerequisites, `CurriculumCapabilityPreparationLedger`, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, runtime y persistencia.
 

@@ -4227,7 +4227,7 @@ El próximo objetivo es hacer preflight de la siguiente slice para combinar `Ski
 
 ## Contrato curricular v1 — Slice estructural 19
 
-Estado: técnicamente cerrada mediante el commit `4817d93` (`feat add contextual curriculum prerequisite assessment`); publicación documental pendiente.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `4817d93` (`feat add contextual curriculum prerequisite assessment`) y documental `67b147e`; primer push confirmado hasta `67b147e` en `origin/master`.
 
 Se añadió la evaluación batch contextual, pura, tipada, inmutable y efímera de `SkillPrerequisite` mediante `CurriculumSkillPrerequisiteAssessmentOutcome`, `CurriculumSkillPrerequisiteAssessment`, sus wrappers de errores y observations, `CurriculumSkillPrerequisiteAssessmentDerivation` y `derive_curriculum_skill_prerequisite_assessments(...)`. Compone exclusivamente slice 11 para consumptions y errores, slice 18 para preparación acumulada y errores, y slice 9 para comparar estados.
 
