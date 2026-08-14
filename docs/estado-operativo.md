@@ -14,15 +14,15 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 13
+### Contrato curricular v1 — Slice estructural 14
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `1e5e849` (`feat add canonical CEFR curriculum order`) y documental `57f20e3`; primer push confirmado hasta `57f20e3` en `origin/master`.
+Estado: técnicamente cerrada mediante el commit `9c7b238` (`feat add canonical curriculum unit positions`); documentación, publicación y sincronización final pendientes.
 
-La API pública y pura expone `CEFR_LEVEL_ORDER` como fuente única e inmutable del orden `A1 < A2 < B1 < B2 < C1 < C2`, y `cefr_level_index(level: str)` devuelve los índices `0..5`. Reutiliza el `str` de `Level.code`; no crea enum paralelo, fallback, coerción silenciosa, mapping mutable, cache ni secuencia equivalente.
+La API pura `derive_curriculum_unit_positions(hierarchy)` devuelve posiciones interunidad canónicas tipadas, inmutables y efímeras. `level_index` procede exclusivamente de `cefr_level_index(level.code)`, `unit_index` de la posición real en `Level.units`, y la salida válida se ordena por `(level_index, unit_index)`. Los IDs identifican y nunca ordenan.
 
-Un nivel desconocido produce `ValueError`, sin finding. Los IDs no determinan orden y el futuro orden de unidades seguirá procediendo de `Level.units`. Orden CEFR ≠ progreso del learner ≠ aprendizaje ≠ mastery. No se implementaron contexto interunidad, completitud, agregación por Skill, evaluación global, ledger ni persistencia.
+Los errores no fail-fast son `unknown_level`, `duplicate_level`, `duplicate_unit` y `ambiguous_unit`. Levels y units ambiguos quedan excluidos de posiciones utilizables, mientras las unidades inequívocas restantes se conservan. Posición curricular ≠ completitud curricular ≠ preparación acumulada ≠ progreso del learner ≠ aprendizaje ≠ mastery. No se implementaron candidates, contexto, completitud, agregación, evaluación global, ledger, findings ni persistencia.
 
-Validación vigente, no repetir mientras no cambien archivos técnicos: 17 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 246 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1539 passed in 13.01s, `PYTEST_EXIT=0`; `git diff --check` PASS.
+Validación vigente, no repetir mientras no cambien archivos técnicos: 16 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 263 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1555 passed in 12.79s, `PYTEST_EXIT=0`; `git diff --check` PASS.
 
 ## Automatización disponible
 
@@ -51,11 +51,11 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 13
+### Contrato curricular v1 — Slice estructural 14
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `1e5e849` y documental `57f20e3`; primer push confirmado hasta `57f20e3` en `origin/master`. El orden canónico CEFR está descrito en «Último bloque cerrado».
+Estado: técnicamente cerrada mediante el commit `9c7b238`; documentación, publicación y sincronización final pendientes. Las posiciones curriculares canónicas de unidades están descritas en «Último bloque cerrado».
 
-Orden CEFR ≠ progreso del learner ≠ aprendizaje ≠ mastery. Permanecen fuera contexto curricular acumulativo interunidad, validación estructural de completitud, correspondencia jerarquía–`PedagogicalUnitCandidate`, agregación acumulativa por Skill, `context_incomplete`, evaluación global de `SkillPrerequisite`, conclusión global `unsatisfied`, `CurriculumCapabilityPreparationLedger`, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
+Posición curricular ≠ completitud curricular ≠ preparación acumulada ≠ progreso del learner ≠ aprendizaje ≠ mastery. Permanecen fuera correspondencia `PedagogicalUnitCandidate`–posición canónica, `OrderedCurriculumCandidateContext`, definición y demostración de completitud, target curricular, `context_incomplete`, agregación acumulativa por Skill, evaluación global de `SkillPrerequisite`, conclusión global `unsatisfied`, `CurriculumCapabilityPreparationLedger`, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
 
 Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
 
@@ -75,6 +75,8 @@ Archivos técnicos commiteados:
 - `tests/test_pedagogical_local_skill_prerequisite_assessment.py`.
 - `app/services/pedagogical_curriculum_order.py`;
 - `tests/test_pedagogical_curriculum_order.py`.
+- `app/services/pedagogical_curriculum_unit_position.py`;
+- `tests/test_pedagogical_curriculum_unit_position.py`.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -84,7 +86,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Hacer preflight de la siguiente slice para modelar la representación mínima, ordenada y verificable del contexto curricular interunidad antes de agregar preparación o permitir conclusiones globales, sin asumir todavía que corresponde construir el ledger completo.
+Hacer preflight de la siguiente slice para determinar la dependencia mínima entre posiciones canónicas resueltas y la correspondencia estructural con `PedagogicalUnitCandidate`, antes de introducir completitud curricular y sin asumir todavía un `OrderedCurriculumCandidateContext` completo.
 
 ## Archivos clave
 
@@ -112,5 +114,7 @@ Hacer preflight de la siguiente slice para modelar la representación mínima, o
 - `tests/test_pedagogical_local_skill_prerequisite_assessment.py`;
 - `app/services/pedagogical_curriculum_order.py`;
 - `tests/test_pedagogical_curriculum_order.py`;
+- `app/services/pedagogical_curriculum_unit_position.py`;
+- `tests/test_pedagogical_curriculum_unit_position.py`;
 - `docs/modelo-pedagogico-maestro.md`;
 - `docs/roadmap.md` y `docs/bitacora.md`.

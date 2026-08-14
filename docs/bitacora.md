@@ -6,10 +6,10 @@
 - Base de datos: PostgreSQL
 - ORM: SQLAlchemy
 - Driver: psycopg
-- Última suite backend completa confirmada: 1539 passed durante la slice estructural 13 del contrato curricular v1
+- Última suite backend completa confirmada: 1555 passed durante la slice estructural 14 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 13 cerrada, publicada y sincronizada mediante los commits técnico `1e5e849` y documental `57f20e3`; primer push confirmado hasta `57f20e3`; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 14 técnicamente cerrada mediante el commit `9c7b238`; documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4146,3 +4146,17 @@ Validación vigente, no repetir mientras no cambien archivos técnicos: 17 prueb
 Permanecen fuera contexto curricular acumulativo interunidad, validación estructural de completitud, correspondencia jerarquía–`PedagogicalUnitCandidate`, agregación acumulativa por Skill, `context_incomplete`, evaluación global de `SkillPrerequisite`, conclusión global `unsatisfied`, `CurriculumCapabilityPreparationLedger`, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
 
 El próximo objetivo es hacer preflight de la siguiente slice para modelar la representación mínima, ordenada y verificable del contexto curricular interunidad antes de agregar preparación o permitir conclusiones globales, sin asumir todavía que corresponde construir el ledger completo.
+
+## Contrato curricular v1 — Slice estructural 14
+
+Estado: técnicamente cerrada mediante el commit `9c7b238` (`feat add canonical curriculum unit positions`); documentación, publicación y sincronización final pendientes.
+
+Se añadió la resolución pura, tipada, inmutable y efímera de posiciones curriculares canónicas de unidades mediante `CurriculumUnitPosition`, `CurriculumUnitPositionError`, `CurriculumUnitPositionDerivation` y `derive_curriculum_unit_positions(hierarchy)`. `level_index` procede exclusivamente de `cefr_level_index(level.code)`, `unit_index` de la posición real en `Level.units`, y las posiciones válidas se ordenan por `(level_index, unit_index)`. Los IDs identifican y nunca ordenan.
+
+La derivación no es fail-fast. Sus causas son `unknown_level`, `duplicate_level`, `duplicate_unit` y `ambiguous_unit`: los levels duplicados quedan excluidos con todas sus units; las units duplicadas dentro de un level y los mismos `Unit.id` presentes en varios levels tampoco generan posiciones utilizables. Las unidades inequívocas restantes se conservan.
+
+Validación vigente, no repetir mientras no cambien archivos técnicos: 16 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 263 pruebas de regresión directa PASS; suite backend completa ejecutada directamente en Bash, 1555 passed in 12.79s; `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, Codex CLI + Bash y la ejecución directa de la suite completa en Bash si el background de Codex falla.
+
+Posición curricular ≠ completitud curricular ≠ preparación acumulada ≠ progreso del learner ≠ aprendizaje ≠ mastery. Permanecen fuera correspondencia `PedagogicalUnitCandidate`–posición canónica, `OrderedCurriculumCandidateContext`, definición y demostración de completitud, target curricular, `context_incomplete`, agregación acumulativa por Skill, evaluación global de `SkillPrerequisite`, conclusión global `unsatisfied`, `CurriculumCapabilityPreparationLedger`, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
+
+El próximo objetivo es hacer preflight de la siguiente slice para determinar la dependencia mínima entre posiciones canónicas ya resueltas y la correspondencia estructural con `PedagogicalUnitCandidate`, antes de introducir completitud curricular y sin asumir todavía un `OrderedCurriculumCandidateContext` completo.
