@@ -6,10 +6,10 @@
 - Base de datos: PostgreSQL
 - ORM: SQLAlchemy
 - Driver: psycopg
-- Última suite backend completa confirmada: 1481 passed durante la slice estructural 10 del contrato curricular v1
+- Última suite backend completa confirmada: 1522 passed durante la slice estructural 12 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 11 cerrada, publicada y sincronizada mediante los commits técnico `bf92641` y documental `56e2098`; primer push confirmado hasta `56e2098`; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 12 técnicamente cerrada mediante el commit `fbdd4bd`; documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4116,3 +4116,19 @@ Validación vigente, no repetir mientras no cambien archivos técnicos: 19 prueb
 Resolución del punto de consumo ≠ satisfacción del prerequisite ≠ progreso del learner ≠ aprendizaje ≠ mastery. Permanecen fuera evaluación de satisfacción de `SkillPrerequisite`, contexto interunidad/CEFR, `CurriculumCapabilityPreparationLedger` completo, comparación `actual_state` frente a `required_state`, estado no resuelto en contexto local, ciclos, progreso, ejecución del learner, evidencia real, resultados, aprendizaje, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
 
 El próximo objetivo es hacer preflight de la siguiente slice curricular para determinar la dependencia mínima necesaria para evaluar `SkillPrerequisite` sin declarar incorrectamente `unsatisfied` usando solo contexto local, sin asumir todavía que corresponde construir el ledger completo.
+
+## Contrato curricular v1 — Slice estructural 12
+
+Estado: técnicamente cerrada mediante el commit `fbdd4bd` (`feat add local skill prerequisite assessment`); documentación, publicación y sincronización final pendientes.
+
+Se añadió la evaluación local, pura, tipada, inmutable y efímera de `SkillPrerequisite` mediante `LocalSkillPrerequisiteAssessmentOutcome`, `LocalSkillPrerequisiteAssessment`, `LocalSkillPrerequisiteAssessmentDerivation` y `derive_local_skill_prerequisite_assessments(candidate)`. Los únicos outcomes son `satisfied_in_local_context` y `unresolved_in_local_context`.
+
+`satisfied_in_local_context` exige que exista el `LocalSkillPreparation` de la Skill requerida y que su `highest_preparation_state` alcance o supere `required_state` usando exclusivamente `curriculum_preparation_state_index(...)`. Solo demuestra preparación curricular estructural local suficiente: no equivale a satisfacción curricular global, progreso del learner, aprendizaje ni mastery. Una Skill ausente o con estado local inferior produce `unresolved_in_local_context`, que no equivale a `unsatisfied` ni permite inferir ausencia global.
+
+Cada assessment conserva por identidad el consumption, prerequisite, `before_point`, `LocalSkillPreparation` original y todos sus `available_claims`. Los `resolution_errors` de slice 11 se preservan exactamente, no producen assessments y no bloquean consumptions válidos. No se reconstruyen precedencia, disponibilidad, posiciones, snapshot, agregación o cadenas. No se añadieron findings, integración con `pedagogical_validation_service.py`, ledger o persistencia.
+
+Validación vigente, no repetir mientras no cambien archivos técnicos: 22 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 296 pruebas de regresión directa PASS; suite backend completa ejecutada directamente en Bash, 1522 passed in 13.01s; `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, Codex CLI + Bash y la ejecución directa de la suite completa en Bash si el background de Codex falla.
+
+Permanecen fuera contexto curricular acumulativo interunidad/CEFR, evaluación global de prerequisites, conclusión global `unsatisfied`, `CurriculumCapabilityPreparationLedger` completo, validación de ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución del learner, evidencia real, resultados, aprendizaje, retention, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
+
+El próximo objetivo es hacer preflight de la siguiente slice para determinar la representación mínima de contexto curricular acumulativo interunidad necesaria antes de cualquier evaluación global de `SkillPrerequisite`, sin asumir todavía que corresponde construir el ledger completo.

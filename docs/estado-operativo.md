@@ -14,15 +14,15 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 11
+### Contrato curricular v1 — Slice estructural 12
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `bf92641` (`feat add local skill prerequisite consumption`) y documental `56e2098`; primer push confirmado hasta `56e2098` en `origin/master`.
+Estado: técnicamente cerrada mediante el commit `fbdd4bd` (`feat add local skill prerequisite assessment`); documentación, publicación y sincronización final pendientes.
 
-La API pura `derive_local_skill_prerequisite_consumptions(candidate)` resuelve de forma tipada, inmutable y efímera el punto local de consumo de cada `SkillPrerequisite`. Cada prerequisite pertenece al `LessonCapabilityPlan` propietario y toma de él su `lesson_id`. Un `before_stage_id` explícito solo se resuelve dentro de los stages reales de esa lección; si está ausente, se usa su primer stage real (`stage_index == 0`), sin `lesson_start`, posiciones sintéticas, stages artificiales ni índices negativos.
+La API pura `derive_local_skill_prerequisite_assessments(candidate)` evalúa localmente cada `SkillPrerequisite` resoluble. Sus únicos outcomes son `satisfied_in_local_context`, cuando un `LocalSkillPreparation` de la Skill requerida alcanza o supera el estado mínimo mediante el orden canónico, y `unresolved_in_local_context`, cuando la Skill está ausente o su preparación local es inferior.
 
-`lesson_index` procede de `candidate_unit.lessons` y `stage_index` de `LessonExperience.stages`; los IDs identifican y nunca ordenan. Las causas derivativas son `unknown_lesson`, `ambiguous_lesson`, `lesson_without_experience` y `unknown_stage_for_lesson`. Cada prerequisite produce `consumption` XOR `resolution_error`, sin fail-fast y conservando el orden declarativo. `reason` se preserva sin ejecutar lógica. No se evalúa satisfacción, estado actual ni comparación de estados; no hubo findings, integración con el validador general, ledger ni persistencia.
+La satisfacción local solo demuestra preparación curricular estructural local suficiente: no equivale a satisfacción curricular global, progreso, aprendizaje ni mastery. `unresolved_in_local_context` no equivale a `unsatisfied`. Se conservan por identidad consumption, prerequisite, `before_point`, preparación local y sus `available_claims`; los `resolution_errors` de slice 11 permanecen intactos, no generan assessments ni bloquean consumptions válidos. No se reconstruyen precedencia, disponibilidad, posiciones, snapshot, agregación o cadenas. No hubo findings, integración con el validador general, ledger ni persistencia.
 
-Validación vigente, no repetir mientras no cambien archivos técnicos: 19 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 277 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1500 passed in 13.05s, `PYTEST_EXIT=0`; `git diff --check` PASS.
+Validación vigente, no repetir mientras no cambien archivos técnicos: 22 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 296 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1522 passed in 13.01s, `PYTEST_EXIT=0`; `git diff --check` PASS.
 
 ## Automatización disponible
 
@@ -51,11 +51,11 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 11
+### Contrato curricular v1 — Slice estructural 12
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `bf92641` y documental `56e2098`; primer push confirmado hasta `56e2098` en `origin/master`. La resolución local del punto de consumo está descrita en «Último bloque cerrado».
+Estado: técnicamente cerrada mediante el commit `fbdd4bd`; documentación, publicación y sincronización final pendientes. La evaluación local de prerrequisitos está descrita en «Último bloque cerrado».
 
-Resolución del punto de consumo ≠ satisfacción del prerequisite ≠ progreso del learner ≠ aprendizaje ≠ mastery. Permanecen fuera evaluación de satisfacción de `SkillPrerequisite`, contexto interunidad/CEFR, `CurriculumCapabilityPreparationLedger` completo, comparación `actual_state` frente a `required_state`, estado no resuelto en contexto local, ciclos, progreso, ejecución del learner, evidencia real, resultados, aprendizaje, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
+`satisfied_in_local_context` ≠ satisfacción curricular global ≠ progreso del learner ≠ aprendizaje ≠ mastery; `unresolved_in_local_context` ≠ `unsatisfied`. Permanecen fuera contexto curricular acumulativo interunidad/CEFR, evaluación global de prerequisites, conclusión global `unsatisfied`, `CurriculumCapabilityPreparationLedger` completo, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución del learner, evidencia real, resultados, aprendizaje, retention, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
 
 Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
 
@@ -71,6 +71,8 @@ Archivos técnicos commiteados:
 - `tests/test_pedagogical_local_capability_preparation_view.py`.
 - `app/services/pedagogical_local_skill_prerequisite_consumption.py`;
 - `tests/test_pedagogical_local_skill_prerequisite_consumption.py`.
+- `app/services/pedagogical_local_skill_prerequisite_assessment.py`;
+- `tests/test_pedagogical_local_skill_prerequisite_assessment.py`.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -80,7 +82,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Hacer preflight de la siguiente slice curricular para determinar la dependencia mínima necesaria para evaluar `SkillPrerequisite` sin declarar incorrectamente `unsatisfied` usando solo contexto local y sin asumir todavía que corresponde construir el ledger completo.
+Hacer preflight de la siguiente slice para determinar la representación mínima de contexto curricular acumulativo interunidad necesaria antes de cualquier evaluación global de `SkillPrerequisite`, sin asumir todavía que corresponde construir el ledger completo.
 
 ## Archivos clave
 
@@ -104,5 +106,7 @@ Hacer preflight de la siguiente slice curricular para determinar la dependencia 
 - `tests/test_pedagogical_local_capability_preparation_view.py`;
 - `app/services/pedagogical_local_skill_prerequisite_consumption.py`;
 - `tests/test_pedagogical_local_skill_prerequisite_consumption.py`;
+- `app/services/pedagogical_local_skill_prerequisite_assessment.py`;
+- `tests/test_pedagogical_local_skill_prerequisite_assessment.py`;
 - `docs/modelo-pedagogico-maestro.md`;
 - `docs/roadmap.md` y `docs/bitacora.md`.
