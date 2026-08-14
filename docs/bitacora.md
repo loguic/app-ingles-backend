@@ -6,10 +6,10 @@
 - Base de datos: PostgreSQL
 - ORM: SQLAlchemy
 - Driver: psycopg
-- Última suite backend completa confirmada: 1459 passed durante la slice estructural 9 del contrato curricular v1
+- Última suite backend completa confirmada: 1481 passed durante la slice estructural 10 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 9 cerrada, publicada y sincronizada mediante los commits técnico `20e0f85` y documental `a3e9237`; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 10 cerrada técnicamente mediante `0ace21a`, con documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4084,3 +4084,19 @@ Validación vigente, no repetir mientras no cambien archivos técnicos: 41 prueb
 Permanecen fuera agregación local por `skill_id`, `highest_preparation_state`, selección de cadena máxima, `CurriculumCapabilityPreparationLedger`, `SkillPrerequisite`, `PedagogicalUnitSpecification.prerequisites`, contexto interunidad/CEFR, ciclos, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime, persistencia y cambios en `SkillCoverage` o `required_stages`. `CurriculumPreparationState` no equivale al recorrido del learner, el progreso ni mastery.
 
 El próximo objetivo es hacer preflight de la siguiente slice desde el contrato v1 autoritativo para determinar si ya corresponde derivar una vista local agregada por `Skill` y `highest_preparation_state` desde el snapshot de slice 8 y el orden público de slice 9.
+
+## Contrato curricular v1 — Slice estructural 10
+
+Estado: cerrada técnicamente mediante el commit `0ace21a` (`feat add local skill preparation view`); documentación, publicación y sincronización final pendientes.
+
+Se añadió la vista local, pura, tipada, inmutable y efímera de preparación curricular agregada por `skill_id` antes de un punto. `derive_local_capability_preparation_view(...)` consume exclusivamente el snapshot de slice 8; cada `LocalSkillPreparation` conserva todos sus `available_claims` originales exactamente una vez y calcula `highest_preparation_state` mediante el orden público de slice 9. Las Skills sin claims quedan ausentes y un snapshot vacío produce `skills == ()`.
+
+`highest_preparation_state` significa únicamente máximo curricular estructural disponible antes del punto; no equivale a recorrido del learner, ejecución, evidencia real, resultado, progreso, aprendizaje ni mastery. No se selecciona cadena productora ni se eliminan alternativas. `before_point` y los errores `unknown_lesson`, `ambiguous_lesson`, `lesson_without_experience` y `unknown_stage_for_lesson` proceden directamente de slice 8. El orden por `skill_id` solo estabiliza la salida y carece de significado curricular.
+
+No se añadieron findings ni integración con `pedagogical_validation_service.py`. Tampoco se implementaron ledger completo, supporting IDs agregados o persistencia.
+
+Validación vigente, no repetir mientras no cambien archivos técnicos: 22 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 159 pruebas de regresión directa PASS; suite backend completa ejecutada directamente en Bash, 1481 passed in 13.06s; `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, Codex CLI + Bash y la ejecución directa de la suite completa en Bash si el background de Codex vuelve a interrumpirse.
+
+Permanecen fuera `CurriculumCapabilityPreparationLedger` completo, selección de cadena máxima, supporting IDs agregados, `SkillPrerequisite`, `PedagogicalUnitSpecification.prerequisites`, contexto interunidad/CEFR, ciclos, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime, persistencia y cambios en `SkillCoverage` o `required_stages`.
+
+El próximo objetivo es hacer preflight de la siguiente slice desde el contrato v1 autoritativo para determinar la dependencia mínima posterior a la vista local agregada por Skill, sin asumir todavía que corresponde construir el ledger completo.
