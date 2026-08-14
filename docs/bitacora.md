@@ -9,7 +9,7 @@
 - Última suite backend completa confirmada: 1453 passed durante la slice estructural 8 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 8 cerrada técnicamente mediante `c3fe335`, con documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 8 cerrada, publicada y sincronizada mediante los commits técnico `c3fe335` y documental `1428767`; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4057,7 +4057,7 @@ El próximo objetivo es hacer preflight de la siguiente slice desde el contrato 
 
 ## Contrato curricular v1 — Slice estructural 8
 
-Estado: cerrada técnicamente mediante el commit `c3fe335` (`feat add local capability preparation snapshot`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `c3fe335` (`feat add local capability preparation snapshot`) y documental `1428767`; push confirmado hasta `1428767` en `origin/master`.
 
 Se añadió el snapshot local, puro, tipado, inmutable y efímero de claims con precedencia válida estrictamente anteriores a un punto curricular canónico. `derive_capability_preparation_snapshot(...)` resuelve `LocalCurriculumPoint` mediante `lesson_id + stage_id` contra `candidate_unit.lessons → LessonExperience.stages`; `lesson_index` y `stage_index` proceden exclusivamente de esas listas y los IDs solo identifican.
 

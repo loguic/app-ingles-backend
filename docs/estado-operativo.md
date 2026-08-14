@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `787561e`.
+- Último commit publicado y sincronizado: `1428767`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 8
 
-Estado: cerrada técnicamente mediante `c3fe335` (`feat add local capability preparation snapshot`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `c3fe335` (`feat add local capability preparation snapshot`) y documental `1428767`; push confirmado hasta `1428767` en `origin/master`.
 
 La API pura `derive_capability_preparation_snapshot(...)` devuelve un `CapabilityPreparationSnapshot` efímero e inmutable con los claims de `derive_capability_claim_state_precedence(candidate).valid_claims` estrictamente anteriores a un `LocalCurriculumPoint`. El punto resuelve `lesson_id` y `stage_id` contra `candidate_unit.lessons → LessonExperience.stages`; los índices proceden solo de esas listas y los IDs nunca expresan orden.
 
@@ -53,7 +53,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 8
 
-Estado: cerrada técnicamente mediante `c3fe335`; documentación, publicación y sincronización final pendientes. El snapshot local está descrito en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `c3fe335` y documental `1428767`; push confirmado hasta `1428767` en `origin/master`. El snapshot local está descrito en «Último bloque cerrado».
 
 Permanecen fuera `CurriculumCapabilityPreparationLedger`, agregación por `Skill`, `highest_preparation_state`, selección de cadena máxima, `SkillPrerequisite`, `PedagogicalUnitSpecification.prerequisites`, contexto interunidad/CEFR, ciclos, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime, persistencia y cambios en `SkillCoverage` o `required_stages`.
 
