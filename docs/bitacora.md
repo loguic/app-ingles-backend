@@ -4192,3 +4192,19 @@ Validación vigente, no repetir mientras no cambien archivos técnicos: 20 prueb
 Scope resuelto ≠ contexto completo por candidates ≠ completitud global ≠ preparación acumulada ≠ prerequisite globalmente satisfecho ≠ progreso ≠ aprendizaje ≠ mastery. Permanecen fuera correspondencia scope–`OrderedCurriculumCandidateEntry`, posiciones requeridas sin candidate, completitud respecto a hierarchy, `OrderedCurriculumCandidateContext`, errores de completitud, origen curricular autoritativo, acumulación interunidad por Skill, evaluación global de `SkillPrerequisite`, conclusión `unsatisfied`, `CurriculumCapabilityPreparationLedger`, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, runtime y persistencia.
 
 El próximo objetivo es hacer preflight de la siguiente slice para combinar `CurriculumContextScope` con `CurriculumCandidateCorrespondenceDerivation` y determinar si puede construirse por primera vez un `OrderedCurriculumCandidateContext` completo respecto a hierarchy, sin agregar todavía preparación por Skill.
+
+## Contrato curricular v1 — Slice estructural 17
+
+Estado: técnicamente cerrada mediante el commit `c2bf754` (`feat add ordered curriculum candidate context`); documentación, publicación y sincronización pendientes.
+
+Se añadió `derive_ordered_curriculum_candidate_context(...)` y las estructuras inmutables `OrderedCurriculumCandidateContext`, `CurriculumCandidateContextError` y `CurriculumCandidateContextDerivation`. La derivación compone exclusivamente el scope de slice 16 y las correspondencias de slice 15, sin recalcular posiciones, orden o relaciones candidate–unit.
+
+Un contexto existe únicamente cuando cada `scope.required_position` tiene exactamente una entry válida. `context.entries` sigue el orden del scope y relaciona posiciones generadas por llamadas separadas mediante igualdad estructural, nunca identidad Python. La existencia del contexto demuestra `complete_within_hierarchy` por construcción; no existe `is_complete` ni contexto parcial.
+
+Las causas son `missing_candidate`, `correspondence_unresolved` y `correspondence_derivation_inconsistent`. Los errores relacionados se conservan por identidad, `correspondence_unresolved` no duplica `missing_candidate`, y los errores demostrablemente externos al scope permanecen trazables sin bloquear. Una candidate heredada válida puede cubrir estructuralmente una posición aunque no aporte preparación.
+
+Validación vigente, no repetir mientras no cambien archivos técnicos: 21 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 251 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1618 passed in 12.99s; `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición y el flujo Codex CLI + Bash.
+
+`complete_within_hierarchy` ≠ `globally_complete` ≠ origen curricular global demostrado ≠ preparación acumulada por Skill ≠ prerequisite globalmente satisfecho ≠ `unsatisfied` ≠ progreso ≠ evidencia real ≠ aprendizaje ≠ retention ≠ mastery. Permanecen fuera origen curricular autoritativo, preparación acumulativa interunidad por Skill, máximo acumulado, evaluación global de `SkillPrerequisite`, conclusión `unsatisfied`, `CurriculumCapabilityPreparationLedger`, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, runtime y persistencia.
+
+El próximo objetivo es hacer preflight de la siguiente slice para consumir un `OrderedCurriculumCandidateContext` válido y derivar preparación curricular acumulativa interunidad por Skill, sin evaluar todavía `SkillPrerequisite` ni producir `unsatisfied`.
