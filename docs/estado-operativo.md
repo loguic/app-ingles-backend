@@ -14,15 +14,15 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 6
+### Contrato curricular v1 — Slice estructural 7
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `2a4db09` (`feat validate capability claim state precedence`) y documental `f5f982b`; push confirmado hasta `f5f982b` en `origin/master`.
+Estado: cerrada técnicamente mediante `f1eb2ba` (`refactor expose capability claim precedence derivation`); documentación, publicación y sincronización final pendientes.
 
-El validador `capability_claim_state_precedence` reutiliza exclusivamente la disponibilidad de slice 5 y exige, para una misma `Skill`, la cadena estricta `EXPOSURE_AVAILABLE < INSTRUCTION_AVAILABLE < PRACTICE_AVAILABLE < EVIDENCE_GATE_AVAILABLE`. Cada estado superior requiere el inmediato anterior, válidamente encadenado, en una posición `(lesson_index, stage_index)` estrictamente menor; el mismo stage no satisface precedencia y los IDs nunca expresan orden.
+La API pura `derive_capability_claim_state_precedence(candidate)` consume la derivación de slice 5 y devuelve `CapabilityClaimPrecedenceDerivation`, separando inmutablemente cada `CapabilityClaimAvailability` posicionable en `valid_claims` o un `CapabilityClaimPrecedenceError` en `precedence_errors`. Los claims excluidos por slice 5 quedan fuera de ambas colecciones y no generan errores duplicados.
 
-Los claims equivalentes son independientes y cualquier predecesor válido anterior puede sostener el siguiente; uno inválido no sostiene estados posteriores. Los errores de derivación de slice 5 se omiten sin findings duplicados. Las causas deterministas son `required_state_absent`, `required_state_same_position`, `required_state_only_later` y `required_state_not_validly_chained`, con un finding por claim superior problemático. El estado auxiliar es efímero y local: no existe ledger encubierto. No hubo cambios de schemas, persistencia ni contenido canónico.
+Conserva la precedencia estricta y acumulativa de slice 6, el aislamiento por `Skill`, el rechazo del mismo stage y las cuatro causas existentes. No colapsa claims ni calcula estado máximo, posición elegida, snapshot o ledger. El validador es solo adaptador de errores a findings. `_STATE_ORDER` es una tuple inmutable y `_state_index()` la consulta sin estado global mutable. No hubo cambios de schemas, persistencia ni contenido canónico.
 
-Validación vigente, no repetir mientras no cambien archivos técnicos: 24 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 201 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1421 passed in 13.14s, `PYTEST_EXIT=0`; `git diff --check` PASS.
+Validación vigente, no repetir mientras no cambien archivos técnicos: 35 pruebas específicas PASS; postflight independiente final PASS sin hallazgos; 201 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1432 passed in 13.30s, `PYTEST_EXIT=0`; `git diff --check` PASS.
 
 ## Automatización disponible
 
@@ -51,11 +51,11 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 6
+### Contrato curricular v1 — Slice estructural 7
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `2a4db09` y documental `f5f982b`; push confirmado hasta `f5f982b` en `origin/master`. La precedencia estructural y su validación están descritas en «Último bloque cerrado».
+Estado: cerrada técnicamente mediante `f1eb2ba`; documentación, publicación y sincronización final pendientes. La derivación pura de precedencia está descrita en «Último bloque cerrado».
 
-Permanecen fuera `CurriculumCapabilityPreparationLedger`, ledger persistido, agregación definitiva por `Skill`, prerrequisitos y `PedagogicalUnitSpecification.prerequisites`, orden interunidad/CEFR, ciclos, orden intra-stage, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime y cambios en `SkillCoverage` o `required_stages`.
+Permanecen fuera `CurriculumCapabilityPreparationLedger`, snapshot curricular, agregación por `Skill`, `highest_preparation_state`, elección de primera/última posición, prerrequisitos y `PedagogicalUnitSpecification.prerequisites`, contexto interunidad/CEFR, ciclos, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime, persistencia y cambios en `SkillCoverage` o `required_stages`.
 
 Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
 
@@ -74,7 +74,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Hacer preflight de la siguiente slice curricular desde el contrato v1 autoritativo y evaluar si ya corresponde construir el ledger curricular derivado o existe una dependencia estructural previa más pequeña, sin abordar prerrequisitos antes de demostrar sus dependencias.
+Hacer preflight de la siguiente slice curricular desde el contrato v1 autoritativo y reevaluar si ya corresponde construir una vista o ledger curricular derivado o todavía falta una dependencia estructural previa, sin iniciar prerrequisitos antes de demostrar sus dependencias.
 
 ## Archivos clave
 
