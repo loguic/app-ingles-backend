@@ -9,7 +9,7 @@
 - Última suite backend completa confirmada: 1577 passed durante la slice estructural 15 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 15 técnicamente cerrada mediante el commit `aeba506`; documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 15 cerrada, publicada y sincronizada mediante los commits técnico `aeba506` y documental `ce22f92`; primer push confirmado hasta `ce22f92`; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4163,7 +4163,7 @@ El próximo objetivo es hacer preflight de la siguiente slice para determinar la
 
 ## Contrato curricular v1 — Slice estructural 15
 
-Estado: técnicamente cerrada mediante el commit `aeba506` (`feat add curriculum candidate correspondence`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `aeba506` (`feat add curriculum candidate correspondence`) y documental `ce22f92`; primer push confirmado hasta `ce22f92` en `origin/master`.
 
 Se añadió la derivación batch pura, tipada, inmutable y efímera de correspondencias candidate–posición mediante `OrderedCurriculumCandidateEntry`, `CurriculumCandidateCorrespondenceError`, `CurriculumCandidateCorrespondenceDerivation` y `derive_curriculum_candidate_correspondences(hierarchy, candidates)`. Consume exclusivamente las posiciones de slice 14, sin recalcular `level_index`, `unit_index` u orden CEFR.
 

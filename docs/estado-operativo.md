@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `b4e9d27`.
+- Último commit publicado y sincronizado: `ce22f92`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 15
 
-Estado: técnicamente cerrada mediante el commit `aeba506` (`feat add curriculum candidate correspondence`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `aeba506` (`feat add curriculum candidate correspondence`) y documental `ce22f92`; primer push confirmado hasta `ce22f92` en `origin/master`.
 
 La API pura `derive_curriculum_candidate_correspondences(hierarchy, candidates)` relaciona cada `PedagogicalUnitCandidate` con una `CurriculumUnitPosition` de slice 14 sin recalcular índices ni orden CEFR. Exige coherencia entre `specification.unit_id`, `candidate_unit.id`, la posición resuelta y `specification.level`; conserva por identidad candidates, posiciones y errores heredados.
 
@@ -53,7 +53,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 15
 
-Estado: técnicamente cerrada mediante el commit `aeba506`; documentación, publicación y sincronización final pendientes. La correspondencia candidate–posición está descrita en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `aeba506` y documental `ce22f92`; primer push confirmado hasta `ce22f92` en `origin/master`. La correspondencia candidate–posición está descrita en «Último bloque cerrado».
 
 Entries ordenadas ≠ contexto curricular completo ≠ completitud ≠ preparación acumulada ≠ progreso del learner ≠ aprendizaje ≠ mastery. Permanecen fuera definición del alcance requerido, target curricular, completitud estructural, posiciones requeridas sin candidate, `context_incomplete`, `OrderedCurriculumCandidateContext` completo, acumulación interunidad por Skill, evaluación global de `SkillPrerequisite`, conclusión global `unsatisfied`, `CurriculumCapabilityPreparationLedger`, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
 
