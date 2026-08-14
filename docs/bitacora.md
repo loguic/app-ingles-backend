@@ -9,7 +9,7 @@
 - Última suite backend completa confirmada: 1539 passed durante la slice estructural 13 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 13 técnicamente cerrada mediante el commit `1e5e849`; documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 13 cerrada, publicada y sincronizada mediante los commits técnico `1e5e849` y documental `57f20e3`; primer push confirmado hasta `57f20e3`; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4135,7 +4135,7 @@ El próximo objetivo es hacer preflight de la siguiente slice para determinar la
 
 ## Contrato curricular v1 — Slice estructural 13
 
-Estado: técnicamente cerrada mediante el commit `1e5e849` (`feat add canonical CEFR curriculum order`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `1e5e849` (`feat add canonical CEFR curriculum order`) y documental `57f20e3`; primer push confirmado hasta `57f20e3` en `origin/master`.
 
 Se añadió la API pública, pura e inmutable del orden canónico CEFR v1. `CEFR_LEVEL_ORDER` es la única fuente de `A1 < A2 < B1 < B2 < C1 < C2`, y `cefr_level_index(level: str)` devuelve respectivamente los índices `0..5`. La API reutiliza el `str` de `Level.code`; no introduce enum CEFR paralelo, fallback, coerción silenciosa, mapping mutable, cache ni secuencia equivalente.
 

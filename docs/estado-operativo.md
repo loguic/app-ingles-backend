@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `bbf62af`.
+- Último commit publicado y sincronizado: `57f20e3`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 13
 
-Estado: técnicamente cerrada mediante el commit `1e5e849` (`feat add canonical CEFR curriculum order`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `1e5e849` (`feat add canonical CEFR curriculum order`) y documental `57f20e3`; primer push confirmado hasta `57f20e3` en `origin/master`.
 
 La API pública y pura expone `CEFR_LEVEL_ORDER` como fuente única e inmutable del orden `A1 < A2 < B1 < B2 < C1 < C2`, y `cefr_level_index(level: str)` devuelve los índices `0..5`. Reutiliza el `str` de `Level.code`; no crea enum paralelo, fallback, coerción silenciosa, mapping mutable, cache ni secuencia equivalente.
 
@@ -53,7 +53,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 13
 
-Estado: técnicamente cerrada mediante el commit `1e5e849`; documentación, publicación y sincronización final pendientes. El orden canónico CEFR está descrito en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `1e5e849` y documental `57f20e3`; primer push confirmado hasta `57f20e3` en `origin/master`. El orden canónico CEFR está descrito en «Último bloque cerrado».
 
 Orden CEFR ≠ progreso del learner ≠ aprendizaje ≠ mastery. Permanecen fuera contexto curricular acumulativo interunidad, validación estructural de completitud, correspondencia jerarquía–`PedagogicalUnitCandidate`, agregación acumulativa por Skill, `context_incomplete`, evaluación global de `SkillPrerequisite`, conclusión global `unsatisfied`, `CurriculumCapabilityPreparationLedger`, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
 
