@@ -6,10 +6,10 @@
 - Base de datos: PostgreSQL
 - ORM: SQLAlchemy
 - Driver: psycopg
-- Última suite backend completa confirmada: 1453 passed durante la slice estructural 8 del contrato curricular v1
+- Última suite backend completa confirmada: 1459 passed durante la slice estructural 9 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 8 cerrada, publicada y sincronizada mediante los commits técnico `c3fe335` y documental `1428767`; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 9 cerrada técnicamente mediante `20e0f85`, con documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4070,3 +4070,17 @@ Validación vigente, no repetir mientras no cambien archivos técnicos: 21 prueb
 Permanecen fuera `CurriculumCapabilityPreparationLedger`, agregación por `Skill`, `highest_preparation_state`, selección de cadena máxima, `SkillPrerequisite`, `PedagogicalUnitSpecification.prerequisites`, contexto interunidad/CEFR, ciclos, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime, persistencia y cambios en `SkillCoverage` o `required_stages`. `CurriculumPreparationState` no equivale al recorrido del learner, el progreso ni mastery.
 
 El próximo objetivo es hacer preflight de la siguiente slice desde el contrato v1 autoritativo para determinar si ya corresponde agregar el snapshot por `Skill` y calcular `highest_preparation_state` o todavía existe una dependencia estructural previa.
+
+## Contrato curricular v1 — Slice estructural 9
+
+Estado: cerrada técnicamente mediante el commit `20e0f85` (`refactor expose curriculum preparation state order`); documentación, publicación y sincronización final pendientes.
+
+Se expuso la API pública, pura e inmutable del orden canónico de `CurriculumPreparationState`. `CURRICULUM_PREPARATION_STATE_ORDER` es la fuente única de `EXPOSURE_AVAILABLE < INSTRUCTION_AVAILABLE < PRACTICE_AVAILABLE < EVIDENCE_GATE_AVAILABLE`; `curriculum_preparation_state_index(state)` devuelve respectivamente los índices `0`, `1`, `2` y `3`. Un estado desconocido produce `ValueError`, sin fallback ni `ValidationFinding`.
+
+Se eliminaron `_STATE_ORDER` y `_state_index`; la precedencia interna consume exclusivamente la API pública, sin representación paralela ni mapping mutable. La semántica heredada de slices 6–7 permanece intacta. No se implementaron `highest_preparation_state`, agregación por `Skill`, selección de cadena, ledger, snapshot agregado ni persistencia.
+
+Validación vigente, no repetir mientras no cambien archivos técnicos: 41 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 118 pruebas de regresión directa PASS; suite backend completa ejecutada directamente en Bash, 1459 passed in 13.21s; `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, Codex CLI + Bash y la ejecución directa de la suite completa en Bash si el background de Codex vuelve a interrumpirse.
+
+Permanecen fuera agregación local por `skill_id`, `highest_preparation_state`, selección de cadena máxima, `CurriculumCapabilityPreparationLedger`, `SkillPrerequisite`, `PedagogicalUnitSpecification.prerequisites`, contexto interunidad/CEFR, ciclos, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime, persistencia y cambios en `SkillCoverage` o `required_stages`. `CurriculumPreparationState` no equivale al recorrido del learner, el progreso ni mastery.
+
+El próximo objetivo es hacer preflight de la siguiente slice desde el contrato v1 autoritativo para determinar si ya corresponde derivar una vista local agregada por `Skill` y `highest_preparation_state` desde el snapshot de slice 8 y el orden público de slice 9.

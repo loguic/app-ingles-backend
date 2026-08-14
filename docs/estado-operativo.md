@@ -14,15 +14,15 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 8
+### Contrato curricular v1 — Slice estructural 9
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `c3fe335` (`feat add local capability preparation snapshot`) y documental `1428767`; push confirmado hasta `1428767` en `origin/master`.
+Estado: cerrada técnicamente mediante `20e0f85` (`refactor expose curriculum preparation state order`); documentación, publicación y sincronización final pendientes.
 
-La API pura `derive_capability_preparation_snapshot(...)` devuelve un `CapabilityPreparationSnapshot` efímero e inmutable con los claims de `derive_capability_claim_state_precedence(candidate).valid_claims` estrictamente anteriores a un `LocalCurriculumPoint`. El punto resuelve `lesson_id` y `stage_id` contra `candidate_unit.lessons → LessonExperience.stages`; los índices proceden solo de esas listas y los IDs nunca expresan orden.
+La API pública y pura expone `CURRICULUM_PREPARATION_STATE_ORDER` como fuente única e inmutable de `EXPOSURE_AVAILABLE < INSTRUCTION_AVAILABLE < PRACTICE_AVAILABLE < EVIDENCE_GATE_AVAILABLE`, y `curriculum_preparation_state_index(state)` devuelve respectivamente `0..3`. Un estado desconocido produce `ValueError`, sin fallback ni `ValidationFinding`.
 
-La inclusión exige `claim_position < before_point`: el mismo punto y los posteriores se excluyen. Los errores tipados son `unknown_lesson`, `ambiguous_lesson`, `lesson_without_experience` y `unknown_stage_for_lesson`; las lecciones duplicadas nunca se resuelven eligiendo la primera. No se añadieron validator, findings, ledger, agregación por `Skill`, `highest_preparation_state`, snapshot agregado ni persistencia.
+Se eliminaron `_STATE_ORDER` y `_state_index`; la precedencia interna reutiliza exclusivamente la API pública, sin representación paralela ni mapping mutable. La semántica de slices 6–7 permanece intacta. No se implementaron agregación por `Skill`, `highest_preparation_state`, selección de cadena, ledger, snapshot agregado ni persistencia.
 
-Validación vigente, no repetir mientras no cambien archivos técnicos: 21 pruebas específicas PASS; postflight independiente final PASS sin hallazgos; 230 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1453 passed in 13.53s, `PYTEST_EXIT=0`; `git diff --check` PASS.
+Validación vigente, no repetir mientras no cambien archivos técnicos: 41 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 118 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1459 passed in 13.21s, `PYTEST_EXIT=0`; `git diff --check` PASS.
 
 ## Automatización disponible
 
@@ -51,11 +51,11 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 8
+### Contrato curricular v1 — Slice estructural 9
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `c3fe335` y documental `1428767`; push confirmado hasta `1428767` en `origin/master`. El snapshot local está descrito en «Último bloque cerrado».
+Estado: cerrada técnicamente mediante `20e0f85`; documentación, publicación y sincronización final pendientes. El orden canónico público está descrito en «Último bloque cerrado».
 
-Permanecen fuera `CurriculumCapabilityPreparationLedger`, agregación por `Skill`, `highest_preparation_state`, selección de cadena máxima, `SkillPrerequisite`, `PedagogicalUnitSpecification.prerequisites`, contexto interunidad/CEFR, ciclos, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime, persistencia y cambios en `SkillCoverage` o `required_stages`.
+Permanecen fuera agregación local por `skill_id`, `highest_preparation_state`, selección de cadena máxima, `CurriculumCapabilityPreparationLedger`, `SkillPrerequisite`, `PedagogicalUnitSpecification.prerequisites`, contexto interunidad/CEFR, ciclos, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime, persistencia y cambios en `SkillCoverage` o `required_stages`.
 
 Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
 
@@ -76,7 +76,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Hacer preflight de la siguiente slice curricular para determinar si ya corresponde agregar el snapshot por `Skill` y calcular `highest_preparation_state` o todavía existe una dependencia estructural previa.
+Hacer preflight de la siguiente slice curricular para determinar si ya corresponde derivar una vista local agregada por `Skill` y `highest_preparation_state` desde el snapshot de slice 8 y el orden público de slice 9.
 
 ## Archivos clave
 
