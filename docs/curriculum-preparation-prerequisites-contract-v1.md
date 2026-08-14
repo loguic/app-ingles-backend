@@ -327,6 +327,30 @@ Los IDs expresan identidad, pertenencia y trazabilidad. No expresan orden curric
 
 No se incorporan campos `order` o `position`, ordinales persistidos, una entidad `CurriculumSequence`, listas paralelas ni otra fuente redundante. La jerarquía ordenada es la única fuente de verdad v1.
 
+### Autoridad curricular y completitud desde origen
+
+V1 reconoce conceptualmente un proveedor curricular designado por contrato como autoridad. La autoridad pertenece al proveedor y a la garantía que emite, no a un archivo físico, una ruta, un `ContentTreeResponse` aislado, un booleano `is_authoritative` controlado por el caller ni una convención de IDs. La representación subyacente puede evolucionar de archivo a base de datos, paquete versionado u otra fuente sin alterar esta semántica contractual. V1 no introduce todavía `curriculum_version`, tracks, locales ni namespaces equivalentes porque esos conceptos no existen en el contrato actual.
+
+Una hierarchy es autoritativa únicamente cuando procede de ese proveedor designado y este garantiza que representa el recorrido curricular canónico completo desde su propio origen. Una hierarchy arbitraria o parcial puede seguir siendo válida para análisis relativo a ella, pero no demuestra autoridad ni completitud desde origen.
+
+El origen autoritativo es la primera `CurriculumUnitPosition` canónica derivada de esa hierarchy autoritativa mediante el orden ya definido. No se infiere mediante `level_code == "A1"`, `CEFR_LEVEL_ORDER[0]`, `unit_index == 0` de una hierarchy parcial, `unit_id == "a1-u1"` ni la forma léxica de ningún ID. Los IDs siguen expresando identidad y pertenencia, nunca orden; no se crea una segunda fuente de orden.
+
+La mera presencia de la unidad de origen no demuestra completitud. El proveedor autoritativo debe garantizar además que la hierarchy no omite posiciones curriculares canónicas entre el origen y la target: `origin present` no equivale a `hierarchy complete from origin`.
+
+`complete_within_hierarchy` significa únicamente que existe cobertura exacta de candidates para las posiciones presentes en el scope de la hierarchy suministrada. No implica autoridad. `complete_from_authoritative_origin` es una propiedad derivable únicamente cuando:
+
+1. la hierarchy procede del proveedor curricular autoritativo;
+2. el proveedor garantiza continuidad y completitud desde su origen;
+3. el origen canónico de esa hierarchy coincide estructuralmente con `context.scope.start_position`;
+4. la target pertenece al prefijo autoritativo;
+5. existe cobertura uno a uno de candidates para todas las posiciones requeridas desde el origen hasta la target.
+
+Esta prueba debe derivarse estructuralmente; no puede declararse mediante un booleano controlado por el caller como `is_complete_from_origin=True`. `complete_from_authoritative_origin` no equivale a `globally_complete`. V1 no introduce esa noción global mientras el producto no disponga de contratos adicionales que la requieran.
+
+`satisfied_in_context` no equivale a `globally_satisfied`, y `unresolved_in_context` no equivale a `unsatisfied`. Incluso cuando exista prueba de `complete_from_authoritative_origin`, los errores de resolución de consumption y preparación siguen siendo errores derivativos, y los errores de precedencia relevantes pueden impedir una futura conclusión negativa fuerte. Antes de considerar esa conclusión deberá existir tanto la prueba de completitud desde origen autoritativo como ausencia de incertidumbre derivativa relevante; V1 no define todavía la regla final de `unsatisfied`.
+
+Autoridad y completitud curricular estructural no equivalen a ejecución del estudiante, evidencia real, resultado de evaluación, aprendizaje, retention ni mastery. El contrato podrá incorporar versionado, tracks u otras dimensiones cuando exista una necesidad real, sin alterar el principio central: la autoridad la emite un proveedor contractual reconocido y el orden se deriva de la hierarchy canónica, nunca de IDs ni de metadata duplicada.
+
 ### Contexto curricular ordenado de una candidata
 
 Una `PedagogicalUnitCandidate` aislada no permite validar prerrequisitos interunidad. Tampoco basta por sí solo `ContentTreeResponse`: aporta estructura y orden, pero no contiene necesariamente las especificaciones, planes, claims y prerrequisitos canónicos necesarios para reconstruir el ledger.
