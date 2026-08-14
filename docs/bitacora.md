@@ -4224,3 +4224,19 @@ Validación vigente, no repetir mientras no cambien archivos técnicos: 23 prueb
 Preparación acumulada ≠ prerequisite satisfecho ≠ `unsatisfied` ≠ historia curricular global ≠ progreso ≠ ejecución del estudiante ≠ evidencia real ≠ resultado ≠ aprendizaje ≠ retention ≠ mastery. Permanecen fuera evaluación global de `SkillPrerequisite`, distinción global satisfied/unresolved, conclusión curricular `unsatisfied`, origen curricular autoritativo, `globally_complete`, tratamiento evaluativo de errores derivativos, ciclos, `CurriculumCapabilityPreparationLedger`, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, runtime y persistencia.
 
 El próximo objetivo es hacer preflight de la siguiente slice para combinar `SkillPrerequisite`, su punto de consumo y `AccumulatedCurriculumPreparationSnapshot`, distinguiendo únicamente `satisfied_in_context` y `unresolved_in_context` sin producir todavía `unsatisfied` global.
+
+## Contrato curricular v1 — Slice estructural 19
+
+Estado: técnicamente cerrada mediante el commit `4817d93` (`feat add contextual curriculum prerequisite assessment`); publicación documental pendiente.
+
+Se añadió la evaluación batch contextual, pura, tipada, inmutable y efímera de `SkillPrerequisite` mediante `CurriculumSkillPrerequisiteAssessmentOutcome`, `CurriculumSkillPrerequisiteAssessment`, sus wrappers de errores y observations, `CurriculumSkillPrerequisiteAssessmentDerivation` y `derive_curriculum_skill_prerequisite_assessments(...)`. Compone exclusivamente slice 11 para consumptions y errores, slice 18 para preparación acumulada y errores, y slice 9 para comparar estados.
+
+Los únicos outcomes son `satisfied_in_context` y `unresolved_in_context`. Skill ausente o estado inferior producen unresolved; estado igual o superior produce satisfied. Consumption errors y preparation resolution errors permanecen separados de outcomes. Los `precedence_errors` se conservan como observations completas y cada assessment relaciona solo los de la Skill requerida; un error alternativo no revoca preparación válida suficiente. La cache por punto es local y efímera, y same-stage y units posteriores siguen delegados a slice 18.
+
+`satisfied_in_context` ≠ `globally_satisfied` ≠ aprendizaje ≠ ejecución ≠ mastery. `unresolved_in_context` ≠ `unsatisfied` ≠ fallo pedagógico definitivo ≠ fallo del learner.
+
+Validación vigente, no repetir mientras no cambien archivos técnicos: 20 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 351 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1661 passed in 13.10s; `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
+
+Permanecen fuera authoritative curriculum origin, `globally_complete`, el criterio para transformar ciertos `unresolved_in_context` en una conclusión curricular negativa más fuerte, `unsatisfied` curricular, ciclos de prerequisites, `CurriculumCapabilityPreparationLedger`, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, runtime y persistencia.
+
+El próximo objetivo es hacer preflight de la siguiente slice para definir y demostrar un authoritative curriculum origin aplicable al contexto antes de permitir cualquier conclusión `unsatisfied`.

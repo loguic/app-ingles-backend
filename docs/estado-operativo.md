@@ -14,15 +14,17 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 18
+### Contrato curricular v1 — Slice estructural 19
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `3f219fe` (`feat add accumulated curriculum preparation`) y documental `2cb5d05`; primer push confirmado hasta `2cb5d05` en `origin/master`.
+Estado: técnicamente cerrada mediante el commit `4817d9398e65bb09c29c7834b1b348f24da2b372` (`feat add contextual curriculum prerequisite assessment`); publicación documental pendiente.
 
-La API pura `derive_accumulated_curriculum_preparation(...)` consulta preparación curricular estructural acumulada por Skill antes de un único punto real `unit_id + lesson_id + stage_id` dentro de un `OrderedCurriculumCandidateContext`. El orden interunidad procede exclusivamente de `context.entries`; slice 7 aporta `valid_claims` y `precedence_errors`, slice 8 resuelve el punto y la anterioridad estricta, y slice 9 calcula `highest_preparation_state`.
+La API batch pura `derive_curriculum_skill_prerequisite_assessments(...)` compone slice 11 para consumptions y sus errores, slice 18 para preparación acumulada y errores, y slice 9 para comparar estados. Sus únicos outcomes son `satisfied_in_context` y `unresolved_in_context`: Skill ausente o estado inferior quedan unresolved; estado igual o superior queda satisfied.
 
-Las units anteriores aportan todos sus claims válidos, la target solo los estrictamente anteriores y las posteriores ninguno; same-stage queda excluido. Claims inválidos no se rehabilitan entre units ni elevan el máximo, y sus errores permanecen separados. Las Skills sin claims quedan ausentes. Un fallo de resolución produce `snapshot=None`, nunca un snapshot parcial. Preparación acumulada ≠ prerequisite satisfecho ≠ `unsatisfied` ≠ historia global ≠ progreso ≠ ejecución ≠ evidencia real ≠ resultado ≠ aprendizaje ≠ retention ≠ mastery.
+Los consumption errors y preparation resolution errors permanecen separados de outcomes. Los `precedence_errors` se conservan completos como observations y se filtran por Skill requerida en cada assessment; un error alternativo no revoca preparación válida suficiente. La cache por punto es local y efímera. Same-stage y units posteriores siguen excluidos exclusivamente por slice 18.
 
-Validación vigente, no repetir mientras no cambien archivos técnicos: 23 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 328 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1641 passed in 13.10s, `PYTEST_EXIT=0`; `git diff --check` PASS.
+`satisfied_in_context` ≠ `globally_satisfied` ≠ aprendizaje ≠ ejecución ≠ mastery. `unresolved_in_context` ≠ `unsatisfied` ≠ fallo pedagógico definitivo ≠ fallo del learner.
+
+Validación vigente, no repetir mientras no cambien archivos técnicos: 20 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 351 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1661 passed in 13.10s, `PYTEST_EXIT=0`; `git diff --check` PASS.
 
 ## Automatización disponible
 
@@ -51,11 +53,11 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 18
+### Contrato curricular v1 — Slice estructural 19
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `3f219fe` y documental `2cb5d05`; primer push confirmado hasta `2cb5d05` en `origin/master`. La preparación acumulativa interunidad está descrita en «Último bloque cerrado».
+Estado: técnicamente cerrada mediante el commit `4817d93`; publicación documental pendiente. La evaluación batch contextual está descrita en «Último bloque cerrado».
 
-Preparación acumulada ≠ prerequisite satisfecho ≠ `unsatisfied` ≠ historia curricular global ≠ progreso ≠ ejecución del estudiante ≠ evidencia real ≠ resultado ≠ aprendizaje ≠ retention ≠ mastery. Permanecen fuera evaluación global de `SkillPrerequisite`, distinción global satisfied/unresolved, conclusión curricular `unsatisfied`, origen curricular autoritativo, `globally_complete`, tratamiento evaluativo de errores derivativos, ciclos, `CurriculumCapabilityPreparationLedger`, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, runtime y persistencia.
+Permanecen fuera authoritative curriculum origin, `globally_complete`, el criterio para transformar ciertos `unresolved_in_context` en una conclusión curricular negativa más fuerte, `unsatisfied` curricular, ciclos de prerequisites, `CurriculumCapabilityPreparationLedger`, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, runtime y persistencia.
 
 Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
 
@@ -85,6 +87,7 @@ Archivos técnicos commiteados:
 - `tests/test_pedagogical_ordered_curriculum_candidate_context.py`.
 - `app/services/pedagogical_accumulated_curriculum_preparation.py`;
 - `tests/test_pedagogical_accumulated_curriculum_preparation.py`.
+- `app/services/pedagogical_curriculum_skill_prerequisite_assessment.py` y `tests/test_pedagogical_curriculum_skill_prerequisite_assessment.py`.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -94,7 +97,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Hacer preflight de la siguiente slice para combinar `SkillPrerequisite`, su punto de consumo y `AccumulatedCurriculumPreparationSnapshot`, distinguiendo únicamente `satisfied_in_context` y `unresolved_in_context` sin producir todavía `unsatisfied` global.
+Hacer preflight de la siguiente slice para definir y demostrar un authoritative curriculum origin aplicable al contexto antes de permitir cualquier conclusión `unsatisfied`.
 
 ## Archivos clave
 
@@ -132,5 +135,6 @@ Hacer preflight de la siguiente slice para combinar `SkillPrerequisite`, su punt
 - `tests/test_pedagogical_ordered_curriculum_candidate_context.py`;
 - `app/services/pedagogical_accumulated_curriculum_preparation.py`;
 - `tests/test_pedagogical_accumulated_curriculum_preparation.py`;
+- `app/services/pedagogical_curriculum_skill_prerequisite_assessment.py` y `tests/test_pedagogical_curriculum_skill_prerequisite_assessment.py`;
 - `docs/modelo-pedagogico-maestro.md`;
 - `docs/roadmap.md` y `docs/bitacora.md`.
