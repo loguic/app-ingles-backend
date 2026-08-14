@@ -4211,7 +4211,7 @@ El próximo objetivo es hacer preflight de la siguiente slice para consumir un `
 
 ## Contrato curricular v1 — Slice estructural 18
 
-Estado: técnicamente cerrada mediante el commit `3f219fe` (`feat add accumulated curriculum preparation`); documentación, publicación y sincronización pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `3f219fe` (`feat add accumulated curriculum preparation`) y documental `2cb5d05`; primer push confirmado hasta `2cb5d05` en `origin/master`.
 
 Se añadió `derive_accumulated_curriculum_preparation(...)` y las estructuras inmutables `CurriculumPreparationPoint`, `AccumulatedCapabilityClaim`, `AccumulatedSkillPreparation`, `AccumulatedCapabilityPrecedenceError`, `AccumulatedCurriculumPreparationSnapshot` y `AccumulatedCurriculumPreparationDerivation`. La API consume exclusivamente un `OrderedCurriculumCandidateContext` y consulta un único punto real identificado por unit, lesson y stage.
 

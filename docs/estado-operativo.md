@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `2f6813d`.
+- Último commit publicado y sincronizado: `2cb5d05`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 18
 
-Estado: técnicamente cerrada mediante el commit `3f219fe` (`feat add accumulated curriculum preparation`); documentación, publicación y sincronización pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `3f219fe` (`feat add accumulated curriculum preparation`) y documental `2cb5d05`; primer push confirmado hasta `2cb5d05` en `origin/master`.
 
 La API pura `derive_accumulated_curriculum_preparation(...)` consulta preparación curricular estructural acumulada por Skill antes de un único punto real `unit_id + lesson_id + stage_id` dentro de un `OrderedCurriculumCandidateContext`. El orden interunidad procede exclusivamente de `context.entries`; slice 7 aporta `valid_claims` y `precedence_errors`, slice 8 resuelve el punto y la anterioridad estricta, y slice 9 calcula `highest_preparation_state`.
 
@@ -53,7 +53,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 18
 
-Estado: técnicamente cerrada mediante el commit `3f219fe`; documentación, publicación y sincronización pendientes. La preparación acumulativa interunidad está descrita en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `3f219fe` y documental `2cb5d05`; primer push confirmado hasta `2cb5d05` en `origin/master`. La preparación acumulativa interunidad está descrita en «Último bloque cerrado».
 
 Preparación acumulada ≠ prerequisite satisfecho ≠ `unsatisfied` ≠ historia curricular global ≠ progreso ≠ ejecución del estudiante ≠ evidencia real ≠ resultado ≠ aprendizaje ≠ retention ≠ mastery. Permanecen fuera evaluación global de `SkillPrerequisite`, distinción global satisfied/unresolved, conclusión curricular `unsatisfied`, origen curricular autoritativo, `globally_complete`, tratamiento evaluativo de errores derivativos, ciclos, `CurriculumCapabilityPreparationLedger`, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, runtime y persistencia.
 
