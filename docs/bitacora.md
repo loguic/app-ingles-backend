@@ -6,10 +6,10 @@
 - Base de datos: PostgreSQL
 - ORM: SQLAlchemy
 - Driver: psycopg
-- Última suite backend completa confirmada: 1432 passed durante la slice estructural 7 del contrato curricular v1
+- Última suite backend completa confirmada: 1453 passed durante la slice estructural 8 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 7 cerrada, publicada y sincronizada mediante los commits técnico `f1eb2ba` y documental `787561e`; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 8 cerrada técnicamente mediante `c3fe335`, con documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4054,3 +4054,19 @@ Validación vigente, no repetir mientras no cambien archivos técnicos: 35 prueb
 Permanecen fuera `CurriculumCapabilityPreparationLedger`, snapshot curricular, agregación por Skill, `highest_preparation_state`, elección de primera/última posición, prerrequisitos y `PedagogicalUnitSpecification.prerequisites`, contexto interunidad/CEFR, ciclos, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime, persistencia y cambios en `SkillCoverage` o `required_stages`. `CurriculumPreparationState` no equivale al recorrido del learner, la evidencia real, el progreso ni mastery.
 
 El próximo objetivo es hacer preflight de la siguiente slice desde el contrato v1 autoritativo y reevaluar si ya corresponde construir una vista o ledger curricular derivado o todavía falta una dependencia estructural previa, sin iniciar prerrequisitos antes de demostrar sus dependencias.
+
+## Contrato curricular v1 — Slice estructural 8
+
+Estado: cerrada técnicamente mediante el commit `c3fe335` (`feat add local capability preparation snapshot`); documentación, publicación y sincronización final pendientes.
+
+Se añadió el snapshot local, puro, tipado, inmutable y efímero de claims con precedencia válida estrictamente anteriores a un punto curricular canónico. `derive_capability_preparation_snapshot(...)` resuelve `LocalCurriculumPoint` mediante `lesson_id + stage_id` contra `candidate_unit.lessons → LessonExperience.stages`; `lesson_index` y `stage_index` proceden exclusivamente de esas listas y los IDs solo identifican.
+
+La fuente única de claims es `derive_capability_claim_state_precedence(candidate).valid_claims`. La inclusión exige `claim_position < before_point`: un claim anterior se incluye, mientras el mismo punto y los posteriores se excluyen. Los errores derivativos son `unknown_lesson`, `ambiguous_lesson`, `lesson_without_experience` y `unknown_stage_for_lesson`; la corrección de postflight impide seleccionar silenciosamente la primera lección cuando su ID está duplicado.
+
+No se añadieron validator ni findings. Tampoco se implementaron ledger, agregación por `Skill`, `highest_preparation_state`, snapshot agregado o persistencia.
+
+Validación vigente, no repetir mientras no cambien archivos técnicos: 21 pruebas específicas PASS; postflight independiente final PASS sin hallazgos; 230 pruebas de regresión directa PASS; suite backend completa ejecutada directamente en Bash, 1453 passed in 13.53s; `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, Codex CLI + Bash y la ejecución directa de la suite completa en Bash si el background de Codex vuelve a interrumpirse.
+
+Permanecen fuera `CurriculumCapabilityPreparationLedger`, agregación por `Skill`, `highest_preparation_state`, selección de cadena máxima, `SkillPrerequisite`, `PedagogicalUnitSpecification.prerequisites`, contexto interunidad/CEFR, ciclos, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime, persistencia y cambios en `SkillCoverage` o `required_stages`. `CurriculumPreparationState` no equivale al recorrido del learner, el progreso ni mastery.
+
+El próximo objetivo es hacer preflight de la siguiente slice desde el contrato v1 autoritativo para determinar si ya corresponde agregar el snapshot por `Skill` y calcular `highest_preparation_state` o todavía existe una dependencia estructural previa.

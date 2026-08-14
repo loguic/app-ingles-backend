@@ -14,15 +14,15 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 7
+### Contrato curricular v1 — Slice estructural 8
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `f1eb2ba` (`refactor expose capability claim precedence derivation`) y documental `787561e`; push confirmado hasta `787561e` en `origin/master`.
+Estado: cerrada técnicamente mediante `c3fe335` (`feat add local capability preparation snapshot`); documentación, publicación y sincronización final pendientes.
 
-La API pura `derive_capability_claim_state_precedence(candidate)` consume la derivación de slice 5 y devuelve `CapabilityClaimPrecedenceDerivation`, separando inmutablemente cada `CapabilityClaimAvailability` posicionable en `valid_claims` o un `CapabilityClaimPrecedenceError` en `precedence_errors`. Los claims excluidos por slice 5 quedan fuera de ambas colecciones y no generan errores duplicados.
+La API pura `derive_capability_preparation_snapshot(...)` devuelve un `CapabilityPreparationSnapshot` efímero e inmutable con los claims de `derive_capability_claim_state_precedence(candidate).valid_claims` estrictamente anteriores a un `LocalCurriculumPoint`. El punto resuelve `lesson_id` y `stage_id` contra `candidate_unit.lessons → LessonExperience.stages`; los índices proceden solo de esas listas y los IDs nunca expresan orden.
 
-Conserva la precedencia estricta y acumulativa de slice 6, el aislamiento por `Skill`, el rechazo del mismo stage y las cuatro causas existentes. No colapsa claims ni calcula estado máximo, posición elegida, snapshot o ledger. El validador es solo adaptador de errores a findings. `_STATE_ORDER` es una tuple inmutable y `_state_index()` la consulta sin estado global mutable. No hubo cambios de schemas, persistencia ni contenido canónico.
+La inclusión exige `claim_position < before_point`: el mismo punto y los posteriores se excluyen. Los errores tipados son `unknown_lesson`, `ambiguous_lesson`, `lesson_without_experience` y `unknown_stage_for_lesson`; las lecciones duplicadas nunca se resuelven eligiendo la primera. No se añadieron validator, findings, ledger, agregación por `Skill`, `highest_preparation_state`, snapshot agregado ni persistencia.
 
-Validación vigente, no repetir mientras no cambien archivos técnicos: 35 pruebas específicas PASS; postflight independiente final PASS sin hallazgos; 201 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1432 passed in 13.30s, `PYTEST_EXIT=0`; `git diff --check` PASS.
+Validación vigente, no repetir mientras no cambien archivos técnicos: 21 pruebas específicas PASS; postflight independiente final PASS sin hallazgos; 230 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1453 passed in 13.53s, `PYTEST_EXIT=0`; `git diff --check` PASS.
 
 ## Automatización disponible
 
@@ -51,11 +51,11 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 7
+### Contrato curricular v1 — Slice estructural 8
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `f1eb2ba` y documental `787561e`; push confirmado hasta `787561e` en `origin/master`. La derivación pura de precedencia está descrita en «Último bloque cerrado».
+Estado: cerrada técnicamente mediante `c3fe335`; documentación, publicación y sincronización final pendientes. El snapshot local está descrito en «Último bloque cerrado».
 
-Permanecen fuera `CurriculumCapabilityPreparationLedger`, snapshot curricular, agregación por `Skill`, `highest_preparation_state`, elección de primera/última posición, prerrequisitos y `PedagogicalUnitSpecification.prerequisites`, contexto interunidad/CEFR, ciclos, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime, persistencia y cambios en `SkillCoverage` o `required_stages`.
+Permanecen fuera `CurriculumCapabilityPreparationLedger`, agregación por `Skill`, `highest_preparation_state`, selección de cadena máxima, `SkillPrerequisite`, `PedagogicalUnitSpecification.prerequisites`, contexto interunidad/CEFR, ciclos, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime, persistencia y cambios en `SkillCoverage` o `required_stages`.
 
 Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
 
@@ -65,6 +65,8 @@ Archivos técnicos commiteados:
 - `app/services/pedagogical_validation_service.py`;
 - `app/services/pedagogical_capability_claim_precedence_validation.py`;
 - `tests/test_pedagogical_capability_claim_precedence_validation.py`.
+- `app/services/pedagogical_capability_preparation_snapshot.py`;
+- `tests/test_pedagogical_capability_preparation_snapshot.py`.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -74,7 +76,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Hacer preflight de la siguiente slice curricular desde el contrato v1 autoritativo y reevaluar si ya corresponde construir una vista o ledger curricular derivado o todavía falta una dependencia estructural previa, sin iniciar prerrequisitos antes de demostrar sus dependencias.
+Hacer preflight de la siguiente slice curricular para determinar si ya corresponde agregar el snapshot por `Skill` y calcular `highest_preparation_state` o todavía existe una dependencia estructural previa.
 
 ## Archivos clave
 
@@ -92,5 +94,7 @@ Hacer preflight de la siguiente slice curricular desde el contrato v1 autoritati
 - `app/services/pedagogical_capability_claim_availability.py`;
 - `app/services/pedagogical_capability_claim_precedence_validation.py`;
 - `tests/test_pedagogical_capability_claim_precedence_validation.py`;
+- `app/services/pedagogical_capability_preparation_snapshot.py`;
+- `tests/test_pedagogical_capability_preparation_snapshot.py`;
 - `docs/modelo-pedagogico-maestro.md`;
 - `docs/roadmap.md` y `docs/bitacora.md`.
