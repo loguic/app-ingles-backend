@@ -14,15 +14,15 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 12
+### Contrato curricular v1 — Slice estructural 13
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `fbdd4bd` (`feat add local skill prerequisite assessment`) y documental `bbf62af`; primer push confirmado hasta `bbf62af` en `origin/master`.
+Estado: técnicamente cerrada mediante el commit `1e5e849` (`feat add canonical CEFR curriculum order`); documentación, publicación y sincronización final pendientes.
 
-La API pura `derive_local_skill_prerequisite_assessments(candidate)` evalúa localmente cada `SkillPrerequisite` resoluble. Sus únicos outcomes son `satisfied_in_local_context`, cuando un `LocalSkillPreparation` de la Skill requerida alcanza o supera el estado mínimo mediante el orden canónico, y `unresolved_in_local_context`, cuando la Skill está ausente o su preparación local es inferior.
+La API pública y pura expone `CEFR_LEVEL_ORDER` como fuente única e inmutable del orden `A1 < A2 < B1 < B2 < C1 < C2`, y `cefr_level_index(level: str)` devuelve los índices `0..5`. Reutiliza el `str` de `Level.code`; no crea enum paralelo, fallback, coerción silenciosa, mapping mutable, cache ni secuencia equivalente.
 
-La satisfacción local solo demuestra preparación curricular estructural local suficiente: no equivale a satisfacción curricular global, progreso, aprendizaje ni mastery. `unresolved_in_local_context` no equivale a `unsatisfied`. Se conservan por identidad consumption, prerequisite, `before_point`, preparación local y sus `available_claims`; los `resolution_errors` de slice 11 permanecen intactos, no generan assessments ni bloquean consumptions válidos. No se reconstruyen precedencia, disponibilidad, posiciones, snapshot, agregación o cadenas. No hubo findings, integración con el validador general, ledger ni persistencia.
+Un nivel desconocido produce `ValueError`, sin finding. Los IDs no determinan orden y el futuro orden de unidades seguirá procediendo de `Level.units`. Orden CEFR ≠ progreso del learner ≠ aprendizaje ≠ mastery. No se implementaron contexto interunidad, completitud, agregación por Skill, evaluación global, ledger ni persistencia.
 
-Validación vigente, no repetir mientras no cambien archivos técnicos: 22 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 296 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1522 passed in 13.01s, `PYTEST_EXIT=0`; `git diff --check` PASS.
+Validación vigente, no repetir mientras no cambien archivos técnicos: 17 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 246 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1539 passed in 13.01s, `PYTEST_EXIT=0`; `git diff --check` PASS.
 
 ## Automatización disponible
 
@@ -51,11 +51,11 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 12
+### Contrato curricular v1 — Slice estructural 13
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `fbdd4bd` y documental `bbf62af`; primer push confirmado hasta `bbf62af` en `origin/master`. La evaluación local de prerrequisitos está descrita en «Último bloque cerrado».
+Estado: técnicamente cerrada mediante el commit `1e5e849`; documentación, publicación y sincronización final pendientes. El orden canónico CEFR está descrito en «Último bloque cerrado».
 
-`satisfied_in_local_context` ≠ satisfacción curricular global ≠ progreso del learner ≠ aprendizaje ≠ mastery; `unresolved_in_local_context` ≠ `unsatisfied`. Permanecen fuera contexto curricular acumulativo interunidad/CEFR, evaluación global de prerequisites, conclusión global `unsatisfied`, `CurriculumCapabilityPreparationLedger` completo, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución del learner, evidencia real, resultados, aprendizaje, retention, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
+Orden CEFR ≠ progreso del learner ≠ aprendizaje ≠ mastery. Permanecen fuera contexto curricular acumulativo interunidad, validación estructural de completitud, correspondencia jerarquía–`PedagogicalUnitCandidate`, agregación acumulativa por Skill, `context_incomplete`, evaluación global de `SkillPrerequisite`, conclusión global `unsatisfied`, `CurriculumCapabilityPreparationLedger`, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
 
 Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
 
@@ -73,6 +73,8 @@ Archivos técnicos commiteados:
 - `tests/test_pedagogical_local_skill_prerequisite_consumption.py`.
 - `app/services/pedagogical_local_skill_prerequisite_assessment.py`;
 - `tests/test_pedagogical_local_skill_prerequisite_assessment.py`.
+- `app/services/pedagogical_curriculum_order.py`;
+- `tests/test_pedagogical_curriculum_order.py`.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -82,7 +84,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Hacer preflight de la siguiente slice para determinar la representación mínima de contexto curricular acumulativo interunidad necesaria antes de cualquier evaluación global de `SkillPrerequisite`, sin asumir todavía que corresponde construir el ledger completo.
+Hacer preflight de la siguiente slice para modelar la representación mínima, ordenada y verificable del contexto curricular interunidad antes de agregar preparación o permitir conclusiones globales, sin asumir todavía que corresponde construir el ledger completo.
 
 ## Archivos clave
 
@@ -108,5 +110,7 @@ Hacer preflight de la siguiente slice para determinar la representación mínima
 - `tests/test_pedagogical_local_skill_prerequisite_consumption.py`;
 - `app/services/pedagogical_local_skill_prerequisite_assessment.py`;
 - `tests/test_pedagogical_local_skill_prerequisite_assessment.py`;
+- `app/services/pedagogical_curriculum_order.py`;
+- `tests/test_pedagogical_curriculum_order.py`;
 - `docs/modelo-pedagogico-maestro.md`;
 - `docs/roadmap.md` y `docs/bitacora.md`.

@@ -6,10 +6,10 @@
 - Base de datos: PostgreSQL
 - ORM: SQLAlchemy
 - Driver: psycopg
-- Última suite backend completa confirmada: 1522 passed durante la slice estructural 12 del contrato curricular v1
+- Última suite backend completa confirmada: 1539 passed durante la slice estructural 13 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 12 cerrada, publicada y sincronizada mediante los commits técnico `fbdd4bd` y documental `bbf62af`; primer push confirmado hasta `bbf62af`; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 13 técnicamente cerrada mediante el commit `1e5e849`; documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4132,3 +4132,17 @@ Validación vigente, no repetir mientras no cambien archivos técnicos: 22 prueb
 Permanecen fuera contexto curricular acumulativo interunidad/CEFR, evaluación global de prerequisites, conclusión global `unsatisfied`, `CurriculumCapabilityPreparationLedger` completo, validación de ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución del learner, evidencia real, resultados, aprendizaje, retention, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
 
 El próximo objetivo es hacer preflight de la siguiente slice para determinar la representación mínima de contexto curricular acumulativo interunidad necesaria antes de cualquier evaluación global de `SkillPrerequisite`, sin asumir todavía que corresponde construir el ledger completo.
+
+## Contrato curricular v1 — Slice estructural 13
+
+Estado: técnicamente cerrada mediante el commit `1e5e849` (`feat add canonical CEFR curriculum order`); documentación, publicación y sincronización final pendientes.
+
+Se añadió la API pública, pura e inmutable del orden canónico CEFR v1. `CEFR_LEVEL_ORDER` es la única fuente de `A1 < A2 < B1 < B2 < C1 < C2`, y `cefr_level_index(level: str)` devuelve respectivamente los índices `0..5`. La API reutiliza el `str` de `Level.code`; no introduce enum CEFR paralelo, fallback, coerción silenciosa, mapping mutable, cache ni secuencia equivalente.
+
+Un nivel desconocido produce `ValueError`, sin `ValidationFinding`. Los IDs no determinan orden y el orden futuro de unidades seguirá procediendo de `Level.units`. El orden CEFR describe exclusivamente estructura curricular: no equivale a progreso del learner, aprendizaje ni mastery. No se implementaron contexto interunidad, validación de completitud, agregación por Skill, `context_incomplete`, evaluación global de prerequisites, ledger o persistencia.
+
+Validación vigente, no repetir mientras no cambien archivos técnicos: 17 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 246 pruebas de regresión directa PASS; suite backend completa ejecutada directamente en Bash, 1539 passed in 13.01s; `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, Codex CLI + Bash y la ejecución directa de la suite completa en Bash si el background de Codex falla.
+
+Permanecen fuera contexto curricular acumulativo interunidad, validación estructural de completitud, correspondencia jerarquía–`PedagogicalUnitCandidate`, agregación acumulativa por Skill, `context_incomplete`, evaluación global de `SkillPrerequisite`, conclusión global `unsatisfied`, `CurriculumCapabilityPreparationLedger`, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
+
+El próximo objetivo es hacer preflight de la siguiente slice para modelar la representación mínima, ordenada y verificable del contexto curricular interunidad antes de agregar preparación o permitir conclusiones globales, sin asumir todavía que corresponde construir el ledger completo.
