@@ -9,7 +9,7 @@
 - Última suite backend completa confirmada: 1555 passed durante la slice estructural 14 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 14 técnicamente cerrada mediante el commit `9c7b238`; documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 14 cerrada, publicada y sincronizada mediante los commits técnico `9c7b238` y documental `b4e9d27`; primer push confirmado hasta `b4e9d27`; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4149,7 +4149,7 @@ El próximo objetivo es hacer preflight de la siguiente slice para modelar la re
 
 ## Contrato curricular v1 — Slice estructural 14
 
-Estado: técnicamente cerrada mediante el commit `9c7b238` (`feat add canonical curriculum unit positions`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `9c7b238` (`feat add canonical curriculum unit positions`) y documental `b4e9d27`; primer push confirmado hasta `b4e9d27` en `origin/master`.
 
 Se añadió la resolución pura, tipada, inmutable y efímera de posiciones curriculares canónicas de unidades mediante `CurriculumUnitPosition`, `CurriculumUnitPositionError`, `CurriculumUnitPositionDerivation` y `derive_curriculum_unit_positions(hierarchy)`. `level_index` procede exclusivamente de `cefr_level_index(level.code)`, `unit_index` de la posición real en `Level.units`, y las posiciones válidas se ordenan por `(level_index, unit_index)`. Los IDs identifican y nunca ordenan.
 

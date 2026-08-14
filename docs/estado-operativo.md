@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `57f20e3`.
+- Último commit publicado y sincronizado: `b4e9d27`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 14
 
-Estado: técnicamente cerrada mediante el commit `9c7b238` (`feat add canonical curriculum unit positions`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `9c7b238` (`feat add canonical curriculum unit positions`) y documental `b4e9d27`; primer push confirmado hasta `b4e9d27` en `origin/master`.
 
 La API pura `derive_curriculum_unit_positions(hierarchy)` devuelve posiciones interunidad canónicas tipadas, inmutables y efímeras. `level_index` procede exclusivamente de `cefr_level_index(level.code)`, `unit_index` de la posición real en `Level.units`, y la salida válida se ordena por `(level_index, unit_index)`. Los IDs identifican y nunca ordenan.
 
@@ -53,7 +53,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 14
 
-Estado: técnicamente cerrada mediante el commit `9c7b238`; documentación, publicación y sincronización final pendientes. Las posiciones curriculares canónicas de unidades están descritas en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `9c7b238` y documental `b4e9d27`; primer push confirmado hasta `b4e9d27` en `origin/master`. Las posiciones curriculares canónicas de unidades están descritas en «Último bloque cerrado».
 
 Posición curricular ≠ completitud curricular ≠ preparación acumulada ≠ progreso del learner ≠ aprendizaje ≠ mastery. Permanecen fuera correspondencia `PedagogicalUnitCandidate`–posición canónica, `OrderedCurriculumCandidateContext`, definición y demostración de completitud, target curricular, `context_incomplete`, agregación acumulativa por Skill, evaluación global de `SkillPrerequisite`, conclusión global `unsatisfied`, `CurriculumCapabilityPreparationLedger`, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
 
