@@ -4179,7 +4179,7 @@ El próximo objetivo es hacer preflight de la siguiente slice para determinar la
 
 ## Contrato curricular v1 — Slice estructural 16
 
-Estado: técnicamente cerrada mediante el commit `e642db0` (`feat add canonical curriculum context scope`); documentación, publicación y sincronización pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `e642db0` (`feat add canonical curriculum context scope`) y documental `5a0f87e`; primer push confirmado hasta `5a0f87e` en `origin/master`.
 
 Se añadió la resolución pura, tipada, inmutable y efímera de `CurriculumContextScope` mediante `CurriculumContextScope`, `CurriculumContextScopeError`, `CurriculumContextScopeDerivation` y `derive_curriculum_context_scope(...)`. La target se identifica exclusivamente mediante `target_level_code` y `target_unit_id`, y su posición procede de las posiciones válidas de slice 14.
 

@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `ce22f92`.
+- Último commit publicado y sincronizado: `5a0f87e`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 16
 
-Estado: técnicamente cerrada mediante el commit `e642db0` (`feat add canonical curriculum context scope`); documentación, publicación y sincronización pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `e642db0` (`feat add canonical curriculum context scope`) y documental `5a0f87e`; primer push confirmado hasta `5a0f87e` en `origin/master`.
 
 La API pura `derive_curriculum_context_scope(...)` resuelve un `CurriculumContextScope` canónico mediante `target_level_code` y `target_unit_id`, consumiendo exclusivamente posiciones válidas de slice 14. `required_positions` conserva por identidad el prefijo canónico hasta la target inclusive; `start_position` es solo la primera posición válida de la hierarchy suministrada y no implica origen curricular global.
 
@@ -53,7 +53,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 16
 
-Estado: técnicamente cerrada mediante el commit `e642db0`; documentación, publicación y sincronización pendientes. El scope canónico hasta target está descrito en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `e642db0` y documental `5a0f87e`; primer push confirmado hasta `5a0f87e` en `origin/master`. El scope canónico hasta target está descrito en «Último bloque cerrado».
 
 Scope resuelto ≠ contexto completo por candidates ≠ completitud global ≠ preparación acumulada ≠ prerequisite globalmente satisfecho ≠ progreso ≠ aprendizaje ≠ mastery. Permanecen fuera correspondencia scope–`OrderedCurriculumCandidateEntry`, posiciones requeridas sin candidate, completitud respecto a hierarchy, `OrderedCurriculumCandidateContext`, errores de completitud, origen curricular autoritativo, acumulación interunidad por Skill, evaluación global de `SkillPrerequisite`, conclusión `unsatisfied`, `CurriculumCapabilityPreparationLedger`, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, runtime y persistencia.
 
