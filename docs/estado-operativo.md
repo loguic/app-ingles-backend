@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `f5f982b`.
+- Último commit publicado y sincronizado: `787561e`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 7
 
-Estado: cerrada técnicamente mediante `f1eb2ba` (`refactor expose capability claim precedence derivation`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `f1eb2ba` (`refactor expose capability claim precedence derivation`) y documental `787561e`; push confirmado hasta `787561e` en `origin/master`.
 
 La API pura `derive_capability_claim_state_precedence(candidate)` consume la derivación de slice 5 y devuelve `CapabilityClaimPrecedenceDerivation`, separando inmutablemente cada `CapabilityClaimAvailability` posicionable en `valid_claims` o un `CapabilityClaimPrecedenceError` en `precedence_errors`. Los claims excluidos por slice 5 quedan fuera de ambas colecciones y no generan errores duplicados.
 
@@ -53,7 +53,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 7
 
-Estado: cerrada técnicamente mediante `f1eb2ba`; documentación, publicación y sincronización final pendientes. La derivación pura de precedencia está descrita en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `f1eb2ba` y documental `787561e`; push confirmado hasta `787561e` en `origin/master`. La derivación pura de precedencia está descrita en «Último bloque cerrado».
 
 Permanecen fuera `CurriculumCapabilityPreparationLedger`, snapshot curricular, agregación por `Skill`, `highest_preparation_state`, elección de primera/última posición, prerrequisitos y `PedagogicalUnitSpecification.prerequisites`, contexto interunidad/CEFR, ciclos, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime, persistencia y cambios en `SkillCoverage` o `required_stages`.
 

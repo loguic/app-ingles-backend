@@ -9,7 +9,7 @@
 - Última suite backend completa confirmada: 1432 passed durante la slice estructural 7 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 7 cerrada técnicamente mediante `f1eb2ba`, con documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 7 cerrada, publicada y sincronizada mediante los commits técnico `f1eb2ba` y documental `787561e`; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4041,7 +4041,7 @@ El próximo objetivo es hacer preflight de la siguiente slice desde el contrato 
 
 ## Contrato curricular v1 — Slice estructural 7
 
-Estado: cerrada técnicamente mediante el commit `f1eb2ba` (`refactor expose capability claim precedence derivation`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `f1eb2ba` (`refactor expose capability claim precedence derivation`) y documental `787561e`; push confirmado hasta `787561e` en `origin/master`.
 
 Se expuso la API pura `derive_capability_claim_state_precedence(candidate)`. Consume `derive_capability_claim_availabilities(candidate)` sin reconstruir posiciones, interpretar `validation_report` ni duplicar las slices 3–5. Las estructuras inmutables `CapabilityClaimPrecedenceDerivation` y `CapabilityClaimPrecedenceError` particionan cada claim posicionable exactamente una vez entre `valid_claims` y `precedence_errors`; los claims excluidos por errores de slice 5 no aparecen en ninguna colección ni producen errores duplicados.
 
