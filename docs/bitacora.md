@@ -9,7 +9,7 @@
 - Última suite backend completa confirmada: 1481 passed durante la slice estructural 10 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 10 cerrada técnicamente mediante `0ace21a`, con documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 10 cerrada, publicada y sincronizada mediante los commits técnico `0ace21a` y documental `c697d57`; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4087,7 +4087,7 @@ El próximo objetivo es hacer preflight de la siguiente slice desde el contrato 
 
 ## Contrato curricular v1 — Slice estructural 10
 
-Estado: cerrada técnicamente mediante el commit `0ace21a` (`feat add local skill preparation view`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `0ace21a` (`feat add local skill preparation view`) y documental `c697d57`; push confirmado hasta `c697d57` en `origin/master`.
 
 Se añadió la vista local, pura, tipada, inmutable y efímera de preparación curricular agregada por `skill_id` antes de un punto. `derive_local_capability_preparation_view(...)` consume exclusivamente el snapshot de slice 8; cada `LocalSkillPreparation` conserva todos sus `available_claims` originales exactamente una vez y calcula `highest_preparation_state` mediante el orden público de slice 9. Las Skills sin claims quedan ausentes y un snapshot vacío produce `skills == ()`.
 

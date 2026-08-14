@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `a3e9237`.
+- Último commit publicado y sincronizado: `c697d57`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 10
 
-Estado: cerrada técnicamente mediante `0ace21a` (`feat add local skill preparation view`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `0ace21a` (`feat add local skill preparation view`) y documental `c697d57`; push confirmado hasta `c697d57` en `origin/master`.
 
 La API pura `derive_local_capability_preparation_view(...)` devuelve una `LocalCapabilityPreparationView` efímera e inmutable, agrupando por `skill_id` exclusivamente los `available_claims` del snapshot de slice 8. Cada `LocalSkillPreparation` conserva todos sus claims originales y deriva `highest_preparation_state` únicamente mediante el orden público de slice 9.
 
@@ -53,7 +53,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 10
 
-Estado: cerrada técnicamente mediante `0ace21a`; documentación, publicación y sincronización final pendientes. La vista local agregada por Skill está descrita en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `0ace21a` y documental `c697d57`; push confirmado hasta `c697d57` en `origin/master`. La vista local agregada por Skill está descrita en «Último bloque cerrado».
 
 Permanecen fuera `CurriculumCapabilityPreparationLedger` completo, selección de cadena máxima, supporting IDs agregados, `SkillPrerequisite`, `PedagogicalUnitSpecification.prerequisites`, contexto interunidad/CEFR, ciclos, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime, persistencia y cambios en `SkillCoverage` o `required_stages`.
 
