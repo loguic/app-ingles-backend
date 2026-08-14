@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `56e2098`.
+- Último commit publicado y sincronizado: `bbf62af`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 12
 
-Estado: técnicamente cerrada mediante el commit `fbdd4bd` (`feat add local skill prerequisite assessment`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `fbdd4bd` (`feat add local skill prerequisite assessment`) y documental `bbf62af`; primer push confirmado hasta `bbf62af` en `origin/master`.
 
 La API pura `derive_local_skill_prerequisite_assessments(candidate)` evalúa localmente cada `SkillPrerequisite` resoluble. Sus únicos outcomes son `satisfied_in_local_context`, cuando un `LocalSkillPreparation` de la Skill requerida alcanza o supera el estado mínimo mediante el orden canónico, y `unresolved_in_local_context`, cuando la Skill está ausente o su preparación local es inferior.
 
@@ -53,7 +53,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 12
 
-Estado: técnicamente cerrada mediante el commit `fbdd4bd`; documentación, publicación y sincronización final pendientes. La evaluación local de prerrequisitos está descrita en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `fbdd4bd` y documental `bbf62af`; primer push confirmado hasta `bbf62af` en `origin/master`. La evaluación local de prerrequisitos está descrita en «Último bloque cerrado».
 
 `satisfied_in_local_context` ≠ satisfacción curricular global ≠ progreso del learner ≠ aprendizaje ≠ mastery; `unresolved_in_local_context` ≠ `unsatisfied`. Permanecen fuera contexto curricular acumulativo interunidad/CEFR, evaluación global de prerequisites, conclusión global `unsatisfied`, `CurriculumCapabilityPreparationLedger` completo, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución del learner, evidencia real, resultados, aprendizaje, retention, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
 

@@ -9,7 +9,7 @@
 - Última suite backend completa confirmada: 1522 passed durante la slice estructural 12 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 12 técnicamente cerrada mediante el commit `fbdd4bd`; documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 12 cerrada, publicada y sincronizada mediante los commits técnico `fbdd4bd` y documental `bbf62af`; primer push confirmado hasta `bbf62af`; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4119,7 +4119,7 @@ El próximo objetivo es hacer preflight de la siguiente slice curricular para de
 
 ## Contrato curricular v1 — Slice estructural 12
 
-Estado: técnicamente cerrada mediante el commit `fbdd4bd` (`feat add local skill prerequisite assessment`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `fbdd4bd` (`feat add local skill prerequisite assessment`) y documental `bbf62af`; primer push confirmado hasta `bbf62af` en `origin/master`.
 
 Se añadió la evaluación local, pura, tipada, inmutable y efímera de `SkillPrerequisite` mediante `LocalSkillPrerequisiteAssessmentOutcome`, `LocalSkillPrerequisiteAssessment`, `LocalSkillPrerequisiteAssessmentDerivation` y `derive_local_skill_prerequisite_assessments(candidate)`. Los únicos outcomes son `satisfied_in_local_context` y `unresolved_in_local_context`.
 
