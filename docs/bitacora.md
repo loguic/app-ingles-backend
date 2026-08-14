@@ -4208,3 +4208,19 @@ Validación vigente, no repetir mientras no cambien archivos técnicos: 21 prueb
 `complete_within_hierarchy` ≠ `globally_complete` ≠ origen curricular global demostrado ≠ preparación acumulada por Skill ≠ prerequisite globalmente satisfecho ≠ `unsatisfied` ≠ progreso ≠ evidencia real ≠ aprendizaje ≠ retention ≠ mastery. Permanecen fuera origen curricular autoritativo, preparación acumulativa interunidad por Skill, máximo acumulado, evaluación global de `SkillPrerequisite`, conclusión `unsatisfied`, `CurriculumCapabilityPreparationLedger`, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, runtime y persistencia.
 
 El próximo objetivo es hacer preflight de la siguiente slice para consumir un `OrderedCurriculumCandidateContext` válido y derivar preparación curricular acumulativa interunidad por Skill, sin evaluar todavía `SkillPrerequisite` ni producir `unsatisfied`.
+
+## Contrato curricular v1 — Slice estructural 18
+
+Estado: técnicamente cerrada mediante el commit `3f219fe` (`feat add accumulated curriculum preparation`); documentación, publicación y sincronización pendientes.
+
+Se añadió `derive_accumulated_curriculum_preparation(...)` y las estructuras inmutables `CurriculumPreparationPoint`, `AccumulatedCapabilityClaim`, `AccumulatedSkillPreparation`, `AccumulatedCapabilityPrecedenceError`, `AccumulatedCurriculumPreparationSnapshot` y `AccumulatedCurriculumPreparationDerivation`. La API consume exclusivamente un `OrderedCurriculumCandidateContext` y consulta un único punto real identificado por unit, lesson y stage.
+
+El orden interunidad procede solo de `context.entries`. Slice 7 aporta `valid_claims` y `precedence_errors`, slice 8 resuelve el punto y aplica anterioridad estricta, y slice 9 calcula `highest_preparation_state`. Las units anteriores aportan todos sus claims válidos; la target solo `snapshot.available_claims`; las posteriores ninguno. Same-stage queda excluido y las Skills sin claims quedan ausentes.
+
+Los claims inválidos no se acumulan, no elevan el máximo ni se rehabilitan entre units. Sus `precedence_errors` se conservan separados y pueden coexistir con un snapshot válido. Un fallo `unknown_unit_in_context`, `ambiguous_unit_in_context` o local de slice 8 produce `snapshot=None`, nunca preparación parcial. El máximo describe únicamente preparación estructural válida, no mastery.
+
+Validación vigente, no repetir mientras no cambien archivos técnicos: 23 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 328 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1641 passed in 13.10s; `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el flujo Codex CLI + Bash y la ejecución directa de la suite completa en Bash cuando corresponda.
+
+Preparación acumulada ≠ prerequisite satisfecho ≠ `unsatisfied` ≠ historia curricular global ≠ progreso ≠ ejecución del estudiante ≠ evidencia real ≠ resultado ≠ aprendizaje ≠ retention ≠ mastery. Permanecen fuera evaluación global de `SkillPrerequisite`, distinción global satisfied/unresolved, conclusión curricular `unsatisfied`, origen curricular autoritativo, `globally_complete`, tratamiento evaluativo de errores derivativos, ciclos, `CurriculumCapabilityPreparationLedger`, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, runtime y persistencia.
+
+El próximo objetivo es hacer preflight de la siguiente slice para combinar `SkillPrerequisite`, su punto de consumo y `AccumulatedCurriculumPreparationSnapshot`, distinguiendo únicamente `satisfied_in_context` y `unresolved_in_context` sin producir todavía `unsatisfied` global.
