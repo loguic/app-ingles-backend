@@ -4195,7 +4195,7 @@ El próximo objetivo es hacer preflight de la siguiente slice para combinar `Cur
 
 ## Contrato curricular v1 — Slice estructural 17
 
-Estado: técnicamente cerrada mediante el commit `c2bf754` (`feat add ordered curriculum candidate context`); documentación, publicación y sincronización pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `c2bf754` (`feat add ordered curriculum candidate context`) y documental `2f6813d`; primer push confirmado hasta `2f6813d` en `origin/master`.
 
 Se añadió `derive_ordered_curriculum_candidate_context(...)` y las estructuras inmutables `OrderedCurriculumCandidateContext`, `CurriculumCandidateContextError` y `CurriculumCandidateContextDerivation`. La derivación compone exclusivamente el scope de slice 16 y las correspondencias de slice 15, sin recalcular posiciones, orden o relaciones candidate–unit.
 

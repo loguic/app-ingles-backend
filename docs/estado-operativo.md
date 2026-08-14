@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `5a0f87e`.
+- Último commit publicado y sincronizado: `2f6813d`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 17
 
-Estado: técnicamente cerrada mediante el commit `c2bf754` (`feat add ordered curriculum candidate context`); documentación, publicación y sincronización pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `c2bf754` (`feat add ordered curriculum candidate context`) y documental `2f6813d`; primer push confirmado hasta `2f6813d` en `origin/master`.
 
 La API pura `derive_ordered_curriculum_candidate_context(...)` compone exclusivamente `CurriculumContextScope` de slice 16 y `CurriculumCandidateCorrespondenceDerivation` de slice 15. Un `OrderedCurriculumCandidateContext` existe solo cuando cada `scope.required_position` tiene exactamente una entry válida; `context.entries` hereda exclusivamente el orden del scope y relaciona posiciones de derivaciones separadas mediante igualdad estructural, nunca identidad Python.
 
@@ -53,7 +53,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 17
 
-Estado: técnicamente cerrada mediante el commit `c2bf754`; documentación, publicación y sincronización pendientes. El contexto completo respecto a hierarchy está descrito en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `c2bf754` y documental `2f6813d`; primer push confirmado hasta `2f6813d` en `origin/master`. El contexto completo respecto a hierarchy está descrito en «Último bloque cerrado».
 
 `complete_within_hierarchy` ≠ `globally_complete` ≠ origen curricular global demostrado ≠ preparación acumulada por Skill ≠ prerequisite globalmente satisfecho ≠ `unsatisfied` ≠ progreso ≠ evidencia real ≠ aprendizaje ≠ retention ≠ mastery. Permanecen fuera origen curricular autoritativo, preparación acumulativa interunidad por Skill, máximo acumulado, evaluación global de `SkillPrerequisite`, conclusión `unsatisfied`, `CurriculumCapabilityPreparationLedger`, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, runtime y persistencia.
 
