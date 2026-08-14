@@ -1,4 +1,5 @@
 from collections import defaultdict
+from dataclasses import dataclass
 
 from app.schemas.pedagogical_unit import (
     CurriculumPreparationState,
@@ -19,7 +20,45 @@ _STATE_ORDER = (
     "PRACTICE_AVAILABLE",
     "EVIDENCE_GATE_AVAILABLE",
 )
-_STATE_INDEX = {state: index for index, state in enumerate(_STATE_ORDER)}
+
+
+@dataclass(frozen=True)
+class CapabilityClaimPrecedenceError:
+    """Describe why one positioned claim lacks valid prior preparation.
+
+    Describe por qué un claim posicionado carece de preparación previa válida.
+    """
+
+    claim: CapabilityClaimAvailability
+    required_preparation_state: CurriculumPreparationState
+    cause: str
+
+    @property
+    def lesson_id(self) -> str:
+        return self.claim.lesson_id
+
+    @property
+    def skill_id(self) -> str:
+        return self.claim.skill_id
+
+    @property
+    def preparation_state(self) -> CurriculumPreparationState:
+        return self.claim.preparation_state
+
+    @property
+    def artifact_ids(self) -> tuple[str, ...]:
+        return self.claim.artifact_ids
+
+
+@dataclass(frozen=True)
+class CapabilityClaimPrecedenceDerivation:
+    """Partition positioned claims by whether their precedence is valid.
+
+    Particiona claims posicionados según la validez de su precedencia.
+    """
+
+    valid_claims: tuple[CapabilityClaimAvailability, ...]
+    precedence_errors: tuple[CapabilityClaimPrecedenceError, ...]
 
 
 def _position(claim: CapabilityClaimAvailability) -> tuple[int, int]:
@@ -30,6 +69,14 @@ def _position(claim: CapabilityClaimAvailability) -> tuple[int, int]:
     return claim.lesson_index, claim.point.stage_index
 
 
+def _state_index(state: CurriculumPreparationState) -> int:
+    """Return one state's position in the immutable canonical order.
+
+    Devuelve la posición de un estado en el orden canónico inmutable.
+    """
+    return _STATE_ORDER.index(state)
+
+
 def _output_key(claim: CapabilityClaimAvailability) -> tuple[object, ...]:
     """Provide deterministic output ordering without using IDs as curriculum order.
 
@@ -37,7 +84,7 @@ def _output_key(claim: CapabilityClaimAvailability) -> tuple[object, ...]:
     """
     return (
         *_position(claim),
-        _STATE_INDEX[claim.preparation_state],
+        _state_index(claim.preparation_state),
         claim.skill_id,
         claim.lesson_id,
         claim.artifact_ids,
@@ -71,12 +118,12 @@ def _failure_cause(
     return "required_state_absent"
 
 
-def validate_capability_claim_state_precedence(
+def derive_capability_claim_state_precedence(
     candidate: PedagogicalUnitCandidate,
-) -> list[ValidationFinding]:
-    """Validate strict local state precedence using only slice 5 output.
+) -> CapabilityClaimPrecedenceDerivation:
+    """Purely partition slice 5 claims by strict local precedence.
 
-    Valida la precedencia local estricta usando solo la salida de la slice 5.
+    Particiona de forma pura los claims de slice 5 por precedencia local estricta.
     """
     derivation = derive_capability_claim_availabilities(candidate)
     claims = sorted(derivation.availabilities, key=_output_key)
@@ -88,7 +135,7 @@ def validate_capability_claim_state_precedence(
         by_skill_and_state[(claim.skill_id, claim.preparation_state)].append(claim)
 
     valid_claim_ids: set[int] = set()
-    failures: dict[int, tuple[CapabilityClaimAvailability, CurriculumPreparationState, str]] = {}
+    failures: dict[int, CapabilityClaimPrecedenceError] = {}
     for state_index, state in enumerate(_STATE_ORDER):
         state_claims = [claim for claim in claims if claim.preparation_state == state]
         if state_index == 0:
@@ -101,30 +148,49 @@ def validate_capability_claim_state_precedence(
             if cause is None:
                 valid_claim_ids.add(id(claim))
             else:
-                failures[id(claim)] = (claim, required_state, cause)
+                failures[id(claim)] = CapabilityClaimPrecedenceError(
+                    claim=claim,
+                    required_preparation_state=required_state,
+                    cause=cause,
+                )
+
+    return CapabilityClaimPrecedenceDerivation(
+        valid_claims=tuple(
+            claim for claim in claims if id(claim) in valid_claim_ids
+        ),
+        precedence_errors=tuple(
+            failures[id(claim)] for claim in claims if id(claim) in failures
+        ),
+    )
+
+
+def validate_capability_claim_state_precedence(
+    candidate: PedagogicalUnitCandidate,
+) -> list[ValidationFinding]:
+    """Translate precedence derivation errors into validation findings.
+
+    Traduce errores de derivación de precedencia a findings de validación.
+    """
+    derivation = derive_capability_claim_state_precedence(candidate)
 
     findings: list[ValidationFinding] = []
-    for claim in claims:
-        failure = failures.get(id(claim))
-        if failure is None:
-            continue
-        _, required_state, cause = failure
+    for error in derivation.precedence_errors:
         findings.append(
             ValidationFinding(
                 validator_id=VALIDATOR_ID,
                 severity="error",
                 message=(
-                    f"Lesson {claim.lesson_id} claim for Skill {claim.skill_id} "
-                    f"declares {claim.preparation_state} but requires "
-                    f"{required_state} at a strictly earlier curriculum "
-                    f"position: {cause}."
+                    f"Lesson {error.lesson_id} claim for Skill {error.skill_id} "
+                    f"declares {error.preparation_state} but requires "
+                    f"{error.required_preparation_state} at a strictly earlier "
+                    f"curriculum position: {error.cause}."
                 ),
                 reference_ids=[
-                    claim.lesson_id,
-                    claim.skill_id,
-                    claim.preparation_state,
-                    required_state,
-                    *claim.artifact_ids,
+                    error.lesson_id,
+                    error.skill_id,
+                    error.preparation_state,
+                    error.required_preparation_state,
+                    *error.artifact_ids,
                 ],
             )
         )

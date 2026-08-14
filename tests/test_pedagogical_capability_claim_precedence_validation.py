@@ -57,6 +57,19 @@ def _findings(monkeypatch, claims, errors=()):
     return subject.validate_capability_claim_state_precedence(_candidate())
 
 
+def _derivation(monkeypatch, claims, errors=()):
+    batch = CapabilityClaimAvailabilityDerivation(
+        availabilities=tuple(claims),
+        derivation_errors=tuple(errors),
+    )
+    monkeypatch.setattr(
+        subject,
+        "derive_capability_claim_availabilities",
+        lambda candidate: batch,
+    )
+    return subject.derive_capability_claim_state_precedence(_candidate())
+
+
 def _causes(findings):
     return [finding.message.rsplit(": ", 1)[1].removesuffix(".") for finding in findings]
 
@@ -282,3 +295,185 @@ def test_integrates_with_candidate_validation(monkeypatch):
     )
     report = validate_pedagogical_candidate(_candidate())
     assert any(finding.validator_id == VALIDATOR_ID for finding in report.findings)
+
+
+def test_precedence_derivation_is_typed_and_immutable(monkeypatch):
+    result = _derivation(
+        monkeypatch,
+        [_claim("EXPOSURE_AVAILABLE", 0, 0)],
+    )
+
+    assert isinstance(result, subject.CapabilityClaimPrecedenceDerivation)
+    assert isinstance(result.valid_claims, tuple)
+    assert isinstance(result.precedence_errors, tuple)
+    with pytest.raises(FrozenInstanceError):
+        result.valid_claims = ()
+
+
+def test_canonical_state_order_is_exact_and_immutable():
+    assert subject._STATE_ORDER == (
+        "EXPOSURE_AVAILABLE",
+        "INSTRUCTION_AVAILABLE",
+        "PRACTICE_AVAILABLE",
+        "EVIDENCE_GATE_AVAILABLE",
+    )
+    assert isinstance(subject._STATE_ORDER, tuple)
+    with pytest.raises(TypeError):
+        subject._STATE_ORDER[0] = "PRACTICE_AVAILABLE"
+
+
+def test_complete_chain_is_returned_as_individual_valid_claims(monkeypatch):
+    claims = [
+        _claim("EXPOSURE_AVAILABLE", 0, 0),
+        _claim("INSTRUCTION_AVAILABLE", 0, 1),
+        _claim("PRACTICE_AVAILABLE", 0, 2),
+        _claim("EVIDENCE_GATE_AVAILABLE", 0, 3),
+    ]
+
+    result = _derivation(monkeypatch, claims)
+
+    assert result.valid_claims == tuple(claims)
+    assert result.precedence_errors == ()
+
+
+def test_gaps_are_typed_errors_and_not_valid_claims(monkeypatch):
+    claims = [
+        _claim("INSTRUCTION_AVAILABLE", 0, 0),
+        _claim("PRACTICE_AVAILABLE", 0, 1),
+        _claim("EVIDENCE_GATE_AVAILABLE", 0, 2),
+    ]
+
+    result = _derivation(monkeypatch, claims)
+
+    assert result.valid_claims == ()
+    assert all(
+        isinstance(error, subject.CapabilityClaimPrecedenceError)
+        for error in result.precedence_errors
+    )
+    assert [error.cause for error in result.precedence_errors] == [
+        "required_state_absent",
+        "required_state_not_validly_chained",
+        "required_state_not_validly_chained",
+    ]
+
+
+def test_valid_equivalent_claims_and_positions_are_not_collapsed(monkeypatch):
+    claims = [
+        _claim("EXPOSURE_AVAILABLE", 0, 0, marker="first"),
+        _claim("EXPOSURE_AVAILABLE", 0, 1, marker="second"),
+        _claim("INSTRUCTION_AVAILABLE", 1, 0, marker="third"),
+    ]
+
+    result = _derivation(monkeypatch, claims)
+
+    assert result.valid_claims == tuple(claims)
+    assert [
+        (claim.lesson_index, claim.point.stage_index)
+        for claim in result.valid_claims
+    ] == [(0, 0), (0, 1), (1, 0)]
+
+
+def test_positioned_claims_are_partitioned_exactly_once(monkeypatch):
+    claims = [
+        _claim("EXPOSURE_AVAILABLE", 0, 0),
+        _claim("INSTRUCTION_AVAILABLE", 0, 0),
+        _claim("INSTRUCTION_AVAILABLE", 0, 1, marker="valid-instruction"),
+        _claim("PRACTICE_AVAILABLE", 0, 2),
+    ]
+
+    result = _derivation(monkeypatch, claims)
+    partition = [*result.valid_claims, *(error.claim for error in result.precedence_errors)]
+
+    assert len(partition) == len(claims)
+    assert {id(claim) for claim in partition} == {id(claim) for claim in claims}
+    assert not (
+        {id(claim) for claim in result.valid_claims}
+        & {id(error.claim) for error in result.precedence_errors}
+    )
+
+
+def test_slice_5_errors_are_outside_the_partition(monkeypatch):
+    error = CapabilityClaimAvailabilityError(
+        lesson_id="lesson-0",
+        skill_id="skill_a",
+        preparation_state="EXPOSURE_AVAILABLE",
+        artifact_ids=("unpositionable",),
+        cause="no canonical stage",
+    )
+
+    result = _derivation(monkeypatch, [], [error])
+
+    assert result.valid_claims == ()
+    assert result.precedence_errors == ()
+
+
+def test_batch_is_independent_of_claim_declaration_order(monkeypatch):
+    claims = [
+        _claim("EVIDENCE_GATE_AVAILABLE", 0, 3),
+        _claim("EXPOSURE_AVAILABLE", 0, 0),
+        _claim("PRACTICE_AVAILABLE", 0, 2),
+        _claim("INSTRUCTION_AVAILABLE", 0, 1),
+    ]
+
+    first = _derivation(monkeypatch, claims)
+    second = _derivation(monkeypatch, list(reversed(claims)))
+
+    assert first == second
+
+
+def test_derivation_does_not_modify_candidate(monkeypatch):
+    candidate = _candidate()
+    before = candidate.model_dump(mode="json")
+    monkeypatch.setattr(
+        subject,
+        "derive_capability_claim_availabilities",
+        lambda value: CapabilityClaimAvailabilityDerivation((), ()),
+    )
+
+    subject.derive_capability_claim_state_precedence(candidate)
+
+    assert candidate.model_dump(mode="json") == before
+
+
+def test_derivation_exposes_no_ledger_aggregation(monkeypatch):
+    result = _derivation(
+        monkeypatch,
+        [_claim("EXPOSURE_AVAILABLE", 0, 0)],
+    )
+
+    assert not hasattr(result, "highest_preparation_state")
+    assert not hasattr(result, "first_position")
+    assert not hasattr(result, "last_position")
+    assert not hasattr(result, "supporting_lesson_ids")
+    assert not hasattr(result, "supporting_artifact_ids")
+
+
+def test_validator_is_an_exact_adapter_for_precedence_errors(monkeypatch):
+    claim = _claim("PRACTICE_AVAILABLE", 0, 1, marker="artifact-x")
+    error = subject.CapabilityClaimPrecedenceError(
+        claim=claim,
+        required_preparation_state="INSTRUCTION_AVAILABLE",
+        cause="required_state_absent",
+    )
+    monkeypatch.setattr(
+        subject,
+        "derive_capability_claim_state_precedence",
+        lambda candidate: subject.CapabilityClaimPrecedenceDerivation(
+            valid_claims=(),
+            precedence_errors=(error,),
+        ),
+    )
+
+    findings = subject.validate_capability_claim_state_precedence(_candidate())
+
+    assert len(findings) == 1
+    assert findings[0].validator_id == VALIDATOR_ID
+    assert findings[0].severity == "error"
+    assert findings[0].reference_ids == [
+        "lesson-0",
+        "skill_a",
+        "PRACTICE_AVAILABLE",
+        "INSTRUCTION_AVAILABLE",
+        "artifact-x",
+    ]
+    assert findings[0].message.endswith("required_state_absent.")
