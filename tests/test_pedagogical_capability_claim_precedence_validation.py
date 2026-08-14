@@ -310,16 +310,39 @@ def test_precedence_derivation_is_typed_and_immutable(monkeypatch):
         result.valid_claims = ()
 
 
-def test_canonical_state_order_is_exact_and_immutable():
-    assert subject._STATE_ORDER == (
+def test_public_canonical_state_order_is_exact_and_immutable():
+    assert subject.CURRICULUM_PREPARATION_STATE_ORDER == (
         "EXPOSURE_AVAILABLE",
         "INSTRUCTION_AVAILABLE",
         "PRACTICE_AVAILABLE",
         "EVIDENCE_GATE_AVAILABLE",
     )
-    assert isinstance(subject._STATE_ORDER, tuple)
+    assert isinstance(subject.CURRICULUM_PREPARATION_STATE_ORDER, tuple)
     with pytest.raises(TypeError):
-        subject._STATE_ORDER[0] = "PRACTICE_AVAILABLE"
+        subject.CURRICULUM_PREPARATION_STATE_ORDER[0] = "PRACTICE_AVAILABLE"
+
+
+@pytest.mark.parametrize(
+    ("state", "expected_index"),
+    [
+        ("EXPOSURE_AVAILABLE", 0),
+        ("INSTRUCTION_AVAILABLE", 1),
+        ("PRACTICE_AVAILABLE", 2),
+        ("EVIDENCE_GATE_AVAILABLE", 3),
+    ],
+)
+def test_public_state_index_uses_canonical_order(state, expected_index):
+    assert subject.curriculum_preparation_state_index(state) == expected_index
+
+
+def test_public_state_index_rejects_unknown_state():
+    with pytest.raises(ValueError, match="not in tuple"):
+        subject.curriculum_preparation_state_index("UNKNOWN_AVAILABLE")
+
+
+def test_no_private_duplicate_state_order_remains():
+    assert not hasattr(subject, "_STATE_ORDER")
+    assert not hasattr(subject, "_state_index")
 
 
 def test_complete_chain_is_returned_as_individual_valid_claims(monkeypatch):

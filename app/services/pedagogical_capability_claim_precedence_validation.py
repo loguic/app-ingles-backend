@@ -14,7 +14,7 @@ from app.services.pedagogical_capability_claim_availability import (
 
 VALIDATOR_ID = "capability_claim_state_precedence"
 
-_STATE_ORDER = (
+CURRICULUM_PREPARATION_STATE_ORDER: tuple[CurriculumPreparationState, ...] = (
     "EXPOSURE_AVAILABLE",
     "INSTRUCTION_AVAILABLE",
     "PRACTICE_AVAILABLE",
@@ -69,12 +69,14 @@ def _position(claim: CapabilityClaimAvailability) -> tuple[int, int]:
     return claim.lesson_index, claim.point.stage_index
 
 
-def _state_index(state: CurriculumPreparationState) -> int:
+def curriculum_preparation_state_index(
+    state: CurriculumPreparationState,
+) -> int:
     """Return one state's position in the immutable canonical order.
 
     Devuelve la posición de un estado en el orden canónico inmutable.
     """
-    return _STATE_ORDER.index(state)
+    return CURRICULUM_PREPARATION_STATE_ORDER.index(state)
 
 
 def _output_key(claim: CapabilityClaimAvailability) -> tuple[object, ...]:
@@ -84,7 +86,7 @@ def _output_key(claim: CapabilityClaimAvailability) -> tuple[object, ...]:
     """
     return (
         *_position(claim),
-        _state_index(claim.preparation_state),
+        curriculum_preparation_state_index(claim.preparation_state),
         claim.skill_id,
         claim.lesson_id,
         claim.artifact_ids,
@@ -136,12 +138,12 @@ def derive_capability_claim_state_precedence(
 
     valid_claim_ids: set[int] = set()
     failures: dict[int, CapabilityClaimPrecedenceError] = {}
-    for state_index, state in enumerate(_STATE_ORDER):
+    for state_index, state in enumerate(CURRICULUM_PREPARATION_STATE_ORDER):
         state_claims = [claim for claim in claims if claim.preparation_state == state]
         if state_index == 0:
             valid_claim_ids.update(id(claim) for claim in state_claims)
             continue
-        required_state = _STATE_ORDER[state_index - 1]
+        required_state = CURRICULUM_PREPARATION_STATE_ORDER[state_index - 1]
         for claim in state_claims:
             required_claims = by_skill_and_state[(claim.skill_id, required_state)]
             cause = _failure_cause(claim, required_claims, valid_claim_ids)
