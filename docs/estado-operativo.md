@@ -14,15 +14,15 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 14
+### Contrato curricular v1 — Slice estructural 15
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `9c7b238` (`feat add canonical curriculum unit positions`) y documental `b4e9d27`; primer push confirmado hasta `b4e9d27` en `origin/master`.
+Estado: técnicamente cerrada mediante el commit `aeba506` (`feat add curriculum candidate correspondence`); documentación, publicación y sincronización final pendientes.
 
-La API pura `derive_curriculum_unit_positions(hierarchy)` devuelve posiciones interunidad canónicas tipadas, inmutables y efímeras. `level_index` procede exclusivamente de `cefr_level_index(level.code)`, `unit_index` de la posición real en `Level.units`, y la salida válida se ordena por `(level_index, unit_index)`. Los IDs identifican y nunca ordenan.
+La API pura `derive_curriculum_candidate_correspondences(hierarchy, candidates)` relaciona cada `PedagogicalUnitCandidate` con una `CurriculumUnitPosition` de slice 14 sin recalcular índices ni orden CEFR. Exige coherencia entre `specification.unit_id`, `candidate_unit.id`, la posición resuelta y `specification.level`; conserva por identidad candidates, posiciones y errores heredados.
 
-Los errores no fail-fast son `unknown_level`, `duplicate_level`, `duplicate_unit` y `ambiguous_unit`. Levels y units ambiguos quedan excluidos de posiciones utilizables, mientras las unidades inequívocas restantes se conservan. Posición curricular ≠ completitud curricular ≠ preparación acumulada ≠ progreso del learner ≠ aprendizaje ≠ mastery. No se implementaron candidates, contexto, completitud, agregación, evaluación global, ledger, findings ni persistencia.
+Los errores son `candidate_unit_id_mismatch`, `unknown_candidate_unit`, `candidate_level_mismatch`, `candidate_position_unresolved` y `duplicate_candidate_for_position`. Los `position_errors` permanecen exactos; solo candidates individualmente válidas participan en conflictos por posición y cada ocurrencia produce entry XOR error. Las entries se ordenan únicamente por `(position.level_index, position.unit_index)`; la prueba focal con `z-unit` anterior a `a-unit` corrigió el finding de orden por IDs. Entries ordenadas ≠ contexto completo ≠ completitud ≠ preparación acumulada ≠ progreso del learner ≠ aprendizaje ≠ mastery.
 
-Validación vigente, no repetir mientras no cambien archivos técnicos: 16 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 263 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1555 passed in 12.79s, `PYTEST_EXIT=0`; `git diff --check` PASS.
+Validación vigente, no repetir mientras no cambien archivos técnicos: 22 pruebas específicas PASS; postflight independiente final PASS sin hallazgos; finding de orden por IDs resuelto; 279 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1577 passed in 13.12s, `PYTEST_EXIT=0`; `git diff --check` PASS.
 
 ## Automatización disponible
 
@@ -51,11 +51,11 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 14
+### Contrato curricular v1 — Slice estructural 15
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `9c7b238` y documental `b4e9d27`; primer push confirmado hasta `b4e9d27` en `origin/master`. Las posiciones curriculares canónicas de unidades están descritas en «Último bloque cerrado».
+Estado: técnicamente cerrada mediante el commit `aeba506`; documentación, publicación y sincronización final pendientes. La correspondencia candidate–posición está descrita en «Último bloque cerrado».
 
-Posición curricular ≠ completitud curricular ≠ preparación acumulada ≠ progreso del learner ≠ aprendizaje ≠ mastery. Permanecen fuera correspondencia `PedagogicalUnitCandidate`–posición canónica, `OrderedCurriculumCandidateContext`, definición y demostración de completitud, target curricular, `context_incomplete`, agregación acumulativa por Skill, evaluación global de `SkillPrerequisite`, conclusión global `unsatisfied`, `CurriculumCapabilityPreparationLedger`, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
+Entries ordenadas ≠ contexto curricular completo ≠ completitud ≠ preparación acumulada ≠ progreso del learner ≠ aprendizaje ≠ mastery. Permanecen fuera definición del alcance requerido, target curricular, completitud estructural, posiciones requeridas sin candidate, `context_incomplete`, `OrderedCurriculumCandidateContext` completo, acumulación interunidad por Skill, evaluación global de `SkillPrerequisite`, conclusión global `unsatisfied`, `CurriculumCapabilityPreparationLedger`, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
 
 Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
 
@@ -77,6 +77,8 @@ Archivos técnicos commiteados:
 - `tests/test_pedagogical_curriculum_order.py`.
 - `app/services/pedagogical_curriculum_unit_position.py`;
 - `tests/test_pedagogical_curriculum_unit_position.py`.
+- `app/services/pedagogical_curriculum_candidate_correspondence.py`;
+- `tests/test_pedagogical_curriculum_candidate_correspondence.py`.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -86,7 +88,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Hacer preflight de la siguiente slice para determinar la dependencia mínima entre posiciones canónicas resueltas y la correspondencia estructural con `PedagogicalUnitCandidate`, antes de introducir completitud curricular y sin asumir todavía un `OrderedCurriculumCandidateContext` completo.
+Hacer preflight de la siguiente slice para determinar la representación mínima del alcance curricular y demostrar completitud sobre las correspondencias canónicas resueltas, sin asumir todavía agregación por Skill.
 
 ## Archivos clave
 
@@ -116,5 +118,7 @@ Hacer preflight de la siguiente slice para determinar la dependencia mínima ent
 - `tests/test_pedagogical_curriculum_order.py`;
 - `app/services/pedagogical_curriculum_unit_position.py`;
 - `tests/test_pedagogical_curriculum_unit_position.py`;
+- `app/services/pedagogical_curriculum_candidate_correspondence.py`;
+- `tests/test_pedagogical_curriculum_candidate_correspondence.py`;
 - `docs/modelo-pedagogico-maestro.md`;
 - `docs/roadmap.md` y `docs/bitacora.md`.

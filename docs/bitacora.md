@@ -6,10 +6,10 @@
 - Base de datos: PostgreSQL
 - ORM: SQLAlchemy
 - Driver: psycopg
-- Última suite backend completa confirmada: 1555 passed durante la slice estructural 14 del contrato curricular v1
+- Última suite backend completa confirmada: 1577 passed durante la slice estructural 15 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 14 cerrada, publicada y sincronizada mediante los commits técnico `9c7b238` y documental `b4e9d27`; primer push confirmado hasta `b4e9d27`; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 15 técnicamente cerrada mediante el commit `aeba506`; documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4160,3 +4160,19 @@ Validación vigente, no repetir mientras no cambien archivos técnicos: 16 prueb
 Posición curricular ≠ completitud curricular ≠ preparación acumulada ≠ progreso del learner ≠ aprendizaje ≠ mastery. Permanecen fuera correspondencia `PedagogicalUnitCandidate`–posición canónica, `OrderedCurriculumCandidateContext`, definición y demostración de completitud, target curricular, `context_incomplete`, agregación acumulativa por Skill, evaluación global de `SkillPrerequisite`, conclusión global `unsatisfied`, `CurriculumCapabilityPreparationLedger`, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
 
 El próximo objetivo es hacer preflight de la siguiente slice para determinar la dependencia mínima entre posiciones canónicas ya resueltas y la correspondencia estructural con `PedagogicalUnitCandidate`, antes de introducir completitud curricular y sin asumir todavía un `OrderedCurriculumCandidateContext` completo.
+
+## Contrato curricular v1 — Slice estructural 15
+
+Estado: técnicamente cerrada mediante el commit `aeba506` (`feat add curriculum candidate correspondence`); documentación, publicación y sincronización final pendientes.
+
+Se añadió la derivación batch pura, tipada, inmutable y efímera de correspondencias candidate–posición mediante `OrderedCurriculumCandidateEntry`, `CurriculumCandidateCorrespondenceError`, `CurriculumCandidateCorrespondenceDerivation` y `derive_curriculum_candidate_correspondences(hierarchy, candidates)`. Consume exclusivamente las posiciones de slice 14, sin recalcular `level_index`, `unit_index` u orden CEFR.
+
+Una candidate válida exige igualdad entre `specification.unit_id` y `candidate_unit.id`, resolución de una posición válida y coincidencia entre `specification.level` y `position.level_code`. Las causas son `candidate_unit_id_mismatch`, `unknown_candidate_unit`, `candidate_level_mismatch`, `candidate_position_unresolved` y `duplicate_candidate_for_position`. Los `position_errors` y sus objetos relacionados se conservan por identidad.
+
+Solo candidates individualmente válidas participan en duplicados por posición; una misma instancia repetida y distintas instancias para la misma posición tienen igual semántica, mientras candidates inválidas no contaminan a las válidas. Cada ocurrencia produce entry XOR correspondence error. Las entries se ordenan exclusivamente por `(position.level_index, position.unit_index)`. El finding de postflight quedó resuelto con la prueba focal donde `z-unit` es curricularmente anterior a `a-unit` aunque la candidate posterior se suministra primero.
+
+Validación vigente, no repetir mientras no cambien archivos técnicos: 22 pruebas específicas PASS; postflight independiente final PASS sin hallazgos; finding de orden por IDs resuelto; 279 pruebas de regresión directa PASS; suite backend completa ejecutada directamente en Bash, 1577 passed in 13.12s; `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, Codex CLI + Bash y la ejecución directa de la suite completa en Bash si el background de Codex falla.
+
+Entries ordenadas ≠ contexto curricular completo ≠ completitud ≠ preparación acumulada ≠ progreso del learner ≠ aprendizaje ≠ mastery. Permanecen fuera definición del alcance curricular requerido, target curricular, completitud estructural, posiciones requeridas sin candidate, `context_incomplete`, `OrderedCurriculumCandidateContext` completo, acumulación interunidad por Skill, evaluación global de `SkillPrerequisite`, conclusión global `unsatisfied`, `CurriculumCapabilityPreparationLedger`, ciclos, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, calidad pedagógica, runtime, persistencia, selección de cadenas y cambios en `SkillCoverage` o `required_stages`.
+
+El próximo objetivo es hacer preflight de la siguiente slice para determinar la representación mínima del alcance curricular y la demostración de completitud sobre las correspondencias canónicas resueltas, sin asumir todavía que corresponde agregar preparación por Skill.
