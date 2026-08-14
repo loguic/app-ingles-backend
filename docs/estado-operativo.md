@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `1428767`.
+- Último commit publicado y sincronizado: `a3e9237`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 9
 
-Estado: cerrada técnicamente mediante `20e0f85` (`refactor expose curriculum preparation state order`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `20e0f85` (`refactor expose curriculum preparation state order`) y documental `a3e9237`; push confirmado hasta `a3e9237` en `origin/master`.
 
 La API pública y pura expone `CURRICULUM_PREPARATION_STATE_ORDER` como fuente única e inmutable de `EXPOSURE_AVAILABLE < INSTRUCTION_AVAILABLE < PRACTICE_AVAILABLE < EVIDENCE_GATE_AVAILABLE`, y `curriculum_preparation_state_index(state)` devuelve respectivamente `0..3`. Un estado desconocido produce `ValueError`, sin fallback ni `ValidationFinding`.
 
@@ -53,7 +53,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 9
 
-Estado: cerrada técnicamente mediante `20e0f85`; documentación, publicación y sincronización final pendientes. El orden canónico público está descrito en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `20e0f85` y documental `a3e9237`; push confirmado hasta `a3e9237` en `origin/master`. El orden canónico público está descrito en «Último bloque cerrado».
 
 Permanecen fuera agregación local por `skill_id`, `highest_preparation_state`, selección de cadena máxima, `CurriculumCapabilityPreparationLedger`, `SkillPrerequisite`, `PedagogicalUnitSpecification.prerequisites`, contexto interunidad/CEFR, ciclos, progreso, ejecución del learner, evidencia real, resultados, mastery, calidad pedagógica, runtime, persistencia y cambios en `SkillCoverage` o `required_stages`.
 

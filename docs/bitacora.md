@@ -9,7 +9,7 @@
 - Última suite backend completa confirmada: 1459 passed durante la slice estructural 9 del contrato curricular v1
 - Suite frontend completa actual confirmada para el checkpoint B181: 44 passed
 - Último bloque cerrado integralmente: B180
-- Bloque curricular más reciente: slice estructural 9 cerrada técnicamente mediante `20e0f85`, con documentación, publicación y sincronización final pendientes; B181 continúa pausado en puerta pedagógica
+- Bloque curricular más reciente: slice estructural 9 cerrada, publicada y sincronizada mediante los commits técnico `20e0f85` y documental `a3e9237`; B181 continúa pausado en puerta pedagógica
 
 ## Historial anterior — B24 a B36
 
@@ -4073,7 +4073,7 @@ El próximo objetivo es hacer preflight de la siguiente slice desde el contrato 
 
 ## Contrato curricular v1 — Slice estructural 9
 
-Estado: cerrada técnicamente mediante el commit `20e0f85` (`refactor expose curriculum preparation state order`); documentación, publicación y sincronización final pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `20e0f85` (`refactor expose curriculum preparation state order`) y documental `a3e9237`; push confirmado hasta `a3e9237` en `origin/master`.
 
 Se expuso la API pública, pura e inmutable del orden canónico de `CurriculumPreparationState`. `CURRICULUM_PREPARATION_STATE_ORDER` es la fuente única de `EXPOSURE_AVAILABLE < INSTRUCTION_AVAILABLE < PRACTICE_AVAILABLE < EVIDENCE_GATE_AVAILABLE`; `curriculum_preparation_state_index(state)` devuelve respectivamente los índices `0`, `1`, `2` y `3`. Un estado desconocido produce `ValueError`, sin fallback ni `ValidationFinding`.
 
