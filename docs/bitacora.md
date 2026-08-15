@@ -4324,3 +4324,17 @@ Estado derivativo alcanzado no equivale a éxito de validación; findings vacío
 Validación vigente, no repetir mientras no cambie código técnico: 9 pruebas específicas PASS; postflight independiente PASS sin findings críticos; 133 pruebas de regresión PASS; suite backend completa, 1717 passed in 13.30s, `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
 
 El próximo objetivo es hacer un preflight separado para definir contractualmente cómo clasificar authoritative uncertainties, fallos estructurales de context/proof, errores de resolución de consumption/preparación y findings `error` demostrados antes de construir `ValidationReport.status`; no integrar todavía `validate_pedagogical_candidate`.
+
+## Contrato curricular v1 — Slice estructural 26
+
+Estado: técnicamente cerrada mediante `fed4291` (`feat add authoritative prerequisite validation status`); cierre documental, publicación y sincronización pendientes.
+
+Se añadieron `AuthoritativePrerequisiteValidationStatusDerivation` y `derive_authoritative_prerequisite_validation_status(...)`. La clasificación pura reutiliza el `ValidationStatus` existente, conserva la orquestación fuente por identidad y aplica prioridad failed → pending → passed sin recalcular slices anteriores ni crear findings.
+
+Failed cubre context inexistente, proof ausente/fallida, conclusion derivation ausente, errores de consumption/preparación o findings `error`; prevalece sobre uncertainty. Pending exige pipeline completo sin failed y al menos una authoritative uncertainty. Passed exige pipeline completo sin errores, uncertainties ni error findings. Findings vacíos no determinan passed; errores externos al scope no afectan si slice 17 produjo context válido, y warning/information aislado no activa pending automáticamente.
+
+Los estados describen exclusivamente la resolución de esta validación curricular autoritativa, no learner passed/failed, aprendizaje o mastery. Cannot derive no equivale a prerequisite not prepared, aunque un fallo derivativo determine failed para el estado de resolución. No se construyen `ValidationReport` ni nuevos findings y no existe integración con `validate_pedagogical_candidate`; ambos continúan bloqueados.
+
+Validación vigente, no repetir mientras no cambie código técnico: 18 pruebas específicas PASS; postflight independiente PASS sin findings críticos; 135 pruebas de regresión PASS; suite backend completa, 1735 passed in 13.34s, `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
+
+El próximo objetivo es hacer un preflight separado para definir cómo traducir contractualmente fallos estructurales de context/proof, errores derivativos de consumption/preparación y authoritative uncertainties a representación de reporte sin perder causas; solo después evaluar nuevos findings y un `ValidationReport` seguro, sin integrar todavía `validate_pedagogical_candidate`.

@@ -14,17 +14,17 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 25
+### Contrato curricular v1 — Slice estructural 26
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `9460655` (`feat add authoritative prerequisite validation orchestration`) y documental `53fe8b0`; primer push confirmado hasta `53fe8b0` en `origin/master`.
+Estado: técnicamente cerrada mediante `fed4291` (`feat add authoritative prerequisite validation status`); cierre documental, publicación y sincronización pendientes.
 
-`derive_authoritative_prerequisite_validation(...)` orquesta puramente slices 17 → 22 → 23 → 24 usando `authority.hierarchy`: context, proof explícita, conclusiones y findings, sin invocar directamente slices 15/16.
+`derive_authoritative_prerequisite_validation_status(...)` clasifica la orquestación usando `ValidationStatus`: prioridad failed → pending → passed, sin recalcular slices previas.
 
-Los fallos de context/proof detienen etapas posteriores; cada derivación alcanzada se conserva por identidad. Uncertainties y errores permanecen explícitos, y los findings proceden solo de slice 24. Sin provider ni I/O.
+Failed cubre context/proof/pipeline incompletos, errores de consumo/preparación o error findings; pending exige pipeline completo sin failed y con uncertainty; passed exige resolución completa sin esos estados. Errores externos al scope no afectan si existe context válido, y warning/information aislado no activa pending.
 
-Estado derivativo alcanzado ≠ éxito de validación; findings vacíos ≠ `passed`; cannot derive ≠ not prepared. `ValidationReport` y `validate_pedagogical_candidate` permanecen bloqueados.
+Failed/pending/passed = estado de esta validación curricular autoritativa, no learner passed/failed ni mastery. Findings vacíos ≠ passed; cannot derive ≠ prerequisite not prepared, aunque determine failed en la resolución. `ValidationReport` y `validate_pedagogical_candidate` permanecen bloqueados.
 
-Validación vigente, no repetir mientras no cambie código técnico: 9 específicas PASS; postflight independiente PASS sin findings; 133 de regresión PASS; suite backend completa, 1717 passed in 13.30s, `PYTEST_EXIT=0`; `git diff --check` PASS.
+Validación vigente, no repetir mientras no cambie código técnico: 18 específicas PASS; postflight independiente PASS sin findings; 135 de regresión PASS; suite backend completa, 1735 passed in 13.34s, `PYTEST_EXIT=0`; `git diff --check` PASS.
 
 ## Automatización disponible
 
@@ -53,15 +53,15 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 25
+### Contrato curricular v1 — Slice estructural 26
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `9460655` y documental `53fe8b0`; primer push confirmado hasta `53fe8b0` en `origin/master`. La orquestación pura está descrita en «Último bloque cerrado».
+Estado: técnicamente cerrada mediante `fed4291`; cierre documental, publicación y sincronización pendientes. La clasificación tipada está descrita en «Último bloque cerrado».
 
-Permanecen fuera la política de clasificación de uncertainties, fallos estructurales, errores de consumo/preparación y findings demostrados para un eventual `ValidationReport`, además de integración con validadores, learner state, mastery, runtime y persistencia.
+Permanecen fuera la traducción contractual de fallos estructurales, errores derivativos y uncertainties a representación de reporte, nuevos findings, `ValidationReport` e integración con validadores, además de learner state, mastery, runtime y persistencia.
 
 Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
 
-Archivos técnicos de la slice: `app/services/pedagogical_authoritative_prerequisite_orchestration.py` y `tests/test_pedagogical_authoritative_prerequisite_orchestration.py`. El inventario histórico completo permanece en `docs/bitacora.md`.
+Archivos técnicos de la slice: `app/services/pedagogical_authoritative_prerequisite_validation_status.py` y `tests/test_pedagogical_authoritative_prerequisite_validation_status.py`. El inventario histórico completo permanece en `docs/bitacora.md`.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -71,7 +71,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Hacer un preflight separado para definir contractualmente cómo clasificar uncertainties, fallos de context/proof, errores de consumo/preparación y findings `error` antes de construir `ValidationReport.status`, sin diseñar esa política durante este cierre.
+Hacer un preflight separado para definir cómo traducir fallos de context/proof, errores de consumo/preparación y uncertainties a representación de reporte sin perder causas, antes de nuevos findings o un `ValidationReport` seguro.
 
 ## Archivos clave
 
