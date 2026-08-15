@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `e7ab6cf`.
+- Último commit publicado y sincronizado: `dfd29e9`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 22
 
-Estado: técnicamente cerrada mediante el commit `d6e7af4` (`feat add complete from authoritative origin derivation`); publicación documental pendiente.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `d6e7af4` (`feat add complete from authoritative origin derivation`) y documental `dfd29e9`; primer push confirmado hasta `dfd29e9` en `origin/master`.
 
 `derive_complete_from_authoritative_origin(...)` compone authority tipada de slice 21, posiciones de slice 14 y context de slice 17. El origin es la primera posición autoritativa derivada y el scope requerido debe coincidir exactamente con el prefijo autoritativo hasta target inclusive.
 
@@ -55,7 +55,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 22
 
-Estado: técnicamente cerrada mediante el commit `d6e7af4`; publicación documental pendiente. La completitud desde origen autoritativo está descrita en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `d6e7af4` y documental `dfd29e9`; primer push confirmado hasta `dfd29e9` en `origin/master`. La completitud desde origen autoritativo está descrita en «Último bloque cerrado».
 
 Permanecen fuera la regla que combine `unresolved_in_context`, `complete_from_authoritative_origin` y ausencia de incertidumbre relevante para una conclusión negativa más fuerte, además de ciclos, ledger, findings, learner state, evidencia, aprendizaje, mastery, runtime y persistencia.
 

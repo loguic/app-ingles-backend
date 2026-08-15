@@ -4271,7 +4271,7 @@ El próximo objetivo es hacer preflight de slice 22 para verificar `complete_fro
 
 ## Contrato curricular v1 — Slice estructural 22
 
-Estado: técnicamente cerrada mediante el commit `d6e7af4` (`feat add complete from authoritative origin derivation`); publicación documental pendiente.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `d6e7af4` (`feat add complete from authoritative origin derivation`) y documental `dfd29e9`; primer push confirmado hasta `dfd29e9` en `origin/master`.
 
 Se añadió `CompleteFromAuthoritativeOrigin`, sus modelos derivativos y `derive_complete_from_authoritative_origin(...)`. La capacidad consume exclusivamente `AuthoritativeCurriculumHierarchy` de slice 21 y `OrderedCurriculumCandidateContext` de slice 17, y obtiene posiciones únicamente mediante slice 14.
 
