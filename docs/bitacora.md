@@ -4282,3 +4282,17 @@ La existencia de `CompleteFromAuthoritativeOrigin` constituye la prueba estructu
 Validación vigente, no repetir mientras no cambie código técnico: 17 pruebas específicas PASS; postflight independiente PASS sin findings críticos; 144 pruebas de regresión PASS; suite backend completa, 1688 passed in 13.39s; `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
 
 El próximo objetivo es hacer un preflight separado para determinar bajo qué condiciones `unresolved_in_context` + `complete_from_authoritative_origin` + ausencia de incertidumbre relevante puede permitir una conclusión curricular negativa más fuerte, sin diseñar esa regla durante este cierre.
+
+## Contrato curricular v1 — Slice estructural 23
+
+Estado: técnicamente cerrada mediante `7865c9c` (`feat add authoritative prerequisite conclusions`); cierre documental, publicación y sincronización pendientes.
+
+Se añadieron `CurriculumPrerequisiteNotPreparedFromAuthoritativeOrigin`, `CurriculumPrerequisiteAuthoritativeUncertainty`, `CurriculumPrerequisiteAuthoritativeConclusionDerivation` y `derive_authoritative_prerequisite_conclusions(...)`. La API recibe únicamente `CompleteFromAuthoritativeOrigin` y deriva los assessments exclusivamente desde `proof.context`, impidiendo combinar una proof y un assessment de contextos distintos.
+
+`satisfied_in_context` no produce conclusión, uncertainty ni error. Cada `unresolved_in_context` sin `related_precedence_errors` produce una conclusión negativa curricular autoritativa; si existen errores relacionados produce una uncertainty y ninguna conclusión. La política es deliberadamente conservadora. Los errores derivativos de consumo o preparación permanecen exclusivamente en la derivación fuente: no pudo derivarse no equivale a no estaba preparado.
+
+La conclusión usa closed-world solo respecto al prefijo autoritativo, context cubierto, claims válidos anteriores al punto, prerequisite y Skill concretos. No implica learner state, `globally_unsatisfied`, contenido futuro, aprendizaje, retention ni mastery. El punto procede de slices 11/19 y una target intermedia autoritativamente completa es suficiente. No existen todavía `ValidationFinding` ni integración con validadores.
+
+Validación vigente, no repetir mientras no cambie código técnico: 12 pruebas específicas PASS; postflight independiente PASS sin findings críticos; 245 pruebas de regresión PASS; suite backend completa, 1700 passed in 13.23s, `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
+
+El próximo objetivo es hacer un preflight separado para decidir si, cuándo y cómo esta conclusión curricular autoritativa debe convertirse en `ValidationFinding` dentro de la validación pedagógica, sin diseñar ni implementar esa integración durante este cierre.

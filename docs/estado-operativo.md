@@ -14,17 +14,17 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 22
+### Contrato curricular v1 — Slice estructural 23
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `d6e7af4` (`feat add complete from authoritative origin derivation`) y documental `dfd29e9`; primer push confirmado hasta `dfd29e9` en `origin/master`.
+Estado: técnicamente cerrada mediante `7865c9c` (`feat add authoritative prerequisite conclusions`); cierre documental, publicación y sincronización pendientes.
 
-`derive_complete_from_authoritative_origin(...)` compone authority tipada de slice 21, posiciones de slice 14 y context de slice 17. El origin es la primera posición autoritativa derivada y el scope requerido debe coincidir exactamente con el prefijo autoritativo hasta target inclusive.
+`derive_authoritative_prerequisite_conclusions(proof)` deriva assessments únicamente desde `proof.context`. `satisfied_in_context` no aplica; unresolved sin errores de precedencia relacionados produce `CurriculumPrerequisiteNotPreparedFromAuthoritativeOrigin`, y unresolved con ellos produce `CurriculumPrerequisiteAuthoritativeUncertainty`.
 
-La comparación exacta bloquea omisiones intermedias, posiciones extra y orden incorrecto; una target intermedia válida puede pasar. No reconstruye candidate coverage ni implementa todavía `unsatisfied`.
+Los errores derivativos permanecen en la derivación fuente y nunca producen conclusión: no pudo derivarse ≠ no estaba preparado. El closed-world queda limitado al prefijo autoritativo y punto concreto; aún no existen `ValidationFinding` ni integración con validadores.
 
-`complete_within_hierarchy` ≠ `complete_from_authoritative_origin` ≠ `globally_complete`. Procedencia curricular autoritativa ≠ estado del estudiante ≠ evidencia ≠ aprendizaje ≠ mastery.
+`CurriculumPrerequisiteNotPreparedFromAuthoritativeOrigin` ≠ learner state ≠ `globally_unsatisfied` ≠ mastery.
 
-Validación vigente, no repetir mientras no cambie código técnico: 17 pruebas específicas PASS; postflight independiente PASS sin findings; 144 pruebas de regresión PASS; suite backend completa, 1688 passed in 13.39s, `PYTEST_EXIT=0`; `git diff --check` PASS.
+Validación vigente, no repetir mientras no cambie código técnico: 12 específicas PASS; postflight independiente PASS sin findings; 245 de regresión PASS; suite backend completa, 1700 passed in 13.23s, `PYTEST_EXIT=0`; `git diff --check` PASS.
 
 ## Automatización disponible
 
@@ -53,41 +53,15 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 22
+### Contrato curricular v1 — Slice estructural 23
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `d6e7af4` y documental `dfd29e9`; primer push confirmado hasta `dfd29e9` en `origin/master`. La completitud desde origen autoritativo está descrita en «Último bloque cerrado».
+Estado: técnicamente cerrada mediante `7865c9c`; cierre documental, publicación y sincronización pendientes. La conclusión curricular negativa autoritativa está descrita en «Último bloque cerrado».
 
-Permanecen fuera la regla que combine `unresolved_in_context`, `complete_from_authoritative_origin` y ausencia de incertidumbre relevante para una conclusión negativa más fuerte, además de ciclos, ledger, findings, learner state, evidencia, aprendizaje, mastery, runtime y persistencia.
+Permanecen fuera su eventual conversión en `ValidationFinding`, integración con validadores, ciclos, graph solving, learner state, evidencia, aprendizaje, mastery, runtime y persistencia.
 
 Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
 
-Archivos técnicos commiteados:
-
-- `app/services/pedagogical_capability_artifact_state_validation.py`;
-- `app/services/pedagogical_validation_service.py`;
-- `app/services/pedagogical_capability_claim_precedence_validation.py`;
-- `tests/test_pedagogical_capability_claim_precedence_validation.py`.
-- `app/services/pedagogical_capability_preparation_snapshot.py`;
-- `tests/test_pedagogical_capability_preparation_snapshot.py`.
-- `app/services/pedagogical_local_capability_preparation_view.py`;
-- `tests/test_pedagogical_local_capability_preparation_view.py`.
-- `app/services/pedagogical_local_skill_prerequisite_consumption.py`;
-- `tests/test_pedagogical_local_skill_prerequisite_consumption.py`.
-- `app/services/pedagogical_local_skill_prerequisite_assessment.py`;
-- `tests/test_pedagogical_local_skill_prerequisite_assessment.py`.
-- `app/services/pedagogical_curriculum_order.py`;
-- `tests/test_pedagogical_curriculum_order.py`.
-- `app/services/pedagogical_curriculum_unit_position.py`;
-- `tests/test_pedagogical_curriculum_unit_position.py`.
-- `app/services/pedagogical_curriculum_candidate_correspondence.py`;
-- `tests/test_pedagogical_curriculum_candidate_correspondence.py`.
-- `app/services/pedagogical_curriculum_context_scope.py`;
-- `tests/test_pedagogical_curriculum_context_scope.py`.
-- `app/services/pedagogical_ordered_curriculum_candidate_context.py`;
-- `tests/test_pedagogical_ordered_curriculum_candidate_context.py`.
-- `app/services/pedagogical_accumulated_curriculum_preparation.py`;
-- `tests/test_pedagogical_accumulated_curriculum_preparation.py`.
-- `app/services/pedagogical_curriculum_skill_prerequisite_assessment.py` y `tests/test_pedagogical_curriculum_skill_prerequisite_assessment.py`.
+Archivos técnicos de la slice: `app/services/pedagogical_authoritative_prerequisite_conclusion.py` y `tests/test_pedagogical_authoritative_prerequisite_conclusion.py`. El inventario histórico completo permanece en `docs/bitacora.md`.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -97,7 +71,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Hacer un preflight separado para determinar cuándo `unresolved_in_context` + `complete_from_authoritative_origin` + ausencia de incertidumbre relevante puede permitir una conclusión curricular negativa más fuerte, sin diseñarla durante este cierre.
+Hacer un preflight separado para decidir si, cuándo y cómo la conclusión curricular autoritativa debe convertirse en `ValidationFinding` dentro de la validación pedagógica, sin diseñar ni implementar esa integración durante este cierre.
 
 ## Archivos clave
 
