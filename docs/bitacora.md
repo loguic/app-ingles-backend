@@ -4310,3 +4310,17 @@ Uncertainties y errores derivativos no producen findings de ninguna severidad; p
 Validación vigente, no repetir mientras no cambie código técnico: 8 pruebas específicas PASS; postflight independiente PASS sin findings críticos; 144 pruebas de regresión PASS; suite backend completa, 1708 passed in 13.25s, `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
 
 El próximo objetivo es hacer un preflight separado para diseñar una orquestación explícita authority → context → `CompleteFromAuthoritativeOrigin` → conclusiones autoritativas → uncertainties/errores → `ValidationFinding` → eventual `ValidationReport`, sin diseñarla ni implementarla durante este cierre.
+
+## Contrato curricular v1 — Slice estructural 25
+
+Estado: técnicamente cerrada mediante `9460655` (`feat add authoritative prerequisite validation orchestration`); cierre documental, publicación y sincronización pendientes.
+
+Se añadieron `AuthoritativePrerequisiteValidationDerivation` y `derive_authoritative_prerequisite_validation(...)`, una orquestación pura y frozen de slices 17 → 22 → 23 → 24. Recibe authority tipada, candidates y target explícita; construye context exclusivamente sobre `authority.hierarchy`, mantiene slice 22 como proof obligatoria y no invoca slices 15/16 directamente.
+
+Los fallos de context o proof detienen las etapas posteriores sin producir findings. Authority y las derivaciones alcanzadas se conservan por identidad; la presencia o ausencia de cada una indica únicamente hasta dónde llegó el pipeline, no éxito parcial. Conclusions, uncertainties y errores derivativos permanecen en sus contratos fuente, y los findings proceden exclusivamente de slice 24 mediante conversión directa a tuple.
+
+Estado derivativo alcanzado no equivale a éxito de validación; findings vacíos no equivalen a `passed`; cannot derive no equivale a not prepared. La capacidad no usa provider, filesystem, red, DB o runtime mutable. No construye `ValidationReport` ni integra `validate_pedagogical_candidate`; ambos permanecen bloqueados hasta definir la política de estados para uncertainties y errores.
+
+Validación vigente, no repetir mientras no cambie código técnico: 9 pruebas específicas PASS; postflight independiente PASS sin findings críticos; 133 pruebas de regresión PASS; suite backend completa, 1717 passed in 13.30s, `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
+
+El próximo objetivo es hacer un preflight separado para definir contractualmente cómo clasificar authoritative uncertainties, fallos estructurales de context/proof, errores de resolución de consumption/preparación y findings `error` demostrados antes de construir `ValidationReport.status`; no integrar todavía `validate_pedagogical_candidate`.
