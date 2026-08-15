@@ -14,17 +14,17 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 21
+### Contrato curricular v1 — Slice estructural 22
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `bf79f88` (`feat add authoritative curriculum hierarchy provider`) y documental `e7ab6cf`; primer push confirmado hasta `e7ab6cf` en `origin/master`.
+Estado: técnicamente cerrada mediante el commit `d6e7af4` (`feat add complete from authoritative origin derivation`); publicación documental pendiente.
 
-`app.services.content_service` es el proveedor técnico autoritativo actual. `AuthoritativeCurriculumHierarchy` es un wrapper interno inmutable que conserva únicamente la hierarchy, y `load_authoritative_curriculum_hierarchy()` es el único camino público soportado para emitir esa procedencia.
+`derive_complete_from_authoritative_origin(...)` compone authority tipada de slice 21, posiciones de slice 14 y context de slice 17. El origin es la primera posición autoritativa derivada y el scope requerido debe coincidir exactamente con el prefijo autoritativo hasta target inclusive.
 
-`build_content_tree()` sigue devolviendo un `ContentTreeResponse` ordinario; un árbol arbitrario no implica autoridad. La representación física permanece reemplazable y no existe segunda fuente de orden. Todavía no se derivan origin, prefijo ni completitud contextual.
+La comparación exacta bloquea omisiones intermedias, posiciones extra y orden incorrecto; una target intermedia válida puede pasar. No reconstruye candidate coverage ni implementa todavía `unsatisfied`.
 
-Authoritative hierarchy ≠ `complete_from_authoritative_origin` ≠ `globally_complete`. Procedencia curricular autoritativa ≠ learner state ≠ evidencia ≠ aprendizaje ≠ mastery.
+`complete_within_hierarchy` ≠ `complete_from_authoritative_origin` ≠ `globally_complete`. Procedencia curricular autoritativa ≠ estado del estudiante ≠ evidencia ≠ aprendizaje ≠ mastery.
 
-Validación vigente, no repetir mientras no cambie código técnico: 10 pruebas específicas PASS; postflight independiente PASS sin findings; 134 pruebas de regresión PASS; suite backend completa, 1671 passed in 13.47s, `PYTEST_EXIT=0`; `git diff --check` PASS.
+Validación vigente, no repetir mientras no cambie código técnico: 17 pruebas específicas PASS; postflight independiente PASS sin findings; 144 pruebas de regresión PASS; suite backend completa, 1688 passed in 13.39s, `PYTEST_EXIT=0`; `git diff --check` PASS.
 
 ## Automatización disponible
 
@@ -53,11 +53,11 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 21
+### Contrato curricular v1 — Slice estructural 22
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `bf79f88` y documental `e7ab6cf`; primer push confirmado hasta `e7ab6cf` en `origin/master`. La procedencia autoritativa está descrita en «Último bloque cerrado».
+Estado: técnicamente cerrada mediante el commit `d6e7af4`; publicación documental pendiente. La completitud desde origen autoritativo está descrita en «Último bloque cerrado».
 
-Permanecen fuera derivación de origin, verificación de prefijo y `complete_from_authoritative_origin`, `unsatisfied`, ciclos, ledger, findings, learner state, evidencia, aprendizaje, mastery, runtime y persistencia.
+Permanecen fuera la regla que combine `unresolved_in_context`, `complete_from_authoritative_origin` y ausencia de incertidumbre relevante para una conclusión negativa más fuerte, además de ciclos, ledger, findings, learner state, evidencia, aprendizaje, mastery, runtime y persistencia.
 
 Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
 
@@ -97,7 +97,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Hacer preflight de slice 22 para verificar `complete_from_authoritative_origin` mediante `AuthoritativeCurriculumHierarchy`, posiciones de slice 14 y `OrderedCurriculumCandidateContext` de slice 17, sin implementar todavía `unsatisfied`.
+Hacer un preflight separado para determinar cuándo `unresolved_in_context` + `complete_from_authoritative_origin` + ausencia de incertidumbre relevante puede permitir una conclusión curricular negativa más fuerte, sin diseñarla durante este cierre.
 
 ## Archivos clave
 

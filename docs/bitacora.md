@@ -4268,3 +4268,17 @@ No se añadió segunda fuente de orden ni se derivaron origin, posiciones, prefi
 Validación vigente, no repetir mientras no cambie código técnico: 10 pruebas específicas PASS; postflight independiente PASS sin findings críticos; 134 pruebas de regresión PASS; suite backend completa, 1671 passed in 13.47s; `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
 
 El próximo objetivo es hacer preflight de slice 22 para verificar `complete_from_authoritative_origin` mediante `AuthoritativeCurriculumHierarchy`, posiciones de slice 14 y `OrderedCurriculumCandidateContext` de slice 17, sin implementar todavía `unsatisfied`.
+
+## Contrato curricular v1 — Slice estructural 22
+
+Estado: técnicamente cerrada mediante el commit `d6e7af4` (`feat add complete from authoritative origin derivation`); publicación documental pendiente.
+
+Se añadió `CompleteFromAuthoritativeOrigin`, sus modelos derivativos y `derive_complete_from_authoritative_origin(...)`. La capacidad consume exclusivamente `AuthoritativeCurriculumHierarchy` de slice 21 y `OrderedCurriculumCandidateContext` de slice 17, y obtiene posiciones únicamente mediante slice 14.
+
+El origin es la primera posición autoritativa derivada. `context.scope.start_position` debe coincidir estructuralmente con ella, la target se resuelve por igualdad estructural completa y `scope.required_positions` debe igualar exactamente el prefijo autoritativo hasta target inclusive. Así se bloquean omisiones intermedias, posiciones extra y orden incorrecto; una target intermedia exacta puede demostrar completitud sin alcanzar el final de la hierarchy.
+
+La existencia de `CompleteFromAuthoritativeOrigin` constituye la prueba estructural, sin booleano de completitud. No se reconstruye candidate coverage de slice 17 ni se implementa `unsatisfied`. `complete_within_hierarchy` no equivale a `complete_from_authoritative_origin`, y esta no equivale a `globally_complete`; procedencia curricular autoritativa no equivale a estado del estudiante, evidencia, aprendizaje o mastery.
+
+Validación vigente, no repetir mientras no cambie código técnico: 17 pruebas específicas PASS; postflight independiente PASS sin findings críticos; 144 pruebas de regresión PASS; suite backend completa, 1688 passed in 13.39s; `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
+
+El próximo objetivo es hacer un preflight separado para determinar bajo qué condiciones `unresolved_in_context` + `complete_from_authoritative_origin` + ausencia de incertidumbre relevante puede permitir una conclusión curricular negativa más fuerte, sin diseñar esa regla durante este cierre.
