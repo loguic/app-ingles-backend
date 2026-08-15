@@ -4327,7 +4327,7 @@ El próximo objetivo es hacer un preflight separado para definir contractualment
 
 ## Contrato curricular v1 — Slice estructural 26
 
-Estado: técnicamente cerrada mediante `fed4291` (`feat add authoritative prerequisite validation status`); cierre documental, publicación y sincronización pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `fed4291` (`feat add authoritative prerequisite validation status`) y documental de cierre `d32edd2`; primer push confirmado hasta `d32edd2` en `origin/master`.
 
 Se añadieron `AuthoritativePrerequisiteValidationStatusDerivation` y `derive_authoritative_prerequisite_validation_status(...)`. La clasificación pura reutiliza el `ValidationStatus` existente, conserva la orquestación fuente por identidad y aplica prioridad failed → pending → passed sin recalcular slices anteriores ni crear findings.
 

@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `53fe8b0`.
+- Último commit publicado y sincronizado: `d32edd2`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 26
 
-Estado: técnicamente cerrada mediante `fed4291` (`feat add authoritative prerequisite validation status`); cierre documental, publicación y sincronización pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `fed4291` (`feat add authoritative prerequisite validation status`) y documental `d32edd2`; primer push confirmado hasta `d32edd2` en `origin/master`.
 
 `derive_authoritative_prerequisite_validation_status(...)` clasifica la orquestación usando `ValidationStatus`: prioridad failed → pending → passed, sin recalcular slices previas.
 
@@ -55,7 +55,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 26
 
-Estado: técnicamente cerrada mediante `fed4291`; cierre documental, publicación y sincronización pendientes. La clasificación tipada está descrita en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `fed4291` y documental `d32edd2`; primer push confirmado hasta `d32edd2` en `origin/master`. La clasificación tipada está descrita en «Último bloque cerrado».
 
 Permanecen fuera la traducción contractual de fallos estructurales, errores derivativos y uncertainties a representación de reporte, nuevos findings, `ValidationReport` e integración con validadores, además de learner state, mastery, runtime y persistencia.
 
