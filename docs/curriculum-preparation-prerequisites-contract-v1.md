@@ -793,7 +793,79 @@ Las únicas decisiones humanas finales son `admitted` y `rejected`. Pending se r
 
 Un filename como `pedagogical-unit-candidate-v2.json` no define `candidate_revision` ni `payload_schema_version`. Tampoco deberá reutilizarse `LessonExperience.contract_version` como versión del payload completo.
 
-`content_digest` será un digest criptográfico, recomendado SHA-256 en v1, del modelo validado serializado canónica y determinísticamente. El formatting físico no deberá cambiar su identidad; cualquier cambio del payload canónico sí deberá cambiarla. La serialización canónica exacta, encoding, separators y serializer quedan reservados al preflight técnico posterior.
+`candidate_revision` es un string opaco, machine-readable, no vacío y no compuesto exclusivamente por whitespace, suministrado externamente. Se valida que `candidate_revision.strip() != ""`, pero su valor se conserva literalmente sin strip, lowercase, slugification ni otra normalización. No se deriva del filename, `payload_schema_version`, digest, timestamp ni posición curricular, y no expresa orden curricular o de publication.
+
+#### Canonical admission payload v1
+
+El canonical admission payload identifica exclusivamente el contenido pedagógico/autoral concreto sometido a review y admission; no equivale a serializar `PedagogicalUnitCandidate` completo sin distinguir responsabilidades. La proyección v1 incluye exactamente:
+
+- `specification`;
+- `candidate_unit`;
+- `evaluation_plans`;
+- `feedback_plans`;
+- `lesson_capability_plans`;
+- `skill_coverage`;
+- `required_resource_ids`.
+
+Para esta identidad se clasifican como **pedagogical/authored payload** esos siete campos; como **derived validation metadata**, `validation_report`; y como **human/editorial process metadata**, `pending_human_decisions` y `proposed_change_summary`. Esta clasificación no modifica el schema de `PedagogicalUnitCandidate`.
+
+`validation_report` queda excluido de la proyección: es metadata derivada que `validate_pedagogical_candidate(...)` recalcula y no contenido autoral. Incluirlo introduciría la dependencia circular payload digest → local validation → report → payload digest. La validación local recalculada con status `passed` sigue siendo un gate obligatorio, pero su resultado no participa en la identidad canónica.
+
+`pending_human_decisions` queda excluido porque representa proceso de review y funciona como gate: cualquier valor no vacío impide admission, aunque resolverlo sin cambiar contenido pedagógico no crea por sí solo una nueva identidad. `proposed_change_summary` también queda excluido porque describe editorialmente cambios propuestos; modificar solo el resumen no cambia el digest. Si resolver una decisión o aplicar un cambio altera cualquier campo incluido, sí cambia potencialmente la identidad canónica.
+
+El literal inicial `payload_schema_version = "1.0"` identifica exclusivamente esta proyección v1 para calcular identidad. No es la versión general de `PedagogicalUnitCandidate`, `LessonExperience.contract_version`, `candidate_revision`, versión curricular, revisión de publication ni versión de filename, y no se añade al candidate. La futura metadata de identidad/admission lo portará externamente. Todo cambio futuro en los datos incluidos o en su interpretación semántica que pueda alterar la identidad exige una nueva `payload_schema_version`; v1 no define una política SemVer general.
+
+`candidate_revision`, `payload_schema_version`, `content_digest` y `unit_id` son dimensiones distintas: respectivamente identificador operativo de revisión, versión del contrato de proyección, identidad criptográfica del contenido canónico e identidad curricular nominal. Ninguna sustituye a las demás.
+
+Excluir metadata del digest no permite ignorarla durante admission: canonical payload define identidad del contenido pedagógico y admission gates define las condiciones para autorizarla. Un cambio limitado a `validation_report`, `pending_human_decisions` o `proposed_change_summary` no cambia por sí mismo la identidad; tampoco elimina la obligación de recalcular validation, resolver decisiones pendientes y completar human review.
+
+#### Canonical serialization and content digest v1
+
+La representación v1 se construye mediante una whitelist explícita con exactamente las siete keys enumeradas en la proyección anterior. No se serializa el `PedagogicalUnitCandidate` completo para excluir campos después: ningún campo futuro entrará accidentalmente en `payload_schema_version = "1.0"`. El orden escrito de las keys no aporta semántica porque los mappings se canonicalizan al serializar.
+
+Cada componente modelado parte de su instancia Pydantic ya validada y se proyecta con comportamiento equivalente a:
+
+```text
+model_dump(
+    mode="json",
+    by_alias=False,
+    exclude_unset=False,
+    exclude_defaults=False,
+    exclude_none=False,
+    round_trip=False,
+    serialize_as_any=False,
+)
+```
+
+Esta regla usa nombres reales de campos, produce valores JSON-compatible e incluye defaults, valores normalizados aunque estuvieran unset en el input y `None` como JSON `null`. La identidad depende del estado modelado validado, no de cómo fue escrito el artifact de origen. Una implementación compatible no necesita exponer literalmente esa llamada, pero deberá producir exactamente la misma representación contractual.
+
+Todos los mappings neutralizan recursivamente su orden de keys. Todas las lists/sequences conservan exactamente su orden modelado, sin sorting, deduplication, conversión a set ni normalización lexical, incluido `required_resource_ids`. Sequence order puede formar parte de la identidad modelada y no equivale a curriculum order.
+
+El canonical JSON se produce con comportamiento equivalente a:
+
+```text
+json.dumps(
+    canonical_payload,
+    sort_keys=True,
+    separators=(",", ":"),
+    ensure_ascii=False,
+    allow_nan=False,
+)
+```
+
+No contiene indentación, pretty printing, whitespace adicional, trailing spaces ni newline final. No se aplica normalización Unicode NFC/NFD: strings visualmente equivalentes con secuencias Unicode distintas pueden producir digests distintos deliberadamente. El JSON se codifica en UTF-8 sin BOM, newline ni terminador adicional; las reglas de EOF de archivos no aplican a estos bytes en memoria.
+
+Los floats proceden de modelos Pydantic ya validados y siguen la representación numérica del runtime Python 3.12 soportado por v1. No se usan `Decimal`, quantization, redondeo artificial ni RFC 8785/JCS. Los campos tipados como float se serializan como float; `0.0` y `-0.0` permanecen distintos si así existen en el modelo. NaN e Infinity no son válidos y `allow_nan=False` actúa fail-closed. Una implementación en otro lenguaje deberá reproducir exactamente estos bytes y no podrá asumir que su serializer JSON por defecto es compatible.
+
+`canonical_bytes` son exclusivamente el canonical JSON anterior codificado en UTF-8. El preimage de SHA-256 contiene exclusivamente esos bytes derivados de las siete keys. No incluye adicionalmente `candidate_revision`, `payload_schema_version`, un `unit_id` externo, `reviewer_id`, `admission_id`, metadata de publication/snapshot ni prefijo de domain separation. `unit_id` ya está representado dentro de `specification` y `candidate_unit`; dos revisions operativas con contenido canónico idéntico comparten `content_digest`.
+
+`payload_schema_version` y `content_digest` se interpretan conjuntamente: la primera identifica la receta/proyección y el segundo el contenido producido bajo ella. La versión no es un octavo dato del payload ni participa en el preimage. `content_digest` aislado no identifica completamente el contrato de canonicalización. Todo cambio futuro de boundary, normalization, JSON, numbers o cualquier regla capaz de cambiar canonical bytes exige una nueva versión y nunca modifica retrospectivamente `"1.0"`.
+
+El digest se calcula como SHA-256 de `canonical_bytes` y se representa exactamente como `sha256:<64 lowercase hexadecimal characters>`, conforme a `^sha256:[0-9a-f]{64}$`, sin uppercase, espacios ni multihash. Aporta identidad e integridad del contenido canónico; no equivale a admission, firma, MAC, prueba de autenticidad, publication ni membership.
+
+Una proyección que no pueda representarse conforme a v1, incluyendo NaN, Infinity o un tipo incompatible con JSON v1, deberá fallar sin producir silenciosamente otro digest. Este contrato no fija todavía clase de excepción, enum ni wrapper de source integrity; la derivación futura recibirá un `PedagogicalUnitCandidate` ya validado y no reparseará artifacts.
+
+Toda implementación de `payload_schema_version = "1.0"` deberá protegerse con al menos un golden vector que fije canonical payload conocido, canonical bytes conocidos y `content_digest` literal conocido. El vector concreto se establecerá con la primera implementación y formará parte de la compatibilidad v1.
 
 La decisión vivirá conceptualmente fuera de `PedagogicalUnitCandidate`, en un admission record independiente que contenga como mínimo:
 
@@ -892,9 +964,6 @@ El artifact actual A1-U1 permanece pending y non-member mientras conserve `valid
 
 Un manifest o index explícito parece una representación natural candidata del snapshot, pero su formato permanece undecided. También quedan para el preflight técnico posterior:
 
-- formato de `candidate_revision`;
-- valor inicial de `payload_schema_version`;
-- serialización canónica exacta;
 - formatos físicos de admission record y snapshot/manifest;
 - namespace operativo de `reviewer_id`;
 - mecanismo de publicación atómica.
