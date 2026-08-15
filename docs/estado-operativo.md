@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-15
+Actualizado: 2026-08-16
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -14,15 +14,15 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 31
+### Contrato curricular v1 — Slice estructural 32
 
-Estado: cerrada, publicada y sincronizada mediante los commits contractual `ab545e4` (`docs define canonical candidate payload identity`), técnico `a9d7b9c` (`feat derive canonical candidate payload identity`) y documental de cierre `1b7dea5` (`docs close canonical candidate identity slice`); primer push confirmado hasta `1b7dea5` en `origin/master`.
+Estado: cerrada técnicamente; commits contractual `bdcba96` (`docs define candidate admission decision record`) y técnico `d6d0a16` (`feat add candidate admission decision record`). Cierre documental y publicación pendientes.
 
-`CandidatePayloadIdentity` es frozen y contiene solo unit, revision externa literal, `payload_schema_version="1.0"` y digest. La whitelist canónica incluye specification, candidate unit, evaluation/feedback/capability plans, Skill coverage y recursos; excluye validation report, decisiones humanas pendientes y resumen editorial. Excluir identidad no elimina sus gates de admission.
+`CandidatePayloadIdentity` queda formalizada como value object frozen de `unit_id`, `candidate_revision`, `payload_schema_version` y `content_digest`. `AdmissionRecord` frozen contiene exactamente `admission_id`, `identity`, `decision`, `reviewer_id` y `decided_at`; consume identity conforme sin recanonicalizar ni recalcular digest.
 
-La receta v1 normaliza modelos validados, conserva sequences, ordena keys JSON, codifica UTF-8 sin BOM/newline y aplica SHA-256 exclusivamente a esos bytes. El digest usa `sha256:<64 lowercase hex>`; el golden v1 es `sha256:b0ba248338e388e688fc8e3b25f325441e8d27ac2017b834bc78a8f08cfbb592`. Identity no equivale a validation, admission, publication ni membership y no usa I/O.
+Solo admite/rechaza decisiones `admitted`/`rejected`; pending es ausencia de decisión final y `admitted` != gates verificados. IDs opacos caller-provided no blank se preservan literalmente. `decided_at` exige `datetime` UTC-aware con offset cero y conserva microsegundos. No hay I/O, validación local, membership ni flow. A1-U1 sigue pending/non-member; loader BLOCKED.
 
-A1-U1 continúa pending/non-member y loader sigue BLOCKED. Validación vigente, no repetir mientras no cambie código: 13 específicas PASS; postflight técnico PASS; regresión directa en Bash 356 passed in 1.08s; suite completa directa en Bash 1788 passed in 13.35s; ambos `PYTEST_EXIT=0`; `git diff --check` PASS.
+El postflight corrigió antes de regresión el chequeo runtime de `decision`: exige `str` antes del literal y cubre non-str ordinario e igualdad personalizada. Validación vigente: 24 específicas PASS; re-postflight PASS; regresión 132 passed in 0.61s y suite completa Bash 1812 passed in 21.30s, ambos `PYTEST_EXIT=0`; `git diff --check` PASS.
 
 ## Automatización disponible
 
@@ -51,15 +51,11 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 31
+### Admission gate verification — preflight técnico
 
-Estado: cerrada, publicada y sincronizada mediante `ab545e4`, `a9d7b9c` y el cierre documental `1b7dea5`; primer push confirmado hasta `1b7dea5` en `origin/master`. Canonical identity v1 está descrita en «Último bloque cerrado».
+Definir únicamente una verificación pura que combine candidate exacto, `CandidatePayloadIdentity`, validación local recalculada, decisiones pendientes y `AdmissionRecord`, sin circularidad. No asumir servicio, resultado, status, findings ni integración con membership/snapshot.
 
-Permanecen fuera AdmissionRecord, membership, snapshot, manifest, loader, publisher e integración. Loader continúa BLOCKED; no convertir identity en admission, publication, autenticidad ni autoridad curricular.
-
-Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
-
-Archivos técnicos de la slice: `app/services/pedagogical_candidate_payload_identity.py` y `tests/test_pedagogical_candidate_payload_identity.py`. El inventario histórico completo permanece en `docs/bitacora.md`.
+AdmissionRecord no verifica gates ni publica; membership/snapshot, loader y publisher siguen fuera. Loader continúa BLOCKED. Si el background de Codex se interrumpe, conservar Codex CLI + Bash y ejecutar la suite completa directamente en Bash; no repetir validaciones vigentes sin cambios técnicos.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 

@@ -4410,3 +4410,15 @@ La capacidad no ejecuta validación local, filesystem, admission, publication, m
 Validación vigente, no repetir mientras no cambie código: 13 pruebas específicas PASS; postflight técnico independiente PASS sin findings; regresión seleccionada directa en Bash, 356 passed in 1.08s; suite backend completa directa en Bash, 1788 passed in 13.35s; ambos `PYTEST_EXIT=0`; `git diff --check` PASS. La regresión indeterminada en Codex se ejecutó una sola vez directamente en Bash.
 
 El próximo objetivo es un preflight técnico separado para definir únicamente AdmissionRecord machine-readable sobre `CandidatePayloadIdentity`: `admission_id`, decisión admitted/rejected, reviewer, `decided_at` UTC, invariantes y relación exacta con identity. Membership y snapshot serán posteriores; no reabrir canonical identity sin un finding real.
+
+## Contrato curricular v1 — Slice estructural 32
+
+Estado: cerrada técnicamente mediante los commits contractual `bdcba96` (`docs define candidate admission decision record`) y técnico `d6d0a16` (`feat add candidate admission decision record`); cierre documental y publicación pendientes.
+
+`CandidatePayloadIdentity` quedó formalizada como value object inmutable con exactamente `unit_id`, `candidate_revision`, `payload_schema_version` y `content_digest`. `AdmissionRecord` es una dataclass frozen con exactamente `admission_id`, `identity`, `decision`, `reviewer_id` y `decided_at`; consume una identity conforme sin canonicalizar, recalcular digest, reconstruir revision ni duplicar campos.
+
+Los IDs son strings opacos caller-provided, non-blank y literales. Las únicas decisiones son `admitted` y `rejected`; pending es ausencia de decisión final y `admitted` != admission gates verified. Rejected es válido para historial, sin membership. `decided_at` exige `datetime` UTC-aware con offset cero, acepta tzinfo UTC-equivalente y preserva objeto y microsegundos. La representación no usa filesystem/I-O, validación local, pending decisions, membership ni flow autoritativo.
+
+El postflight detectó que pertenencia a los literales no garantizaba `str` real para `decision`; se corrigió antes de regresión con `isinstance(decision, str)` y tests para non-str ordinario y objeto con igualdad personalizada. Validación vigente: 24 específicas PASS; re-postflight PASS; regresión seleccionada 132 passed in 0.61s (`PYTEST_EXIT=0`); suite backend completa directa en Bash 1812 passed in 21.30s (`PYTEST_EXIT=0`); `git diff --check` PASS. A1-U1 continúa pending/non-member y loader BLOCKED.
+
+La siguiente frontera es un preflight técnico de verificación pura de admission gates que combine candidate exacto, identity, validación local recalculada, pending decisions y AdmissionRecord sin circularidad; no asumir todavía servicio, resultado, status, findings ni integración con membership/snapshot.
