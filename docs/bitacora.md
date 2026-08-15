@@ -4257,7 +4257,7 @@ El próximo objetivo es hacer preflight técnico para diseñar un tipo emitido e
 
 ## Contrato curricular v1 — Slice estructural 21
 
-Estado: técnicamente cerrada mediante el commit `bf79f88` (`feat add authoritative curriculum hierarchy provider`); publicación documental pendiente.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `bf79f88` (`feat add authoritative curriculum hierarchy provider`) y documental `e7ab6cf`; primer push confirmado hasta `e7ab6cf` en `origin/master`.
 
 Se añadió `AuthoritativeCurriculumHierarchy`, un wrapper interno frozen que conserva únicamente `hierarchy: ContentTreeResponse`, y `load_authoritative_curriculum_hierarchy()` como único camino público soportado de emisión desde el proveedor técnico autoritativo actual, `app.services.content_service`. La construcción directa normal con un árbol arbitrario queda impedida.
 

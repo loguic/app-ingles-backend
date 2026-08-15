@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `241e77c`.
+- Último commit publicado y sincronizado: `e7ab6cf`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 21
 
-Estado: técnicamente cerrada mediante el commit `bf79f88` (`feat add authoritative curriculum hierarchy provider`); publicación documental pendiente.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `bf79f88` (`feat add authoritative curriculum hierarchy provider`) y documental `e7ab6cf`; primer push confirmado hasta `e7ab6cf` en `origin/master`.
 
 `app.services.content_service` es el proveedor técnico autoritativo actual. `AuthoritativeCurriculumHierarchy` es un wrapper interno inmutable que conserva únicamente la hierarchy, y `load_authoritative_curriculum_hierarchy()` es el único camino público soportado para emitir esa procedencia.
 
@@ -55,7 +55,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 21
 
-Estado: técnicamente cerrada mediante el commit `bf79f88`; publicación documental pendiente. La procedencia autoritativa está descrita en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `bf79f88` y documental `e7ab6cf`; primer push confirmado hasta `e7ab6cf` en `origin/master`. La procedencia autoritativa está descrita en «Último bloque cerrado».
 
 Permanecen fuera derivación de origin, verificación de prefijo y `complete_from_authoritative_origin`, `unsatisfied`, ciclos, ledger, findings, learner state, evidencia, aprendizaje, mastery, runtime y persistencia.
 
