@@ -4338,3 +4338,19 @@ Los estados describen exclusivamente la resolución de esta validación curricul
 Validación vigente, no repetir mientras no cambie código técnico: 18 pruebas específicas PASS; postflight independiente PASS sin findings críticos; 135 pruebas de regresión PASS; suite backend completa, 1735 passed in 13.34s, `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
 
 El próximo objetivo es hacer un preflight separado para definir cómo traducir contractualmente fallos estructurales de context/proof, errores derivativos de consumption/preparación y authoritative uncertainties a representación de reporte sin perder causas; solo después evaluar nuevos findings y un `ValidationReport` seguro, sin integrar todavía `validate_pedagogical_candidate`.
+
+## Contrato curricular v1 — Slice estructural 27
+
+Estado técnico: cerrado mediante `35e1396` (`feat add authoritative prerequisite report findings`); cierre documental y publicación pendientes.
+
+Se añadieron `AuthoritativePrerequisiteReportFindingDerivation` y `derive_authoritative_prerequisite_report_findings(...)`. La derivación pura consume únicamente `AuthoritativePrerequisiteValidationStatusDerivation`, la conserva por identidad y produce findings destinados a futura representación de reporte sin recalcular la clasificación failed/pending/passed.
+
+Los findings negativos de slice 24 se incorporan directamente, preservando identidad, contenido, orden y multiplicidad. Los fallos de context usan `authoritative_prerequisite_context_integrity`, los de proof `authoritative_prerequisite_origin_integrity` y los errores de consumo/preparación `authoritative_prerequisite_resolution`, todos con severidad error. Cada authoritative uncertainty produce exactamente un warning `authoritative_prerequisite_uncertainty`, no uno por precedence error.
+
+La anti-duplicación representa la capa causal bloqueante: scope prevalece sobre errores internos de posición/correspondencia, los context wrappers no duplican correspondencias relacionadas y proof no duplica errores internos de posiciones. Los errores externos al scope no producen findings cuando existe context válido. El orden es context → proof → consumption → preparation → findings existentes → uncertainties, preservando el orden fuente dentro de cada familia.
+
+Cannot derive no equivale a prerequisite not prepared; report finding no equivale a verdad curricular. Failed/pending/passed sigue siendo el estado de resolución de esta validación curricular autoritativa, no learner state ni mastery. `ValidationReport` y `AuthoritativePrerequisiteValidationReport` no se construyen todavía; `validate_pedagogical_candidate` permanece bloqueado.
+
+Validación vigente, no repetir mientras no cambie código técnico: 17 pruebas específicas PASS; postflight independiente PASS sin findings críticos; 133 pruebas de regresión PASS; suite backend completa, 1752 passed in 13.43s, `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
+
+El próximo objetivo es hacer un preflight separado para evaluar un wrapper `AuthoritativePrerequisiteValidationReport` que conserve `status_derivation` como fuente canónica y `ValidationReport` como presentación serializable, mapee el status ya derivado y preserve todos los findings sin reconstruir causas. No integrar todavía `validate_pedagogical_candidate`.
