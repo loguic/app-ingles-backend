@@ -4354,3 +4354,17 @@ Cannot derive no equivale a prerequisite not prepared; report finding no equival
 Validación vigente, no repetir mientras no cambie código técnico: 17 pruebas específicas PASS; postflight independiente PASS sin findings críticos; 133 pruebas de regresión PASS; suite backend completa, 1752 passed in 13.43s, `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
 
 El próximo objetivo es hacer un preflight separado para evaluar un wrapper `AuthoritativePrerequisiteValidationReport` que conserve `status_derivation` como fuente canónica y `ValidationReport` como presentación serializable, mapee el status ya derivado y preserve todos los findings sin reconstruir causas. No integrar todavía `validate_pedagogical_candidate`.
+
+## Contrato curricular v1 — Slice estructural 28
+
+Estado técnico: cerrado mediante `8a136b5` (`feat add authoritative prerequisite validation report`); cierre documental y publicación pendientes.
+
+Se añadieron `AuthoritativePrerequisiteValidationReport` y `derive_authoritative_prerequisite_validation_report(...)`. La capacidad consume únicamente `AuthoritativePrerequisiteReportFindingDerivation`, la conserva por identidad y ensambla un wrapper frozen con el `ValidationReport` público y serializable, sin recalcular currículo, findings ni status.
+
+`report.status` procede exactamente de slice 26 y `report.findings` exclusivamente de slice 27 mediante conversión tuple → list, preservando orden, multiplicidad y estructura. La coherencia representativa exige al menos un error para failed, warning sin errors para pending y ausencia de errors/warnings para passed; information no altera status y failed puede coexistir con warnings. Las inconsistencias manuales producen únicamente `ValueError`, sin corregir contratos, crear findings o añadir causas curriculares.
+
+`ValidationReport` es autosuficiente como presentación serializable mediante Pydantic, pero no es fuente canónica de causas ni verdad curricular. La trazabilidad completa permanece transitivamente en `finding_derivation`. `ValidationReport` no equivale a curricular truth; `ValueError` no equivale a un nuevo error curricular. No existe integración con `validate_pedagogical_candidate`, que continúa bloqueado por su contrato local a una candidate.
+
+Validación vigente, no repetir mientras no cambie código técnico: 15 pruebas específicas PASS; postflight independiente PASS sin findings críticos; 100 pruebas de regresión PASS; suite backend completa, 1767 passed in 13.16s, `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
+
+El próximo objetivo es hacer un preflight separado para identificar qué consumidor superior necesita `AuthoritativePrerequisiteValidationReport` y qué frontera permite exponerlo o consumirlo sin mezclar la validación local de una candidate con la validación curricular autoritativa de un prefijo y target. No integrar automáticamente `validate_pedagogical_candidate`.
