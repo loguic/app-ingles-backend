@@ -925,6 +925,47 @@ Los gates permanecen fuera de la representación: ejecutar local validation, com
 
 Admission se aplica solo a la combinación exacta de revision y digest. Un cambio del payload pedagógico exige nueva validación local, revisión humana y decisión; una variación física que conserve el payload canónico no invalida la decisión.
 
+#### Admission gate verification v1
+
+Esta capacidad verifica pura y determinísticamente si una decisión humana favorable está respaldada por todos los gates contractuales de admission para un `PedagogicalUnitCandidate` proporcionado. No representa publication, active source membership ni validación curricular autoritativa.
+
+Sus únicos inputs son `candidate: PedagogicalUnitCandidate` y `admission_record: AdmissionRecord`. No recibe `CandidatePayloadIdentity`, `unit_id`, `candidate_revision`, `payload_schema_version` ni digest separados: la identity aplicable es exclusivamente `admission_record.identity`. Recibir un `PedagogicalUnitCandidate` ya construido y validado por Pydantic satisface aquí la precondición de payload interpretable. Errores previos de lectura, JSON, parsing, schema o acquisition pertenecen a candidate source/acquisition integrity y quedan fuera.
+
+Para v1 existen exactamente cuatro gates, sin condiciones ocultas ni quinto gate:
+
+1. `identity_matches`;
+2. `local_validation_passed`;
+3. `pending_human_decisions_clear`;
+4. `human_decision_admitted`.
+
+`identity_matches` exige recalcular exactamente una `CandidatePayloadIdentity` con `candidate` y `candidate_revision=admission_record.identity.candidate_revision`. La revisión procede exclusivamente del `AdmissionRecord` y nunca se inventa. Para una versión de payload soportada, el gate es true únicamente si la equality estructural completa satisface `derived_identity == admission_record.identity`; por tanto compara conjuntamente `unit_id`, `candidate_revision`, `payload_schema_version` y `content_digest`, nunca solo el digest. Esto demuestra que el candidate proporcionado produce la identidad del record bajo esa revisión; no demuestra que un artifact físico hubiera declarado esa revisión, responsabilidad futura de source integrity.
+
+La derivación v1 disponible soporta únicamente `payload_schema_version == "1.0"`. Antes de recalcular identity, una `admission_record.identity.payload_schema_version` no soportada es un error técnico explícito de verificación, no un identity mismatch ni un gate negativo. Mientras solo exista el canonicalizer `"1.0"`, toda versión distinta debe fallar explícitamente —la implementación mínima podrá usar `ValueError`— sin reinterpretarla con v1, crear finding curricular ni devolver `identity_matches=False`. Un contrato posterior podrá ampliar las versiones soportadas; v1 no crea registry ni framework de versiones.
+
+`local_validation_passed` exige ejecutar exactamente una vez `validate_pedagogical_candidate(candidate)` y usar únicamente su `ValidationReport` recién producido. El gate es true solo si su `status == "passed"`; `"failed"` y `"pending"` son conclusiones negativas normales. `candidate.validation_report` embebido no es evidencia suficiente y debe ignorarse como fuente de verdad: puede estar stale. La verificación no muta ese report del candidate.
+
+`pending_human_decisions_clear` es true exactamente si `candidate.pending_human_decisions == []`. Una lista no vacía produce false como conclusión normal; no se transforma en `ValidationStatus`, finding ni estado pending del `AdmissionRecord`. `human_decision_admitted` es true exactamente si `admission_record.decision == "admitted"`. `decision="rejected"` produce false como decisión humana válida, no como error técnico, record inválido ni source error. `admission_id`, `reviewer_id` y `decided_at` preservan trazabilidad del record, pero no son gates: no se autorizan reviewer, comparan timestamps, ordenan decisiones ni se usan para matching de payload.
+
+El resultado machine-readable v1 es el value object lógico e inmutable `AdmissionGateVerification`, con exactamente estos campos de evidencia:
+
+- `derived_identity: CandidatePayloadIdentity`;
+- `admission_record: AdmissionRecord`;
+- `local_validation_report: ValidationReport`;
+- `identity_matches: bool`;
+- `local_validation_passed: bool`;
+- `pending_human_decisions_clear: bool`;
+- `human_decision_admitted: bool`.
+
+`verified` no es un campo almacenado ni caller-provided: es una conclusión derivada exactamente como `identity_matches and local_validation_passed and pending_human_decisions_clear and human_decision_admitted`. El resultado conserva la identity derivada y el report local recalculado para auditoría, pero no copia innecesariamente candidate completo, pending decisions ni metadata de reviewer ya presente en `AdmissionRecord`. No es un `ValidationReport` y no crea `ValidationFinding`, `validator_id`, severity, `ValidationStatus`, publication, membership ni source state.
+
+Identity mismatch, validation local `"failed"` o `"pending"`, pending decisions no vacías y decisión `"rejected"` son resultados válidos con `verified == false`, no excepciones. Version de payload no soportada, error de derivación de identity, violación inesperada de invariantes o excepción inesperada del validador son errores técnicos que deben propagarse explícitamente; no se degradan a `verified=false` porque distinguen un gate no satisfecho de una verificación no ejecutable o no confiable.
+
+Para una versión soportada se evalúan los cuatro gates completos, sin short-circuit por rechazo, identity mismatch, pendientes o validation no passed: se realiza exactamente una derivación de identity y una recalculación de local validation para conservar evidencia completa. La comprobación de versión soportada ocurre antes porque una versión desconocida impide una verificación identitaria correcta.
+
+La verificación es pura respecto a I/O: no accede a filesystem, environment, DB, network, clock, random, Markdown review, candidate source ni manifest; no muta candidate, `AdmissionRecord`, `CandidatePayloadIdentity` ni `ValidationReport`. Machine-readable aquí significa entidad tipada, evidencia estructurada e invariantes deterministas, no JSON persistido, formato filesystem, DB model, API resource ni manifest entry.
+
+`AdmissionGateVerification.verified == true` no equivale a publication, active source membership ni authoritative prerequisite validation. No comprueba artifact físico, revisión declarada físicamente, digest contra bytes de archivo, duplicados de `AdmissionRecord`, unicidad global de `admission_id` ni membership declaration; esas responsabilidades permanecen posteriores. Tampoco ejecuta ni reinterpreta slices 25–29. A1-U1 permanece pending / non-member: esta capacidad no se ejecuta sobre ese artifact ni infiere verified admission.
+
 ### Publication y active source membership
 
 Active source membership es el conjunto explícitamente declarado de revisiones admitidas que forman un snapshot productivo. No se deriva de enumerar el filesystem: artifact físicamente presente no equivale a active source member.
