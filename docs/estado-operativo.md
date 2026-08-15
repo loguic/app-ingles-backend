@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `a952b89`.
+- Último commit publicado y sincronizado: `654652a`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice contractual 30
 
-Estado: técnicamente cerrada mediante el commit contractual `8000a02` (`docs define candidate admission and active source membership`); publicación y sincronización pendientes del cierre documental.
+Estado: cerrada, publicada y sincronizada mediante los commits contractual `8000a02` (`docs define candidate admission and active source membership`) y documental de cierre `654652a` (`docs close candidate admission contract slice`); primer push confirmado hasta `654652a` en `origin/master`.
 
 `Candidate admission and active source membership v1` separa candidate existente, parseable, localmente válido, revisado, admitido, publicado y compatible curricularmente. Local validation passed es necesaria pero no suficiente; decisiones humanas pendientes impiden admission. La decisión se liga a `unit_id`, revision, schema version y digest canónico, mediante un admission record separado del payload.
 
@@ -53,7 +53,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice contractual 30
 
-Estado: cerrada técnicamente en `8000a02`, con publicación pendiente. La semántica de admission/publication está descrita en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits contractual `8000a02` y documental de cierre `654652a`; primer push confirmado hasta `654652a` en `origin/master`. La semántica de admission/publication está descrita en «Último bloque cerrado».
 
 Permanecen fuera manifest, modelos, canonical serializer, loader, publisher, provider, integración y candidate artifacts. No convertir membership en autoridad curricular ni admission en learner state, mastery o aprobación implícita.
 

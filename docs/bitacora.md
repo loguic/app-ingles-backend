@@ -4387,7 +4387,7 @@ El próximo objetivo es hacer un preflight separado para definir la fuente canó
 
 ## Contrato curricular v1 — Slice contractual 30
 
-Estado: cerrada técnicamente mediante el commit contractual `8000a02` (`docs define candidate admission and active source membership`); publicación y sincronización pendientes del cierre documental.
+Estado: cerrada, publicada y sincronizada mediante los commits contractual `8000a02` (`docs define candidate admission and active source membership`) y documental de cierre `654652a` (`docs close candidate admission contract slice`); primer push confirmado hasta `654652a` en `origin/master`.
 
 Se incorporó `Candidate admission and active source membership v1`. El contrato distingue candidate existente, parseable, localmente válido, revisado por humanos, admitido, publicado y compatible curricularmente. `validate_pedagogical_candidate(...).status == "passed"` recalculado es necesario pero no suficiente; `pending_human_decisions` impide admission y el reporte embebido no acredita por sí solo la revisión exacta.
 
