@@ -4384,3 +4384,15 @@ Slice 29 significa composición únicamente: no es una nueva fuente de verdad cu
 Validación vigente, no repetir mientras no cambie código técnico: 8 pruebas específicas PASS; postflight independiente PASS sin findings críticos; 107 pruebas de regresión PASS; suite backend completa, 1775 passed in 13.33s, `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
 
 El próximo objetivo es hacer un preflight separado para definir la fuente canónica, significado de aprobación y reunión productiva del prefijo de `PedagogicalUnitCandidate` que consumirá la fachada. `ContentTreeResponse` no sustituye ese contrato, slice 29 no será loader y slice 25 conserva la validación fail-closed del conjunto recibido. No integrar provider, endpoint ni `validate_pedagogical_candidate`.
+
+## Contrato curricular v1 — Slice contractual 30
+
+Estado: cerrada técnicamente mediante el commit contractual `8000a02` (`docs define candidate admission and active source membership`); publicación y sincronización pendientes del cierre documental.
+
+Se incorporó `Candidate admission and active source membership v1`. El contrato distingue candidate existente, parseable, localmente válido, revisado por humanos, admitido, publicado y compatible curricularmente. `validate_pedagogical_candidate(...).status == "passed"` recalculado es necesario pero no suficiente; `pending_human_decisions` impide admission y el reporte embebido no acredita por sí solo la revisión exacta.
+
+Admission se liga conceptualmente a `unit_id`, `candidate_revision`, `payload_schema_version` y digest canónico, con SHA-256 recomendado. El admission record queda separado del payload e incluye decisión humana, reviewer opaco y timestamp UTC. Admission no equivale a publication: active membership requiere una declaración explícita dentro de un snapshot estable, nunca enumeración del filesystem, y admite como máximo una revisión activa por unit.
+
+Membership no equivale a orden curricular; `AuthoritativeCurriculumHierarchy` y `CurriculumUnitPosition` conservan esa autoridad y no certifican admission. Source integrity, local validation findings y authoritative curricular findings permanecen separados. A1-U1 continúa pending/non-member, no admitted, published ni rejected.
+
+No existen todavía manifest, modelos, canonical serializer ni loader. Loader permanece BLOCKED hasta cerrar mediante preflight técnico la representación machine-readable de revision/schema version, canonicalización, admission record, active snapshot, reviewer namespace y publicación estable. Postflight contractual independiente PASS sin findings críticos y `git diff --check` PASS. No se ejecutaron ni eran necesarias pruebas Python por tratarse de una slice exclusivamente contractual; no repetir validaciones mientras el contrato no cambie.

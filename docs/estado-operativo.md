@@ -14,17 +14,15 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 29
+### Contrato curricular v1 — Slice contractual 30
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `373edb8` (`feat add authoritative prerequisite validation flow`) y documental de cierre `a952b89`; primer push confirmado hasta `a952b89` en `origin/master`.
+Estado: técnicamente cerrada mediante el commit contractual `8000a02` (`docs define candidate admission and active source membership`); publicación y sincronización pendientes del cierre documental.
 
-`derive_authoritative_prerequisite_validation_flow(...)` es la fachada pura que compone exactamente una vez y en orden slices 25 → 26 → 27 → 28 desde authority, la misma `Sequence` de candidates y target literal hasta `AuthoritativePrerequisiteValidationReport`.
+`Candidate admission and active source membership v1` separa candidate existente, parseable, localmente válido, revisado, admitido, publicado y compatible curricularmente. Local validation passed es necesaria pero no suficiente; decisiones humanas pendientes impiden admission. La decisión se liga a `unit_id`, revision, schema version y digest canónico, mediante un admission record separado del payload.
 
-Authority, candidates, target y outputs intermedios se transmiten sin transformación y por identidad donde corresponde; el retorno es el objeto exacto de slice 28. No existe lógica propia de status, findings o report, recálculo paralelo, provider, candidate loading ni I/O. Las excepciones se propagan sin wrapping y detienen etapas posteriores.
+Admission no equivale a publication. Active membership es explícita, nunca filesystem enumeration, y una lectura observa un snapshot estable con máximo una revisión activa por unit. Membership no define orden curricular y hierarchy authority no certifica admission. Source integrity, validación local y findings autoritativos permanecen separados; A1-U1 sigue pending/non-member.
 
-Slice 29 = composición, no nueva validación curricular, candidate approval, learner validation, mastery ni validez global. `validate_pedagogical_candidate` permanece bloqueado; provider y procedencia/reunión productiva de candidates quedan fuera.
-
-Validación vigente, no repetir mientras no cambie código técnico: 8 específicas PASS; postflight independiente PASS sin findings; 107 de regresión PASS; suite backend completa, 1775 passed in 13.33s, `PYTEST_EXIT=0`; `git diff --check` PASS.
+No existe todavía manifest, modelo ni loader: loader permanece BLOCKED hasta cerrar la representación machine-readable. Postflight contractual PASS sin findings críticos y `git diff --check` PASS; no se ejecutaron pruebas Python porque la slice fue exclusivamente contractual. No repetir estas validaciones mientras no cambie el contrato.
 
 ## Automatización disponible
 
@@ -53,11 +51,11 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 29
+### Contrato curricular v1 — Slice contractual 30
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `373edb8` y documental de cierre `a952b89`; primer push confirmado hasta `a952b89` en `origin/master`. La fachada pura 25→28 está descrita en «Último bloque cerrado».
+Estado: cerrada técnicamente en `8000a02`, con publicación pendiente. La semántica de admission/publication está descrita en «Último bloque cerrado».
 
-Permanecen fuera provider, candidate collection/loader, consumo superior e integración con validadores, además de learner state, mastery, runtime y persistencia.
+Permanecen fuera manifest, modelos, canonical serializer, loader, publisher, provider, integración y candidate artifacts. No convertir membership en autoridad curricular ni admission en learner state, mastery o aprobación implícita.
 
 Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
 
@@ -71,7 +69,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Hacer un preflight separado para definir la procedencia y reunión productiva del conjunto aprobado de `PedagogicalUnitCandidate` entregado al flow, sin convertir slice 29 en loader ni duplicar la validación fail-closed de slice 25.
+Hacer un preflight técnico separado para definir la representación machine-readable mínima de admission record, identidad exacta de contenido y active snapshot membership, sin reabrir su semántica ni implementar todavía el loader.
 
 ## Archivos clave
 
