@@ -4299,7 +4299,7 @@ El próximo objetivo es hacer un preflight separado para decidir si, cuándo y c
 
 ## Contrato curricular v1 — Slice estructural 24
 
-Estado: técnicamente cerrada mediante `82f535b` (`feat add authoritative prerequisite validation findings`); cierre documental, publicación y sincronización pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `82f535b` (`feat add authoritative prerequisite validation findings`) y documental de cierre `09b3474`; primer push confirmado hasta `09b3474` en `origin/master`.
 
 Se añadió `validate_authoritative_prerequisite_conclusions(...)`, un validator puro que consume únicamente `CurriculumPrerequisiteAuthoritativeConclusionDerivation`. Cada conclusión ya demostrada produce exactamente un `ValidationFinding` con `validator_id="authoritative_prerequisite_preparation"` y severidad `error`; se preservan orden y multiplicidad por consumption sin sorting, agrupación o deduplicación.
 

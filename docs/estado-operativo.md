@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `4663642`.
+- Último commit publicado y sincronizado: `09b3474`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 24
 
-Estado: técnicamente cerrada mediante `82f535b` (`feat add authoritative prerequisite validation findings`); cierre documental, publicación y sincronización pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `82f535b` (`feat add authoritative prerequisite validation findings`) y documental `09b3474`; primer push confirmado hasta `09b3474` en `origin/master`.
 
 `validate_authoritative_prerequisite_conclusions(derivation)` traduce cada conclusión demostrada en un `ValidationFinding` `error` con validator `authoritative_prerequisite_preparation`, conservando orden y multiplicidad sin deduplicar.
 
@@ -55,7 +55,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 24
 
-Estado: técnicamente cerrada mediante `82f535b`; cierre documental, publicación y sincronización pendientes. El validator puro está descrito en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `82f535b` y documental `09b3474`; primer push confirmado hasta `09b3474` en `origin/master`. El validator puro está descrito en «Último bloque cerrado».
 
 Permanecen fuera la orquestación authority → context → proof → conclusions → uncertainties/errores → findings → eventual report, además de integración con validadores, ciclos, learner state, mastery, runtime y persistencia.
 
