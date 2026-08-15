@@ -4413,7 +4413,7 @@ El próximo objetivo es un preflight técnico separado para definir únicamente 
 
 ## Contrato curricular v1 — Slice estructural 32
 
-Estado: cerrada técnicamente mediante los commits contractual `bdcba96` (`docs define candidate admission decision record`) y técnico `d6d0a16` (`feat add candidate admission decision record`); cierre documental y publicación pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits contractual `bdcba96` (`docs define candidate admission decision record`), técnico `d6d0a16` (`feat add candidate admission decision record`) y documental `54770bb` (`docs close candidate admission record slice`); primer push confirmado en `origin/master`. El fallo DNS inicial fue transitorio y quedó resuelto sin cambios de configuración.
 
 `CandidatePayloadIdentity` quedó formalizada como value object inmutable con exactamente `unit_id`, `candidate_revision`, `payload_schema_version` y `content_digest`. `AdmissionRecord` es una dataclass frozen con exactamente `admission_id`, `identity`, `decision`, `reviewer_id` y `decided_at`; consume una identity conforme sin canonicalizar, recalcular digest, reconstruir revision ni duplicar campos.
 

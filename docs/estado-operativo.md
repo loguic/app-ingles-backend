@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `1b7dea5`.
+- Último commit publicado y sincronizado: `54770bb`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 32
 
-Estado: cerrada técnicamente; commits contractual `bdcba96` (`docs define candidate admission decision record`) y técnico `d6d0a16` (`feat add candidate admission decision record`). Cierre documental y publicación pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits contractual `bdcba96` (`docs define candidate admission decision record`), técnico `d6d0a16` (`feat add candidate admission decision record`) y documental `54770bb` (`docs close candidate admission record slice`); primer push confirmado en `origin/master`. El fallo DNS inicial fue transitorio y se resolvió sin cambios de configuración.
 
 `CandidatePayloadIdentity` queda formalizada como value object frozen de `unit_id`, `candidate_revision`, `payload_schema_version` y `content_digest`. `AdmissionRecord` frozen contiene exactamente `admission_id`, `identity`, `decision`, `reviewer_id` y `decided_at`; consume identity conforme sin recanonicalizar ni recalcular digest.
 
@@ -65,7 +65,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Hacer un preflight técnico separado para definir únicamente la representación machine-readable de AdmissionRecord sobre `CandidatePayloadIdentity`: admission ID, decisión admitted/rejected, reviewer, timestamp UTC e invariantes. Membership/snapshot quedan después.
+Hacer un preflight técnico separado de verificación pura de admission gates sobre candidate exacto, `CandidatePayloadIdentity`, validación local recalculada, decisiones pendientes y `AdmissionRecord`, sin circularidad ni diseñar aún servicio, resultado, status, findings o membership/snapshot.
 
 ## Archivos clave
 
