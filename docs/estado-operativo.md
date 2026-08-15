@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `6ae1044`.
+- Último commit publicado y sincronizado: `a952b89`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 29
 
-Estado técnico: cerrado mediante `373edb8` (`feat add authoritative prerequisite validation flow`); cierre documental y publicación pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `373edb8` (`feat add authoritative prerequisite validation flow`) y documental de cierre `a952b89`; primer push confirmado hasta `a952b89` en `origin/master`.
 
 `derive_authoritative_prerequisite_validation_flow(...)` es la fachada pura que compone exactamente una vez y en orden slices 25 → 26 → 27 → 28 desde authority, la misma `Sequence` de candidates y target literal hasta `AuthoritativePrerequisiteValidationReport`.
 
@@ -55,7 +55,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 29
 
-Estado técnico cerrado mediante `373edb8`; cierre documental y publicación pendientes. La fachada pura 25→28 está descrita en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `373edb8` y documental de cierre `a952b89`; primer push confirmado hasta `a952b89` en `origin/master`. La fachada pura 25→28 está descrita en «Último bloque cerrado».
 
 Permanecen fuera provider, candidate collection/loader, consumo superior e integración con validadores, además de learner state, mastery, runtime y persistencia.
 

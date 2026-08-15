@@ -4371,7 +4371,7 @@ El próximo objetivo es hacer un preflight separado para identificar qué consum
 
 ## Contrato curricular v1 — Slice estructural 29
 
-Estado técnico: cerrado mediante `373edb8` (`feat add authoritative prerequisite validation flow`); cierre documental y publicación pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `373edb8` (`feat add authoritative prerequisite validation flow`) y documental de cierre `a952b89`; primer push confirmado hasta `a952b89` en `origin/master`.
 
 Se añadió `derive_authoritative_prerequisite_validation_flow(...)`, una fachada pura que recibe `AuthoritativeCurriculumHierarchy`, la `Sequence[PedagogicalUnitCandidate]` y target explícita, y compone exactamente una vez y en orden slices 25 → 26 → 27 → 28 hasta devolver directamente `AuthoritativePrerequisiteValidationReport`.
 
