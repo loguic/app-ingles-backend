@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `dfd29e9`.
+- Último commit publicado y sincronizado: `4663642`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 23
 
-Estado: técnicamente cerrada mediante `7865c9c` (`feat add authoritative prerequisite conclusions`); cierre documental, publicación y sincronización pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `7865c9c` (`feat add authoritative prerequisite conclusions`) y documental `4663642`; primer push confirmado hasta `4663642` en `origin/master`.
 
 `derive_authoritative_prerequisite_conclusions(proof)` deriva assessments únicamente desde `proof.context`. `satisfied_in_context` no aplica; unresolved sin errores de precedencia relacionados produce `CurriculumPrerequisiteNotPreparedFromAuthoritativeOrigin`, y unresolved con ellos produce `CurriculumPrerequisiteAuthoritativeUncertainty`.
 
@@ -55,7 +55,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 23
 
-Estado: técnicamente cerrada mediante `7865c9c`; cierre documental, publicación y sincronización pendientes. La conclusión curricular negativa autoritativa está descrita en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `7865c9c` y documental `4663642`; primer push confirmado hasta `4663642` en `origin/master`. La conclusión curricular negativa autoritativa está descrita en «Último bloque cerrado».
 
 Permanecen fuera su eventual conversión en `ValidationFinding`, integración con validadores, ciclos, graph solving, learner state, evidencia, aprendizaje, mastery, runtime y persistencia.
 

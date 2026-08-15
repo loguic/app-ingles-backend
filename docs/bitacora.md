@@ -4285,7 +4285,7 @@ El próximo objetivo es hacer un preflight separado para determinar bajo qué co
 
 ## Contrato curricular v1 — Slice estructural 23
 
-Estado: técnicamente cerrada mediante `7865c9c` (`feat add authoritative prerequisite conclusions`); cierre documental, publicación y sincronización pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `7865c9c` (`feat add authoritative prerequisite conclusions`) y documental de cierre `4663642`; primer push confirmado hasta `4663642` en `origin/master`.
 
 Se añadieron `CurriculumPrerequisiteNotPreparedFromAuthoritativeOrigin`, `CurriculumPrerequisiteAuthoritativeUncertainty`, `CurriculumPrerequisiteAuthoritativeConclusionDerivation` y `derive_authoritative_prerequisite_conclusions(...)`. La API recibe únicamente `CompleteFromAuthoritativeOrigin` y deriva los assessments exclusivamente desde `proof.context`, impidiendo combinar una proof y un assessment de contextos distintos.
 
