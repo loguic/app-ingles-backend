@@ -8,23 +8,23 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `7da2fd0`.
+- Último commit publicado y sincronizado: `6ae1044`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 28
+### Contrato curricular v1 — Slice estructural 29
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `8a136b5` (`feat add authoritative prerequisite validation report`) y documental de cierre `7da2fd0`; primer push confirmado hasta `7da2fd0` en `origin/master`.
+Estado técnico: cerrado mediante `373edb8` (`feat add authoritative prerequisite validation flow`); cierre documental y publicación pendientes.
 
-`derive_authoritative_prerequisite_validation_report(...)` consume únicamente `AuthoritativePrerequisiteReportFindingDerivation`, la conserva por identidad y ensambla un wrapper frozen con el `ValidationReport` serializable. El status procede exactamente de slice 26 y los findings exclusivamente de slice 27; tuple → list es solo adaptación de representación.
+`derive_authoritative_prerequisite_validation_flow(...)` es la fachada pura que compone exactamente una vez y en orden slices 25 → 26 → 27 → 28 desde authority, la misma `Sequence` de candidates y target literal hasta `AuthoritativePrerequisiteValidationReport`.
 
-La coherencia representativa exige error para failed, warning sin errors para pending y ausencia de errors/warnings para passed; information no cambia status y failed puede conservar warnings. Inconsistencias manuales producen `ValueError`, sin reclasificar, crear findings o añadir causas.
+Authority, candidates, target y outputs intermedios se transmiten sin transformación y por identidad donde corresponde; el retorno es el objeto exacto de slice 28. No existe lógica propia de status, findings o report, recálculo paralelo, provider, candidate loading ni I/O. Las excepciones se propagan sin wrapping y detienen etapas posteriores.
 
-`ValidationReport` ≠ verdad curricular: es presentación serializable; la trazabilidad canónica permanece en `finding_derivation`. `report.status` = status ya derivado por slice 26 y `report.findings` = representación ya derivada por slice 27. `ValueError` ≠ nuevo error curricular. `validate_pedagogical_candidate` permanece bloqueado.
+Slice 29 = composición, no nueva validación curricular, candidate approval, learner validation, mastery ni validez global. `validate_pedagogical_candidate` permanece bloqueado; provider y procedencia/reunión productiva de candidates quedan fuera.
 
-Validación vigente, no repetir mientras no cambie código técnico: 15 específicas PASS; postflight independiente PASS sin findings; 100 de regresión PASS; suite backend completa, 1767 passed in 13.16s, `PYTEST_EXIT=0`; `git diff --check` PASS.
+Validación vigente, no repetir mientras no cambie código técnico: 8 específicas PASS; postflight independiente PASS sin findings; 107 de regresión PASS; suite backend completa, 1775 passed in 13.33s, `PYTEST_EXIT=0`; `git diff --check` PASS.
 
 ## Automatización disponible
 
@@ -53,15 +53,15 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 28
+### Contrato curricular v1 — Slice estructural 29
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `8a136b5` y documental de cierre `7da2fd0`; primer push confirmado hasta `7da2fd0` en `origin/master`. El wrapper trazable con `ValidationReport` está descrito en «Último bloque cerrado».
+Estado técnico cerrado mediante `373edb8`; cierre documental y publicación pendientes. La fachada pura 25→28 está descrita en «Último bloque cerrado».
 
-Permanecen fuera la exposición o consumo superior del wrapper y la integración con validadores, además de learner state, mastery, runtime y persistencia.
+Permanecen fuera provider, candidate collection/loader, consumo superior e integración con validadores, además de learner state, mastery, runtime y persistencia.
 
 Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
 
-Archivos técnicos de la slice: `app/services/pedagogical_authoritative_prerequisite_validation_report.py` y `tests/test_pedagogical_authoritative_prerequisite_validation_report.py`. El inventario histórico completo permanece en `docs/bitacora.md`.
+Archivos técnicos de la slice: `app/services/pedagogical_authoritative_prerequisite_validation_flow.py` y `tests/test_pedagogical_authoritative_prerequisite_validation_flow.py`. El inventario histórico completo permanece en `docs/bitacora.md`.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -71,7 +71,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Hacer un preflight separado para decidir qué consumidor superior necesita `AuthoritativePrerequisiteValidationReport` y cómo exponerlo sin mezclar validación local de una candidate con validación curricular autoritativa de un prefijo/target.
+Hacer un preflight separado para definir la procedencia y reunión productiva del conjunto aprobado de `PedagogicalUnitCandidate` entregado al flow, sin convertir slice 29 en loader ni duplicar la validación fail-closed de slice 25.
 
 ## Archivos clave
 

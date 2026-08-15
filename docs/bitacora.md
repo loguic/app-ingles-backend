@@ -4368,3 +4368,19 @@ Se añadieron `AuthoritativePrerequisiteValidationReport` y `derive_authoritativ
 Validación vigente, no repetir mientras no cambie código técnico: 15 pruebas específicas PASS; postflight independiente PASS sin findings críticos; 100 pruebas de regresión PASS; suite backend completa, 1767 passed in 13.16s, `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
 
 El próximo objetivo es hacer un preflight separado para identificar qué consumidor superior necesita `AuthoritativePrerequisiteValidationReport` y qué frontera permite exponerlo o consumirlo sin mezclar la validación local de una candidate con la validación curricular autoritativa de un prefijo y target. No integrar automáticamente `validate_pedagogical_candidate`.
+
+## Contrato curricular v1 — Slice estructural 29
+
+Estado técnico: cerrado mediante `373edb8` (`feat add authoritative prerequisite validation flow`); cierre documental y publicación pendientes.
+
+Se añadió `derive_authoritative_prerequisite_validation_flow(...)`, una fachada pura que recibe `AuthoritativeCurriculumHierarchy`, la `Sequence[PedagogicalUnitCandidate]` y target explícita, y compone exactamente una vez y en orden slices 25 → 26 → 27 → 28 hasta devolver directamente `AuthoritativePrerequisiteValidationReport`.
+
+Authority y candidates se entregan a slice 25 por identidad y sin carga, materialización, sorting, deduplicación, filtrado o prevalidación. `target_level_code` y `target_unit_id` se transmiten literalmente. Cada output intermedio se entrega directamente a la siguiente slice y el resultado final es el objeto exacto retornado por slice 28.
+
+Slice 29 no inspecciona ni reconstruye status, severities, findings o `ValidationReport`; tampoco llama slices 17/19/22–24 en paralelo. No existe provider, candidate loader, filesystem, red, DB o política propia de errores. Las excepciones de slices 25–28 se propagan sin wrapping y detienen las etapas posteriores.
+
+Slice 29 significa composición únicamente: no es una nueva fuente de verdad curricular, candidate approval, learner validation, mastery ni validez global. `validate_pedagogical_candidate` continúa bloqueado por su contrato local a una candidate. La procedencia y reunión productiva del conjunto aprobado de candidates permanece sin contratar.
+
+Validación vigente, no repetir mientras no cambie código técnico: 8 pruebas específicas PASS; postflight independiente PASS sin findings críticos; 107 pruebas de regresión PASS; suite backend completa, 1775 passed in 13.33s, `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
+
+El próximo objetivo es hacer un preflight separado para definir la fuente canónica, significado de aprobación y reunión productiva del prefijo de `PedagogicalUnitCandidate` que consumirá la fachada. `ContentTreeResponse` no sustituye ese contrato, slice 29 no será loader y slice 25 conserva la validación fail-closed del conjunto recibido. No integrar provider, endpoint ni `validate_pedagogical_candidate`.
