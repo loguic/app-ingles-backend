@@ -4243,7 +4243,7 @@ El próximo objetivo es hacer preflight de la siguiente slice para definir y dem
 
 ## Contrato curricular v1 — Slice contractual 20
 
-Estado: contractualmente cerrada mediante el commit `530e910` (`docs define authoritative curriculum hierarchy contract`); publicación documental pendiente.
+Estado: cerrada, publicada y sincronizada mediante los commits contractual `530e910` (`docs define authoritative curriculum hierarchy contract`) y documental `241e77c`; primer push confirmado hasta `241e77c` en `origin/master`.
 
 El preflight quedó inicialmente bloqueado porque no existía una fuente autoritativa contractual. La decisión aprobada establece que la autoridad reside en un proveedor curricular designado, no en archivo, ruta, `ContentTreeResponse` arbitrario, IDs, booleanos del caller ni representación física subyacente reemplazable.
 

@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `67b147e`.
+- Último commit publicado y sincronizado: `241e77c`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 20
 
-Estado: contractualmente cerrada mediante el commit `530e910` (`docs define authoritative curriculum hierarchy contract`); publicación documental pendiente.
+Estado: cerrada, publicada y sincronizada mediante los commits contractual `530e910` (`docs define authoritative curriculum hierarchy contract`) y documental `241e77c`; primer push confirmado hasta `241e77c` en `origin/master`.
 
 El preflight detectó que no existía una fuente autoritativa contractual. La decisión aprobada sitúa la autoridad en un proveedor curricular designado, no en archivo, ruta, `ContentTreeResponse`, IDs, booleanos del caller ni representación física subyacente.
 
@@ -55,7 +55,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 20
 
-Estado: contractualmente cerrada mediante el commit `530e910`; publicación documental pendiente. La autoridad curricular está descrita en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits contractual `530e910` y documental `241e77c`; primer push confirmado hasta `241e77c` en `origin/master`. La autoridad curricular está descrita en «Último bloque cerrado».
 
 Permanecen fuera el tipo emitido exclusivamente por el proveedor autoritativo, la prueba estructural de `complete_from_authoritative_origin`, `unsatisfied` curricular, ciclos, ledger, findings, progreso, ejecución, evidencia, aprendizaje, retention, mastery, runtime y persistencia.
 
