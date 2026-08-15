@@ -4357,7 +4357,7 @@ El próximo objetivo es hacer un preflight separado para evaluar un wrapper `Aut
 
 ## Contrato curricular v1 — Slice estructural 28
 
-Estado técnico: cerrado mediante `8a136b5` (`feat add authoritative prerequisite validation report`); cierre documental y publicación pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `8a136b5` (`feat add authoritative prerequisite validation report`) y documental de cierre `7da2fd0`; primer push confirmado hasta `7da2fd0` en `origin/master`.
 
 Se añadieron `AuthoritativePrerequisiteValidationReport` y `derive_authoritative_prerequisite_validation_report(...)`. La capacidad consume únicamente `AuthoritativePrerequisiteReportFindingDerivation`, la conserva por identidad y ensambla un wrapper frozen con el `ValidationReport` público y serializable, sin recalcular currículo, findings ni status.
 

@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `88e803a`.
+- Último commit publicado y sincronizado: `7da2fd0`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 28
 
-Estado técnico: cerrado mediante `8a136b5` (`feat add authoritative prerequisite validation report`); cierre documental y publicación pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `8a136b5` (`feat add authoritative prerequisite validation report`) y documental de cierre `7da2fd0`; primer push confirmado hasta `7da2fd0` en `origin/master`.
 
 `derive_authoritative_prerequisite_validation_report(...)` consume únicamente `AuthoritativePrerequisiteReportFindingDerivation`, la conserva por identidad y ensambla un wrapper frozen con el `ValidationReport` serializable. El status procede exactamente de slice 26 y los findings exclusivamente de slice 27; tuple → list es solo adaptación de representación.
 
@@ -55,7 +55,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 28
 
-Estado técnico cerrado mediante `8a136b5`; cierre documental y publicación pendientes. El wrapper trazable con `ValidationReport` está descrito en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `8a136b5` y documental de cierre `7da2fd0`; primer push confirmado hasta `7da2fd0` en `origin/master`. El wrapper trazable con `ValidationReport` está descrito en «Último bloque cerrado».
 
 Permanecen fuera la exposición o consumo superior del wrapper y la integración con validadores, además de learner state, mastery, runtime y persistencia.
 
