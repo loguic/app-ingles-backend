@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `654652a`.
+- Último commit publicado y sincronizado: `1b7dea5`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 31
 
-Estado: cerrada técnicamente mediante los commits contractual `ab545e4` (`docs define canonical candidate payload identity`) y técnico `a9d7b9c` (`feat derive canonical candidate payload identity`); publicación y sincronización pendientes del cierre documental.
+Estado: cerrada, publicada y sincronizada mediante los commits contractual `ab545e4` (`docs define canonical candidate payload identity`), técnico `a9d7b9c` (`feat derive canonical candidate payload identity`) y documental de cierre `1b7dea5` (`docs close canonical candidate identity slice`); primer push confirmado hasta `1b7dea5` en `origin/master`.
 
 `CandidatePayloadIdentity` es frozen y contiene solo unit, revision externa literal, `payload_schema_version="1.0"` y digest. La whitelist canónica incluye specification, candidate unit, evaluation/feedback/capability plans, Skill coverage y recursos; excluye validation report, decisiones humanas pendientes y resumen editorial. Excluir identidad no elimina sus gates de admission.
 
@@ -53,7 +53,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 31
 
-Estado: cerrada técnicamente en `ab545e4` y `a9d7b9c`, con publicación pendiente. Canonical identity v1 está descrita en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante `ab545e4`, `a9d7b9c` y el cierre documental `1b7dea5`; primer push confirmado hasta `1b7dea5` en `origin/master`. Canonical identity v1 está descrita en «Último bloque cerrado».
 
 Permanecen fuera AdmissionRecord, membership, snapshot, manifest, loader, publisher e integración. Loader continúa BLOCKED; no convertir identity en admission, publication, autenticidad ni autoridad curricular.
 

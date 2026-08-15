@@ -4399,7 +4399,7 @@ No existen todavía manifest, modelos, canonical serializer ni loader. Loader pe
 
 ## Contrato curricular v1 — Slice estructural 31
 
-Estado: cerrada técnicamente mediante los commits contractual `ab545e4` (`docs define canonical candidate payload identity`) y técnico `a9d7b9c` (`feat derive canonical candidate payload identity`); publicación y sincronización pendientes del cierre documental.
+Estado: cerrada, publicada y sincronizada mediante los commits contractual `ab545e4` (`docs define canonical candidate payload identity`), técnico `a9d7b9c` (`feat derive canonical candidate payload identity`) y documental de cierre `1b7dea5` (`docs close canonical candidate identity slice`); primer push confirmado hasta `1b7dea5` en `origin/master`.
 
 Se añadieron `PAYLOAD_SCHEMA_VERSION = "1.0"`, `CandidatePayloadIdentity` frozen y `derive_candidate_payload_identity(...)`. La identidad contiene exclusivamente `unit_id`, revision operativa externa preservada literalmente, schema version y `content_digest`. La whitelist v1 incorpora specification, candidate unit, evaluation plans, feedback plans, capability plans, Skill coverage y recursos; excluye validation report, decisiones humanas pendientes y resumen editorial. Excluded from canonical identity no equivale a ignored by admission gates.
 
