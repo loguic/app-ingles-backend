@@ -4254,3 +4254,17 @@ El origen autoritativo es la primera `CurriculumUnitPosition` canónica derivada
 Postflight contractual PASS sin findings críticos; `git diff --check` PASS. No hubo cambios de código ni necesidad de pytest. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
 
 El próximo objetivo es hacer preflight técnico para diseñar un tipo emitido exclusivamente por el proveedor curricular autoritativo y la prueba estructural de `complete_from_authoritative_origin`, sin implementar todavía `unsatisfied`.
+
+## Contrato curricular v1 — Slice estructural 21
+
+Estado: técnicamente cerrada mediante el commit `bf79f88` (`feat add authoritative curriculum hierarchy provider`); publicación documental pendiente.
+
+Se añadió `AuthoritativeCurriculumHierarchy`, un wrapper interno frozen que conserva únicamente `hierarchy: ContentTreeResponse`, y `load_authoritative_curriculum_hierarchy()` como único camino público soportado de emisión desde el proveedor técnico autoritativo actual, `app.services.content_service`. La construcción directa normal con un árbol arbitrario queda impedida.
+
+El loader autoritativo no acepta parámetros, llama exactamente una vez a `build_content_tree()`, conserva el mismo árbol por identidad y propaga sus errores sin transformación. `build_content_tree()` mantiene su contrato ordinario, y `/content/tree` y los helpers parciales continúan devolviendo datos sin procedencia autoritativa. La representación física del proveedor sigue siendo reemplazable.
+
+No se añadió segunda fuente de orden ni se derivaron origin, posiciones, prefijo o completitud contextual. Authoritative hierarchy no equivale a `complete_from_authoritative_origin` ni a `globally_complete`; procedencia curricular autoritativa no equivale a learner state, evidencia, aprendizaje o mastery.
+
+Validación vigente, no repetir mientras no cambie código técnico: 10 pruebas específicas PASS; postflight independiente PASS sin findings críticos; 134 pruebas de regresión PASS; suite backend completa, 1671 passed in 13.47s; `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
+
+El próximo objetivo es hacer preflight de slice 22 para verificar `complete_from_authoritative_origin` mediante `AuthoritativeCurriculumHierarchy`, posiciones de slice 14 y `OrderedCurriculumCandidateContext` de slice 17, sin implementar todavía `unsatisfied`.
