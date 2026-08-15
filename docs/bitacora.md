@@ -4313,7 +4313,7 @@ El próximo objetivo es hacer un preflight separado para diseñar una orquestaci
 
 ## Contrato curricular v1 — Slice estructural 25
 
-Estado: técnicamente cerrada mediante `9460655` (`feat add authoritative prerequisite validation orchestration`); cierre documental, publicación y sincronización pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `9460655` (`feat add authoritative prerequisite validation orchestration`) y documental de cierre `53fe8b0`; primer push confirmado hasta `53fe8b0` en `origin/master`.
 
 Se añadieron `AuthoritativePrerequisiteValidationDerivation` y `derive_authoritative_prerequisite_validation(...)`, una orquestación pura y frozen de slices 17 → 22 → 23 → 24. Recibe authority tipada, candidates y target explícita; construye context exclusivamente sobre `authority.hierarchy`, mantiene slice 22 como proof obligatoria y no invoca slices 15/16 directamente.
 

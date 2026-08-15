@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `09b3474`.
+- Último commit publicado y sincronizado: `53fe8b0`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 25
 
-Estado: técnicamente cerrada mediante `9460655` (`feat add authoritative prerequisite validation orchestration`); cierre documental, publicación y sincronización pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `9460655` (`feat add authoritative prerequisite validation orchestration`) y documental `53fe8b0`; primer push confirmado hasta `53fe8b0` en `origin/master`.
 
 `derive_authoritative_prerequisite_validation(...)` orquesta puramente slices 17 → 22 → 23 → 24 usando `authority.hierarchy`: context, proof explícita, conclusiones y findings, sin invocar directamente slices 15/16.
 
@@ -55,7 +55,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 25
 
-Estado: técnicamente cerrada mediante `9460655`; cierre documental, publicación y sincronización pendientes. La orquestación pura está descrita en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `9460655` y documental `53fe8b0`; primer push confirmado hasta `53fe8b0` en `origin/master`. La orquestación pura está descrita en «Último bloque cerrado».
 
 Permanecen fuera la política de clasificación de uncertainties, fallos estructurales, errores de consumo/preparación y findings demostrados para un eventual `ValidationReport`, además de integración con validadores, learner state, mastery, runtime y persistencia.
 
