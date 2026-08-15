@@ -4240,3 +4240,17 @@ Validación vigente, no repetir mientras no cambien archivos técnicos: 20 prueb
 Permanecen fuera authoritative curriculum origin, `globally_complete`, el criterio para transformar ciertos `unresolved_in_context` en una conclusión curricular negativa más fuerte, `unsatisfied` curricular, ciclos de prerequisites, `CurriculumCapabilityPreparationLedger`, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, runtime y persistencia.
 
 El próximo objetivo es hacer preflight de la siguiente slice para definir y demostrar un authoritative curriculum origin aplicable al contexto antes de permitir cualquier conclusión `unsatisfied`.
+
+## Contrato curricular v1 — Slice contractual 20
+
+Estado: contractualmente cerrada mediante el commit `530e910` (`docs define authoritative curriculum hierarchy contract`); publicación documental pendiente.
+
+El preflight quedó inicialmente bloqueado porque no existía una fuente autoritativa contractual. La decisión aprobada establece que la autoridad reside en un proveedor curricular designado, no en archivo, ruta, `ContentTreeResponse` arbitrario, IDs, booleanos del caller ni representación física subyacente reemplazable.
+
+El origen autoritativo es la primera `CurriculumUnitPosition` canónica derivada de la hierarchy emitida por ese proveedor. El proveedor debe garantizar continuidad sin omisiones desde origen hasta target: `origin present` no equivale a hierarchy completa desde origen. `complete_within_hierarchy` conserva la semántica de slice 17 y no equivale a `complete_from_authoritative_origin`; esta última tampoco equivale a `globally_complete`.
+
+`unresolved_in_context` no equivale a `unsatisfied`. Los errores relevantes de precedencia pueden impedir una futura conclusión negativa fuerte, y los errores de resolución de consumption o preparación siguen siendo derivativos. Autoridad y completitud curricular estructural no equivalen a ejecución, evidencia real, resultado, aprendizaje, retention ni mastery.
+
+Postflight contractual PASS sin findings críticos; `git diff --check` PASS. No hubo cambios de código ni necesidad de pytest. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
+
+El próximo objetivo es hacer preflight técnico para diseñar un tipo emitido exclusivamente por el proveedor curricular autoritativo y la prueba estructural de `complete_from_authoritative_origin`, sin implementar todavía `unsatisfied`.

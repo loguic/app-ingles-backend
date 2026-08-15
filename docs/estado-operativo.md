@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-14
+Actualizado: 2026-08-15
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -14,17 +14,17 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 19
+### Contrato curricular v1 — Slice estructural 20
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `4817d9398e65bb09c29c7834b1b348f24da2b372` (`feat add contextual curriculum prerequisite assessment`) y documental `67b147e`; primer push confirmado hasta `67b147e` en `origin/master`.
+Estado: contractualmente cerrada mediante el commit `530e910` (`docs define authoritative curriculum hierarchy contract`); publicación documental pendiente.
 
-La API batch pura `derive_curriculum_skill_prerequisite_assessments(...)` compone slice 11 para consumptions y sus errores, slice 18 para preparación acumulada y errores, y slice 9 para comparar estados. Sus únicos outcomes son `satisfied_in_context` y `unresolved_in_context`: Skill ausente o estado inferior quedan unresolved; estado igual o superior queda satisfied.
+El preflight detectó que no existía una fuente autoritativa contractual. La decisión aprobada sitúa la autoridad en un proveedor curricular designado, no en archivo, ruta, `ContentTreeResponse`, IDs, booleanos del caller ni representación física subyacente.
 
-Los consumption errors y preparation resolution errors permanecen separados de outcomes. Los `precedence_errors` se conservan completos como observations y se filtran por Skill requerida en cada assessment; un error alternativo no revoca preparación válida suficiente. La cache por punto es local y efímera. Same-stage y units posteriores siguen excluidos exclusivamente por slice 18.
+El origen es la primera `CurriculumUnitPosition` derivada de la hierarchy autoritativa y el proveedor garantiza continuidad sin omisiones hasta target. `origin present` ≠ complete from origin; `complete_within_hierarchy` ≠ `complete_from_authoritative_origin` ≠ `globally_complete`.
 
-`satisfied_in_context` ≠ `globally_satisfied` ≠ aprendizaje ≠ ejecución ≠ mastery. `unresolved_in_context` ≠ `unsatisfied` ≠ fallo pedagógico definitivo ≠ fallo del learner.
+`unresolved_in_context` ≠ `unsatisfied`. Autoridad/completitud curricular estructural ≠ ejecución ≠ evidencia real ≠ aprendizaje ≠ retention ≠ mastery.
 
-Validación vigente, no repetir mientras no cambien archivos técnicos: 20 pruebas específicas PASS; postflight independiente PASS sin hallazgos; 351 pruebas de regresión directa PASS; suite backend completa directa en Bash, 1661 passed in 13.10s, `PYTEST_EXIT=0`; `git diff --check` PASS.
+Validación vigente, no repetir mientras no cambie el contrato: postflight contractual PASS sin findings críticos; `git diff --check` PASS; sin cambios de código ni necesidad de pytest.
 
 ## Automatización disponible
 
@@ -53,11 +53,11 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice estructural 19
+### Contrato curricular v1 — Slice estructural 20
 
-Estado: cerrada, publicada y sincronizada mediante los commits técnico `4817d93` y documental `67b147e`; primer push confirmado hasta `67b147e` en `origin/master`. La evaluación batch contextual está descrita en «Último bloque cerrado».
+Estado: contractualmente cerrada mediante el commit `530e910`; publicación documental pendiente. La autoridad curricular está descrita en «Último bloque cerrado».
 
-Permanecen fuera authoritative curriculum origin, `globally_complete`, el criterio para transformar ciertos `unresolved_in_context` en una conclusión curricular negativa más fuerte, `unsatisfied` curricular, ciclos de prerequisites, `CurriculumCapabilityPreparationLedger`, findings e integración con `validate_pedagogical_candidate`, progreso, ejecución, evidencia real, resultados, aprendizaje, retention, mastery, runtime y persistencia.
+Permanecen fuera el tipo emitido exclusivamente por el proveedor autoritativo, la prueba estructural de `complete_from_authoritative_origin`, `unsatisfied` curricular, ciclos, ledger, findings, progreso, ejecución, evidencia, aprendizaje, retention, mastery, runtime y persistencia.
 
 Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
 
@@ -97,7 +97,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Hacer preflight de la siguiente slice para definir y demostrar un authoritative curriculum origin aplicable al contexto antes de permitir cualquier conclusión `unsatisfied`.
+Hacer preflight técnico de la siguiente slice para diseñar un tipo emitido solo por el proveedor curricular autoritativo y la prueba estructural de `complete_from_authoritative_origin`, sin implementar todavía `unsatisfied`.
 
 ## Archivos clave
 
