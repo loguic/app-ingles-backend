@@ -1,12 +1,26 @@
 import json
 from pathlib import Path
 from app.schemas.content import ContentTreeResponse
+from app.services.pedagogical_authoritative_curriculum_hierarchy import (
+    AuthoritativeCurriculumHierarchy,
+    _issue_authoritative_curriculum_hierarchy,
+)
 
 CONTENT_TREE_PATH = Path(__file__).resolve().parents[2] / "content" / "content_tree.json"
 
 def build_content_tree() -> ContentTreeResponse:
     data = json.loads(CONTENT_TREE_PATH.read_text(encoding="utf-8"))
     return ContentTreeResponse.model_validate(data)
+
+
+def load_authoritative_curriculum_hierarchy(
+) -> AuthoritativeCurriculumHierarchy:
+    """Load the complete hierarchy through the authoritative provider.
+
+    Carga la jerarquía completa mediante el proveedor autoritativo.
+    """
+    hierarchy = build_content_tree()
+    return _issue_authoritative_curriculum_hierarchy(hierarchy)
 
 def get_level_by_code(level_code: str):
     tree = build_content_tree()
