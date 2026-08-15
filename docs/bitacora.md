@@ -4396,3 +4396,17 @@ Admission se liga conceptualmente a `unit_id`, `candidate_revision`, `payload_sc
 Membership no equivale a orden curricular; `AuthoritativeCurriculumHierarchy` y `CurriculumUnitPosition` conservan esa autoridad y no certifican admission. Source integrity, local validation findings y authoritative curricular findings permanecen separados. A1-U1 continúa pending/non-member, no admitted, published ni rejected.
 
 No existen todavía manifest, modelos, canonical serializer ni loader. Loader permanece BLOCKED hasta cerrar mediante preflight técnico la representación machine-readable de revision/schema version, canonicalización, admission record, active snapshot, reviewer namespace y publicación estable. Postflight contractual independiente PASS sin findings críticos y `git diff --check` PASS. No se ejecutaron ni eran necesarias pruebas Python por tratarse de una slice exclusivamente contractual; no repetir validaciones mientras el contrato no cambie.
+
+## Contrato curricular v1 — Slice estructural 31
+
+Estado: cerrada técnicamente mediante los commits contractual `ab545e4` (`docs define canonical candidate payload identity`) y técnico `a9d7b9c` (`feat derive canonical candidate payload identity`); publicación y sincronización pendientes del cierre documental.
+
+Se añadieron `PAYLOAD_SCHEMA_VERSION = "1.0"`, `CandidatePayloadIdentity` frozen y `derive_candidate_payload_identity(...)`. La identidad contiene exclusivamente `unit_id`, revision operativa externa preservada literalmente, schema version y `content_digest`. La whitelist v1 incorpora specification, candidate unit, evaluation plans, feedback plans, capability plans, Skill coverage y recursos; excluye validation report, decisiones humanas pendientes y resumen editorial. Excluded from canonical identity no equivale a ignored by admission gates.
+
+La canonicalización parte de modelos Pydantic validados, incluye defaults/`None`, conserva orden y multiplicidad de sequences, neutraliza keys de mappings y produce JSON compacto con Unicode sin NFC/NFD. Los bytes son UTF-8 sin BOM/newline y el único preimage SHA-256. Revision, schema version y unit externa no se añaden al preimage. El digest usa `sha256:<64 lowercase hex>` y fija como golden v1 `sha256:b0ba248338e388e688fc8e3b25f325441e8d27ac2017b834bc78a8f08cfbb592`; romperlo bajo `"1.0"` es incompatibilidad.
+
+La capacidad no ejecuta validación local, filesystem, admission, publication, membership, snapshot, manifest ni flow autoritativo. Identity no equivale a admission, aprobación humana, firma, autenticidad, publication o membership. A1-U1 permanece pending/non-member y loader continúa BLOCKED.
+
+Validación vigente, no repetir mientras no cambie código: 13 pruebas específicas PASS; postflight técnico independiente PASS sin findings; regresión seleccionada directa en Bash, 356 passed in 1.08s; suite backend completa directa en Bash, 1788 passed in 13.35s; ambos `PYTEST_EXIT=0`; `git diff --check` PASS. La regresión indeterminada en Codex se ejecutó una sola vez directamente en Bash.
+
+El próximo objetivo es un preflight técnico separado para definir únicamente AdmissionRecord machine-readable sobre `CandidatePayloadIdentity`: `admission_id`, decisión admitted/rejected, reviewer, `decided_at` UTC, invariantes y relación exacta con identity. Membership y snapshot serán posteriores; no reabrir canonical identity sin un finding real.

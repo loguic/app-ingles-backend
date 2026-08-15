@@ -14,15 +14,15 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice contractual 30
+### Contrato curricular v1 — Slice estructural 31
 
-Estado: cerrada, publicada y sincronizada mediante los commits contractual `8000a02` (`docs define candidate admission and active source membership`) y documental de cierre `654652a` (`docs close candidate admission contract slice`); primer push confirmado hasta `654652a` en `origin/master`.
+Estado: cerrada técnicamente mediante los commits contractual `ab545e4` (`docs define canonical candidate payload identity`) y técnico `a9d7b9c` (`feat derive canonical candidate payload identity`); publicación y sincronización pendientes del cierre documental.
 
-`Candidate admission and active source membership v1` separa candidate existente, parseable, localmente válido, revisado, admitido, publicado y compatible curricularmente. Local validation passed es necesaria pero no suficiente; decisiones humanas pendientes impiden admission. La decisión se liga a `unit_id`, revision, schema version y digest canónico, mediante un admission record separado del payload.
+`CandidatePayloadIdentity` es frozen y contiene solo unit, revision externa literal, `payload_schema_version="1.0"` y digest. La whitelist canónica incluye specification, candidate unit, evaluation/feedback/capability plans, Skill coverage y recursos; excluye validation report, decisiones humanas pendientes y resumen editorial. Excluir identidad no elimina sus gates de admission.
 
-Admission no equivale a publication. Active membership es explícita, nunca filesystem enumeration, y una lectura observa un snapshot estable con máximo una revisión activa por unit. Membership no define orden curricular y hierarchy authority no certifica admission. Source integrity, validación local y findings autoritativos permanecen separados; A1-U1 sigue pending/non-member.
+La receta v1 normaliza modelos validados, conserva sequences, ordena keys JSON, codifica UTF-8 sin BOM/newline y aplica SHA-256 exclusivamente a esos bytes. El digest usa `sha256:<64 lowercase hex>`; el golden v1 es `sha256:b0ba248338e388e688fc8e3b25f325441e8d27ac2017b834bc78a8f08cfbb592`. Identity no equivale a validation, admission, publication ni membership y no usa I/O.
 
-No existe todavía manifest, modelo ni loader: loader permanece BLOCKED hasta cerrar la representación machine-readable. Postflight contractual PASS sin findings críticos y `git diff --check` PASS; no se ejecutaron pruebas Python porque la slice fue exclusivamente contractual. No repetir estas validaciones mientras no cambie el contrato.
+A1-U1 continúa pending/non-member y loader sigue BLOCKED. Validación vigente, no repetir mientras no cambie código: 13 específicas PASS; postflight técnico PASS; regresión directa en Bash 356 passed in 1.08s; suite completa directa en Bash 1788 passed in 13.35s; ambos `PYTEST_EXIT=0`; `git diff --check` PASS.
 
 ## Automatización disponible
 
@@ -35,7 +35,7 @@ No existe todavía manifest, modelo ni loader: loader permanece BLOCKED hasta ce
 
 Cada slice pasa por definición, implementación técnica, validación específica, revisión independiente y cierre documental. Las regresiones y suites amplias se ejecutan solo cuando el alcance y riesgo las justifican. Los commits y la publicación permanecen bajo confirmación humana.
 
-El protocolo operativo conserva Codex CLI + Bash y `docs/estado-operativo.md` como fuente canónica para cambiar de conversación. No deben repetirse inspecciones ni validaciones vigentes si los archivos cubiertos no han cambiado.
+El protocolo operativo conserva Codex CLI + Bash y `docs/estado-operativo.md` como fuente canónica para cambiar de conversación. No deben repetirse inspecciones ni validaciones vigentes si los archivos cubiertos no han cambiado. Si una regresión queda indeterminada en Codex, se ejecuta una sola vez directamente en Bash; la suite completa también se ejecuta directamente en Bash cuando corresponda.
 
 Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operational_state.py`, ejecutar `conversation_checkpoint.py prepare` y cambiar únicamente si genera un checkpoint válido. Al reanudar: ejecutar `conversation_checkpoint.py resume`, recuperar ese estado antes de proponer comandos, inspecciones o cambios, y no repetir validaciones vigentes.
 
@@ -51,15 +51,15 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ## Bloque activo
 
-### Contrato curricular v1 — Slice contractual 30
+### Contrato curricular v1 — Slice estructural 31
 
-Estado: cerrada, publicada y sincronizada mediante los commits contractual `8000a02` y documental de cierre `654652a`; primer push confirmado hasta `654652a` en `origin/master`. La semántica de admission/publication está descrita en «Último bloque cerrado».
+Estado: cerrada técnicamente en `ab545e4` y `a9d7b9c`, con publicación pendiente. Canonical identity v1 está descrita en «Último bloque cerrado».
 
-Permanecen fuera manifest, modelos, canonical serializer, loader, publisher, provider, integración y candidate artifacts. No convertir membership en autoridad curricular ni admission en learner state, mastery o aprobación implícita.
+Permanecen fuera AdmissionRecord, membership, snapshot, manifest, loader, publisher e integración. Loader continúa BLOCKED; no convertir identity en admission, publication, autenticidad ni autoridad curricular.
 
 Si el background de Codex vuelve a interrumpirse, conservar Codex CLI + Bash y ejecutar la suite backend completa directamente en Bash. No repetir las validaciones vigentes mientras no cambien los archivos técnicos.
 
-Archivos técnicos de la slice: `app/services/pedagogical_authoritative_prerequisite_validation_flow.py` y `tests/test_pedagogical_authoritative_prerequisite_validation_flow.py`. El inventario histórico completo permanece en `docs/bitacora.md`.
+Archivos técnicos de la slice: `app/services/pedagogical_candidate_payload_identity.py` y `tests/test_pedagogical_candidate_payload_identity.py`. El inventario histórico completo permanece en `docs/bitacora.md`.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -69,7 +69,7 @@ I1–I4 y las correcciones frontend están publicados. No existe un fallo técni
 
 ## Próximo objetivo
 
-Hacer un preflight técnico separado para definir la representación machine-readable mínima de admission record, identidad exacta de contenido y active snapshot membership, sin reabrir su semántica ni implementar todavía el loader.
+Hacer un preflight técnico separado para definir únicamente la representación machine-readable de AdmissionRecord sobre `CandidatePayloadIdentity`: admission ID, decisión admitted/rejected, reviewer, timestamp UTC e invariantes. Membership/snapshot quedan después.
 
 ## Archivos clave
 
