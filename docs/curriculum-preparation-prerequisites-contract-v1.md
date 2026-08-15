@@ -867,17 +867,63 @@ Una proyección que no pueda representarse conforme a v1, incluyendo NaN, Infini
 
 Toda implementación de `payload_schema_version = "1.0"` deberá protegerse con al menos un golden vector que fije canonical payload conocido, canonical bytes conocidos y `content_digest` literal conocido. El vector concreto se establecerá con la primera implementación y formará parte de la compatibilidad v1.
 
-La decisión vivirá conceptualmente fuera de `PedagogicalUnitCandidate`, en un admission record independiente que contenga como mínimo:
+#### Candidate payload identity v1
 
-- `unit_id`;
-- `candidate_revision`;
-- `payload_schema_version`;
-- `content_digest`;
-- `decision`: `admitted` o `rejected`;
-- `reviewer_id`: string opaco obligatorio, sin implicar auth ni RBAC;
-- `decided_at`: timestamp UTC obligatorio para auditoría, nunca para orden curricular.
+`CandidatePayloadIdentity` es un value object machine-readable e inmutable que contiene exactamente:
 
-La provenance de generator/source original es opcional en v1. Admission se aplica solo a la combinación exacta de revision y digest. Un cambio del payload pedagógico exige nueva validación local, revisión humana y decisión; una variación física que conserve el payload canónico no invalida la decisión.
+- `unit_id`: `str`;
+- `candidate_revision`: `str`;
+- `payload_schema_version`: `str`;
+- `content_digest`: `str`.
+
+`unit_id` es el identificador curricular nominal de la unidad, cumple el contrato ya definido por `PedagogicalUnitSpecification` y se deriva internamente de `candidate.specification.unit_id`; no lo aporta separadamente el caller. `unit_id`, `candidate_revision`, `payload_schema_version` y `content_digest` son dimensiones distintas.
+
+`candidate_revision` es un string machine-readable, obligatorio, no vacío ni exclusivamente whitespace, suministrado por el caller y preservado literalmente. Se valida que `candidate_revision.strip() != ""`, pero no se almacena con trim ni se normaliza mediante lowercase o slugification. No se deriva de filename, timestamp ni orden curricular.
+
+`payload_schema_version` es un string. La única derivación autorizada por este contrato produce `"1.0"`, proveniente del contrato/canonicalizer y no del caller: identifica `Canonical admission payload v1` y `Canonical serialization and content digest v1`, no `candidate_revision`, `LessonExperience.contract_version`, orden curricular ni orden de publication. `CandidatePayloadIdentity` podrá portar una futura `payload_schema_version` cuando un contrato posterior la defina; `AdmissionRecord` no hardcodea `"1.0"` como única versión válida para siempre.
+
+`content_digest` es un string. Para `payload_schema_version == "1.0"` cumple exactamente `^sha256:[0-9a-f]{64}$` y representa el SHA-256 de los canonical bytes definidos por `Canonical serialization and content digest v1`. Aporta identidad e integridad del contenido canónico; no significa admission, aprobación humana, signature, authenticity, publication ni membership.
+
+La capacidad de derivación v1 conforme construye la identidad con `unit_id` derivado internamente de `candidate.specification.unit_id`, `candidate_revision` recibido del caller, `payload_schema_version` recibido del contrato vigente y `content_digest` recibido de la derivación canónica vigente. El caller no suministra arbitrariamente `unit_id`, `payload_schema_version` ni `content_digest`.
+
+Una `CandidatePayloadIdentity` conforme satisface las invariantes de sus cuatro campos y, una vez construida, sus componentes no cambian. Que exista una representación Python manualmente construible no altera este contrato: una instancia que viole esas invariantes no es una `CandidatePayloadIdentity` conforme. Este contrato no exige que cada consumidor recalcule o revalide todos sus componentes.
+
+`CandidatePayloadIdentity` es únicamente identidad machine-readable del payload canónico. No significa local validation passed, human reviewed, admitted, rejected, published, active member ni authoritative validation passed. No define JSON file, database row, filesystem path, API resource ni manifest entry.
+
+Un consumidor como `AdmissionRecord` recibe una `CandidatePayloadIdentity` conforme ya establecida. No canonicaliza nuevamente el candidate, no recalcula `content_digest`, no reconstruye `candidate_revision`, no duplica `unit_id` ni vuelve a ejecutar la derivación: responsabilidad de `CandidatePayloadIdentity` != responsabilidad de `AdmissionRecord`.
+
+#### Admission decision record v1
+
+`AdmissionRecord` representa machine-readably una decisión humana final e inmutable sobre una `CandidatePayloadIdentity` exacta. Es independiente de `PedagogicalUnitCandidate`, local validation, human-review artifacts, publication y membership, y contiene exactamente:
+
+- `admission_id`;
+- `identity`: `CandidatePayloadIdentity`;
+- `decision`;
+- `reviewer_id`;
+- `decided_at`.
+
+`identity` compone unit, candidate revision, payload schema version y digest ya derivados; el record no los repite como campos planos, no recibe `unit_id` separado, no reconstruye revision ni recalcula digest. La dirección de dependencia es `AdmissionRecord` → `CandidatePayloadIdentity`, nunca la inversa.
+
+`admission_id` es el identificador machine-readable estable del record. Es string opaco, obligatorio, no vacío ni exclusivamente whitespace, caller-provided y preservado literalmente. No se normaliza ni deriva de UUID, ULID, timestamp, filesystem path, curriculum order o publication order. No se define aún mecanismo global de unicidad, repositorio ni allocator: una futura source/membership deberá detectar referencias duplicadas o ambiguas en su colección. El ID permite que future active membership refiera inequívocamente el record sin depender de path, storage o composición reviewer/timestamp.
+
+Las únicas decisiones finales almacenables son `admitted` y `rejected`; pending sigue significando ausencia de decisión final. `decision="admitted"` significa únicamente que una persona registró una decisión humana favorable sobre esa identity:
+
+```text
+recorded human decision
+!= verified admission gates
+```
+
+No demuestra por sí sola local validation `passed`, `pending_human_decisions == []`, todos los gates de admission, publication, active membership ni validación curricular autoritativa. Una capacidad posterior podrá verificar esos gates sobre identity, candidate y record. `decision="rejected"` es un hecho final válido de historial/auditoría, pero nunca puede justificar active source membership.
+
+`reviewer_id` es string opaco, obligatorio, no vacío ni exclusivamente whitespace y preservado literalmente. No se normaliza ni exige email, username schema, auth, RBAC o namespace de identity provider. La trazabilidad humana mínima del record es identity exacta, decision, reviewer ID, timestamp y admission ID; v1 no exige `human_review_id`, artifact path, referencia Markdown ni parser de documentos. La presencia de un human-review artifact por sí sola no equivale a `AdmissionRecord`.
+
+`decided_at` es `datetime` timezone-aware en UTC: debe tener `tzinfo` efectivo y `utcoffset() == timedelta(0)`. Datetimes naive o con offset distinto de cero son inválidos; se aceptan tzinfo equivalentes a UTC sin normalizar obligatoriamente el objeto recibido. Los microsegundos se permiten y preservan. El timestamp sirve solo para auditoría y no determina curriculum order, candidate revision order, publication precedence ni source membership order.
+
+Machine-readable en esta etapa significa representación tipada, campos e invariantes deterministas e integración explícita con `CandidatePayloadIdentity`; no define todavía JSON, JSON Schema, database row, filesystem path, manifest entry ni API resource. `AdmissionRecord` confía en la identity ya recibida: no canonicaliza candidate, valida source artifacts, ejecuta `validate_pedagogical_candidate` ni reevalúa sus garantías. La futura source integrity podrá comprobar un payload físico contra su identity.
+
+Los gates permanecen fuera de la representación: ejecutar local validation, comprobar status `passed`, leer o resolver `pending_human_decisions`, parsear human review, publication, membership y snapshot. Esto no elimina los gates del contrato general; separa record representation de gate verification. No se añaden provenance, generator, reason, comments, notes, signature, approval chain, role, tenant u organization en v1.
+
+Admission se aplica solo a la combinación exacta de revision y digest. Un cambio del payload pedagógico exige nueva validación local, revisión humana y decisión; una variación física que conserve el payload canónico no invalida la decisión.
 
 ### Publication y active source membership
 
