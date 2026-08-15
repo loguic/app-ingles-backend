@@ -742,6 +742,165 @@ Estas evoluciones quedan definidas conceptualmente, no implementadas por este co
 - adaptación;
 - contratos específicos de B180 o B181.
 
+## Candidate admission and active source membership v1
+
+Esta sección define qué revisión de una `PedagogicalUnitCandidate` puede ser elegible y qué significa publicarla en la fuente productiva. No define todavía modelos, archivos, loaders ni formato físico.
+
+### Vocabulario y separación de estados
+
+- **candidate artifact**: representación física de un candidate payload;
+- **candidate payload**: contenido interpretable como `PedagogicalUnitCandidate`;
+- **local validation**: resultado recalculado por `validate_pedagogical_candidate(...)` sobre ese payload concreto;
+- **human review**: revisión humana pedagógica y lingüística explícita;
+- **admitted candidate revision**: revisión exacta que satisfizo las condiciones de admisión y puede publicarse;
+- **published / active source member**: revisión admitida incorporada explícitamente al snapshot productivo activo.
+
+La expresión «approved candidate» deberá evitarse sin calificador porque no distingue revisión humana, admisión y publicación. Se mantiene obligatoriamente:
+
+```text
+candidate exists
+!= candidate parseable
+!= candidate locally valid
+!= candidate human reviewed
+!= candidate admitted
+!= candidate published
+!= candidate curricularly compatible at target
+```
+
+Admission establece la elegibilidad de una revisión exacta. Publication establece su pertenencia efectiva a la fuente activa. Una revisión admitida puede no estar todavía publicada.
+
+### Puertas de admission
+
+La admisión v1 exige conjuntamente:
+
+1. payload interpretable mediante el contrato de `PedagogicalUnitCandidate` aplicable;
+2. `validate_pedagogical_candidate(candidate).status == "passed"`, recalculado sobre el payload exacto;
+3. `candidate.pending_human_decisions == []`;
+4. revisión humana final y decisión explícita `admitted` sobre esa revisión exacta.
+
+Local validation passed es condición necesaria, pero no suficiente. El `validation_report` embebido puede quedar obsoleto porque no está ligado contractualmente a una revisión o digest; por ello no demuestra admission y deberá recalcularse durante el proceso de admisión.
+
+Las únicas decisiones humanas finales son `admitted` y `rejected`. Pending se representa mediante ausencia de decisión final. La mera existencia de un documento de human review no constituye admission machine-readable y no existen excepciones silenciosas para decisiones humanas pendientes.
+
+### Identidad exacta y admission record
+
+`unit_id` no identifica suficientemente el payload revisado. La identidad conceptual mínima de una revisión admitida incluye:
+
+- `unit_id`;
+- `candidate_revision` machine-readable;
+- `payload_schema_version`;
+- `content_digest`.
+
+Un filename como `pedagogical-unit-candidate-v2.json` no define `candidate_revision` ni `payload_schema_version`. Tampoco deberá reutilizarse `LessonExperience.contract_version` como versión del payload completo.
+
+`content_digest` será un digest criptográfico, recomendado SHA-256 en v1, del modelo validado serializado canónica y determinísticamente. El formatting físico no deberá cambiar su identidad; cualquier cambio del payload canónico sí deberá cambiarla. La serialización canónica exacta, encoding, separators y serializer quedan reservados al preflight técnico posterior.
+
+La decisión vivirá conceptualmente fuera de `PedagogicalUnitCandidate`, en un admission record independiente que contenga como mínimo:
+
+- `unit_id`;
+- `candidate_revision`;
+- `payload_schema_version`;
+- `content_digest`;
+- `decision`: `admitted` o `rejected`;
+- `reviewer_id`: string opaco obligatorio, sin implicar auth ni RBAC;
+- `decided_at`: timestamp UTC obligatorio para auditoría, nunca para orden curricular.
+
+La provenance de generator/source original es opcional en v1. Admission se aplica solo a la combinación exacta de revision y digest. Un cambio del payload pedagógico exige nueva validación local, revisión humana y decisión; una variación física que conserve el payload canónico no invalida la decisión.
+
+### Publication y active source membership
+
+Active source membership es el conjunto explícitamente declarado de revisiones admitidas que forman un snapshot productivo. No se deriva de enumerar el filesystem: artifact físicamente presente no equivale a active source member.
+
+Cada declaración de membership identificará como mínimo:
+
+- `unit_id`;
+- `candidate_revision`;
+- `content_digest`;
+- referencia inequívoca al admission record correspondiente.
+
+Admission record y membership declaration son hechos separados: el primero autoriza publication y el segundo declara que ya ocurrió. No se introducen más estados. Una candidate pending o rejected puede conservarse como artifact o historial, pero nunca pertenecer al active snapshot. Puede existir historial de varias revisiones, pero habrá como máximo una revisión activa por `unit_id` dentro de un snapshot.
+
+Una lectura productiva observará un snapshot estable, con identificador o revisión propio y lista explícita de members. Una ejecución no podrá mezclar parcialmente dos publicaciones. El mecanismo físico de atomicidad queda fuera de este contrato.
+
+La futura source podrá entregar candidates activos de múltiples levels y units. No calculará target scope, orden ni completitud: slices 16, 17 y 25 conservan esas responsabilidades.
+
+```text
+candidate source membership
+!= curriculum ordering authority
+```
+
+Filesystem order, filenames, member order, input `Sequence` y orden lexical de `unit_id` nunca definirán precedencia curricular. Esta autoridad permanece exclusivamente en `AuthoritativeCurriculumHierarchy` y `CurriculumUnitPosition`. A su vez, authority de hierarchy no certifica admission, publication, revision ni identidad de candidate payload.
+
+### Source integrity y familias de error
+
+Un active member declarado cuyo payload no existe, no puede leerse o parsearse, no satisface el schema, o no coincide con revision/digest produce **candidate source/acquisition integrity failure**. No se degradará silenciosamente a una candidate ausente del scope.
+
+Un artifact no declarado como active member será ignorado por la fuente productiva. Esto permite conservar drafts, experiments, rejected candidates y backups sin publicarlos. Una misma revisión declarada más de una vez es source integrity failure; no existe silent dedupe.
+
+Se mantienen separadas:
+
+1. **candidate source/acquisition integrity error**: lectura, parsing, schema, digest, revision, membership o snapshot;
+2. **candidate local validation finding**: hallazgo determinista sobre un payload candidate;
+3. **authoritative curricular validation finding**: hallazgo contextual producido posteriormente por las slices autoritativas.
+
+```text
+declared payload unreadable
+!= candidate locally invalid
+!= prerequisite not prepared
+!= authoritative curricular incompatibility
+```
+
+### Relación con la validación autoritativa
+
+La secuencia conceptual es:
+
+```text
+candidate payload
+-> local validation
+-> human review
+-> admission
+-> publication / active source membership
+-> authoritative prerequisite validation flow
+```
+
+La validación autoritativa no es requisito de admission: exigirla produciría circularidad porque necesita precisamente el conjunto publicado. Una futura adquisición entregará una `Sequence[PedagogicalUnitCandidate]` correspondiente a un snapshot activo y esa secuencia podrá suministrarse, sin inferir orden curricular, a `derive_authoritative_prerequisite_validation_flow(...)`.
+
+Admission y publication pertenecen al proceso de construcción curricular; no representan learner state, evidencia del estudiante, progreso ni mastery.
+
+### Invariantes normativas v1
+
+- filesystem presence no implica membership;
+- parseable no implica locally valid;
+- local passed no implica admitted;
+- human-review document presence no implica admission;
+- `pending_human_decisions != []` impide admission;
+- rejected impide active membership;
+- todo active member referencia exactamente contenido admitido y su digest debe coincidir;
+- todo cambio del payload canónico requiere nueva admission;
+- existe como máximo una revisión activa por unit en un snapshot;
+- membership no define orden curricular;
+- hierarchy authority no define candidate admission;
+- artifacts no declarados se ignoran;
+- members declarados ausentes o malformed producen source integrity failure;
+- no existe silent dedupe;
+- una lectura observa un único snapshot estable;
+- la source no calcula scope, orden ni completitud curricular.
+
+### Estado transitorio de A1-U1 y decisiones físicas pendientes
+
+El artifact actual A1-U1 permanece pending y non-member mientras conserve `validation_report.status="pending"`, coverage/review `pending_approval`, decisiones humanas pendientes y ausencia de admission record y membership declaration. No está rejected. Para publicarse deberá resolver pendientes, fijar el payload final, superar validación local recalculada, recibir revisión humana final y obtener admission y membership explícitas.
+
+Un manifest o index explícito parece una representación natural candidata del snapshot, pero su formato permanece undecided. También quedan para el preflight técnico posterior:
+
+- formato de `candidate_revision`;
+- valor inicial de `payload_schema_version`;
+- serialización canónica exacta;
+- formatos físicos de admission record y snapshot/manifest;
+- namespace operativo de `reviewer_id`;
+- mecanismo de publicación atómica.
+
+Estas decisiones físicas no alteran la semántica contractual anterior y no autorizan todavía modelos, loaders, parsers, publishers, DB, endpoints ni servicios productivos.
+
 ## Responsabilidades
 
 ### Validación determinista
