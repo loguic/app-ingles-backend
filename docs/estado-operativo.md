@@ -8,7 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `d860d54`.
+- Último commit publicado y sincronizado: `b1db80e`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante.
 - `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Contrato curricular v1 — Slice estructural 27
 
-Estado técnico: cerrado mediante `35e1396` (`feat add authoritative prerequisite report findings`); cierre documental y publicación pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `35e1396` (`feat add authoritative prerequisite report findings`) y documental de cierre `b1db80e`; primer push confirmado hasta `b1db80e` en `origin/master`.
 
 `derive_authoritative_prerequisite_report_findings(...)` consume únicamente `AuthoritativePrerequisiteValidationStatusDerivation`, conserva esa fuente por identidad y traduce estados ya derivados a findings de representación sin recalcular failed/pending/passed.
 
@@ -55,7 +55,7 @@ Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operatio
 
 ### Contrato curricular v1 — Slice estructural 27
 
-Estado técnico cerrado mediante `35e1396`; cierre documental y publicación pendientes. La derivación pura de report findings está descrita en «Último bloque cerrado».
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `35e1396` y documental de cierre `b1db80e`; primer push confirmado hasta `b1db80e` en `origin/master`. La derivación pura de report findings está descrita en «Último bloque cerrado».
 
 Permanecen fuera `ValidationReport`, su wrapper trazable y la integración con validadores, además de learner state, mastery, runtime y persistencia.
 

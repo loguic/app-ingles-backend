@@ -4341,7 +4341,7 @@ El próximo objetivo es hacer un preflight separado para definir cómo traducir 
 
 ## Contrato curricular v1 — Slice estructural 27
 
-Estado técnico: cerrado mediante `35e1396` (`feat add authoritative prerequisite report findings`); cierre documental y publicación pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits técnico `35e1396` (`feat add authoritative prerequisite report findings`) y documental de cierre `b1db80e`; primer push confirmado hasta `b1db80e` en `origin/master`.
 
 Se añadieron `AuthoritativePrerequisiteReportFindingDerivation` y `derive_authoritative_prerequisite_report_findings(...)`. La derivación pura consume únicamente `AuthoritativePrerequisiteValidationStatusDerivation`, la conserva por identidad y produce findings destinados a futura representación de reporte sin recalcular la clasificación failed/pending/passed.
 
