@@ -4296,3 +4296,17 @@ La conclusión usa closed-world solo respecto al prefijo autoritativo, context c
 Validación vigente, no repetir mientras no cambie código técnico: 12 pruebas específicas PASS; postflight independiente PASS sin findings críticos; 245 pruebas de regresión PASS; suite backend completa, 1700 passed in 13.23s, `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
 
 El próximo objetivo es hacer un preflight separado para decidir si, cuándo y cómo esta conclusión curricular autoritativa debe convertirse en `ValidationFinding` dentro de la validación pedagógica, sin diseñar ni implementar esa integración durante este cierre.
+
+## Contrato curricular v1 — Slice estructural 24
+
+Estado: técnicamente cerrada mediante `82f535b` (`feat add authoritative prerequisite validation findings`); cierre documental, publicación y sincronización pendientes.
+
+Se añadió `validate_authoritative_prerequisite_conclusions(...)`, un validator puro que consume únicamente `CurriculumPrerequisiteAuthoritativeConclusionDerivation`. Cada conclusión ya demostrada produce exactamente un `ValidationFinding` con `validator_id="authoritative_prerequisite_preparation"` y severidad `error`; se preservan orden y multiplicidad por consumption sin sorting, agrupación o deduplicación.
+
+Los `reference_ids` conservan unit, lesson, stage, Skill requerida y estado requerido. El finding representa una contradicción curricular estructural, no learner failure, evaluation failure, mastery ni `globally_unsatisfied`. `ValidationFinding` es representación y no fuente de verdad curricular.
+
+Uncertainties y errores derivativos no producen findings de ninguna severidad; por ello findings vacíos no equivalen por sí solos a validación completamente resuelta. Cannot derive no equivale a not prepared. El validator no recalcula slices 19/22/23, no llama provider, no realiza I/O y no está integrado con `validate_pedagogical_candidate`; esa integración permanece bloqueada hasta una orquestación explícita que preserve por separado proof, conclusions, uncertainties, errores y findings.
+
+Validación vigente, no repetir mientras no cambie código técnico: 8 pruebas específicas PASS; postflight independiente PASS sin findings críticos; 144 pruebas de regresión PASS; suite backend completa, 1708 passed in 13.25s, `PYTEST_EXIT=0`; `git diff --check` PASS. Se conservan `prepare`/`resume`, la regla de no repetición, el cierre por validación y el flujo Codex CLI + Bash, incluida la suite completa directa en Bash cuando corresponda.
+
+El próximo objetivo es hacer un preflight separado para diseñar una orquestación explícita authority → context → `CompleteFromAuthoritativeOrigin` → conclusiones autoritativas → uncertainties/errores → `ValidationFinding` → eventual `ValidationReport`, sin diseñarla ni implementarla durante este cierre.
