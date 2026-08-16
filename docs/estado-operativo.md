@@ -8,101 +8,61 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Último commit publicado y sincronizado: `54770bb`.
-- Todo trabajo curricular parte de una capacidad observable del estudiante.
-- `Skill` significa exclusivamente habilidad pedagógica medible.
+- Git final requerido: limpio y sincronizado con `origin/master`.
+- Todo trabajo curricular parte de una capacidad observable del estudiante; `Skill` significa exclusivamente habilidad pedagógica medible.
 
 ## Último bloque cerrado
 
-### Contrato curricular v1 — Slice estructural 32
+### Admission gate verification — Slice 33
 
-Estado: cerrada, publicada y sincronizada mediante los commits contractual `bdcba96` (`docs define candidate admission decision record`), técnico `d6d0a16` (`feat add candidate admission decision record`) y documental `54770bb` (`docs close candidate admission record slice`); primer push confirmado en `origin/master`. El fallo DNS inicial fue transitorio y se resolvió sin cambios de configuración.
+Estado: cierre técnico completado; publicación documental pendiente de este cierre. Commits ya locales: contractual `0802b2a` (`docs define candidate admission gate verification`) y técnico `922b3dc` (`feat verify candidate admission gates`).
 
-`CandidatePayloadIdentity` queda formalizada como value object frozen de `unit_id`, `candidate_revision`, `payload_schema_version` y `content_digest`. `AdmissionRecord` frozen contiene exactamente `admission_id`, `identity`, `decision`, `reviewer_id` y `decided_at`; consume identity conforme sin recanonicalizar ni recalcular digest.
+`AdmissionGateVerification` es evidencia frozen de cuatro gates y solo cuatro: `identity_matches`, `local_validation_passed`, `pending_human_decisions_clear` y `human_decision_admitted`. `verified` es su AND derivado. `AdmissionRecord(decision="admitted")` no equivale a gates verificados; `verified` no equivale a publication, active source membership ni validación curricular autoritativa.
 
-Solo admite/rechaza decisiones `admitted`/`rejected`; pending es ausencia de decisión final y `admitted` != gates verificados. IDs opacos caller-provided no blank se preservan literalmente. `decided_at` exige `datetime` UTC-aware con offset cero y conserva microsegundos. No hay I/O, validación local, membership ni flow. A1-U1 sigue pending/non-member; loader BLOCKED.
+La verificación pura consume candidate y `AdmissionRecord`; toma la revision del record, deriva una identity una vez y la compara estructuralmente, recalcula local validation una vez e ignora el report embebido. Requiere `pending_human_decisions == []` y decisión `admitted`, sin short-circuit en negativos normales. Conserva identity derivada, record y report recalculado. Mismatch, local `failed`/`pending`, pendientes y `rejected` devuelven `verified=False`; versión de payload no soportada y errores de derivación/validator se propagan. No hay I/O, source integrity, publication, membership, snapshot, manifest, loader, findings nuevos, status propio ni flujo autoritativo.
 
-El postflight corrigió antes de regresión el chequeo runtime de `decision`: exige `str` antes del literal y cubre non-str ordinario e igualdad personalizada. Validación vigente: 24 específicas PASS; re-postflight PASS; regresión 132 passed in 0.61s y suite completa Bash 1812 passed in 21.30s, ambos `PYTEST_EXIT=0`; `git diff --check` PASS.
-
-## Automatización disponible
-
-- `operational_state.py` valida y resume este checkpoint.
-- `conversation_checkpoint.py prepare|resume` prepara y recupera una vista efímera validada para cambiar de conversación.
-- `block_close.py` ejecuta validaciones técnicas y staging controlado.
-- `block_workflow.py` conserva una deuda de interrupción y no se considera fiable para cierres desatendidos.
-
-## Método operativo vigente
-
-Cada slice pasa por definición, implementación técnica, validación específica, revisión independiente y cierre documental. Las regresiones y suites amplias se ejecutan solo cuando el alcance y riesgo las justifican. Los commits y la publicación permanecen bajo confirmación humana.
-
-El protocolo operativo conserva Codex CLI + Bash y `docs/estado-operativo.md` como fuente canónica para cambiar de conversación. No deben repetirse inspecciones ni validaciones vigentes si los archivos cubiertos no han cambiado. Si una regresión queda indeterminada en Codex, se ejecuta una sola vez directamente en Bash; la suite completa también se ejecuta directamente en Bash cuando corresponda.
-
-Antes de cambiar: actualizar `docs/estado-operativo.md`, validarlo con `operational_state.py`, ejecutar `conversation_checkpoint.py prepare` y cambiar únicamente si genera un checkpoint válido. Al reanudar: ejecutar `conversation_checkpoint.py resume`, recuperar ese estado antes de proponer comandos, inspecciones o cambios, y no repetir validaciones vigentes.
-
-## Fronteras obligatorias
-
-- preparación curricular ≠ ejecución del estudiante ≠ evidencia real ≠ resultado de evaluación ≠ aprendizaje ≠ mastery;
-- `required_stages` y `SkillCoverage` son contratos heredados y no producen `CurriculumPreparationState`;
-- no modificar todavía `PedagogicalUnitSpecification.prerequisites`;
-- no modificar `SkillCoverage` ni `required_stages`;
-- no exigir un plan por lección ni implementar ledger, agregación curricular definitiva por `Skill`, orden interunidad o CEFR, ciclos, orden intra-stage o prerrequisitos;
-- no modificar runtime individual, progreso, mastery, fonética, feedback ni B181.
-- disponibilidad curricular ≠ recorrido del learner ≠ evidencia real ≠ progreso ≠ mastery.
+Validación confirmada: 17 específicas PASS; postflight técnico PASS; regresión seleccionada 149 passed en 0.63s (`PYTEST_EXIT=0`); suite backend completa directa en Bash 1829 passed en 21.46s (`PYTEST_EXIT=0`); `git diff --check` técnico PASS. A1-U1 sigue pending / non-member. Loader continúa BLOCKED.
 
 ## Bloque activo
 
-### Admission gate verification — preflight técnico
-
-Definir únicamente una verificación pura que combine candidate exacto, `CandidatePayloadIdentity`, validación local recalculada, decisiones pendientes y `AdmissionRecord`, sin circularidad. No asumir servicio, resultado, status, findings ni integración con membership/snapshot.
-
-AdmissionRecord no verifica gates ni publica; membership/snapshot, loader y publisher siguen fuera. Loader continúa BLOCKED. Si el background de Codex se interrumpe, conservar Codex CLI + Bash y ejecutar la suite completa directamente en Bash; no repetir validaciones vigentes sin cambios técnicos.
+No hay implementación activa mientras finaliza este cierre documental. No desbloquear loader ni diseñar publication, membership, snapshot, manifest, loader, publisher, source format o filesystem enumeration.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
-Estado: **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**.
+Estado: **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**. I1–I4 y correcciones frontend están publicados; la reanudación depende de construcción pedagógica canónica A1 y una nueva validación humana.
 
-I1–I4 y las correcciones frontend están publicados. No existe un fallo técnico pendiente. Su reanudación depende de la construcción pedagógica canónica A1 y de generar después un candidato adecuado para repetir la validación humana. La segunda validación humana permanece pausada, no completada.
+## Automatización disponible
+
+- `operational_state.py` valida este checkpoint.
+- `conversation_checkpoint.py prepare|resume` prepara y recupera una vista efímera validada al cambiar de conversación.
+- `block_close.py` realiza validaciones técnicas y staging controlado.
+- `block_workflow.py` conserva una deuda de interrupción y no es fiable para cierres desatendidos.
+
+## Método operativo vigente
+
+Cada slice pasa por definición, implementación, validación específica, revisión independiente y cierre documental. No repetir inspecciones ni validaciones ya confirmadas mientras no cambien los archivos cubiertos. Operar con Codex CLI + Bash; si una regresión en Codex queda indeterminada, ejecutarla una sola vez directamente en Bash. La suite backend completa se ejecuta directamente en Bash cuando corresponde.
+
+Antes de cambiar de conversación: actualizar este documento, validarlo con `operational_state.py`, ejecutar `conversation_checkpoint.py prepare` y cambiar solo con checkpoint válido. Al reanudar: usar `conversation_checkpoint.py resume` antes de proponer comandos, inspecciones o cambios.
+
+## Fronteras obligatorias
+
+- preparación curricular ≠ ejecución del estudiante ≠ evidencia real ≠ evaluación ≠ aprendizaje ≠ mastery;
+- admission verificada ≠ publication ≠ active membership ≠ compatibilidad curricular autoritativa;
+- `required_stages` y `SkillCoverage` heredados no producen `CurriculumPreparationState`;
+- no modificar todavía `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage`, `required_stages`, runtime, progreso, mastery, fonética, feedback ni B181;
+- membership no define orden curricular; hierarchy authority no certifica admission.
 
 ## Próximo objetivo
 
-Hacer un preflight técnico separado de verificación pura de admission gates sobre candidate exacto, `CandidatePayloadIdentity`, validación local recalculada, decisiones pendientes y `AdmissionRecord`, sin circularidad ni diseñar aún servicio, resultado, status, findings o membership/snapshot.
+Hacer únicamente el preflight técnico de la capacidad posterior que consume una `AdmissionGateVerification` ya producida y define la frontera entre verified admission y publication / active source membership. No diseñar todavía modelo, manifest, snapshot, publisher, loader, source format ni filesystem enumeration.
 
 ## Archivos clave
 
-- `docs/estado-operativo.md`;
+- `docs/estado-operativo.md` y `docs/bitacora.md`;
 - `docs/curriculum-preparation-prerequisites-contract-v1.md`;
+- `scripts/engineering/operational_state.py`;
 - `scripts/engineering/conversation_checkpoint.py`;
-- `tests/test_conversation_checkpoint.py`;
-- `app/schemas/pedagogical_unit.py`;
-- `tests/test_curriculum_capability_schema.py`;
-- `app/services/pedagogical_capability_artifact_reference_validation.py`;
-- `app/services/pedagogical_validation_service.py`;
-- `tests/test_pedagogical_capability_artifact_reference_validation.py`;
-- `app/services/pedagogical_capability_artifact_state_validation.py`;
-- `tests/test_pedagogical_capability_artifact_state_validation.py`;
-- `app/services/pedagogical_capability_claim_availability.py`;
-- `app/services/pedagogical_capability_claim_precedence_validation.py`;
-- `tests/test_pedagogical_capability_claim_precedence_validation.py`;
-- `app/services/pedagogical_capability_preparation_snapshot.py`;
-- `tests/test_pedagogical_capability_preparation_snapshot.py`;
-- `app/services/pedagogical_local_capability_preparation_view.py`;
-- `tests/test_pedagogical_local_capability_preparation_view.py`;
-- `app/services/pedagogical_local_skill_prerequisite_consumption.py`;
-- `tests/test_pedagogical_local_skill_prerequisite_consumption.py`;
-- `app/services/pedagogical_local_skill_prerequisite_assessment.py`;
-- `tests/test_pedagogical_local_skill_prerequisite_assessment.py`;
-- `app/services/pedagogical_curriculum_order.py`;
-- `tests/test_pedagogical_curriculum_order.py`;
-- `app/services/pedagogical_curriculum_unit_position.py`;
-- `tests/test_pedagogical_curriculum_unit_position.py`;
-- `app/services/pedagogical_curriculum_candidate_correspondence.py`;
-- `tests/test_pedagogical_curriculum_candidate_correspondence.py`;
-- `app/services/pedagogical_curriculum_context_scope.py`;
-- `tests/test_pedagogical_curriculum_context_scope.py`;
-- `app/services/pedagogical_ordered_curriculum_candidate_context.py`;
-- `tests/test_pedagogical_ordered_curriculum_candidate_context.py`;
-- `app/services/pedagogical_accumulated_curriculum_preparation.py`;
-- `tests/test_pedagogical_accumulated_curriculum_preparation.py`;
-- `app/services/pedagogical_curriculum_skill_prerequisite_assessment.py` y `tests/test_pedagogical_curriculum_skill_prerequisite_assessment.py`;
-- `docs/modelo-pedagogico-maestro.md`;
-- `docs/roadmap.md` y `docs/bitacora.md`.
+- `app/services/pedagogical_candidate_payload_identity.py`;
+- `app/services/pedagogical_candidate_admission.py`;
+- `app/services/pedagogical_candidate_admission_verification.py`;
+- `app/services/pedagogical_validation_service.py`.

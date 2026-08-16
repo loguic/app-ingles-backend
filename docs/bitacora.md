@@ -4422,3 +4422,15 @@ Los IDs son strings opacos caller-provided, non-blank y literales. Las únicas d
 El postflight detectó que pertenencia a los literales no garantizaba `str` real para `decision`; se corrigió antes de regresión con `isinstance(decision, str)` y tests para non-str ordinario y objeto con igualdad personalizada. Validación vigente: 24 específicas PASS; re-postflight PASS; regresión seleccionada 132 passed in 0.61s (`PYTEST_EXIT=0`); suite backend completa directa en Bash 1812 passed in 21.30s (`PYTEST_EXIT=0`); `git diff --check` PASS. A1-U1 continúa pending/non-member y loader BLOCKED.
 
 La siguiente frontera es un preflight técnico de verificación pura de admission gates que combine candidate exacto, identity, validación local recalculada, pending decisions y AdmissionRecord sin circularidad; no asumir todavía servicio, resultado, status, findings ni integración con membership/snapshot.
+
+## Admission gate verification — Slice 33
+
+Estado: cerrada técnicamente; publicación documental pendiente de este cierre. Se versionó el contrato en `0802b2a` (`docs define candidate admission gate verification`) y se implementó en `922b3dc` (`feat verify candidate admission gates`).
+
+`AdmissionGateVerification` es una evidencia frozen de exactamente `identity_matches`, `local_validation_passed`, `pending_human_decisions_clear` y `human_decision_admitted`; `verified` es el AND derivado. Un record `admitted` no prueba los gates, y verified admission no equivale a publication, active source membership ni validación curricular autoritativa.
+
+La verificación pura consume `PedagogicalUnitCandidate` y `AdmissionRecord`, toma la revision exclusivamente del record, deriva una `CandidatePayloadIdentity` una vez, compara sus cuatro dimensiones y recalcula `validate_pedagogical_candidate(...)` una vez. El report embebido no es evidencia; exige `pending_human_decisions == []` y decisión `admitted`, evalúa todos los gates sin short-circuit y conserva identity derivada, record y report recalculado. Mismatch, local failed/pending, decisiones pendientes y rejected son `verified=False`; versión no soportada y errores de derivación/validator son errores técnicos explícitos. No incorpora I/O, source integrity, publication, membership, snapshot, manifest, loader, findings, status propio ni slices 25–29.
+
+Validación: 17 específicas PASS; postflight técnico PASS; regresión seleccionada 149 passed en 0.63s (`PYTEST_EXIT=0`); suite backend completa directa en Bash 1829 passed en 21.46s (`PYTEST_EXIT=0`); `git diff --check` técnico PASS. A1-U1 permanece pending / non-member; loader BLOCKED.
+
+La siguiente frontera es solo un preflight técnico para una capacidad que consuma una `AdmissionGateVerification` ya producida y delimite verified admission frente a publication / active source membership, sin diseñar modelo, manifest, snapshot, publisher, loader, source format ni filesystem enumeration.
