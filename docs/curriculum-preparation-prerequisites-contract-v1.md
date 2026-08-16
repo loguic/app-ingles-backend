@@ -966,6 +966,27 @@ La verificación es pura respecto a I/O: no accede a filesystem, environment, DB
 
 `AdmissionGateVerification.verified == true` no equivale a publication, active source membership ni authoritative prerequisite validation. No comprueba artifact físico, revisión declarada físicamente, digest contra bytes de archivo, duplicados de `AdmissionRecord`, unicidad global de `admission_id` ni membership declaration; esas responsabilidades permanecen posteriores. Tampoco ejecuta ni reinterpreta slices 25–29. A1-U1 permanece pending / non-member: esta capacidad no se ejecuta sobre ese artifact ni infiere verified admission.
 
+#### Active candidate membership v1
+
+`ActiveCandidateMembership` es el value object lógico, machine-readable e inmutable que declara el estado activo actual de una revisión exacta incorporada a la fuente productiva. No representa evento ni historial de publication, acción de publisher, snapshot completo, source integrity ni posición curricular. Contiene exactamente:
+
+- `identity: CandidatePayloadIdentity`;
+- `admission_id: str`.
+
+No contiene `active`, `publication_id`, timestamp, actor, reviewer, `AdmissionRecord`, `AdmissionGateVerification`, `ValidationReport`, candidate, status, findings, `source_id`, ordinal, position ni `snapshot_id`. Que una instancia se denomine active membership ya expresa su estado activo; la metadata de reviewer, decisión y timestamp permanece exclusivamente en el `AdmissionRecord` referido por `admission_id`.
+
+La única derivación conceptual v1 es `declare_active_candidate_membership(admission_verification: AdmissionGateVerification) -> ActiveCandidateMembership`. Consume exclusivamente esa verification, sin recibir identity, admission ID, unit, revision, digest, candidate ni record separados. Su precondición es `admission_verification.verified is True`; si es false, no existe una membership que construir y la implementación futura deberá fallar explícitamente como violación de precondición/invariante —por ejemplo, mediante `ValueError`—, nunca devolver una membership inactiva, status, finding, `None` silencioso ni resultado negativo paralelo.
+
+Una derivación válida conserva exactamente `identity=admission_verification.derived_identity` y `admission_id=admission_verification.admission_record.admission_id`. Con `verified=True`, la identity derivada ya coincide estructuralmente con la identity del record; la factory no la recalcula, no compara digest, no vuelve a ejecutar admission gates, local validation, pending decisions o decision humana, ni revalida schema version. Evidence ya demostrada no se recalcula por cada consumidor.
+
+La creación de un `ActiveCandidateMembership` válido es la declaración machine-readable de que esa revisión exacta pasó a ser miembro activo: verified admission más esta declaración establece el salto contractual hacia active membership. Crear este value object puro no es persistir físicamente un manifest, snapshot o file ni prueba source integrity. No se introduce `PublicationEligibility`: `AdmissionGateVerification.verified` ya es la precondición necesaria. Tampoco se introducen `PublicationRecord`, `PublicationEvent` o publication ID porque v1 no requiere historial de actos de publication.
+
+Una entry individual no puede probar que exista como máximo una revisión activa por `identity.unit_id`, ni detectar duplicados o definir el reemplazo entre revisiones. Una futura colección/snapshot de `ActiveCandidateMembership` agrupará entries, impondrá esa unicidad y será el contexto de duplicados, replacement, consistencia y atomicidad; esta subsección no define su clase, secuencia, algoritmo ni formato físico. Membership no determina curriculum order y no incorpora posición, sequence, ordinal ni coordenadas de hierarchy.
+
+La declaración atómica no verifica existencia o bytes de artifact, revision física, digest contra archivo, parseabilidad, manifest ni enumeración de source: declared active membership != physical source integrity demonstrated. Una capa futura de source integrity comprobará que la representación física corresponde a las memberships declaradas. Active membership tampoco equivale a authoritative prerequisite compatibility y no ejecuta ni reinterpreta slices 25–29.
+
+Machine-readable aquí significa value object tipado, frozen, invariantes deterministas y factory pura; no JSON persistido, manifest, DB row, API resource ni filesystem file. La futura factory no accede a filesystem, environment, DB, network, clock, random, file hashes, artifact loading ni source enumeration. A1-U1 permanece pending / non-member y no recibe una membership. Loader continúa BLOCKED: aún faltan colección/snapshot, unicidad/replacement, representación y adquisición de source, source/artifact integrity, consistencia de snapshot y loader.
+
 ### Publication y active source membership
 
 Active source membership es el conjunto explícitamente declarado de revisiones admitidas que forman un snapshot productivo. No se deriva de enumerar el filesystem: artifact físicamente presente no equivale a active source member.
