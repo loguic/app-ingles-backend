@@ -15,7 +15,7 @@ Formato: checkpoint operativo compacto
 
 ### Admission gate verification — Slice 33
 
-Estado: cierre técnico completado; publicación documental pendiente de este cierre. Commits ya locales: contractual `0802b2a` (`docs define candidate admission gate verification`) y técnico `922b3dc` (`feat verify candidate admission gates`).
+Estado: cerrada, publicada y sincronizada mediante los commits contractual `0802b2a` (`docs define candidate admission gate verification`), técnico `922b3dc` (`feat verify candidate admission gates`) y documental de cierre `9ed32e2` (`docs close candidate admission gate verification slice`).
 
 `AdmissionGateVerification` es evidencia frozen de cuatro gates y solo cuatro: `identity_matches`, `local_validation_passed`, `pending_human_decisions_clear` y `human_decision_admitted`. `verified` es su AND derivado. `AdmissionRecord(decision="admitted")` no equivale a gates verificados; `verified` no equivale a publication, active source membership ni validación curricular autoritativa.
 

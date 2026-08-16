@@ -4425,7 +4425,7 @@ La siguiente frontera es un preflight técnico de verificación pura de admissio
 
 ## Admission gate verification — Slice 33
 
-Estado: cerrada técnicamente; publicación documental pendiente de este cierre. Se versionó el contrato en `0802b2a` (`docs define candidate admission gate verification`) y se implementó en `922b3dc` (`feat verify candidate admission gates`).
+Estado: cerrada, publicada y sincronizada mediante el contrato `0802b2a` (`docs define candidate admission gate verification`), la implementación `922b3dc` (`feat verify candidate admission gates`) y el cierre documental `9ed32e2` (`docs close candidate admission gate verification slice`).
 
 `AdmissionGateVerification` es una evidencia frozen de exactamente `identity_matches`, `local_validation_passed`, `pending_human_decisions_clear` y `human_decision_admitted`; `verified` es el AND derivado. Un record `admitted` no prueba los gates, y verified admission no equivale a publication, active source membership ni validación curricular autoritativa.
 
