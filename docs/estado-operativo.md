@@ -13,19 +13,21 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Admission gate verification — Slice 33
+### Active candidate membership — Slice 34
 
-Estado: cerrada, publicada y sincronizada mediante los commits contractual `0802b2a` (`docs define candidate admission gate verification`), técnico `922b3dc` (`feat verify candidate admission gates`) y documental de cierre `9ed32e2` (`docs close candidate admission gate verification slice`).
+Estado técnico completado localmente mediante los commits contractual `df3a9cd` (`docs define active candidate membership`) y técnico `6c481a5` (`feat add active candidate membership`). Publicación y cierre documental aún pendientes.
 
-`AdmissionGateVerification` es evidencia frozen de cuatro gates y solo cuatro: `identity_matches`, `local_validation_passed`, `pending_human_decisions_clear` y `human_decision_admitted`. `verified` es su AND derivado. `AdmissionRecord(decision="admitted")` no equivale a gates verificados; `verified` no equivale a publication, active source membership ni validación curricular autoritativa.
+`ActiveCandidateMembership` es un value object frozen con exactamente `identity: CandidatePayloadIdentity` y `admission_id: str`. Se construye exclusivamente mediante `declare_active_candidate_membership(admission_verification)` y solo cuando `AdmissionGateVerification.verified` es verdadero; una verification no verificada produce `ValueError`.
 
-La verificación pura consume candidate y `AdmissionRecord`; toma la revision del record, deriva una identity una vez y la compara estructuralmente, recalcula local validation una vez e ignora el report embebido. Requiere `pending_human_decisions == []` y decisión `admitted`, sin short-circuit en negativos normales. Conserva identity derivada, record y report recalculado. Mismatch, local `failed`/`pending`, pendientes y `rejected` devuelven `verified=False`; versión de payload no soportada y errores de derivación/validator se propagan. No hay I/O, source integrity, publication, membership, snapshot, manifest, loader, findings nuevos, status propio ni flujo autoritativo.
+La membership preserva exactamente `admission_verification.derived_identity` y `admission_verification.admission_record.admission_id`. No recalcula identity, validación local, gates, schema version ni digest. No incorpora candidate, AdmissionRecord completo, status, findings, timestamp, actor, publication ID, source ID, orden curricular ni estado de snapshot.
 
-Validación confirmada: 17 específicas PASS; postflight técnico PASS; regresión seleccionada 149 passed en 0.63s (`PYTEST_EXIT=0`); suite backend completa directa en Bash 1829 passed en 21.46s (`PYTEST_EXIT=0`); `git diff --check` técnico PASS. A1-U1 sigue pending / non-member. Loader continúa BLOCKED.
+`AdmissionGateVerification.verified` no equivale por sí solo a membership activa: la declaración explícita `ActiveCandidateMembership` representa el salto contractual hacia active membership. La entidad atómica no equivale a persistencia física, snapshot, source integrity, curriculum order ni compatibilidad curricular autoritativa. La regla de máximo una revisión activa por unit pertenece a una futura colección/snapshot.
+
+Validación confirmada: 3 pruebas específicas PASS; revisión técnica manual PASS; regresión seleccionada 152 passed en 0.64s (`PYTEST_EXIT=0`); suite backend completa directa en Bash 1832 passed en 20.47s (`PYTEST_EXIT=0`); `git diff --check` PASS. A1-U1 sigue pending / non-member. Loader continúa BLOCKED.
 
 ## Bloque activo
 
-No hay implementación activa mientras finaliza este cierre documental. No desbloquear loader ni diseñar publication, membership, snapshot, manifest, loader, publisher, source format o filesystem enumeration.
+Cierre documental de la slice 34 en curso. Los commits `df3a9cd` y `6c481a5` permanecen locales hasta completar documentación, validación y publicación. No implementar todavía snapshot, collection, manifest, source integrity ni loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -54,7 +56,7 @@ Antes de cambiar de conversación: actualizar este documento, validarlo con `ope
 
 ## Próximo objetivo
 
-Hacer únicamente el preflight técnico de la capacidad posterior que consume una `AdmissionGateVerification` ya producida y define la frontera entre verified admission y publication / active source membership. No diseñar todavía modelo, manifest, snapshot, publisher, loader, source format ni filesystem enumeration.
+Después de cerrar y publicar la slice 34, hacer únicamente el preflight técnico de la futura colección/snapshot de `ActiveCandidateMembership`: agrupación, máximo una revisión activa por unit y frontera de replacement/consistencia. No diseñar todavía representación física, manifest, source acquisition, source integrity ni loader.
 
 ## Archivos clave
 
@@ -65,4 +67,5 @@ Hacer únicamente el preflight técnico de la capacidad posterior que consume un
 - `app/services/pedagogical_candidate_payload_identity.py`;
 - `app/services/pedagogical_candidate_admission.py`;
 - `app/services/pedagogical_candidate_admission_verification.py`;
+- `app/services/pedagogical_active_candidate_membership.py`;
 - `app/services/pedagogical_validation_service.py`.

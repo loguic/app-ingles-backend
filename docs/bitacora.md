@@ -4434,3 +4434,17 @@ La verificación pura consume `PedagogicalUnitCandidate` y `AdmissionRecord`, to
 Validación: 17 específicas PASS; postflight técnico PASS; regresión seleccionada 149 passed en 0.63s (`PYTEST_EXIT=0`); suite backend completa directa en Bash 1829 passed en 21.46s (`PYTEST_EXIT=0`); `git diff --check` técnico PASS. A1-U1 permanece pending / non-member; loader BLOCKED.
 
 La siguiente frontera es solo un preflight técnico para una capacidad que consuma una `AdmissionGateVerification` ya producida y delimite verified admission frente a publication / active source membership, sin diseñar modelo, manifest, snapshot, publisher, loader, source format ni filesystem enumeration.
+
+## Active candidate membership — Slice 34
+
+Estado técnico completado localmente mediante los commits contractual `df3a9cd` (`docs define active candidate membership`) y técnico `6c481a5` (`feat add active candidate membership`). Publicación y cierre documental final aún pendientes.
+
+Se añadió `ActiveCandidateMembership`, un value object frozen con exactamente `identity: CandidatePayloadIdentity` y `admission_id: str`, junto con `declare_active_candidate_membership(admission_verification)`. La factory consume únicamente una `AdmissionGateVerification` ya producida, exige `verified=True` y rechaza una verification no verificada mediante `ValueError`.
+
+La declaración preserva exactamente `admission_verification.derived_identity` y `admission_verification.admission_record.admission_id`. No recalcula identity, local validation, gates, payload schema version ni digest. Tampoco copia candidate, AdmissionRecord completo, ValidationReport, reviewer, timestamps, actor, publication ID, source ID, status, findings ni orden curricular.
+
+`AdmissionGateVerification.verified=True` continúa sin equivaler por sí solo a active membership: la membership aparece únicamente mediante la declaración explícita `ActiveCandidateMembership`. La entry atómica no equivale a persistencia física, snapshot, source integrity, curriculum order ni compatibilidad curricular autoritativa. La regla de máximo una revisión activa por unit, junto con duplicados, replacement y consistencia global, permanece en una futura colección/snapshot.
+
+Validación confirmada: 3 pruebas específicas PASS; revisión técnica manual PASS; regresión seleccionada 152 passed en 0.64s (`PYTEST_EXIT=0`); suite backend completa directa en Bash 1832 passed en 20.47s (`PYTEST_EXIT=0`); `git diff --check` PASS. A1-U1 continúa pending / non-member y loader sigue BLOCKED.
+
+El próximo objetivo, después de cerrar y publicar esta slice, es un preflight técnico separado para definir únicamente la futura colección/snapshot de `ActiveCandidateMembership`: agrupación, máximo una revisión activa por unit y frontera de replacement/consistencia, sin diseñar todavía representación física, manifest, source acquisition, source integrity ni loader.
