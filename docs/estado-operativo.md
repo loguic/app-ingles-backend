@@ -15,7 +15,7 @@ Formato: checkpoint operativo compacto
 
 ### Active candidate membership — Slice 34
 
-Estado técnico completado localmente mediante los commits contractual `df3a9cd` (`docs define active candidate membership`) y técnico `6c481a5` (`feat add active candidate membership`). Publicación y cierre documental aún pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits contractual `df3a9cd` (`docs define active candidate membership`), técnico `6c481a5` (`feat add active candidate membership`) y documental de cierre `32b1066` (`docs close active candidate membership slice`). Primer push confirmado en `origin/master` hasta `32b1066`.
 
 `ActiveCandidateMembership` es un value object frozen con exactamente `identity: CandidatePayloadIdentity` y `admission_id: str`. Se construye exclusivamente mediante `declare_active_candidate_membership(admission_verification)` y solo cuando `AdmissionGateVerification.verified` es verdadero; una verification no verificada produce `ValueError`.
 
@@ -27,7 +27,7 @@ Validación confirmada: 3 pruebas específicas PASS; revisión técnica manual P
 
 ## Bloque activo
 
-Cierre documental de la slice 34 en curso. Los commits `df3a9cd` y `6c481a5` permanecen locales hasta completar documentación, validación y publicación. No implementar todavía snapshot, collection, manifest, source integrity ni loader.
+No hay implementación activa. La slice 34 está cerrada y publicada. No implementar todavía snapshot, collection, manifest, source integrity ni loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 

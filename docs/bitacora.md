@@ -4437,7 +4437,7 @@ La siguiente frontera es solo un preflight técnico para una capacidad que consu
 
 ## Active candidate membership — Slice 34
 
-Estado técnico completado localmente mediante los commits contractual `df3a9cd` (`docs define active candidate membership`) y técnico `6c481a5` (`feat add active candidate membership`). Publicación y cierre documental final aún pendientes.
+Estado: cerrada, publicada y sincronizada mediante los commits contractual `df3a9cd` (`docs define active candidate membership`), técnico `6c481a5` (`feat add active candidate membership`) y documental de cierre `32b1066` (`docs close active candidate membership slice`). Primer push confirmado en `origin/master` hasta `32b1066`.
 
 Se añadió `ActiveCandidateMembership`, un value object frozen con exactamente `identity: CandidatePayloadIdentity` y `admission_id: str`, junto con `declare_active_candidate_membership(admission_verification)`. La factory consume únicamente una `AdmissionGateVerification` ya producida, exige `verified=True` y rechaza una verification no verificada mediante `ValueError`.
 
