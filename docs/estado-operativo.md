@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-20
+Actualizado: 2026-08-21
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Active candidate membership collection — Slice 35
 
-Estado: cerrada técnicamente de forma local mediante el commit `46a293c` (`feat add active candidate membership collection`); pendiente de commit documental y push. `master` está por delante de `origin/master` únicamente por ese commit técnico.
+Estado: cerrada, publicada y sincronizada mediante el commit técnico `46a293c` (`feat add active candidate membership collection`) y el cierre documental `9195537` (`docs close active candidate membership collection slice`). Push confirmado en `origin/master` desde `e79aa4a` hasta `9195537`.
 
 `ActiveCandidateMembershipCollection` es un value object frozen con exactamente `memberships: tuple[ActiveCandidateMembership, ...]`. `build_active_candidate_membership_collection(memberships: Sequence[ActiveCandidateMembership])` materializa el input una sola vez, acepta vacío, preserva orden e identidades de las memberships y queda aislada de mutaciones posteriores de la sequence original.
 
@@ -30,7 +30,7 @@ Primer piloto de routing: preflight arquitectónico `Sol / high` (A=2, I=2, R=2,
 
 ## Bloque activo
 
-No hay implementación técnica activa. La slice 35 está cerrada técnicamente y pendiente solo de cierre documental/publicación. No implementar productive snapshot, manifest, source integrity ni loader.
+No hay implementación técnica activa. La slice 35 está cerrada, publicada y sincronizada. No implementar productive snapshot, manifest, source integrity ni loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 

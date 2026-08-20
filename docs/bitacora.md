@@ -4457,7 +4457,7 @@ El próximo objetivo, después de cerrar y publicar esta slice, es un preflight 
 
 ## Active candidate membership collection — Slice 35
 
-Estado: cerrada técnicamente de forma local mediante `46a293c` (`feat add active candidate membership collection`); pendiente de este cierre documental y de push.
+Estado: cerrada, publicada y sincronizada mediante `46a293c` (`feat add active candidate membership collection`) y `9195537` (`docs close active candidate membership collection slice`); push confirmado en `origin/master` desde `e79aa4a` hasta `9195537`.
 
 El preflight resolvió que se implementaría únicamente una collection lógica pura, no un productive snapshot: una collection inmutable puede representar un conjunto coherente, pero el snapshot productivo requiere identidad o revisión propia y atomicidad de lectura aún no contratadas.
 
