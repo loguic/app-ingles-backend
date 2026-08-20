@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-16
+Actualizado: 2026-08-20
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -14,21 +14,23 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Active candidate membership — Slice 34
+### Active candidate membership collection — Slice 35
 
-Estado: cerrada, publicada y sincronizada mediante los commits contractual `df3a9cd` (`docs define active candidate membership`), técnico `6c481a5` (`feat add active candidate membership`) y documental de cierre `32b1066` (`docs close active candidate membership slice`). Primer push confirmado en `origin/master` hasta `32b1066`.
+Estado: cerrada técnicamente de forma local mediante el commit `46a293c` (`feat add active candidate membership collection`); pendiente de commit documental y push. `master` está por delante de `origin/master` únicamente por ese commit técnico.
 
-`ActiveCandidateMembership` es un value object frozen con exactamente `identity: CandidatePayloadIdentity` y `admission_id: str`. Se construye exclusivamente mediante `declare_active_candidate_membership(admission_verification)` y solo cuando `AdmissionGateVerification.verified` es verdadero; una verification no verificada produce `ValueError`.
+`ActiveCandidateMembershipCollection` es un value object frozen con exactamente `memberships: tuple[ActiveCandidateMembership, ...]`. `build_active_candidate_membership_collection(memberships: Sequence[ActiveCandidateMembership])` materializa el input una sola vez, acepta vacío, preserva orden e identidades de las memberships y queda aislada de mutaciones posteriores de la sequence original.
 
-La membership preserva exactamente `admission_verification.derived_identity` y `admission_verification.admission_record.admission_id`. No recalcula identity, validación local, gates, schema version ni digest. No incorpora candidate, AdmissionRecord completo, status, findings, timestamp, actor, publication ID, source ID, orden curricular ni estado de snapshot.
+La collection exige como máximo una membership por `identity.unit_id` y `admission_id` globalmente único; cualquier duplicado produce `ValueError` que identifica el valor duplicado. No hay dedupe, selección de ganadora, replacement implícito ni regla redundante de identity global.
 
-`AdmissionGateVerification.verified` no equivale por sí solo a membership activa: la declaración explícita `ActiveCandidateMembership` representa el salto contractual hacia active membership. La entidad atómica no equivale a persistencia física, snapshot, source integrity, curriculum order ni compatibilidad curricular autoritativa. La regla de máximo una revisión activa por unit pertenece a una futura colección/snapshot.
+Fronteras: admission verificada ≠ active membership ≠ membership collection ≠ productive snapshot ≠ representación física. La collection no recalcula gates ni identity, no reconstruye linkage con `AdmissionRecord`, no incorpora transición/replacement, historial, eventos, I/O, manifest, source integrity, loader, orden curricular ni compatibilidad curricular autoritativa.
 
-Validación confirmada: 3 pruebas específicas PASS; revisión técnica manual PASS; regresión seleccionada 152 passed en 0.64s (`PYTEST_EXIT=0`); suite backend completa directa en Bash 1832 passed en 20.47s (`PYTEST_EXIT=0`); `git diff --check` PASS. A1-U1 sigue pending / non-member. Loader continúa BLOCKED.
+Validación confirmada: 12 pruebas específicas PASS en 0.18 s; postflight independiente PASS / READY FOR REGRESSION; regresión seleccionada 69 passed en 0.23 s y suite backend completa 1844 passed en 14.51 s (`PYTEST_EXIT=0`); `git diff --check` real PASS. El finding de postflight —ausencia de `isinstance` explícito en el test de shape— es NONBLOCKING y no requiere cambio. A1-U1 sigue pending / non-member; LOADER = BLOCKED.
+
+Primer piloto de routing: preflight arquitectónico `Sol / high` (A=2, I=2, R=2, V=1, C=1; total 8) fue justificado al detectar `logical collection ≠ productive snapshot` con identidad/revisión propia. Implementación `Terra / medium` fue suficiente, sin escalamiento; postflight `Terra / high` fue suficiente y estimó `Terra / medium` razonable una vez cerrada la frontera. No cambian policy, thresholds ni default `Terra / medium`.
 
 ## Bloque activo
 
-No hay implementación activa. La slice 34 está cerrada y publicada. No implementar todavía snapshot, collection, manifest, source integrity ni loader.
+No hay implementación técnica activa. La slice 35 está cerrada técnicamente y pendiente solo de cierre documental/publicación. No implementar productive snapshot, manifest, source integrity ni loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -50,14 +52,14 @@ Antes de cambiar de conversación: actualizar este documento, validarlo con `ope
 ## Fronteras obligatorias
 
 - preparación curricular ≠ ejecución del estudiante ≠ evidencia real ≠ evaluación ≠ aprendizaje ≠ mastery;
-- admission verificada ≠ publication ≠ active membership ≠ compatibilidad curricular autoritativa;
+- admission verificada ≠ publication ≠ active membership ≠ membership collection ≠ productive snapshot ≠ compatibilidad curricular autoritativa;
 - `required_stages` y `SkillCoverage` heredados no producen `CurriculumPreparationState`;
 - no modificar todavía `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage`, `required_stages`, runtime, progreso, mastery, fonética, feedback ni B181;
-- membership no define orden curricular; hierarchy authority no certifica admission.
+- membership/source state no define orden curricular; hierarchy authority no certifica admission.
 
 ## Próximo objetivo
 
-Después de cerrar y publicar la slice 34, hacer únicamente el preflight técnico de la futura colección/snapshot de `ActiveCandidateMembership`: agrupación, máximo una revisión activa por unit y frontera de replacement/consistencia. No diseñar todavía representación física, manifest, source acquisition, source integrity ni loader.
+Después de cerrar y publicar la slice 35, hacer únicamente el preflight o decisión contractual del productive snapshot: identidad o revisión propia, atomicidad lógica/de lectura y relación con `ActiveCandidateMembershipCollection`. Permanecen pendientes, sin diseñarlas todavía: representación física/manifest, source integrity e integración de carga/loader después de demostrar las capas anteriores.
 
 ## Archivos clave
 
@@ -69,4 +71,5 @@ Después de cerrar y publicar la slice 34, hacer únicamente el preflight técni
 - `app/services/pedagogical_candidate_admission.py`;
 - `app/services/pedagogical_candidate_admission_verification.py`;
 - `app/services/pedagogical_active_candidate_membership.py`;
+- `app/services/pedagogical_active_candidate_membership_collection.py`;
 - `app/services/pedagogical_validation_service.py`.

@@ -4454,3 +4454,19 @@ La declaración preserva exactamente `admission_verification.derived_identity` y
 Validación confirmada: 3 pruebas específicas PASS; revisión técnica manual PASS; regresión seleccionada 152 passed en 0.64s (`PYTEST_EXIT=0`); suite backend completa directa en Bash 1832 passed en 20.47s (`PYTEST_EXIT=0`); `git diff --check` PASS. A1-U1 continúa pending / non-member y loader sigue BLOCKED.
 
 El próximo objetivo, después de cerrar y publicar esta slice, es un preflight técnico separado para definir únicamente la futura colección/snapshot de `ActiveCandidateMembership`: agrupación, máximo una revisión activa por unit y frontera de replacement/consistencia, sin diseñar todavía representación física, manifest, source acquisition, source integrity ni loader.
+
+## Active candidate membership collection — Slice 35
+
+Estado: cerrada técnicamente de forma local mediante `46a293c` (`feat add active candidate membership collection`); pendiente de este cierre documental y de push.
+
+El preflight resolvió que se implementaría únicamente una collection lógica pura, no un productive snapshot: una collection inmutable puede representar un conjunto coherente, pero el snapshot productivo requiere identidad o revisión propia y atomicidad de lectura aún no contratadas.
+
+Se añadió `ActiveCandidateMembershipCollection`, frozen y con exactamente `memberships: tuple[ActiveCandidateMembership, ...]`, junto con `build_active_candidate_membership_collection(...)`. Materializa una `Sequence` una vez, admite vacío, preserva orden e identidad de objetos y queda aislada de mutaciones posteriores del caller.
+
+La collection rechaza con `ValueError` cualquier `identity.unit_id` repetido y cualquier `admission_id` repetido globalmente; el mensaje identifica el valor duplicado. No hay dedupe, selección de ganadora, replacement implícito ni unicidad redundante de identity. No recalcula gates, identity o validación, no reconstruye linkage con `AdmissionRecord` y no añade transición, historial, eventos, manifest, source integrity, loader, I/O ni orden curricular.
+
+Validación: 12 pruebas específicas PASS en 0.18 s; postflight independiente PASS / READY FOR REGRESSION; regresión seleccionada 69 passed en 0.23 s y suite backend completa 1844 passed en 14.51 s (`PYTEST_EXIT=0`); `git diff --check` real PASS. El finding NONBLOCKING del postflight —sin `isinstance` explícito en el test de shape— no requiere cambio.
+
+Primer piloto cualitativo de `docs/loguic-ai-model-routing-policy-v1.md`: preflight `Sol / high` (A=2, I=2, R=2, V=1, C=1; total 8) fue justificado al detectar la frontera collection lógica ≠ productive snapshot. Implementación `Terra / medium` fue suficiente sin escalamiento; postflight `Terra / high` fue suficiente y consideró `Terra / medium` razonable con la frontera ya cerrada. No cambian thresholds, policy ni default.
+
+A1-U1 continúa pending / non-member y no existe active membership productiva. `LOADER = BLOCKED`. La siguiente frontera es un preflight o decisión contractual del productive snapshot —identidad/revisión propia, atomicidad lógica/de lectura y relación con la collection— antes de cualquier representación física/manifest, source integrity o loader.
