@@ -11,6 +11,12 @@
 - Último bloque cerrado integralmente: B180
 - Bloque curricular más reciente: slice estructural 15 cerrada, publicada y sincronizada mediante los commits técnico `aeba506` y documental `ce22f92`; primer push confirmado hasta `ce22f92`; B181 continúa pausado en puerta pedagógica
 
+## Política operativa LOGUIC AI Model Routing v1
+
+- Se versionó `docs/loguic-ai-model-routing-policy-v1.md` como política transversal de ingeniería LOGUIC, alojada en este repositorio como piloto operativo.
+- La v1 define routing por tarea, con default `Terra / medium`, y permanece inicialmente empírica hasta su revisión con evidencia de uso.
+- No forma parte del contrato curricular ni redefine `Skill`, que conserva exclusivamente su significado pedagógico.
+
 ## Historial anterior — B24 a B36
 
 ### B24 — Primera prueba automatizada
