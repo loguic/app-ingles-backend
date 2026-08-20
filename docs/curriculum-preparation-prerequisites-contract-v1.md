@@ -1011,6 +1011,80 @@ candidate source membership
 
 Filesystem order, filenames, member order, input `Sequence` y orden lexical de `unit_id` nunca definirán precedencia curricular. Esta autoridad permanece exclusivamente en `AuthoritativeCurriculumHierarchy` y `CurriculumUnitPosition`. A su vez, authority de hierarchy no certifica admission, publication, revision ni identidad de candidate payload.
 
+### Active candidate source snapshot v1
+
+`ActiveCandidateSourceSnapshot` es la unidad lógica, completa, inmutable e identificada por revisión que declara la totalidad de `ActiveCandidateMembershipCollection` activa para una revisión concreta de la source. Es estado de source activo lógico, no un evento ni una prueba de persistencia física.
+
+Se mantienen obligatoriamente las fronteras:
+
+```text
+logical collection
+!= active source snapshot
+!= publication event
+
+active source snapshot declared
+!= physical publication completed
+!= physical source representation
+!= source integrity proof
+!= loader
+!= curriculum order
+!= authoritative curricular compatibility
+```
+
+La representación lógica v1 contiene exactamente:
+
+- `snapshot_revision: str`;
+- `collection: ActiveCandidateMembershipCollection`.
+
+No contiene `snapshot_id`, `content_digest`, `source_id`, `created_at`, `published_at`, `snapshot_schema_version`, `memberships` duplicadas, status, findings, historial, memberships reemplazadas, event log, `PublicationRecord`, candidate, `AdmissionRecord`, `AdmissionGateVerification` ni metadata curricular.
+
+`snapshot_revision` es un string machine-readable, obligatorio, no vacío ni exclusivamente whitespace, suministrado por el caller y preservado literalmente. No se aplica trim, lowercase, SemVer, UUID automático, timestamp ni generación aleatoria. Es una revisión del conjunto activo completo, no un identificador estable de una entidad snapshot con múltiples revisiones; v1 no define esa entidad y por ello no introduce `snapshot_id`.
+
+Se distingue explícitamente:
+
+```text
+candidate_revision
+!= snapshot_revision
+```
+
+`candidate_revision` identifica la revisión de una unit candidata; `snapshot_revision`, la revisión del conjunto activo completo. Ninguna se deriva de la otra, del digest ni del orden curricular.
+
+El snapshot compone una `ActiveCandidateMembershipCollection` ya conforme y no vuelve a exponer o recalcular `memberships`. Por ello hereda exclusivamente de la collection la validez de vacío, la preservación de orden representacional, la preservación de objetos, la unicidad por `identity.unit_id` y la unicidad global de `admission_id`. Ese orden no define orden curricular.
+
+Un snapshot con collection vacía es estructuralmente válido. No demuestra utilidad, completitud curricular, publicación física ni preparación del loader.
+
+El snapshot será un value object frozen. Si cambia una membership activa, S1 permanece intacto y se construye S2; no existen métodos `add`, `remove`, `replace` ni `update`. Replacement es una transición entre estados y no pertenece a este value object. Tampoco se almacenan snapshots previos ni historia de replacement.
+
+La igualdad v1 es estructural: misma `snapshot_revision` y misma `collection` estructural producen snapshots iguales. Una misma `snapshot_revision` con collection distinta produce objetos estructuralmente distintos que pueden construirse localmente. Reutilizar una `snapshot_revision` con contenido distinto es un conflicto global de source/publication, pero un value object aislado no puede demostrarlo: esa garantía pertenece a una futura registry, historia, source state o capa de persistencia.
+
+No se añade `content_digest` del snapshot. Definirlo exigiría decidir canonical serialization, preimage, schema serializable y representación física; esas responsabilidades permanecen fuera de este contrato lógico y no se adelantan mediante hashing.
+
+El snapshot no verifica admission gates, no deriva `CandidatePayloadIdentity`, no valida `PedagogicalUnitCandidate`, no reconstruye linkage con `AdmissionRecord` y no declara `ActiveCandidateMembership`. Consume únicamente la collection ya conforme.
+
+La atomicidad lógica significa que un consumidor recibe el snapshot como una unidad completa e inmutable, sin observar una collection parcial. La composición e inmutabilidad del value object satisfacen esta propiedad. La atomicidad física —persistir o cambiar una revisión completa de source de forma indivisible— pertenece a futuras capas de publisher, storage y source representation.
+
+Un evento de publicación permanece conceptualmente distinto del snapshot y solo requerirá un `PublicationRecord` si aparece una necesidad real de auditoría o de registrar transiciones. La existencia del snapshot lógico no prueba que haya sido representado, publicado o puesto a disposición físicamente.
+
+Una futura capacidad de source integrity deberá poder contrastar una representación física con `snapshot_revision`, la collection declarada, los candidates o artifacts adquiridos y las identities/digests ya contratados en las memberships. Una futura representación física deberá expresar la revisión del snapshot y sus memberships sin duplicar invariantes; este contrato no elige manifest, JSON, YAML, TOML, formato ni algoritmo.
+
+El loader permanece bloqueado hasta disponer como mínimo de: implementación de este snapshot, representación física explícita, lectura o publicación física atómica, adquisición de candidates/artifacts, source integrity y correspondencia demostrada entre snapshot y candidates adquiridos. La compatibilidad curricular autoritativa continúa siendo responsabilidad posterior al loader.
+
+A1-U1 permanece `pending / non-member`; esta definición no la convierte en membership ni en snapshot productivo real.
+
+La implementación futura prevista será un frozen dataclass interno, coherente con los value objects actuales, con una factory conceptual equivalente a:
+
+```text
+build_active_candidate_source_snapshot(
+    collection: ActiveCandidateMembershipCollection,
+    *,
+    snapshot_revision: str,
+) -> ActiveCandidateSourceSnapshot
+```
+
+La factory validará únicamente que `snapshot_revision` sea un `str` real no vacío ni whitespace-only y que `collection` sea una `ActiveCandidateMembershipCollection`; las violaciones estructurales producen `ValueError`. No crea `ValidationReport`, `ValidationFinding`, status ni framework genérico de validación.
+
+La cobertura futura mínima comprobará shape exacto, frozen, revision válida preservada literalmente, rechazo de revision non-string/vacía/whitespace-only, collection de tipo incorrecto, preservación de collection por identidad, collection vacía válida, orden heredado, igualdad estructural, ausencia de falsa garantía global para misma revision con collection distinta, ausencia de campos extra, recálculos e I/O.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, no satisface el schema, o no coincide con revision/digest produce **candidate source/acquisition integrity failure**. No se degradará silenciosamente a una candidate ausente del scope.
