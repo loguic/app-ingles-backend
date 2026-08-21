@@ -32,9 +32,13 @@ A1-U1 continúa pending / non-member; `LOADER = BLOCKED`.
 
 ### Microbloque tooling — `git_close.py --publish-url` v1
 
-Estado: microampliación contractual documentada; sin implementación activa. `--publish-url` será opcional, explícito y HTTPS caller-provided para publicar por un transporte alternativo sin cambiar la configuración persistente de `origin`. `--upstream` mantiene la referencia canónica configurada; el caller declara que la URL es transporte alternativo de ese upstream. No se pretende probar identidad criptográfica entre URL y remote: antes del commit se exigirá coincidencia del OID del ref de destino con `@{upstream}`, y después del push se verificará que ese ref apunta a `HEAD` antes de actualizar la ref remota local mediante fetch explícito desde la misma URL.
+Estado: técnicamente cerrado y publicado. Microcontrato `ead2422` (`docs define git close publish url contract`) e implementación `da13cb96a32a549b0a57f559be50f4415d67f47d` (`feat add git close publish url`), publicada mediante el propio helper; este commit es el checkpoint técnico sincronizado previo al cierre documental actual, no un HEAD permanente.
 
-Sin `--publish-url`, el flujo v1 actual no cambia. No habrá fallback automático SSH→HTTPS, retry, force, rollback, cambio de remote, `set-upstream` ni configuración persistente. Un push fallido conserva el commit local; si push tuvo éxito pero falla verificación/fetch/sync, el cierre falla explícitamente sin revertir una publicación posiblemente ya visible. El éxito final sigue exigiendo worktree/index limpios y ahead/behind `0/0` frente a `@{upstream}`. Este microbloque no es slice 38 ni modifica source integrity, acquisition o loader.
+`--publish-url <https-url>` es opcional, explícito y HTTPS-only. `--upstream` mantiene la referencia canónica local; la URL es transporte alternativo caller-provided, sin modificar `origin`, upstream ni `.git/config`. Valida URL absoluta, hostname, ausencia de userinfo/query/fragment/whitespace/control y puerto válido; compara OID del ref remoto con upstream antes del commit, verifica `HEAD` tras push y actualiza la tracking ref por fetch explícito. OID equality acredita coherencia del branch, no identidad criptográfica del repositorio. Usa argv/shell=False, push non-force y redacción del destino en diagnósticos alternativos.
+
+Sin `--publish-url`, el flujo v1 anterior permanece. Uso recomendado: `git_close.py` normal cuando `origin` funciona; `git_close.py --publish-url <https-url>` solo cuando el usuario necesita transporte HTTPS explícito. No hay fallback SSH→HTTPS, retry, rollback, segundo push, `set-upstream`, `remote set-url` ni configuración persistente. Push fallido produce `PUSH_FAILED` y conserva commit local; fallo posterior a publicación posible produce `FINAL_SYNC_FAILED` con `the commit may already be published remotely`, sin revertir. El uso real generó `da13cb96a32a549b0a57f559be50f4415d67f47d` y completó precheck → stage exacto → verify → commit → push HTTPS → actualización de `origin/master` → clean/sync final, sin `git push`, `git fetch` ni `git status` manual posterior. Este microbloque no es slice 38 ni modifica source integrity, acquisition o loader.
+
+Validación: 41 directas PASS en 3.37 s; postflight técnico final PASS sin findings BLOCKING/NONBLOCKING; regresión tooling 88 passed en 3.78 s; suite backend completa 1904 passed en 16.64 s; `git diff --check` PASS.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -64,7 +68,7 @@ Antes de cambiar de conversación: actualizar este documento, validarlo con `ope
 
 ## Próximo objetivo
 
-Cerrar primero el microbloque `git_close.py --publish-url` v1. Después: preflight separado de acquisition/source integrity, correspondencia demostrable entre manifest/snapshot y candidates/artifacts adquiridos, antes de cualquier loader. No diseñar todavía loader ni compatibilidad curricular autoritativa.
+Tras publicar el cierre documental del microbloque `git_close.py --publish-url` v1, hacer preflight separado de acquisition/source integrity: correspondencia demostrable entre manifest/snapshot y candidates/artifacts adquiridos, antes de cualquier loader. No diseñar todavía loader ni compatibilidad curricular autoritativa.
 
 ## Archivos clave
 
