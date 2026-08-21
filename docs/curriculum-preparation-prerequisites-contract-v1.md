@@ -1065,7 +1065,7 @@ La atomicidad lógica significa que un consumidor recibe el snapshot como una un
 
 Un evento de publicación permanece conceptualmente distinto del snapshot y solo requerirá un `PublicationRecord` si aparece una necesidad real de auditoría o de registrar transiciones. La existencia del snapshot lógico no prueba que haya sido representado, publicado o puesto a disposición físicamente.
 
-Una futura capacidad de source integrity deberá poder contrastar una representación física con `snapshot_revision`, la collection declarada, los candidates o artifacts adquiridos y las identities/digests ya contratados en las memberships. Una futura representación física deberá expresar la revisión del snapshot y sus memberships sin duplicar invariantes; este contrato no elige manifest, JSON, YAML, TOML, formato ni algoritmo.
+Una futura capacidad de source integrity deberá poder contrastar la representación física definida a continuación con `snapshot_revision`, la collection declarada, los candidates o artifacts adquiridos y las identities/digests ya contratados en las memberships. La representación física no duplica ni revalida las invariantes lógicas.
 
 El loader permanece bloqueado hasta disponer como mínimo de: implementación de este snapshot, representación física explícita, lectura o publicación física atómica, adquisición de candidates/artifacts, source integrity y correspondencia demostrada entre snapshot y candidates adquiridos. La compatibilidad curricular autoritativa continúa siendo responsabilidad posterior al loader.
 
@@ -1084,6 +1084,92 @@ build_active_candidate_source_snapshot(
 La factory validará únicamente que `snapshot_revision` sea un `str` real no vacío ni whitespace-only y que `collection` sea una `ActiveCandidateMembershipCollection`; las violaciones estructurales producen `ValueError`. No crea `ValidationReport`, `ValidationFinding`, status ni framework genérico de validación.
 
 La cobertura futura mínima comprobará shape exacto, frozen, revision válida preservada literalmente, rechazo de revision non-string/vacía/whitespace-only, collection de tipo incorrecto, preservación de collection por identidad, collection vacía válida, orden heredado, igualdad estructural, ausencia de falsa garantía global para misma revision con collection distinta, ausencia de campos extra, recálculos e I/O.
+
+### Active candidate source snapshot manifest and atomic physical publication v1
+
+`ActiveCandidateSourceSnapshotManifestV1` es el documento físico serializado derivado de un `ActiveCandidateSourceSnapshot` lógico. No es un nuevo domain value object, no duplica el snapshot en memoria y no constituye por sí mismo un evento de publicación, una prueba de source integrity, adquisición de candidates/artifacts, loader readiness, orden curricular ni compatibilidad curricular autoritativa.
+
+Se mantienen obligatoriamente las fronteras:
+
+```text
+ActiveCandidateSourceSnapshot
+!= ActiveCandidateSourceSnapshotManifestV1 document
+
+manifest document exists
+!= manifest atomically published
+
+manifest atomically published
+!= source integrity passed
+!= candidate/artifact acquisition complete
+!= loader ready
+```
+
+El formato físico v1 es exactamente un único documento JSON codificado en UTF-8 sin BOM. No se usa YAML, TOML ni JSON Schema externo. Su shape semántico exacto es:
+
+```json
+{
+  "manifest_schema_version": "1.0",
+  "snapshot_revision": "...",
+  "memberships": [
+    {
+      "identity": {
+        "unit_id": "...",
+        "candidate_revision": "...",
+        "payload_schema_version": "...",
+        "content_digest": "..."
+      },
+      "admission_id": "..."
+    }
+  ]
+}
+```
+
+No se añaden otros campos: no `snapshot_id`, source ID, timestamp, publication ID, manifest digest, status, findings, count, history, paths/locators de artifacts, admission record serializado, candidate payload ni metadata curricular.
+
+`manifest_schema_version` tiene inicialmente el literal `"1.0"` y pertenece exclusivamente al formato físico. Se distingue de `CandidatePayloadIdentity.payload_schema_version` y no se incorpora a `ActiveCandidateSourceSnapshot`. Un cambio incompatible de este documento requerirá otra `manifest_schema_version`; v1 no define una política SemVer general.
+
+`snapshot_revision` se copia literalmente desde `snapshot.snapshot_revision`, sin normalizar, derivar, trim, usar filename ni usar path como identidad. El revision string opaco no se emplea como componente de path. Cada entry de `memberships` copia, en este orden estructural, `identity.unit_id`, `identity.candidate_revision`, `identity.payload_schema_version`, `identity.content_digest` y `admission_id` desde `snapshot.collection.memberships`.
+
+La serialización no recalcula identity, digest, admission, unicidad por unit, unicidad de admission ID ni compatibilidad curricular. El array `memberships` preserva exactamente el orden representacional existente; no define curriculum order. Una collection vacía se representa exactamente como `"memberships": []` y es físicamente válida, sin demostrar utilidad, completitud ni loader readiness.
+
+Para el mismo snapshot lógico, la serialización v1 produce los mismos bytes. Normativamente es equivalente a serializar el documento construido en el orden indicado mediante `json.dumps(document, ensure_ascii=False, separators=(",", ":"), sort_keys=False, allow_nan=False).encode("utf-8") + b"\n"`: UTF-8 sin BOM, Unicode no escapado a ASCII, sin whitespace JSON no significativo, sin NaN/Infinity y exactamente un newline final. Esta notación fija una representación implementable; no es código ejecutable ni impone interoperabilidad byte-for-byte a implementaciones que no sigan expresamente este contrato v1.
+
+El orden contractual de construcción de keys es obligatorio para estabilidad de representación y auditoría: top level `manifest_schema_version`, `snapshot_revision`, `memberships`; cada membership `identity`, `admission_id`; cada identity `unit_id`, `candidate_revision`, `payload_schema_version`, `content_digest`. `sort_keys=False` preserva este orden construido y el array `memberships` conserva exactamente su orden representacional. Los bytes deterministas no son canonical cryptographic preimage; no se añade digest, hash, firma ni protocolo de canonical hashing del manifest.
+
+La futura operación mínima de publicación es conceptualmente:
+
+```text
+publish_active_candidate_source_snapshot_manifest(
+    snapshot: ActiveCandidateSourceSnapshot,
+    *,
+    manifest_path: Path,
+) -> None
+```
+
+`manifest_path` es un `Path` absoluto, explícito y caller-provided. La ubicación física procede exclusivamente de ese path recibido: no se acepta path relativo, vacío o no representable, no se fija environment variable, source root global, revision directories, artifact directories, cloud path ni múltiples sources. `snapshot_revision` nunca participa en la construcción de `manifest_path`.
+
+La implementación validará como mínimo que su parent existe y es directorio, y que el target es inexistente o un archivo regular, nunca symlink ni directorio. No diseña hardening de host adversarial completo ni sigue deliberadamente symlinks del target. V1 asume filesystem local POSIX/Linux, un único publisher local controlado y directorio de publicación bajo control de la aplicación u operador; la manipulación adversarial concurrente del parent queda fuera de scope. No se añaden locks, `openat2`, framework de dirfd ni sandboxing.
+
+La operación publica atómicamente únicamente el documento manifest activo, no candidates/artifacts ni admission records físicos. Deberá realizar conceptualmente, y en este orden:
+
+1. serializar el documento completo en memoria;
+2. crear un temporal en el mismo directorio que `manifest_path`;
+3. escribir todos los bytes;
+4. flush;
+5. ejecutar `fsync` sobre el archivo temporal;
+6. cerrar el temporal;
+7. ejecutar `os.replace(temp_path, manifest_path)`;
+8. ejecutar `fsync` sobre el directorio padre.
+
+El temporal en el mismo directorio es obligatorio para preservar la semántica de reemplazo atómico del filesystem local; no se usa un temporal global que pueda pertenecer a otro filesystem. La **physical atomic visibility** significa que durante `os.replace` un lector observa el documento anterior completo o el nuevo completo, nunca una combinación parcial. Un consumidor abrirá una vez el manifest activo y leerá ese descriptor completo; no construirá una lectura de snapshot a partir de varias aperturas o enumeración de filesystem.
+
+La atomicidad v1 se limita a la visibilidad y persistencia local del manifest bajo las garantías del filesystem local soportado. No afirma atomicidad de artifacts, admission records, source bundle, red, object storage ni múltiples publishers. V1 asume un único publisher local; no añade locks, compare-and-swap, registry, history, last-writer coordination ni rollback automático.
+
+Si falla antes de `os.replace`, el manifest activo anterior debe permanecer intacto y el temporal no publicado puede limpiarse best-effort. Si falla `os.replace`, no se afirma publication. Si falla el `fsync` del directorio después de un replace exitoso, el documento nuevo puede ya ser visible pero su persistencia durable no queda confirmada; la implementación deberá reportar esa frontera explícitamente y no restaurará automáticamente el manifest anterior.
+
+Una publicación exitosa no prueba que los digests declarados coincidan con bytes físicos, que existan candidates/artifacts, que `admission_id` resuelva a un record físico, que no haya reuse histórico de `snapshot_revision` con distinto contenido ni que los artifacts no declarados hayan sido inspeccionados. Esas garantías pertenecen a acquisition, source integrity, registry/history y loader posteriores.
+
+La cobertura futura mínima incluirá: shape exacto y ausencia de campos extra; bytes deterministas, newline final, literals, vacío y orden; publicación inicial y reemplazo S1 → S2; lectura por descriptor anterior/nuevo sin mezcla parcial; fallos de write/replace que conservan S1; frontera de `fsync` posterior al replace; cleanup del temporal no publicado; paths target inválidos; y ausencia de acceso a candidate, admission, acquisition, source integrity, currículo o I/O ajeno a la publicación local.
 
 ### Source integrity y familias de error
 
@@ -1144,11 +1230,11 @@ Admission y publication pertenecen al proceso de construcción curricular; no re
 
 El artifact actual A1-U1 permanece pending y non-member mientras conserve `validation_report.status="pending"`, coverage/review `pending_approval`, decisiones humanas pendientes y ausencia de admission record y membership declaration. No está rejected. Para publicarse deberá resolver pendientes, fijar el payload final, superar validación local recalculada, recibir revisión humana final y obtener admission y membership explícitas.
 
-Un manifest o index explícito parece una representación natural candidata del snapshot, pero su formato permanece undecided. También quedan para el preflight técnico posterior:
+El manifest físico del snapshot y su mecanismo de publicación atómica quedan resueltos por `ActiveCandidateSourceSnapshotManifestV1`. También quedan para preflight técnico posterior:
 
-- formatos físicos de admission record y snapshot/manifest;
+- formato físico de admission record;
 - namespace operativo de `reviewer_id`;
-- mecanismo de publicación atómica.
+- acquisition y source integrity de candidates/artifacts.
 
 Estas decisiones físicas no alteran la semántica contractual anterior y no autorizan todavía modelos, loaders, parsers, publishers, DB, endpoints ni servicios productivos.
 
