@@ -4473,7 +4473,7 @@ A1-U1 continúa pending / non-member y no existe active membership productiva. `
 
 ## Active candidate source snapshot — Slice 36
 
-Estado: cerrada técnicamente de forma local mediante el contrato `9bb3a13` (`docs define active candidate source snapshot`) y el commit técnico `deeb99a` (`feat add active candidate source snapshot`); pendiente de este cierre documental y de push.
+Estado: cerrada, publicada y sincronizada mediante el contrato `9bb3a13` (`docs define active candidate source snapshot`), el commit técnico `deeb99a` (`feat add active candidate source snapshot`) y el cierre documental `eb2a65e` (`docs close active candidate source snapshot slice`). Push confirmado en `origin/master` desde `b1ebc18` hasta `eb2a65e`.
 
 Se añadió `ActiveCandidateSourceSnapshot`, frozen y con exactamente `snapshot_revision: str` y `collection: ActiveCandidateMembershipCollection`, junto con `build_active_candidate_source_snapshot(...)`. La revision es opaca, caller-provided, non-blank y preservada literalmente; `candidate_revision` identifica una unit candidata y no se deriva ni sustituye por `snapshot_revision` del conjunto activo completo.
 

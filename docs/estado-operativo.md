@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Active candidate source snapshot — Slice 36
 
-Estado: cerrada técnicamente de forma local mediante el contrato `9bb3a13` (`docs define active candidate source snapshot`) y el commit técnico `deeb99a` (`feat add active candidate source snapshot`); pendiente de cierre documental y push. `master` está por delante de `origin/master` únicamente por esos dos commits.
+Estado: cerrada, publicada y sincronizada mediante el contrato `9bb3a13` (`docs define active candidate source snapshot`), el commit técnico `deeb99a` (`feat add active candidate source snapshot`) y el cierre documental `eb2a65e` (`docs close active candidate source snapshot slice`). Push confirmado en `origin/master` desde `b1ebc18` hasta `eb2a65e`.
 
 `ActiveCandidateSourceSnapshot` es un value object frozen con exactamente `snapshot_revision: str` y `collection: ActiveCandidateMembershipCollection`. `build_active_candidate_source_snapshot(collection, *, snapshot_revision)` valida solo una revision `str` non-blank y una collection conforme, preservando ambas instancias literalmente y sin reconstruir memberships.
 
@@ -30,7 +30,7 @@ Segundo piloto de routing: preflight contractual `Sol / high` fue justificado po
 
 ## Bloque activo
 
-No hay implementación técnica activa. La slice 36 está cerrada técnicamente y pendiente solo de cierre documental/publicación. No implementar representación física, source integrity ni loader.
+No hay implementación técnica activa. La slice 36 está cerrada, publicada y sincronizada. No implementar representación física, source integrity ni loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
