@@ -4470,3 +4470,19 @@ Validación: 12 pruebas específicas PASS en 0.18 s; postflight independiente PA
 Primer piloto cualitativo de `docs/loguic-ai-model-routing-policy-v1.md`: preflight `Sol / high` (A=2, I=2, R=2, V=1, C=1; total 8) fue justificado al detectar la frontera collection lógica ≠ productive snapshot. Implementación `Terra / medium` fue suficiente sin escalamiento; postflight `Terra / high` fue suficiente y consideró `Terra / medium` razonable con la frontera ya cerrada. No cambian thresholds, policy ni default.
 
 A1-U1 continúa pending / non-member y no existe active membership productiva. `LOADER = BLOCKED`. La siguiente frontera es un preflight o decisión contractual del productive snapshot —identidad/revisión propia, atomicidad lógica/de lectura y relación con la collection— antes de cualquier representación física/manifest, source integrity o loader.
+
+## Active candidate source snapshot — Slice 36
+
+Estado: cerrada técnicamente de forma local mediante el contrato `9bb3a13` (`docs define active candidate source snapshot`) y el commit técnico `deeb99a` (`feat add active candidate source snapshot`); pendiente de este cierre documental y de push.
+
+Se añadió `ActiveCandidateSourceSnapshot`, frozen y con exactamente `snapshot_revision: str` y `collection: ActiveCandidateMembershipCollection`, junto con `build_active_candidate_source_snapshot(...)`. La revision es opaca, caller-provided, non-blank y preservada literalmente; `candidate_revision` identifica una unit candidata y no se deriva ni sustituye por `snapshot_revision` del conjunto activo completo.
+
+El snapshot compone la collection ya conforme y hereda vacío válido, orden representacional, identidades y unicidades sin recalcularlas. Es estado lógico completo e inmutable: no tiene snapshot ID, digest, source ID, timestamps, schema version, mutación, replacement, historial ni eventos. Misma revision y collection estructural son iguales; reutilizar una revision con otra collection es un conflicto global futuro, no una garantía local del value object.
+
+Snapshot declarado ≠ publicación física completada ≠ representación física ≠ source integrity ≠ loader ≠ orden curricular. No verifica admission, no deriva identity, no valida candidates ni reconstruye records. La atomicidad lógica procede de composition e inmutabilidad; la física permanece para publisher/storage/source representation.
+
+Validación: 11 pruebas específicas PASS en 0.11 s; postflight independiente PASS / READY FOR REGRESSION; regresión seleccionada 80 passed en 0.25 s y suite backend completa 1855 passed en 13.88 s (`PYTEST_EXIT=0`); `git diff --check` real PASS. A1-U1 continúa pending / non-member y `LOADER = BLOCKED`.
+
+Segundo piloto cualitativo de routing: preflight contractual `Sol / high` fue justificado por la frontera de identidad, publication y atomicidad; implementación `Terra / medium` fue suficiente sin escalamiento; postflight `Terra / high` fue suficiente y consideró `Terra / medium` razonable con el contrato cerrado. No cambian thresholds, policy ni default.
+
+La siguiente frontera, después de publicar esta slice, es el preflight de la representación física explícita del snapshot —revision y memberships con lectura/publicación física atómica— antes de source integrity, adquisición de candidates/artifacts y loader.

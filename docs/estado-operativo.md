@@ -14,23 +14,23 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Active candidate membership collection — Slice 35
+### Active candidate source snapshot — Slice 36
 
-Estado: cerrada, publicada y sincronizada mediante el commit técnico `46a293c` (`feat add active candidate membership collection`) y el cierre documental `9195537` (`docs close active candidate membership collection slice`). Push confirmado en `origin/master` desde `e79aa4a` hasta `9195537`.
+Estado: cerrada técnicamente de forma local mediante el contrato `9bb3a13` (`docs define active candidate source snapshot`) y el commit técnico `deeb99a` (`feat add active candidate source snapshot`); pendiente de cierre documental y push. `master` está por delante de `origin/master` únicamente por esos dos commits.
 
-`ActiveCandidateMembershipCollection` es un value object frozen con exactamente `memberships: tuple[ActiveCandidateMembership, ...]`. `build_active_candidate_membership_collection(memberships: Sequence[ActiveCandidateMembership])` materializa el input una sola vez, acepta vacío, preserva orden e identidades de las memberships y queda aislada de mutaciones posteriores de la sequence original.
+`ActiveCandidateSourceSnapshot` es un value object frozen con exactamente `snapshot_revision: str` y `collection: ActiveCandidateMembershipCollection`. `build_active_candidate_source_snapshot(collection, *, snapshot_revision)` valida solo una revision `str` non-blank y una collection conforme, preservando ambas instancias literalmente y sin reconstruir memberships.
 
-La collection exige como máximo una membership por `identity.unit_id` y `admission_id` globalmente único; cualquier duplicado produce `ValueError` que identifica el valor duplicado. No hay dedupe, selección de ganadora, replacement implícito ni regla redundante de identity global.
+`candidate_revision` identifica una unit candidata y `snapshot_revision` el conjunto activo completo; no se derivan entre sí. El snapshot compone la collection ya conforme, por lo que hereda vacío válido, orden solo representacional y sus unicidades sin recalcularlas. Misma revision y collection estructural son iguales; misma revision con collection distinta puede construirse localmente y su conflicto pertenece a una futura consistencia global de source/publication.
 
-Fronteras: admission verificada ≠ active membership ≠ membership collection ≠ productive snapshot ≠ representación física. La collection no recalcula gates ni identity, no reconstruye linkage con `AdmissionRecord`, no incorpora transición/replacement, historial, eventos, I/O, manifest, source integrity, loader, orden curricular ni compatibilidad curricular autoritativa.
+Fronteras: admission verificada ≠ active membership ≠ membership collection ≠ active source snapshot ≠ publication event ≠ representación física. Snapshot declarado ≠ publicación física completada; tampoco equivale a source integrity, loader, orden curricular o compatibilidad curricular autoritativa. No introduce snapshot ID, digest, source ID, timestamps, schema version, replacement, historial, eventos, I/O, manifest ni validación/reconstrucción de capas anteriores.
 
-Validación confirmada: 12 pruebas específicas PASS en 0.18 s; postflight independiente PASS / READY FOR REGRESSION; regresión seleccionada 69 passed en 0.23 s y suite backend completa 1844 passed en 14.51 s (`PYTEST_EXIT=0`); `git diff --check` real PASS. El finding de postflight —ausencia de `isinstance` explícito en el test de shape— es NONBLOCKING y no requiere cambio. A1-U1 sigue pending / non-member; LOADER = BLOCKED.
+Validación confirmada: 11 pruebas específicas PASS en 0.11 s; postflight independiente PASS / READY FOR REGRESSION; regresión seleccionada 80 passed en 0.25 s y suite backend completa 1855 passed en 13.88 s (`PYTEST_EXIT=0`); `git diff --check` real PASS. A1-U1 sigue pending / non-member; LOADER = BLOCKED.
 
-Primer piloto de routing: preflight arquitectónico `Sol / high` (A=2, I=2, R=2, V=1, C=1; total 8) fue justificado al detectar `logical collection ≠ productive snapshot` con identidad/revisión propia. Implementación `Terra / medium` fue suficiente, sin escalamiento; postflight `Terra / high` fue suficiente y estimó `Terra / medium` razonable una vez cerrada la frontera. No cambian policy, thresholds ni default `Terra / medium`.
+Segundo piloto de routing: preflight contractual `Sol / high` fue justificado por la identidad, publication y atomicidad del snapshot. Implementación `Terra / medium` fue suficiente sin escalamiento; postflight `Terra / high` fue suficiente y `Terra / medium` habría sido razonable con el contrato cerrado. No cambian policy, thresholds ni default `Terra / medium`.
 
 ## Bloque activo
 
-No hay implementación técnica activa. La slice 35 está cerrada, publicada y sincronizada. No implementar productive snapshot, manifest, source integrity ni loader.
+No hay implementación técnica activa. La slice 36 está cerrada técnicamente y pendiente solo de cierre documental/publicación. No implementar representación física, source integrity ni loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -52,14 +52,14 @@ Antes de cambiar de conversación: actualizar este documento, validarlo con `ope
 ## Fronteras obligatorias
 
 - preparación curricular ≠ ejecución del estudiante ≠ evidencia real ≠ evaluación ≠ aprendizaje ≠ mastery;
-- admission verificada ≠ publication ≠ active membership ≠ membership collection ≠ productive snapshot ≠ compatibilidad curricular autoritativa;
+- admission verificada ≠ publication ≠ active membership ≠ membership collection ≠ active source snapshot ≠ representación física ≠ compatibilidad curricular autoritativa;
 - `required_stages` y `SkillCoverage` heredados no producen `CurriculumPreparationState`;
 - no modificar todavía `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage`, `required_stages`, runtime, progreso, mastery, fonética, feedback ni B181;
 - membership/source state no define orden curricular; hierarchy authority no certifica admission.
 
 ## Próximo objetivo
 
-Después de cerrar y publicar la slice 35, hacer únicamente el preflight o decisión contractual del productive snapshot: identidad o revisión propia, atomicidad lógica/de lectura y relación con `ActiveCandidateMembershipCollection`. Permanecen pendientes, sin diseñarlas todavía: representación física/manifest, source integrity e integración de carga/loader después de demostrar las capas anteriores.
+Después de cerrar y publicar la slice 36, hacer únicamente el preflight de la representación física explícita de `ActiveCandidateSourceSnapshot`: cómo expresará revision y memberships, con lectura/publicación física atómica, sin diseñar todavía source integrity, adquisición ni loader. Permanecen pendientes source integrity, correspondencia con candidates adquiridos e integración de carga/loader.
 
 ## Archivos clave
 
@@ -72,4 +72,5 @@ Después de cerrar y publicar la slice 35, hacer únicamente el preflight o deci
 - `app/services/pedagogical_candidate_admission_verification.py`;
 - `app/services/pedagogical_active_candidate_membership.py`;
 - `app/services/pedagogical_active_candidate_membership_collection.py`;
+- `app/services/pedagogical_active_candidate_source_snapshot.py`;
 - `app/services/pedagogical_validation_service.py`.
