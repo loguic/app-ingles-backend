@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### Safe deterministic Git close helper v1
 
-Estado: cierre técnico local mediante `bf16407` (`feat add deterministic git close helper`); pendiente de este cierre documental y push.
+Estado: cerrado, documentado y publicado mediante `bf16407` (`feat add deterministic git close helper`) y `f36bd1f` (`docs close deterministic git close helper`); push confirmado en `origin/master` desde `681f790` hasta `f36bd1f`.
 
 `scripts/engineering/git_close.py` sustituye el tramo repetitivo `git add` exacto → verificación → commit → push → sync por una orden explícita con `--branch`, `--upstream`, `--message` y `--file` repetible. Automatizar comprobaciones ≠ eliminarlas: antes de efectos exige root/repo, branch y upstream exactos, HEAD no detached, ausencia de operaciones Git, index vacío, cambios totales exactamente iguales a la allowlist, paths seguros y ahead/behind `0/0`.
 
@@ -24,9 +24,11 @@ Tras `git add -- <allowlist>` verifica staged scope exacto y ausencia de cambios
 
 Validación: 16 pruebas específicas PASS en 1.61 s; postflight independiente recheck PASS / READY FOR REGRESSION; regresión seleccionada de tooling (`tests/test_block_close.py`, `tests/test_conversation_checkpoint.py`, `tests/test_operational_state.py`, `tests/test_git_close.py`), 63 passed en 2.11 s (`PYTEST_EXIT=0`); suite backend completa, 1871 passed en 15.20 s (`PYTEST_EXIT=0`); `git diff --check` PASS. Las pruebas usan repos temporales y bare remotes locales: cubren cierre correcto, scope múltiple, staging previo, allowlist/path/message inválidos, branch/upstream, precheck ahead/behind, fallo de push que preserva commit ahead y worktree sucio tras hook. Permanecen fuera de scope la simulación directa de carrera stage→commit y hardening de remote names que empiecen por `-`.
 
+Primer uso real preparado, todavía pendiente de ejecución: desde Bash se invocará `git_close.py` con allowlist exacta `docs/estado-operativo.md` y `docs/bitacora.md`, y mensaje `docs finalize deterministic git close helper`. Solo un éxito demostrará operativamente precheck → stage exacto → verify → commit → push → final sync verify. A1-U1 continúa pending / non-member; `LOADER = BLOCKED`.
+
 ## Bloque activo
 
-No hay implementación técnica activa. El helper Git está cerrado técnicamente de forma local y pendiente solo de cierre documental/publicación. No implementar representación física, source integrity ni loader.
+No hay implementación técnica activa. El helper Git está cerrado y publicado; su primer uso real está preparado y pendiente. No implementar representación física, source integrity ni loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -56,7 +58,7 @@ Antes de cambiar de conversación: actualizar este documento, validarlo con `ope
 
 ## Próximo objetivo
 
-Después de cerrar y publicar el helper Git, hacer únicamente el preflight de la representación física explícita de `ActiveCandidateSourceSnapshot`: cómo expresará revision y memberships, con lectura/publicación física atómica, sin diseñar todavía source integrity, adquisición ni loader. Permanecen pendientes source integrity, correspondencia con candidates adquiridos e integración de carga/loader.
+Después de completar el primer uso real del helper Git, retomar App Inglés en la slice 37: únicamente el preflight de la representación física explícita de `ActiveCandidateSourceSnapshot`/source y atomicidad física, sin diseñar todavía source integrity, adquisición ni loader. Permanecen pendientes source integrity, correspondencia con candidates adquiridos e integración de carga/loader.
 
 ## Archivos clave
 
