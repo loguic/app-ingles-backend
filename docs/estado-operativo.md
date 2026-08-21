@@ -14,21 +14,23 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Safe deterministic Git close helper v1
+### ActiveCandidateSourceSnapshotManifestV1 — Slice 37
 
-Estado: cerrado, documentado y publicado mediante `bf16407` (`feat add deterministic git close helper`) y `f36bd1f` (`docs close deterministic git close helper`); push confirmado en `origin/master` desde `681f790` hasta `f36bd1f`.
+Estado: contrato e implementación publicados y sincronizados. Contrato `6306362` (`docs define active candidate source snapshot manifest`) e implementación `7b66d4f` (`feat add active candidate source snapshot manifest`); `master` y `origin/master` contienen `7b66d4f`. El cierre documental está preparado localmente y pendiente de commit/publicación; la slice solo quedará completamente cerrada tras ese paso.
 
-`scripts/engineering/git_close.py` sustituye el tramo repetitivo `git add` exacto → verificación → commit → push → sync por una orden explícita con `--branch`, `--upstream`, `--message` y `--file` repetible. Automatizar comprobaciones ≠ eliminarlas: antes de efectos exige root/repo, branch y upstream exactos, HEAD no detached, ausencia de operaciones Git, index vacío, cambios totales exactamente iguales a la allowlist, paths seguros y ahead/behind `0/0`.
+`ActiveCandidateSourceSnapshotManifestV1` es únicamente el documento físico JSON v1 derivado de `ActiveCandidateSourceSnapshot`: serializa `manifest_schema_version="1.0"`, `snapshot_revision` literal y memberships en su orden representacional. Sus bytes son deterministas (UTF-8 sin BOM, `ensure_ascii=False`, separators compactos, `sort_keys=False`, `allow_nan=False`, newline final), sin hash ni prueba de integrity. El publicador exige `manifest_path: Path` absoluto y explícito, publica con temporal en el mismo parent → write/flush/fsync(file) → close → `os.replace` → fsync(parent), y limita sus garantías a visibilidad física local atómica, no a crash durability.
 
-Tras `git add -- <allowlist>` verifica staged scope exacto y ausencia de cambios unstaged/untracked; hace un único commit normal, confirma estructuralmente sus paths y limpieza, push normal explícito al remote/ref confirmado y éxito solo con branch/upstream esperados, porcelain vacío y ahead/behind `0/0`. No ejecuta pytest, `diff --check` u `operational_state`; tampoco descubre archivos, genera mensajes, hace force, retry, rollback, configuración Git, múltiples commits o I/O ajeno a Git.
+Si falla antes de replace se conserva S1 y se limpia best-effort solo el temporal no publicado; un fallo de fsync(parent) posterior puede dejar S2 visible con durabilidad no confirmada, sin rollback. No hay domain manifest, PublicationRecord, registry/history, acquisition, source integrity ni loader. Se mantiene: logical snapshot ≠ physical manifest ≠ manifest visible atómicamente ≠ durabilidad ≠ source integrity ≠ acquisition ≠ loader.
 
-Validación: 16 pruebas específicas PASS en 1.61 s; postflight independiente recheck PASS / READY FOR REGRESSION; regresión seleccionada de tooling (`tests/test_block_close.py`, `tests/test_conversation_checkpoint.py`, `tests/test_operational_state.py`, `tests/test_git_close.py`), 63 passed en 2.11 s (`PYTEST_EXIT=0`); suite backend completa, 1871 passed en 15.20 s (`PYTEST_EXIT=0`); `git diff --check` PASS. Las pruebas usan repos temporales y bare remotes locales: cubren cierre correcto, scope múltiple, staging previo, allowlist/path/message inválidos, branch/upstream, precheck ahead/behind, fallo de push que preserva commit ahead y worktree sucio tras hook. Permanecen fuera de scope la simulación directa de carrera stage→commit y hardening de remote names que empiecen por `-`.
+Postflight recheck PASS: se cerraron la prueba real de fsync pre-replace, parent-file, nombre de test de replace y cleanup que preserva la excepción primaria. Validación: 8 específicas PASS en 0.13 s; regresión seleccionada de source/admission/membership/snapshot, 88 passed en 0.27 s; suite backend completa, 1879 passed en 14.59 s; `git diff --check` PASS.
 
-Primer uso real: PASS. Desde Bash, `git_close.py` recibió branch/upstream, allowlist documental exacta y el mensaje `docs finalize deterministic git close helper`; generó el commit `6832e775ed1cc48816bae8b3e02844c0ac713cfd` y completó precheck → stage exacto → verify → commit → push → final sync verification, sin reparación manual. Es la primera validación operativa real del helper. A1-U1 continúa pending / non-member; `LOADER = BLOCKED`.
+Routing: preflight `Sol / high` (8/10) justificó la frontera física; implementación `Terra / medium` y postflight/recheck `Terra / high` fueron suficientes, sin escalamiento. Incidente de transporte: SSH falló con conexión cerrada en puertos 22 y 443; HTTPS respondió HTTP/2 200, se validó con `push --dry-run` y los commits se publicaron explícitamente por HTTPS, actualizando después `origin/master` mediante fetch HTTPS. No se atribuye causa, no se cambiaron remote ni claves y HTTPS no es una decisión arquitectónica permanente. `git_close.py` preservó correctamente el commit local e informó ahead=1/behind=0 ante el fallo inicial.
+
+A1-U1 continúa pending / non-member; `LOADER = BLOCKED`.
 
 ## Bloque activo
 
-No hay implementación técnica activa. El helper Git está cerrado, publicado y validado por su primer uso real. No implementar representación física, source integrity ni loader.
+No hay implementación técnica activa. El contrato y la implementación de slice 37 están cerrados; su cierre documental sigue pendiente de publicación. No implementar source integrity, acquisition ni loader sin un preflight separado.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -58,7 +60,7 @@ Antes de cambiar de conversación: actualizar este documento, validarlo con `ope
 
 ## Próximo objetivo
 
-Después del cierre definitivo de este microbloque, retomar App Inglés en la slice 37: únicamente el preflight de la representación física explícita de `ActiveCandidateSourceSnapshot`/source y atomicidad física, sin diseñar todavía source integrity, adquisición ni loader. Permanecen pendientes source integrity, correspondencia con candidates adquiridos e integración de carga/loader.
+Preflight separado de acquisition/source integrity: correspondencia demostrable entre manifest/snapshot y candidates/artifacts adquiridos, antes de cualquier loader. No diseñar todavía loader ni compatibilidad curricular autoritativa.
 
 ## Archivos clave
 
