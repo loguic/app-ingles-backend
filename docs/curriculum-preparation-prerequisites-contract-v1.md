@@ -1171,6 +1171,141 @@ Una publicación exitosa no prueba que los digests declarados coincidan con byte
 
 La cobertura futura mínima incluirá: shape exacto y ausencia de campos extra; bytes deterministas, newline final, literals, vacío y orden; publicación inicial y reemplazo S1 → S2; lectura por descriptor anterior/nuevo sin mezcla parcial; fallos de write/replace que conservan S1; frontera de `fsync` posterior al replace; cleanup del temporal no publicado; paths target inválidos; y ausencia de acceso a candidate, admission, acquisition, source integrity, currículo o I/O ajeno a la publicación local.
 
+### Local active candidate source acquisition v1
+
+`Local active candidate source acquisition v1` es la capacidad física que adquiere, sin verificar todavía, los candidates explícitamente asociados a un manifest activo. Recibe un manifest físico, reconstruye el snapshot lógico que declara y adquiere los documentos candidate correspondientes. No publica, no modifica paths, no descubre candidates y no establece source integrity.
+
+Se mantienen obligatoriamente las separaciones:
+
+```text
+manifest parsed
+!= manifest integrity proven
+
+candidate parsed
+!= candidate identity verified
+!= candidate digest verified
+!= source integrity proof
+!= loader readiness
+
+acquired
+!= verified
+```
+
+V1 se limita a filesystem local POSIX/Linux controlado. Acquisition significa leer bytes desde paths absolutos, explícitos y caller-provided, abriendo cada path una sola vez y leyéndolo completamente desde ese descriptor. No significa copiar archivos, descargar, enumerar directorios, usar glob, descubrir candidates, resolver locators, inferir layouts, ni usar red, HTTP, S3, CDN, object storage o base de datos.
+
+La futura capacidad conceptual es equivalente a `acquire_active_candidate_source(...)`. Recibe `manifest_path: Path` y una secuencia explícita de bindings. Un binding mínimo contiene exactamente `unit_id: str` y `candidate_path: Path`; puede representarse mediante un value object pequeño si mejora la claridad, sin crear una abstracción general de filesystem. `unit_id` es exclusivamente la clave de asociación con una membership declarada:
+
+```text
+binding unit_id
+!= candidate identity proof
+```
+
+`manifest_path` y cada `candidate_path` son `Path` absolutos, explícitos y caller-provided. Deben existir, ser archivos regulares, no ser symlinks ni directorios. No se acepta path relativo y no se usa `resolve()` para convertirlo silenciosamente en absoluto. Ningún path se deriva de `unit_id`, `candidate_revision`, `snapshot_revision` ni convenciones de filename.
+
+Los bindings son una allowlist exacta: sus `unit_id` deben corresponder uno a uno con las memberships declaradas por el manifest. Binding ausente, duplicado para un `unit_id` o adicional para una unit no declarada hace fallar la adquisición. Los archivos adicionales fuera de esa allowlist no se enumeran, no se inspeccionan y no afectan el resultado.
+
+La adquisición abre `manifest_path` una sola vez, lee todos sus bytes desde ese descriptor y lo interpreta como UTF-8 sin BOM. Debe rechazar BOM, JSON malformado, `manifest_schema_version` distinto de `"1.0"`, shape o tipos inválidos, campos desconocidos y duplicados estructurales incompatibles. Debe además rechazar cualquier key JSON duplicada en cualquier objeto y nivel del documento antes de construir value objects de dominio; una técnica equivalente a detectar `object_pairs` durante el parsing satisface esta regla. Por ejemplo, `{"unit_id":"a","unit_id":"b"}` es inválido y no se acepta aplicando silenciosamente la última key. El documento físico debe seguir exactamente `ActiveCandidateSourceSnapshotManifestV1`: top-level object con sus campos contractuales, array `memberships`, identity object y `admission_id`. Su orden representacional se preserva.
+
+El parsing reconstruye el estado lógico en esta dirección:
+
+```text
+CandidatePayloadIdentity
+-> ActiveCandidateMembership
+-> ActiveCandidateMembershipCollection
+-> ActiveCandidateSourceSnapshot
+```
+
+Debe usar los value objects e invariantes existentes para collection y snapshot, sin duplicar manualmente reglas que ya pertenecen a ellos, salvo la validación necesaria para interpretar el documento físico. El `snapshot_revision` se copia literalmente desde el manifest, permanece opaco, no construye paths, no se deriva de filename ni implica chronological order, integrity o autenticidad.
+
+Después de leer, decodificar, parsear sin keys duplicadas, validar schema/shape y reconstruir el snapshot, acquisition vuelve a serializar ese snapshot con `serialize_active_candidate_source_snapshot_manifest(...)` o una semántica exactamente equivalente al manifest v1. Los bytes reconstruidos deben ser idénticos byte a byte a los bytes adquiridos; si no lo son, existe un manifest acquisition failure por nonconformance de physical format. Esta comprobación exige UTF-8 sin BOM, `ensure_ascii=False`, separators compactos, `sort_keys=False`, `allow_nan=False`, key order contractual y exactamente un newline final. Por ello se rechaza JSON semánticamente equivalente con orden de keys distinto, whitespace adicional, newline final ausente o adicional, o Unicode escapado de forma distinta. Se mantiene:
+
+```text
+byte-conformant manifest
+!= source integrity proof
+```
+
+La igualdad de bytes acredita solo que el archivo es una representación física conforme de `ActiveCandidateSourceSnapshotManifestV1`; no añade manifest digest, hash, firma ni prueba de source integrity.
+
+Para cada membership, en el orden representacional del manifest, la adquisición localiza su binding exacto por `unit_id`, valida el `candidate_path`, abre ese path una sola vez y lee todos sus bytes. Los bytes candidate deben ser UTF-8 válido sin BOM; el parsing JSON rechaza cualquier key duplicada en cualquier objeto o nivel antes de validar `PedagogicalUnitCandidate`. Después se parsea el candidate mediante el modelo vigente. No se exige a candidate JSON separators compactos, key order específico, newline final único, bytes canónicos ni raw-file digest: documentos físicamente distintos pueden representar el mismo payload canónico. Se mantiene:
+
+```text
+candidate file format parseable
+!= candidate identity verified
+!= candidate digest verified
+```
+
+La adquisición conserva los bytes físicos leídos, el candidate parseado, la membership declarada, el path absoluto y el orden del manifest. No recalcula `CandidatePayloadIdentity`, no compara digest, no compara identity completa y no ejecuta admission verification.
+
+El resultado v1 es una evidencia estructuralmente inmutable/frozen **acquired / unverified**, por ejemplo `ActiveCandidateSourceAcquisition`, que conserva el snapshot reconstruido y entries adquiridas en orden del manifest. Cada entry conserva conceptualmente membership, `candidate_path`, `candidate_bytes` y `PedagogicalUnitCandidate`. `candidate_path` conserva la referencia física declarada y `candidate_bytes` son evidencia física adquirida inmutable. Un `PedagogicalUnitCandidate` parseado puede conservarse por conveniencia de consumo de B38, pero su presencia no hace profundamente inmutable toda la evidencia: el resultado estructuralmente frozen no equivale a deep immutability de cada modelo mutable anidado. No contiene `verified`, `integrity_status`, `trusted`, `loadable`, `authoritative`, status curricular ni una afirmación global de source completeness.
+
+Un manifest con `memberships=[]` y bindings vacíos produce una adquisición estructuralmente válida. No demuestra utilidad curricular, curriculum completeness, source integrity global ni loader readiness. La operación es all-or-nothing: si falla lectura o parsing de manifest, binding, path, lectura candidate, JSON o validación Pydantic, falla la operación completa. No omite candidates defectuosos ni devuelve resultados parciales; puede fallar de forma determinista según el orden representacional del manifest. V1 no introduce aún un framework genérico de findings.
+
+`CandidatePayloadIdentity.content_digest` no es SHA-256 de los bytes raw del archivo candidate. Es SHA-256 de los bytes canónicos del admission payload v1 de siete campos. Por ello:
+
+```text
+candidate raw bytes
+!= canonical candidate payload bytes
+
+raw-byte hash
+!= CandidatePayloadIdentity.content_digest
+```
+
+Dos documentos JSON físicamente distintos pueden producir el mismo digest si representan el mismo payload canónico. Slice 38 no verifica ese digest. La capacidad posterior de candidate integrity verificará sobre los bytes y objeto ya adquiridos, sin releer filesystem, una secuencia conceptual equivalente a:
+
+```text
+candidate bytes
+-> JSON/Pydantic
+-> canonical admission payload
+-> canonical bytes
+-> SHA-256
+-> CandidatePayloadIdentity
+-> comparación con manifest identity
+```
+
+`candidate_revision` no forma parte intrínseca de `PedagogicalUnitCandidate`. La adquisición no intenta derivarla de candidate bytes, filename ni path; únicamente preserva la revisión declarada por la membership del manifest. Una integrity proof posterior podrá usar esa revisión declarada para derivar y comparar la identity completa. V1 no añade envelope ni sidecar. Asimismo, B38 preserva literalmente `payload_schema_version` desde la identity declarada del manifest, pero no deriva `CandidatePayloadIdentity` ni valida que la versión sea compatible con la canonicalización o el digest. Una `payload_schema_version` no soportada no se convierte automáticamente en acquisition failure si candidate JSON puede parsearse como `PedagogicalUnitCandidate` vigente: permanece metadata declarada / unverified. La candidate-integrity proof posterior comprobará primero si esa versión está soportada; una versión no soportada será integrity verification failure y solo una versión soportada podrá derivar y comparar `CandidatePayloadIdentity`. B38 no crea migraciones ni múltiples schemas físicos.
+
+`required_resource_ids` es un inventario lógico de IDs. No es locator, path, recurso adquirido, digest, physical identity ni artifact verificado. No existe todavía contrato de path, locator, revision, digest, media type, size o acquisition para recursos externos. Por ello slice 38 no los adquiere: un candidate con `required_resource_ids` no vacío puede adquirirse estructuralmente, pero no queda plenamente loadable.
+
+`admission_id` se preserva desde el manifest y participa en las invariantes estructurales existentes; no provoca acquisition de un `AdmissionRecord` físico. Se mantiene:
+
+```text
+membership was previously constructed from admission proof
+!= physical source later proves that admission again
+```
+
+La política sobre un `AdmissionRecord` físico queda pendiente y deberá resolverse antes del loader; v1 no adopta silenciosamente una prueba física de admission ni una exención permanente de ella.
+
+La adquisición conserva los bytes que leyó. La future candidate-integrity capability verificará los `candidate_bytes` adquiridos o una reconstrucción fresca obtenida exclusivamente de esos bytes; no confiará en un `PedagogicalUnitCandidate` que pudo mutarse externamente. Un loader posterior consumirá evidencia ya adquirida/verificada, sin reabrir candidate paths. Se evita conceptualmente:
+
+```text
+verify file state A
+-> file changes
+-> loader reopens state B
+```
+
+V1 no afirma que resuelva toda carrera de filesystem ni añade locks, sandboxing, `openat2` o hardening de host adversarial.
+
+Las familias conceptuales de error de acquisition son:
+
+1. manifest: lectura, UTF-8/BOM, JSON malformado, schema no soportado, shape o tipos inválidos;
+2. binding: ausente, duplicado, inesperado o path inválido;
+3. candidate: path/lectura, JSON malformado o fallo de validación `PedagogicalUnitCandidate`.
+
+No son errores de slice 38 el digest mismatch, identity mismatch, resource digest mismatch ni admission proof mismatch; pertenecen a verificación posterior. Por tanto:
+
+```text
+acquisition failure
+!= integrity failure
+```
+
+La adquisición demuestra una totalidad limitada: todo member declarado tiene exactamente un binding, todo path permitido fue leído y todo documento candidate se parseó, sin bindings adicionales dentro de la allowlist suministrada. No demuestra ausencia de archivos arbitrarios, candidate identity correctness, digest correctness, resource completeness, admission provenance ni curriculum completeness. No se usa `source complete` sin ese calificador.
+
+`LOADER = BLOCKED`. Antes del loader se requerirá como mínimo candidate integrity sobre la evidencia adquirida, una política resuelta para `required_resource_ids` y recursos externos, una frontera resuelta de admission y un resultado verificado consumible sin relectura de filesystem. A1-U1 permanece `pending / non-member`; no se incorpora ni se usa como fixture productiva de source activa.
+
+La cobertura futura mínima de slice 38 comprobará: manifest v1 válido, vacío y en orden; JSON malformado, UTF-8 inválido, BOM, schema no soportado, fields desconocidos/ausentes, keys JSON duplicadas y memberships incompatibles; manifest semánticamente equivalente pero byte-no-conforme rechazado, incluidos key order incorrecto, whitespace adicional, newline final incorrecto y Unicode escaping distinto; bindings exactos, missing/duplicate/unexpected y ausencia de enumeración; paths absolutos, relativos rechazados, inexistentes, directorios, symlinks y targets no regulares cuando sea práctico; candidates válidos, UTF-8 inválido, BOM, keys JSON duplicadas, JSON malformado, fallo Pydantic, preservación de bytes y lectura única cuando sea comprobable; candidate JSON no canónico por whitespace/key order permitido si es JSON/Pydantic válido; `payload_schema_version` declarada no soportada adquirible y preservada como unverified sin derivar identity; resultado estructuralmente frozen, bytes preservados y mutación del candidate model sin alteración de esos bytes; resultado en orden de manifest, vacío válido, all-or-nothing y semántica acquired/unverified; ausencia de digest verification, resource acquisition, `AdmissionRecord` acquisition y loader. No requiere GitHub ni red.
+
+Esta definición no introduce `CandidatePayloadDocumentV1`, envelope, sidecar, raw-file digest, CAS, source root, artifact registry, package manager, signed manifest, Merkle tree, transaction de base de datos ni framework de acquisition remoto. El candidate físico v1 puede ser JSON interpretable directamente como `PedagogicalUnitCandidate`; su formato físico no se confunde con el preimage canónico del `content_digest`.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, no satisface el schema, o no coincide con revision/digest produce **candidate source/acquisition integrity failure**. No se degradará silenciosamente a una candidate ausente del scope.
