@@ -3,8 +3,10 @@ from __future__ import annotations
 import argparse
 import subprocess
 import sys
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
+from urllib.parse import urlsplit
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -260,6 +262,118 @@ def _ahead_behind(root: Path, phase: str) -> tuple[int, int]:
         raise GitCloseError(phase, "Git ahead/behind output is malformed") from exc
 
 
+def _validate_publish_url(publish_url: str) -> str:
+    if not isinstance(publish_url, str) or not publish_url:
+        raise GitCloseError(PRECHECK_FAILED, "--publish-url must not be blank")
+    if (
+        publish_url != publish_url.strip()
+        or publish_url.startswith("-")
+        or any(
+            character.isspace()
+            or unicodedata.category(character) == "Cc"
+            for character in publish_url
+        )
+    ):
+        raise GitCloseError(PRECHECK_FAILED, "--publish-url is invalid")
+    try:
+        parsed = urlsplit(publish_url)
+        hostname = parsed.hostname
+        port = parsed.port
+    except ValueError as exc:
+        raise GitCloseError(PRECHECK_FAILED, "--publish-url is invalid") from exc
+    if (
+        parsed.scheme != "https"
+        or not parsed.netloc
+        or not hostname
+        or any(
+            character.isspace()
+            or unicodedata.category(character) == "Cc"
+            for character in hostname
+        )
+        or "\\" in hostname
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.query
+        or parsed.fragment
+        or (port is not None and not 1 <= port <= 65535)
+    ):
+        raise GitCloseError(PRECHECK_FAILED, "--publish-url is invalid")
+    return publish_url
+
+
+def _require_publish_transport_git(
+    root: Path,
+    phase: str,
+    action: str,
+    *args: str,
+) -> subprocess.CompletedProcess[str]:
+    result = _run_git(root, *args)
+    if result.returncode != 0:
+        raise GitCloseError(phase, f"Publish URL {action} failed")
+    return result
+
+
+def _reference_oid(root: Path, reference: str, phase: str) -> str:
+    return _require_git(root, phase, "rev-parse", reference).stdout.strip()
+
+
+def _remote_ref_oid(
+    root: Path,
+    publish_url: str,
+    destination_ref: str,
+    phase: str,
+) -> str:
+    result = _require_publish_transport_git(
+        root,
+        phase,
+        "lookup",
+        "ls-remote",
+        "--exit-code",
+        publish_url,
+        destination_ref,
+    )
+    records = [line.split("\t", 1) for line in result.stdout.splitlines() if line]
+    if len(records) != 1 or len(records[0]) != 2 or records[0][1] != destination_ref:
+        raise GitCloseError(phase, "Publish URL destination ref is ambiguous")
+    return records[0][0]
+
+
+def _assert_publish_url_matches_upstream(
+    root: Path,
+    publish_url: str,
+    destination_ref: str,
+) -> None:
+    if _remote_ref_oid(
+        root,
+        publish_url,
+        destination_ref,
+        PRECHECK_FAILED,
+    ) != _reference_oid(root, "@{upstream}", PRECHECK_FAILED):
+        raise GitCloseError(
+            PRECHECK_FAILED,
+            "Publish URL destination does not match configured upstream",
+        )
+
+
+def _fetch_publish_url_tracking_ref(
+    root: Path,
+    publish_url: str,
+    remote: str,
+    destination_ref: str,
+) -> None:
+    branch_name = destination_ref.removeprefix("refs/heads/")
+    tracking_ref = f"refs/remotes/{remote}/{branch_name}"
+    _require_publish_transport_git(
+        root,
+        FINAL_SYNC_FAILED,
+        "fetch",
+        "fetch",
+        "--no-tags",
+        publish_url,
+        f"{destination_ref}:{tracking_ref}",
+    )
+
+
 def _staged_paths(root: Path, phase: str) -> set[str]:
     result = _require_git(root, phase, "diff", "--cached", "--name-only", "-z")
     return {path for path in result.stdout.split("\0") if path}
@@ -317,6 +431,7 @@ def close_git_changes(
     upstream: str,
     message: str,
     files: list[str],
+    publish_url: str | None = None,
     root: Path = ROOT,
 ) -> str:
     """Commit and publish one exact allowlist after fail-fast checks.
@@ -325,6 +440,8 @@ def close_git_changes(
     """
     if not isinstance(message, str) or not message.strip():
         raise GitCloseError(PRECHECK_FAILED, "--message must not be blank")
+    if publish_url is not None:
+        publish_url = _validate_publish_url(publish_url)
 
     root = root.resolve()
     _assert_repository_root(root)
@@ -339,6 +456,12 @@ def close_git_changes(
     _assert_initial_scope(_status(root, PRECHECK_FAILED), allowlist)
     if _ahead_behind(root, PRECHECK_FAILED) != (0, 0):
         raise GitCloseError(PRECHECK_FAILED, "HEAD and upstream must be synchronized")
+    if publish_url is not None:
+        _assert_publish_url_matches_upstream(
+            root,
+            publish_url,
+            destination_ref,
+        )
 
     stage = _run_git(root, "add", "--", *allowlist)
     if stage.returncode != 0:
@@ -367,14 +490,51 @@ def close_git_changes(
             f"Unexpected post-commit relation; local commit {after_head} remains unpushed",
         )
 
-    push = _run_git(root, "push", remote, f"HEAD:{destination_ref}")
+    push_destination = publish_url or remote
+    push = _run_git(root, "push", push_destination, f"HEAD:{destination_ref}")
     if push.returncode != 0:
         try:
             summary = _state_summary(root, branch, upstream)
         except GitCloseError:
             summary = f"local commit={after_head}; branch={branch}; upstream={upstream}"
-        detail = _output(push) or "git push failed"
+        detail = "Publish URL push failed" if publish_url is not None else (
+            _output(push) or "git push failed"
+        )
         raise GitCloseError(PUSH_FAILED, f"{detail}\n{summary}")
+
+    if publish_url is not None:
+        try:
+            if _remote_ref_oid(
+                root,
+                publish_url,
+                destination_ref,
+                FINAL_SYNC_FAILED,
+            ) != after_head:
+                raise GitCloseError(
+                    FINAL_SYNC_FAILED,
+                    "Publish URL destination does not match the local commit",
+                )
+            _fetch_publish_url_tracking_ref(
+                root,
+                publish_url,
+                remote,
+                destination_ref,
+            )
+            _assert_branch_and_upstream(root, branch, upstream, FINAL_SYNC_FAILED)
+            _assert_clean(root, FINAL_SYNC_FAILED)
+            if _ahead_behind(root, FINAL_SYNC_FAILED) != (0, 0):
+                raise GitCloseError(
+                    FINAL_SYNC_FAILED,
+                    "HEAD and upstream are not synchronized",
+                )
+        except GitCloseError as error:
+            if error.phase != FINAL_SYNC_FAILED:
+                raise
+            raise GitCloseError(
+                FINAL_SYNC_FAILED,
+                f"{error.detail}; the commit may already be published remotely",
+            ) from error
+        return after_head
 
     _assert_branch_and_upstream(root, branch, upstream, FINAL_SYNC_FAILED)
     _assert_clean(root, FINAL_SYNC_FAILED)
@@ -391,6 +551,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--upstream", required=True)
     parser.add_argument("--message", required=True)
     parser.add_argument("--file", action="append", required=True, dest="files")
+    parser.add_argument("--publish-url")
     return parser
 
 
@@ -402,6 +563,7 @@ def main() -> int:
             upstream=args.upstream,
             message=args.message,
             files=args.files,
+            publish_url=args.publish_url,
         )
     except GitCloseError as exc:
         print(f"{exc.phase}: {exc.detail}", file=sys.stderr)

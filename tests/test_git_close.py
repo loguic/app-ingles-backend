@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
+import scripts.engineering.git_close as git_close_module
 
 from scripts.engineering.git_close import (
     COMMIT_FAILED,
+    FINAL_SYNC_FAILED,
     PRECHECK_FAILED,
     PUSH_FAILED,
     GitCloseError,
@@ -40,12 +43,18 @@ def create_repository(tmp_path: Path) -> tuple[Path, Path]:
     return repository, remote
 
 
-def close(repository: Path, files: list[str], message: str = "close docs") -> str:
+def close(
+    repository: Path,
+    files: list[str],
+    message: str = "close docs",
+    publish_url: str | None = None,
+) -> str:
     return close_git_changes(
         branch="master",
         upstream="origin/master",
         message=message,
         files=files,
+        publish_url=publish_url,
         root=repository,
     )
 
@@ -75,6 +84,267 @@ def test_happy_path_commits_pushes_and_synchronizes(tmp_path: Path) -> None:
     assert git(repository, "log", "-1", "--format=%s").stdout.strip() == "docs finalize first"
     assert porcelain(repository) == ""
     assert relation(repository) == (0, 0)
+
+
+def test_https_publish_url_pushes_without_changing_git_configuration(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    repository, remote = create_repository(tmp_path)
+    configuration_before = (repository / ".git" / "config").read_text(encoding="utf-8")
+    (repository / "first.txt").write_text("changed\n", encoding="utf-8")
+
+    monkeypatch.setattr(
+        git_close_module,
+        "_validate_publish_url",
+        lambda publish_url: remote.as_uri(),
+    )
+
+    commit_hash = close(
+        repository,
+        ["first.txt"],
+        "publish by alternate transport",
+        publish_url="https://example.test/english.git",
+    )
+
+    assert git(repository, "rev-parse", "HEAD").stdout.strip() == commit_hash
+    assert git(remote, "rev-parse", "refs/heads/master").stdout.strip() == commit_hash
+    assert (repository / ".git" / "config").read_text(encoding="utf-8") == configuration_before
+    assert porcelain(repository) == ""
+    assert relation(repository) == (0, 0)
+
+
+@pytest.mark.parametrize(
+    "publish_url",
+    [
+        "",
+        " https://example.test/repo.git",
+        "http://example.test/repo.git",
+        "ssh://example.test/repo.git",
+        "git://example.test/repo.git",
+        "file:///tmp/repo.git",
+        "../repo.git",
+        "-https://example.test/repo.git",
+        "https://user:token@example.test/repo.git",
+        "https://example.test/repo.git?token=value",
+        "https://example.test/repo.git#fragment",
+        "https://example.test:invalid/repo.git",
+        "https://example.test:65536/repo.git",
+        "https://example.test:0/repo.git",
+        "https://exa mple.test/repo.git",
+        "https://example.test/repo\n.git",
+        "https://example.test/repo\t.git",
+        "https://example.test\\repo.git",
+    ],
+)
+def test_invalid_publish_url_is_rejected_before_git_effects(
+    tmp_path: Path,
+    publish_url: str,
+) -> None:
+    repository, _ = create_repository(tmp_path)
+    (repository / "first.txt").write_text("changed\n", encoding="utf-8")
+    before_head = git(repository, "rev-parse", "HEAD").stdout.strip()
+
+    with pytest.raises(GitCloseError, match="publish-url") as error:
+        close(repository, ["first.txt"], publish_url=publish_url)
+
+    assert error.value.phase == PRECHECK_FAILED
+    assert git(repository, "rev-parse", "HEAD").stdout.strip() == before_head
+    assert git(repository, "diff", "--cached", "--name-only").stdout == ""
+
+
+def test_publish_url_accepts_https_with_a_valid_explicit_port() -> None:
+    publish_url = "https://example.test:8443/repo.git"
+
+    assert git_close_module._validate_publish_url(publish_url) == publish_url
+
+
+def test_publish_url_lookup_failure_does_not_expose_destination(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    secret_url = "https://example.test/private-repository.git"
+
+    def fail_lookup(root: Path, *args: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(
+            ["git", *args],
+            1,
+            "",
+            f"fatal: unable to access '{secret_url}'",
+        )
+
+    monkeypatch.setattr(git_close_module, "_run_git", fail_lookup)
+
+    with pytest.raises(GitCloseError) as error:
+        git_close_module._remote_ref_oid(
+            tmp_path,
+            secret_url,
+            "refs/heads/master",
+            PRECHECK_FAILED,
+        )
+
+    assert error.value.phase == PRECHECK_FAILED
+    assert secret_url not in error.value.detail
+
+
+def test_publish_url_push_failure_does_not_expose_destination(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    repository, remote = create_repository(tmp_path)
+    transport_url = remote.as_uri()
+    (repository / "first.txt").write_text("changed\n", encoding="utf-8")
+    before_configuration = (repository / ".git" / "config").read_text(encoding="utf-8")
+    original_run_git = git_close_module._run_git
+
+    def fail_push(root: Path, *args: str) -> subprocess.CompletedProcess[str]:
+        if args[:1] == ("push",) and args[1] == transport_url:
+            return subprocess.CompletedProcess(
+                ["git", *args],
+                1,
+                "",
+                f"fatal: unable to access '{transport_url}'",
+            )
+        return original_run_git(root, *args)
+
+    monkeypatch.setattr(git_close_module, "_validate_publish_url", lambda value: transport_url)
+    monkeypatch.setattr(git_close_module, "_run_git", fail_push)
+
+    with pytest.raises(GitCloseError) as error:
+        close(
+            repository,
+            ["first.txt"],
+            publish_url="https://example.test/private-repository.git",
+        )
+
+    assert error.value.phase == PUSH_FAILED
+    assert transport_url not in error.value.detail
+    assert (repository / ".git" / "config").read_text(encoding="utf-8") == before_configuration
+    assert relation(repository) == (1, 0)
+
+
+def test_publish_url_fetch_failure_does_not_expose_destination(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    repository, remote = create_repository(tmp_path)
+    transport_url = remote.as_uri()
+    (repository / "first.txt").write_text("changed\n", encoding="utf-8")
+    before_configuration = (repository / ".git" / "config").read_text(encoding="utf-8")
+    original_run_git = git_close_module._run_git
+    push_destinations: list[str] = []
+
+    def fail_fetch(root: Path, *args: str) -> subprocess.CompletedProcess[str]:
+        if args[:1] == ("push",):
+            push_destinations.append(args[1])
+        if args[:1] == ("fetch",) and args[2] == transport_url:
+            return subprocess.CompletedProcess(
+                ["git", *args],
+                1,
+                "",
+                f"fatal: unable to access '{transport_url}'",
+            )
+        return original_run_git(root, *args)
+
+    monkeypatch.setattr(git_close_module, "_validate_publish_url", lambda value: transport_url)
+    monkeypatch.setattr(git_close_module, "_run_git", fail_fetch)
+
+    with pytest.raises(GitCloseError) as error:
+        close(
+            repository,
+            ["first.txt"],
+            publish_url="https://example.test/private-repository.git",
+        )
+
+    assert error.value.phase == FINAL_SYNC_FAILED
+    assert transport_url not in error.value.detail
+    assert "the commit may already be published remotely" in error.value.detail
+    assert push_destinations == [transport_url]
+    assert "origin" not in push_destinations
+    assert git(remote, "rev-parse", "refs/heads/master").stdout.strip() == git(
+        repository,
+        "rev-parse",
+        "HEAD",
+    ).stdout.strip()
+    assert (repository / ".git" / "config").read_text(encoding="utf-8") == before_configuration
+    assert relation(repository) == (1, 0)
+
+
+def test_cli_forwards_publish_url_to_close_git_changes(
+    monkeypatch,
+) -> None:
+    captured: dict[str, object] = {}
+
+    def capture_close_git_changes(**kwargs: object) -> str:
+        captured.update(kwargs)
+        return "abc123"
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "git_close.py",
+            "--branch",
+            "master",
+            "--upstream",
+            "origin/master",
+            "--message",
+            "close docs",
+            "--file",
+            "docs/estado-operativo.md",
+            "--file",
+            "docs/bitacora.md",
+            "--publish-url",
+            "https://example.test/repo.git",
+        ],
+    )
+    monkeypatch.setattr(git_close_module, "close_git_changes", capture_close_git_changes)
+
+    assert git_close_module.main() == 0
+    assert captured == {
+        "branch": "master",
+        "upstream": "origin/master",
+        "message": "close docs",
+        "files": ["docs/estado-operativo.md", "docs/bitacora.md"],
+        "publish_url": "https://example.test/repo.git",
+    }
+
+
+def test_publish_url_must_match_upstream_before_staging(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    repository, remote = create_repository(tmp_path)
+    alternate_remote = tmp_path / "alternate.git"
+    git(tmp_path, "init", "--bare", "--initial-branch=master", str(alternate_remote))
+    rival = tmp_path / "rival"
+    git(tmp_path, "clone", str(remote), str(rival))
+    git(rival, "config", "user.name", "Alternate Publisher")
+    git(rival, "config", "user.email", "alternate@example.test")
+    git(rival, "remote", "add", "alternate", str(alternate_remote))
+    (rival / "alternate.txt").write_text("alternate\n", encoding="utf-8")
+    git(rival, "add", "--", "alternate.txt")
+    git(rival, "commit", "-m", "alternate state")
+    git(rival, "push", "alternate", "master")
+    (repository / "first.txt").write_text("changed\n", encoding="utf-8")
+    before_head = git(repository, "rev-parse", "HEAD").stdout.strip()
+
+    monkeypatch.setattr(
+        git_close_module,
+        "_validate_publish_url",
+        lambda publish_url: alternate_remote.as_uri(),
+    )
+
+    with pytest.raises(GitCloseError, match="does not match") as error:
+        close(
+            repository,
+            ["first.txt"],
+            publish_url="https://example.test/alternate.git",
+        )
+
+    assert error.value.phase == PRECHECK_FAILED
+    assert git(repository, "rev-parse", "HEAD").stdout.strip() == before_head
+    assert git(repository, "diff", "--cached", "--name-only").stdout == ""
 
 
 def test_multiple_allowed_files_are_the_exact_commit_scope(tmp_path: Path) -> None:
