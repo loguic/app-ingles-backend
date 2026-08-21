@@ -14,23 +14,19 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Active candidate source snapshot — Slice 36
+### Safe deterministic Git close helper v1
 
-Estado: cerrada, publicada y sincronizada mediante el contrato `9bb3a13` (`docs define active candidate source snapshot`), el commit técnico `deeb99a` (`feat add active candidate source snapshot`) y el cierre documental `eb2a65e` (`docs close active candidate source snapshot slice`). Push confirmado en `origin/master` desde `b1ebc18` hasta `eb2a65e`.
+Estado: cierre técnico local mediante `bf16407` (`feat add deterministic git close helper`); pendiente de este cierre documental y push.
 
-`ActiveCandidateSourceSnapshot` es un value object frozen con exactamente `snapshot_revision: str` y `collection: ActiveCandidateMembershipCollection`. `build_active_candidate_source_snapshot(collection, *, snapshot_revision)` valida solo una revision `str` non-blank y una collection conforme, preservando ambas instancias literalmente y sin reconstruir memberships.
+`scripts/engineering/git_close.py` sustituye el tramo repetitivo `git add` exacto → verificación → commit → push → sync por una orden explícita con `--branch`, `--upstream`, `--message` y `--file` repetible. Automatizar comprobaciones ≠ eliminarlas: antes de efectos exige root/repo, branch y upstream exactos, HEAD no detached, ausencia de operaciones Git, index vacío, cambios totales exactamente iguales a la allowlist, paths seguros y ahead/behind `0/0`.
 
-`candidate_revision` identifica una unit candidata y `snapshot_revision` el conjunto activo completo; no se derivan entre sí. El snapshot compone la collection ya conforme, por lo que hereda vacío válido, orden solo representacional y sus unicidades sin recalcularlas. Misma revision y collection estructural son iguales; misma revision con collection distinta puede construirse localmente y su conflicto pertenece a una futura consistencia global de source/publication.
+Tras `git add -- <allowlist>` verifica staged scope exacto y ausencia de cambios unstaged/untracked; hace un único commit normal, confirma estructuralmente sus paths y limpieza, push normal explícito al remote/ref confirmado y éxito solo con branch/upstream esperados, porcelain vacío y ahead/behind `0/0`. No ejecuta pytest, `diff --check` u `operational_state`; tampoco descubre archivos, genera mensajes, hace force, retry, rollback, configuración Git, múltiples commits o I/O ajeno a Git.
 
-Fronteras: admission verificada ≠ active membership ≠ membership collection ≠ active source snapshot ≠ publication event ≠ representación física. Snapshot declarado ≠ publicación física completada; tampoco equivale a source integrity, loader, orden curricular o compatibilidad curricular autoritativa. No introduce snapshot ID, digest, source ID, timestamps, schema version, replacement, historial, eventos, I/O, manifest ni validación/reconstrucción de capas anteriores.
-
-Validación confirmada: 11 pruebas específicas PASS en 0.11 s; postflight independiente PASS / READY FOR REGRESSION; regresión seleccionada 80 passed en 0.25 s y suite backend completa 1855 passed en 13.88 s (`PYTEST_EXIT=0`); `git diff --check` real PASS. A1-U1 sigue pending / non-member; LOADER = BLOCKED.
-
-Segundo piloto de routing: preflight contractual `Sol / high` fue justificado por la identidad, publication y atomicidad del snapshot. Implementación `Terra / medium` fue suficiente sin escalamiento; postflight `Terra / high` fue suficiente y `Terra / medium` habría sido razonable con el contrato cerrado. No cambian policy, thresholds ni default `Terra / medium`.
+Validación: 16 pruebas específicas PASS en 1.61 s; postflight independiente recheck PASS / READY FOR REGRESSION; regresión seleccionada de tooling (`tests/test_block_close.py`, `tests/test_conversation_checkpoint.py`, `tests/test_operational_state.py`, `tests/test_git_close.py`), 63 passed en 2.11 s (`PYTEST_EXIT=0`); suite backend completa, 1871 passed en 15.20 s (`PYTEST_EXIT=0`); `git diff --check` PASS. Las pruebas usan repos temporales y bare remotes locales: cubren cierre correcto, scope múltiple, staging previo, allowlist/path/message inválidos, branch/upstream, precheck ahead/behind, fallo de push que preserva commit ahead y worktree sucio tras hook. Permanecen fuera de scope la simulación directa de carrera stage→commit y hardening de remote names que empiecen por `-`.
 
 ## Bloque activo
 
-No hay implementación técnica activa. La slice 36 está cerrada, publicada y sincronizada. No implementar representación física, source integrity ni loader.
+No hay implementación técnica activa. El helper Git está cerrado técnicamente de forma local y pendiente solo de cierre documental/publicación. No implementar representación física, source integrity ni loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -41,6 +37,7 @@ Estado: **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**. I1–I4 
 - `operational_state.py` valida este checkpoint.
 - `conversation_checkpoint.py prepare|resume` prepara y recupera una vista efímera validada al cambiar de conversación.
 - `block_close.py` realiza validaciones técnicas y staging controlado.
+- `git_close.py` realiza un cierre Git seguro de allowlist explícita, un commit y un push confirmado.
 - `block_workflow.py` conserva una deuda de interrupción y no es fiable para cierres desatendidos.
 
 ## Método operativo vigente
@@ -59,7 +56,7 @@ Antes de cambiar de conversación: actualizar este documento, validarlo con `ope
 
 ## Próximo objetivo
 
-Después de cerrar y publicar la slice 36, hacer únicamente el preflight de la representación física explícita de `ActiveCandidateSourceSnapshot`: cómo expresará revision y memberships, con lectura/publicación física atómica, sin diseñar todavía source integrity, adquisición ni loader. Permanecen pendientes source integrity, correspondencia con candidates adquiridos e integración de carga/loader.
+Después de cerrar y publicar el helper Git, hacer únicamente el preflight de la representación física explícita de `ActiveCandidateSourceSnapshot`: cómo expresará revision y memberships, con lectura/publicación física atómica, sin diseñar todavía source integrity, adquisición ni loader. Permanecen pendientes source integrity, correspondencia con candidates adquiridos e integración de carga/loader.
 
 ## Archivos clave
 
@@ -67,6 +64,8 @@ Después de cerrar y publicar la slice 36, hacer únicamente el preflight de la 
 - `docs/curriculum-preparation-prerequisites-contract-v1.md`;
 - `scripts/engineering/operational_state.py`;
 - `scripts/engineering/conversation_checkpoint.py`;
+- `scripts/engineering/git_close.py`;
+- `tests/test_git_close.py`;
 - `app/services/pedagogical_candidate_payload_identity.py`;
 - `app/services/pedagogical_candidate_admission.py`;
 - `app/services/pedagogical_candidate_admission_verification.py`;
