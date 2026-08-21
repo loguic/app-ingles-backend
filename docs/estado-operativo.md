@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### ActiveCandidateSourceSnapshotManifestV1 — Slice 37
 
-Estado objetivo de cierre: **CERRADO / PUBLICADO / SINCRONIZADO**. Contrato `6306362` (`docs define active candidate source snapshot manifest`), implementación `7b66d4f` (`feat add active candidate source snapshot manifest`) y cierre documental previo `8cdc4ea` (`docs close active candidate source snapshot manifest`) publicados. `8cdc4ea` es el checkpoint sincronizado confirmado inmediatamente anterior a esta actualización documental final (`master == origin/master == 8cdc4ea`); esta actualización no anticipa su propio hash. No hay cambios técnicos pendientes de slice 37.
+Estado: **CERRADO / PUBLICADO / SINCRONIZADO**. Contrato `6306362` (`docs define active candidate source snapshot manifest`) e implementación `7b66d4f` (`feat add active candidate source snapshot manifest`) publicados; el cierre documental final alcanzó el HEAD confirmado `6a91916`. No hay cambios técnicos pendientes de slice 37.
 
 `ActiveCandidateSourceSnapshotManifestV1` es únicamente el documento físico JSON v1 derivado de `ActiveCandidateSourceSnapshot`: serializa `manifest_schema_version="1.0"`, `snapshot_revision` literal y memberships en su orden representacional. Sus bytes son deterministas (UTF-8 sin BOM, `ensure_ascii=False`, separators compactos, `sort_keys=False`, `allow_nan=False`, newline final), sin hash ni prueba de integrity. El publicador exige `manifest_path: Path` absoluto y explícito, publica con temporal en el mismo parent → write/flush/fsync(file) → close → `os.replace` → fsync(parent), y limita sus garantías a visibilidad física local atómica, no a crash durability.
 
@@ -30,7 +30,11 @@ A1-U1 continúa pending / non-member; `LOADER = BLOCKED`.
 
 ## Bloque activo
 
-No hay implementación técnica activa. Slice 37 está completamente cerrada. No implementar source integrity, acquisition ni loader sin un preflight separado.
+### Microbloque tooling — `git_close.py --publish-url` v1
+
+Estado: microampliación contractual documentada; sin implementación activa. `--publish-url` será opcional, explícito y HTTPS caller-provided para publicar por un transporte alternativo sin cambiar la configuración persistente de `origin`. `--upstream` mantiene la referencia canónica configurada; el caller declara que la URL es transporte alternativo de ese upstream. No se pretende probar identidad criptográfica entre URL y remote: antes del commit se exigirá coincidencia del OID del ref de destino con `@{upstream}`, y después del push se verificará que ese ref apunta a `HEAD` antes de actualizar la ref remota local mediante fetch explícito desde la misma URL.
+
+Sin `--publish-url`, el flujo v1 actual no cambia. No habrá fallback automático SSH→HTTPS, retry, force, rollback, cambio de remote, `set-upstream` ni configuración persistente. Un push fallido conserva el commit local; si push tuvo éxito pero falla verificación/fetch/sync, el cierre falla explícitamente sin revertir una publicación posiblemente ya visible. El éxito final sigue exigiendo worktree/index limpios y ahead/behind `0/0` frente a `@{upstream}`. Este microbloque no es slice 38 ni modifica source integrity, acquisition o loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -60,7 +64,7 @@ Antes de cambiar de conversación: actualizar este documento, validarlo con `ope
 
 ## Próximo objetivo
 
-Preflight separado de acquisition/source integrity: correspondencia demostrable entre manifest/snapshot y candidates/artifacts adquiridos, antes de cualquier loader. No diseñar todavía loader ni compatibilidad curricular autoritativa.
+Cerrar primero el microbloque `git_close.py --publish-url` v1. Después: preflight separado de acquisition/source integrity, correspondencia demostrable entre manifest/snapshot y candidates/artifacts adquiridos, antes de cualquier loader. No diseñar todavía loader ni compatibilidad curricular autoritativa.
 
 ## Archivos clave
 
