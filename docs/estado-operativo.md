@@ -24,11 +24,11 @@ Tras `git add -- <allowlist>` verifica staged scope exacto y ausencia de cambios
 
 Validación: 16 pruebas específicas PASS en 1.61 s; postflight independiente recheck PASS / READY FOR REGRESSION; regresión seleccionada de tooling (`tests/test_block_close.py`, `tests/test_conversation_checkpoint.py`, `tests/test_operational_state.py`, `tests/test_git_close.py`), 63 passed en 2.11 s (`PYTEST_EXIT=0`); suite backend completa, 1871 passed en 15.20 s (`PYTEST_EXIT=0`); `git diff --check` PASS. Las pruebas usan repos temporales y bare remotes locales: cubren cierre correcto, scope múltiple, staging previo, allowlist/path/message inválidos, branch/upstream, precheck ahead/behind, fallo de push que preserva commit ahead y worktree sucio tras hook. Permanecen fuera de scope la simulación directa de carrera stage→commit y hardening de remote names que empiecen por `-`.
 
-Primer uso real preparado, todavía pendiente de ejecución: desde Bash se invocará `git_close.py` con allowlist exacta `docs/estado-operativo.md` y `docs/bitacora.md`, y mensaje `docs finalize deterministic git close helper`. Solo un éxito demostrará operativamente precheck → stage exacto → verify → commit → push → final sync verify. A1-U1 continúa pending / non-member; `LOADER = BLOCKED`.
+Primer uso real: PASS. Desde Bash, `git_close.py` recibió branch/upstream, allowlist documental exacta y el mensaje `docs finalize deterministic git close helper`; generó el commit `6832e775ed1cc48816bae8b3e02844c0ac713cfd` y completó precheck → stage exacto → verify → commit → push → final sync verification, sin reparación manual. Es la primera validación operativa real del helper. A1-U1 continúa pending / non-member; `LOADER = BLOCKED`.
 
 ## Bloque activo
 
-No hay implementación técnica activa. El helper Git está cerrado y publicado; su primer uso real está preparado y pendiente. No implementar representación física, source integrity ni loader.
+No hay implementación técnica activa. El helper Git está cerrado, publicado y validado por su primer uso real. No implementar representación física, source integrity ni loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -58,7 +58,7 @@ Antes de cambiar de conversación: actualizar este documento, validarlo con `ope
 
 ## Próximo objetivo
 
-Después de completar el primer uso real del helper Git, retomar App Inglés en la slice 37: únicamente el preflight de la representación física explícita de `ActiveCandidateSourceSnapshot`/source y atomicidad física, sin diseñar todavía source integrity, adquisición ni loader. Permanecen pendientes source integrity, correspondencia con candidates adquiridos e integración de carga/loader.
+Después del cierre definitivo de este microbloque, retomar App Inglés en la slice 37: únicamente el preflight de la representación física explícita de `ActiveCandidateSourceSnapshot`/source y atomicidad física, sin diseñar todavía source integrity, adquisición ni loader. Permanecen pendientes source integrity, correspondencia con candidates adquiridos e integración de carga/loader.
 
 ## Archivos clave
 
