@@ -14,29 +14,23 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Candidate integrity verification from acquired evidence v1 — Slice 39
+### Physical AdmissionRecord document and atomic local publication v1 — Slice 40
 
-Estado: contrato e implementación **CERRADOS / PUBLICADOS / SINCRONIZADOS**. Contrato `bf7f966662cf87283f05c5f510be95a351c0ee13` (`docs define candidate payload integrity verification v1`) e implementación `151673d2e266617012f741705bf287c9a2ea2ff7` (`feat add candidate payload integrity verification v1`) publicados; no hay cambios de código pendientes. Este cierre documental se prepara localmente y queda pendiente de su propio commit/publicación.
+Estado técnico: contrato e implementación **CERRADOS / PUBLICADOS / SINCRONIZADOS**. Contrato `60bb2693540f826ed15fd2e5562a74b7e016b705` (`docs define physical admission record document v1`) e implementación `f4a3eda438c85d1535de7837509656d6bed940e2` (`feat add physical admission record document v1`) publicados; no hay cambios de código pendientes. Este cierre documental se prepara localmente y queda pendiente de su propio commit/publicación.
 
-`verify_active_candidate_source_candidate_integrity(...)` consume `ActiveCandidateSourceAcquisition` y produce `CandidatePayloadIntegrityVerification` / `ActiveCandidateSourceCandidateIntegrityVerification` frozen: reconstruye un candidate desde `candidate_bytes`, reutiliza B31 y exige `derived_identity == membership.identity`. `candidate_bytes` son la evidencia autoritativa; no confía en `entry.candidate` mutable, no relee filesystem ni `candidate_path`, preserva orden del manifest, admite vacío y es all-or-nothing. Solo `payload_schema_version="1.0"` es soportada; una versión distinta falla antes de derivar. `candidate_revision` se transmite literalmente desde la membership, sin demostrar provenance desde bytes.
+`ADMISSION_RECORD_DOCUMENT_SCHEMA_VERSION = "1.0"`, `serialize_candidate_admission_record_document(...)` y `publish_candidate_admission_record_document(...)` representan/publican un `AdmissionRecord` sin crear otro domain model. El JSON ordenado contiene `document_schema_version`, `admission_id`, identity, decision, reviewer y `decided_at`; la identity se preserva literalmente, `admitted` y `rejected` son serializables, y el timestamp UTC se emite como `YYYY-MM-DDTHH:MM:SS.ffffffZ`. Los bytes usan UTF-8 sin BOM, `ensure_ascii=False`, separators compactos, `sort_keys=False`, `allow_nan=False` y newline final; no existe digest propio de documento.
 
-Candidate payload integrity verified ≠ active source integrity verified ≠ loader readiness. `content_digest` sigue siendo el digest del payload lógico canónico B31 de siete campos, no un hash raw; `required_resource_ids` participa lógicamente sin adquirir ni verificar recursos. No hay `AdmissionRecord` lookup ni rerun de gates. Las etapas futuras consumirán `candidate_bytes` + derived identity + membership, sin confiar en el candidate mutable ni reabrir `candidate_path` para volver a demostrar payload integrity.
+`document_path` es absoluto y caller-provided; exige parent existente/directorio y target inexistente o regular, rechazando symlink, directorio y no-regular. La publicación serializa antes de filesystem y sigue temp en mismo parent → write/flush/fsync(temp) → close → `os.replace` → fsync(parent). Soporta publicación inicial y replacement; un fallo pre-replace conserva S1 y cleanup best-effort no oculta el error primario. Tras fallo de fsync(parent), S2 puede estar visible sin durabilidad confirmada, sin rollback, segundo replace ni retry.
 
-Postflight técnico final PASS, sin findings BLOCKING ni NONBLOCKING. El finding inicial de bytes authority se cerró al mutar `entry.candidate.specification.title`, campo canónico B31; el recheck confirmó que los bytes son materialmente la autoridad. Validación: 15 específicas PASS en 0.15 s; regresión B31–B39, 117 passed en 0.36 s; suite backend completa, 1933 passed en 16.87 s; `git diff --check` PASS. Routing: preflight `Sol / high`; contrato/implementación/corrección `Terra / medium`; postflights `Terra / high`.
+Physical AdmissionRecord document ≠ admission provenance ≠ reviewer/decision authenticity ≠ candidate_revision provenance ≠ active membership proof ≠ candidate payload integrity ≠ resource integrity ≠ active source integrity ≠ loader readiness. B40 no adquiere ni parsea records, no rerun de gates, no enlaza memberships, no usa B39/candidate bytes, no toca recursos, source integrity ni loader. Threat model: POSIX/Linux local, caller controlado, single writer y parent no adversarial. Validación: 8 específicas PASS en 0.11 s; regresión B31–B40, 125 passed en 0.39 s; suite backend completa, 1941 passed en 16.87 s; `git diff --check` PASS; postflight PASS sin findings BLOCKING/NONBLOCKING. Routing: preflight `Sol / high`; contrato/implementación `Terra / medium`; postflights `Terra / high`.
 
 A1-U1 continúa pending / non-member; `LOADER = BLOCKED`.
 
 ## Bloque activo
 
-### Microbloque tooling — `git_close.py --publish-url` v1
+### Cierre documental de Slice 40
 
-Estado: técnicamente cerrado y publicado. Microcontrato `ead2422` (`docs define git close publish url contract`) e implementación `da13cb96a32a549b0a57f559be50f4415d67f47d` (`feat add git close publish url`), publicada mediante el propio helper; este commit es el checkpoint técnico sincronizado previo al cierre documental actual, no un HEAD permanente.
-
-`--publish-url <https-url>` es opcional, explícito y HTTPS-only. `--upstream` mantiene la referencia canónica local; la URL es transporte alternativo caller-provided, sin modificar `origin`, upstream ni `.git/config`. Valida URL absoluta, hostname, ausencia de userinfo/query/fragment/whitespace/control y puerto válido; compara OID del ref remoto con upstream antes del commit, verifica `HEAD` tras push y actualiza la tracking ref por fetch explícito. OID equality acredita coherencia del branch, no identidad criptográfica del repositorio. Usa argv/shell=False, push non-force y redacción del destino en diagnósticos alternativos.
-
-Sin `--publish-url`, el flujo v1 anterior permanece. Uso recomendado: `git_close.py` normal cuando `origin` funciona; `git_close.py --publish-url <https-url>` solo cuando el usuario necesita transporte HTTPS explícito. No hay fallback SSH→HTTPS, retry, rollback, segundo push, `set-upstream`, `remote set-url` ni configuración persistente. Push fallido produce `PUSH_FAILED` y conserva commit local; fallo posterior a publicación posible produce `FINAL_SYNC_FAILED` con `the commit may already be published remotely`, sin revertir. El uso real generó `da13cb96a32a549b0a57f559be50f4415d67f47d` y completó precheck → stage exacto → verify → commit → push HTTPS → actualización de `origin/master` → clean/sync final, sin `git push`, `git fetch` ni `git status` manual posterior. Este microbloque no es slice 38 ni modifica source integrity, acquisition o loader.
-
-Validación: 41 directas PASS en 3.37 s; postflight técnico final PASS sin findings BLOCKING/NONBLOCKING; regresión tooling 88 passed en 3.78 s; suite backend completa 1904 passed en 16.64 s; `git diff --check` PASS.
+Estado: preparación local de este cierre documental; no hay bloque funcional/técnico adicional activo. El microbloque tooling `git_close.py --publish-url` v1 permanece cerrado y publicado, sin relación con admission, source integrity o loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -60,13 +54,14 @@ Antes de cambiar de conversación: actualizar este documento, validarlo con `ope
 
 - preparación curricular ≠ ejecución del estudiante ≠ evidencia real ≠ evaluación ≠ aprendizaje ≠ mastery;
 - admission verificada ≠ publication ≠ active membership ≠ membership collection ≠ active source snapshot ≠ representación física ≠ compatibilidad curricular autoritativa;
+- physical AdmissionRecord document ≠ admission provenance ≠ active membership proof ≠ candidate payload integrity ≠ resource integrity ≠ active source integrity ≠ loader readiness;
 - `required_stages` y `SkillCoverage` heredados no producen `CurriculumPreparationState`;
 - no modificar todavía `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage`, `required_stages`, runtime, progreso, mastery, fonética, feedback ni B181;
 - membership/source state no define orden curricular; hierarchy authority no certifica admission.
 
 ## Próximo objetivo
 
-Tras publicar este cierre documental de B39, integrar candidate payload integrity verificada con las demás evidencias necesarias antes de poder afirmar active source integrity y habilitar posteriormente un loader. No se diseña ni numera aquí ese bloque posterior; `LOADER = BLOCKED` y la compatibilidad curricular autoritativa sigue posterior.
+Tras publicar este cierre documental de B40, adquirir explícitamente AdmissionRecord documents publicados y comprobar su correspondencia con memberships y gates usando la evidencia candidate ya preservada/verificada. No se diseña ni numera aquí ese bloque posterior; después seguirán pendientes recursos físicos, active source integrity y loader. `LOADER = BLOCKED` y la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
@@ -79,9 +74,11 @@ Tras publicar este cierre documental de B39, integrar candidate payload integrit
 - `app/services/pedagogical_candidate_payload_identity.py`;
 - `app/services/pedagogical_candidate_admission.py`;
 - `app/services/pedagogical_candidate_admission_verification.py`;
+- `app/services/pedagogical_candidate_admission_record_document.py`;
 - `app/services/pedagogical_active_candidate_membership.py`;
 - `app/services/pedagogical_active_candidate_membership_collection.py`;
 - `app/services/pedagogical_active_candidate_source_snapshot.py`;
 - `app/services/pedagogical_active_candidate_source_acquisition.py`;
 - `app/services/pedagogical_active_candidate_integrity_verification.py`;
+- `tests/test_pedagogical_candidate_admission_record_document.py`;
 - `app/services/pedagogical_validation_service.py`.
