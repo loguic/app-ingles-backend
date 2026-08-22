@@ -1306,17 +1306,92 @@ La cobertura futura mínima de slice 38 comprobará: manifest v1 válido, vacío
 
 Esta definición no introduce `CandidatePayloadDocumentV1`, envelope, sidecar, raw-file digest, CAS, source root, artifact registry, package manager, signed manifest, Merkle tree, transaction de base de datos ni framework de acquisition remoto. El candidate físico v1 puede ser JSON interpretable directamente como `PedagogicalUnitCandidate`; su formato físico no se confunde con el preimage canónico del `content_digest`.
 
+### Candidate integrity verification from acquired evidence v1
+
+`Candidate integrity verification from acquired evidence v1` consume exclusivamente una `ActiveCandidateSourceAcquisition` conforme producida por la acquisition local v1. Su garantía positiva se denomina **candidate payload integrity verified** y significa exactamente que, para cada entry adquirida, los `candidate_bytes` preservados reconstruyen un `PedagogicalUnitCandidate` válido cuya `CandidatePayloadIdentity` derivada coincide estructuralmente con la identity declarada por la membership bajo la `candidate_revision` declarada:
+
+```text
+candidate_bytes adquiridos
+-> nueva reconstrucción de PedagogicalUnitCandidate
+-> derive_candidate_payload_identity(
+       candidate,
+       candidate_revision=membership.identity.candidate_revision,
+   )
+-> derived_identity == membership.identity
+```
+
+Se mantienen obligatoriamente las fronteras:
+
+```text
+candidate payload integrity verified
+!= raw-file byte identity
+!= candidate_revision provenance
+!= admission provenance
+!= resource integrity
+!= active source integrity
+!= loader readiness
+!= curricular compatibility
+!= aprendizaje/mastery
+```
+
+La autoridad de B39 es `candidate_bytes`, no `AcquiredActiveCandidateSourceEntry.candidate`: ese modelo Pydantic es mutable y solo fue conservado por B38 como conveniencia. B39 reconstruye el candidate exclusivamente desde los bytes ya adquiridos; no reabre `candidate_path`, no relee filesystem ni manifest físico, no vuelve a adquirir bindings y no usa el candidate mutable como evidencia. `candidate_path` puede conservarse solo como metadata de procedencia local. B38 ya acreditó acquisition y parsing físico inicial; si la reconstrucción desde los bytes preservados deja de producir un `PedagogicalUnitCandidate` válido, B39 produce candidate-integrity verification failure, no acquisition failure.
+
+B39 reutiliza sin redefinir `CandidatePayloadIdentity` —`unit_id`, `candidate_revision`, `payload_schema_version`, `content_digest`— y `derive_candidate_payload_identity(candidate, *, candidate_revision)`. La única `PAYLOAD_SCHEMA_VERSION` soportada hoy es `"1.0"`. La canonicalización reutilizada es exclusivamente la de B31 sobre `specification`, `candidate_unit`, `evaluation_plans`, `feedback_plans`, `lesson_capability_plans`, `skill_coverage` y `required_resource_ids`; no se crea segundo canonicalizer ni serialización alternativa. `content_digest` continúa siendo SHA-256 del payload lógico canónico B31, no de los candidate raw bytes: JSON físicamente distinto que reconstruye el mismo estado lógico Pydantic puede producir el mismo digest.
+
+El orden de verificación es obligatorio:
+
+1. tomar `membership.identity.payload_schema_version`;
+2. comprobar que B31 la soporte;
+3. si no está soportada, fallar explícitamente como candidate-integrity verification failure;
+4. solo entonces reconstruir desde bytes, derivar y comparar identidad.
+
+Una versión no soportada fue adquirible en B38 como metadata declarada / unverified, pero no puede derivarse bajo canonicalización desconocida en B39. No es acquisition failure ni identity mismatch.
+
+`candidate_revision` no forma parte intrínseca de `PedagogicalUnitCandidate`: es metadata externa de `membership.identity` y se entrega literalmente a la factory. B39 demuestra que el candidate lógico reconstruido desde bytes coincide con la identity declarada **bajo** esa revisión; no demuestra que la revisión esté codificada en bytes, su provenance física, autenticidad ni unicidad global. Esta limitación no bloquea la verificación. Análogamente, `binding.unit_id` fue solo la key de asociación B38; la prueba de unidad procede de `derived_identity.unit_id`, derivado de `candidate.specification.unit_id` desde los bytes. La igualdad completa detecta un candidate asociado físicamente a una membership de otra unidad.
+
+La verificación positiva exige únicamente `derived_identity == membership.identity`; no admite comparación parcial ni digest aislado. Sus dimensiones son: `unit_id` derivado del candidate, `payload_schema_version` soportada, `content_digest` derivado del payload canónico y `candidate_revision` externa declarada y pasada a la factory.
+
+Los resultados v1 son dos value objects frozen mínimos:
+
+- `CandidatePayloadIntegrityVerification`: `membership`, `candidate_path`, `candidate_bytes`, `derived_identity`;
+- `ActiveCandidateSourceCandidateIntegrityVerification`: `snapshot`, `entries`.
+
+No se conserva un `PedagogicalUnitCandidate` mutable como evidencia positiva persistente y no se añaden `verified=True`, status, findings, trust, loadability, authority, resource completeness ni evidence de admission. La API pública conceptual única es `verify_active_candidate_source_candidate_integrity(acquisition)`: consume toda la acquisition, verifica entries en el orden del manifest y devuelve el agregado solo si todas pasan. Una primitive individual puede ser privada.
+
+B39 es all-or-nothing y fail-fast es suficiente. Payload schema no soportada, reconstrucción/validación inválida desde `candidate_bytes` o identity mismatch impiden devolver aggregate positivo; no se retornan resultados parciales, success + failures ni findings collection. Acquisition vacía produce verificación vacía estructuralmente válida, sin afirmar source integrity, utilidad, curriculum completeness ni loader readiness.
+
+La estructura exterior y cada entry verification son frozen; `candidate_bytes`, `derived_identity`, snapshot y membership son la evidencia estable posterior. Esto no exige deep-immutable Pydantic. La cadena de consumo queda fijada así:
+
+```text
+B38: filesystem -> acquired physical evidence
+B39: acquired candidate_bytes -> candidate payload integrity verification
+etapas posteriores: consumen esa evidencia/verificación sin reabrir filesystem
+```
+
+Por ello B39 debe poder operar aunque `candidate_path` haya desaparecido, cambiado o dejado de ser accesible tras B38. No introduce locks, `openat2` ni sandbox.
+
+`admission_id` se preserva por la membership, pero B39 no adquiere `AdmissionRecord`, no reejecuta admission gates y no acredita reviewer, decisión ni admission provenance. `required_resource_ids` participa como valor lógico en el digest canónico, pero B39 no resuelve IDs, abre recursos, verifica existencia, calcula hashes ni acredita resource completeness/integrity. Por tanto, digest que cubre `required_resource_ids` no implica que esos recursos físicos existan o sean íntegros.
+
+Después de B39 solo puede afirmarse candidate payload integrity verified. Admission provenance, integridad/completitud física de recursos y demás evidencia externa siguen fuera antes de poder afirmar active source integrity. `LOADER = BLOCKED`; B39 no define loader ni produce objeto `loadable` o `loader-ready`. A1-U1 permanece `pending / non-member` y B39 no la admite, publica, declara membership ni modifica contenido.
+
+Los errores mínimos coherentes con los servicios existentes son `ValueError` o equivalente simple para payload schema no soportada, reconstrucción/validación de candidate desde bytes e identity mismatch. No se crea exception hierarchy ni se denominan estos errores source-integrity, admission o resource-integrity failures.
+
+La cobertura futura mínima incluirá: candidate adquirido válido con schema `"1.0"`, equality exacta y agregado positivo; mutación posterior de `entry.candidate` sin afectar bytes ni B39; ausencia de apertura/read de paths y operación tras borrar o cambiar `candidate_path`; versión no soportada rechazada antes de derivar; unit lógica distinta pese al binding; cambios canónicos que producen mismatch y JSON raw distinto pero semánticamente equivalente que verifica; revisión declarada transmitida literalmente sin afirmar provenance; `required_resource_ids` con efecto lógico en digest y sin I/O de recursos; `admission_id` preservado sin lookup; orden del manifest, all-or-nothing, vacío válido y shapes frozen; ausencia de manifest reread, raw hash, red, resources, admission rerun y loader. No se multiplicarán tests cuando una comprobación material cubra varias garantías.
+
+Esta capacidad no introduce raw-file digest, canonicalizer nuevo, `CandidatePayloadDocumentV1`, envelope, sidecar, modelo candidate profundamente inmutable, framework genérico de verification/findings/status, exception hierarchy, source root, filesystem layer, resource verification, admission verification, active-source-integrity aggregate, loader ni red. La frontera posterior es únicamente integrar candidate payload integrity verificada con las demás pruebas necesarias antes de afirmar active source integrity y habilitar un loader.
+
 ### Source integrity y familias de error
 
-Un active member declarado cuyo payload no existe, no puede leerse o parsearse, no satisface el schema, o no coincide con revision/digest produce **candidate source/acquisition integrity failure**. No se degradará silenciosamente a una candidate ausente del scope.
+Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.
 
 Un artifact no declarado como active member será ignorado por la fuente productiva. Esto permite conservar drafts, experiments, rejected candidates y backups sin publicarlos. Una misma revisión declarada más de una vez es source integrity failure; no existe silent dedupe.
 
 Se mantienen separadas:
 
-1. **candidate source/acquisition integrity error**: lectura, parsing, schema, digest, revision, membership o snapshot;
-2. **candidate local validation finding**: hallazgo determinista sobre un payload candidate;
-3. **authoritative curricular validation finding**: hallazgo contextual producido posteriormente por las slices autoritativas.
+1. **acquisition failure**: lectura, parsing o schema físico;
+2. **candidate payload integrity verification failure**: payload schema no soportada, reconstrucción desde bytes o identity declarada no coincidente;
+3. **candidate local validation finding**: hallazgo determinista sobre un payload candidate;
+4. **authoritative curricular validation finding**: hallazgo contextual producido posteriormente por las slices autoritativas.
 
 ```text
 declared payload unreadable
@@ -1356,7 +1431,7 @@ Admission y publication pertenecen al proceso de construcción curricular; no re
 - membership no define orden curricular;
 - hierarchy authority no define candidate admission;
 - artifacts no declarados se ignoran;
-- members declarados ausentes o malformed producen source integrity failure;
+- members declarados ausentes o malformed producen acquisition failure;
 - no existe silent dedupe;
 - una lectura observa un único snapshot estable;
 - la source no calcula scope, orden ni completitud curricular.
