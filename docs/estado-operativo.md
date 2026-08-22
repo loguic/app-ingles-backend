@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-21
+Actualizado: 2026-08-22
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -14,17 +14,15 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### ActiveCandidateSourceSnapshotManifestV1 — Slice 37
+### Local active candidate source acquisition v1 — Slice 38
 
-Estado: **CERRADO / PUBLICADO / SINCRONIZADO**. Contrato `6306362` (`docs define active candidate source snapshot manifest`) e implementación `7b66d4f` (`feat add active candidate source snapshot manifest`) publicados; el cierre documental final alcanzó el HEAD confirmado `6a91916`. No hay cambios técnicos pendientes de slice 37.
+Estado: contrato e implementación **CERRADOS / PUBLICADOS / SINCRONIZADOS**. Contrato `48b99340f6e9900b24956e67187aaece06468822` (`docs define local active candidate source acquisition v1`) e implementación `a6c96f816b9c960607b4ae85e272994ad31a2fe5` (`feat add local active candidate source acquisition v1`) publicados; no hay cambios técnicos pendientes. Este cierre documental se prepara localmente y queda pendiente de su propio commit/publicación.
 
-`ActiveCandidateSourceSnapshotManifestV1` es únicamente el documento físico JSON v1 derivado de `ActiveCandidateSourceSnapshot`: serializa `manifest_schema_version="1.0"`, `snapshot_revision` literal y memberships en su orden representacional. Sus bytes son deterministas (UTF-8 sin BOM, `ensure_ascii=False`, separators compactos, `sort_keys=False`, `allow_nan=False`, newline final), sin hash ni prueba de integrity. El publicador exige `manifest_path: Path` absoluto y explícito, publica con temporal en el mismo parent → write/flush/fsync(file) → close → `os.replace` → fsync(parent), y limita sus garantías a visibilidad física local atómica, no a crash durability.
+`acquire_active_candidate_source(...)` compone manifest físico, bindings explícitos y lectura/parse de candidates en `ActiveCandidateSourceBinding`, `AcquiredActiveCandidateSourceEntry` y `ActiveCandidateSourceAcquisition`: paths absolutos caller-provided, sin symlinks, read-once, bindings exactos y entries en orden del manifest. El manifest exige UTF-8 sin BOM, JSON con duplicate keys rechazadas, shape/schema v1 estricto y byte-conformance exacta frente al serializer B37; cada candidate exige UTF-8 sin BOM, duplicate keys rechazadas y parse de `PedagogicalUnitCandidate`. El resultado exterior frozen preserva `candidate_bytes`, admite manifest vacío con bindings vacíos y es all-or-nothing.
 
-Si falla antes de replace se conserva S1 y se limpia best-effort solo el temporal no publicado; un fallo de fsync(parent) posterior puede dejar S2 visible con durabilidad no confirmada, sin rollback. No hay domain manifest, PublicationRecord, registry/history, acquisition, source integrity ni loader. Se mantiene: logical snapshot ≠ physical manifest ≠ manifest visible atómicamente ≠ durabilidad ≠ source integrity ≠ acquisition ≠ loader.
+La capacidad es `acquired / unverified`: acquired ≠ verified ≠ candidate identity verified ≠ digest verified ≠ source integrity ≠ loader readiness. No deriva `CandidatePayloadIdentity`, no verifica `content_digest`, no calcula hash raw, no adquiere `required_resource_ids` ni `AdmissionRecord` físico, no enumera filesystem, no usa red y no ejecuta loader. `payload_schema_version` no soportada se conserva como metadata unverified. La futura candidate integrity deberá consumir los `candidate_bytes` adquiridos, sin reabrir `candidate_path`; `content_digest` no es hash del archivo candidate raw.
 
-Postflight técnico final PASS: se cerraron la prueba real de fsync pre-replace, parent-file, nombre de test de replace y cleanup que preserva la excepción primaria. Validación: 8 específicas PASS en 0.13 s; regresión seleccionada de source/admission/membership/snapshot, 88 passed en 0.27 s; suite backend completa, 1879 passed en 14.59 s; `git diff --check` PASS; `operational_state.py validate` PASS.
-
-Routing: preflight `Sol / high` (8/10) justificó la frontera física; implementación `Terra / medium` y postflight/recheck `Terra / high` fueron suficientes, sin escalamiento. Incidente de transporte: SSH falló con conexión cerrada en puertos 22 y 443; HTTPS respondió HTTP/2 200, se validó con `push --dry-run` y los commits se publicaron explícitamente por HTTPS, actualizando después `origin/master` mediante fetch HTTPS. No se atribuye causa, no se cambiaron remote ni claves y HTTPS no es una decisión arquitectónica permanente. `git_close.py` preservó correctamente el commit local e informó ahead=1/behind=0 ante el fallo inicial.
+Postflight técnico final PASS, sin findings BLOCKING ni NONBLOCKING. Validación: 14 específicas PASS en 0.15 s; regresión B31–B38, 102 passed en 0.33 s; suite backend completa, 1918 passed en 16.63 s; `git diff --check` PASS. Routing: preflight contractual `Sol / high`; implementación/correcciones `Terra / medium`; postflight `Terra / high`; Sol no fue necesario para el postflight final.
 
 A1-U1 continúa pending / non-member; `LOADER = BLOCKED`.
 
@@ -68,7 +66,7 @@ Antes de cambiar de conversación: actualizar este documento, validarlo con `ope
 
 ## Próximo objetivo
 
-Tras publicar el cierre documental del microbloque `git_close.py --publish-url` v1, hacer preflight separado de acquisition/source integrity: correspondencia demostrable entre manifest/snapshot y candidates/artifacts adquiridos, antes de cualquier loader. No diseñar todavía loader ni compatibilidad curricular autoritativa.
+Tras publicar este cierre documental de B38, la siguiente frontera conceptual es candidate integrity verification sobre la evidencia adquirida: debe consumir `candidate_bytes` preservados sin reabrir `candidate_path`. No se declara B39 iniciada ni se diseña aquí; `LOADER = BLOCKED` y la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
