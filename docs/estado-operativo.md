@@ -14,15 +14,15 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Local active candidate source acquisition v1 — Slice 38
+### Candidate integrity verification from acquired evidence v1 — Slice 39
 
-Estado: contrato e implementación **CERRADOS / PUBLICADOS / SINCRONIZADOS**. Contrato `48b99340f6e9900b24956e67187aaece06468822` (`docs define local active candidate source acquisition v1`) e implementación `a6c96f816b9c960607b4ae85e272994ad31a2fe5` (`feat add local active candidate source acquisition v1`) publicados; no hay cambios técnicos pendientes. Este cierre documental se prepara localmente y queda pendiente de su propio commit/publicación.
+Estado: contrato e implementación **CERRADOS / PUBLICADOS / SINCRONIZADOS**. Contrato `bf7f966662cf87283f05c5f510be95a351c0ee13` (`docs define candidate payload integrity verification v1`) e implementación `151673d2e266617012f741705bf287c9a2ea2ff7` (`feat add candidate payload integrity verification v1`) publicados; no hay cambios de código pendientes. Este cierre documental se prepara localmente y queda pendiente de su propio commit/publicación.
 
-`acquire_active_candidate_source(...)` compone manifest físico, bindings explícitos y lectura/parse de candidates en `ActiveCandidateSourceBinding`, `AcquiredActiveCandidateSourceEntry` y `ActiveCandidateSourceAcquisition`: paths absolutos caller-provided, sin symlinks, read-once, bindings exactos y entries en orden del manifest. El manifest exige UTF-8 sin BOM, JSON con duplicate keys rechazadas, shape/schema v1 estricto y byte-conformance exacta frente al serializer B37; cada candidate exige UTF-8 sin BOM, duplicate keys rechazadas y parse de `PedagogicalUnitCandidate`. El resultado exterior frozen preserva `candidate_bytes`, admite manifest vacío con bindings vacíos y es all-or-nothing.
+`verify_active_candidate_source_candidate_integrity(...)` consume `ActiveCandidateSourceAcquisition` y produce `CandidatePayloadIntegrityVerification` / `ActiveCandidateSourceCandidateIntegrityVerification` frozen: reconstruye un candidate desde `candidate_bytes`, reutiliza B31 y exige `derived_identity == membership.identity`. `candidate_bytes` son la evidencia autoritativa; no confía en `entry.candidate` mutable, no relee filesystem ni `candidate_path`, preserva orden del manifest, admite vacío y es all-or-nothing. Solo `payload_schema_version="1.0"` es soportada; una versión distinta falla antes de derivar. `candidate_revision` se transmite literalmente desde la membership, sin demostrar provenance desde bytes.
 
-La capacidad es `acquired / unverified`: acquired ≠ verified ≠ candidate identity verified ≠ digest verified ≠ source integrity ≠ loader readiness. No deriva `CandidatePayloadIdentity`, no verifica `content_digest`, no calcula hash raw, no adquiere `required_resource_ids` ni `AdmissionRecord` físico, no enumera filesystem, no usa red y no ejecuta loader. `payload_schema_version` no soportada se conserva como metadata unverified. La futura candidate integrity deberá consumir los `candidate_bytes` adquiridos, sin reabrir `candidate_path`; `content_digest` no es hash del archivo candidate raw.
+Candidate payload integrity verified ≠ active source integrity verified ≠ loader readiness. `content_digest` sigue siendo el digest del payload lógico canónico B31 de siete campos, no un hash raw; `required_resource_ids` participa lógicamente sin adquirir ni verificar recursos. No hay `AdmissionRecord` lookup ni rerun de gates. Las etapas futuras consumirán `candidate_bytes` + derived identity + membership, sin confiar en el candidate mutable ni reabrir `candidate_path` para volver a demostrar payload integrity.
 
-Postflight técnico final PASS, sin findings BLOCKING ni NONBLOCKING. Validación: 14 específicas PASS en 0.15 s; regresión B31–B38, 102 passed en 0.33 s; suite backend completa, 1918 passed en 16.63 s; `git diff --check` PASS. Routing: preflight contractual `Sol / high`; implementación/correcciones `Terra / medium`; postflight `Terra / high`; Sol no fue necesario para el postflight final.
+Postflight técnico final PASS, sin findings BLOCKING ni NONBLOCKING. El finding inicial de bytes authority se cerró al mutar `entry.candidate.specification.title`, campo canónico B31; el recheck confirmó que los bytes son materialmente la autoridad. Validación: 15 específicas PASS en 0.15 s; regresión B31–B39, 117 passed en 0.36 s; suite backend completa, 1933 passed en 16.87 s; `git diff --check` PASS. Routing: preflight `Sol / high`; contrato/implementación/corrección `Terra / medium`; postflights `Terra / high`.
 
 A1-U1 continúa pending / non-member; `LOADER = BLOCKED`.
 
@@ -66,7 +66,7 @@ Antes de cambiar de conversación: actualizar este documento, validarlo con `ope
 
 ## Próximo objetivo
 
-Tras publicar este cierre documental de B38, la siguiente frontera conceptual es candidate integrity verification sobre la evidencia adquirida: debe consumir `candidate_bytes` preservados sin reabrir `candidate_path`. No se declara B39 iniciada ni se diseña aquí; `LOADER = BLOCKED` y la compatibilidad curricular autoritativa sigue posterior.
+Tras publicar este cierre documental de B39, integrar candidate payload integrity verificada con las demás evidencias necesarias antes de poder afirmar active source integrity y habilitar posteriormente un loader. No se diseña ni numera aquí ese bloque posterior; `LOADER = BLOCKED` y la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
@@ -82,4 +82,6 @@ Tras publicar este cierre documental de B38, la siguiente frontera conceptual es
 - `app/services/pedagogical_active_candidate_membership.py`;
 - `app/services/pedagogical_active_candidate_membership_collection.py`;
 - `app/services/pedagogical_active_candidate_source_snapshot.py`;
+- `app/services/pedagogical_active_candidate_source_acquisition.py`;
+- `app/services/pedagogical_active_candidate_integrity_verification.py`;
 - `app/services/pedagogical_validation_service.py`.
