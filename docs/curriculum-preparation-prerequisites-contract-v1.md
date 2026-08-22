@@ -1380,6 +1380,108 @@ La cobertura futura mínima incluirá: candidate adquirido válido con schema `"
 
 Esta capacidad no introduce raw-file digest, canonicalizer nuevo, `CandidatePayloadDocumentV1`, envelope, sidecar, modelo candidate profundamente inmutable, framework genérico de verification/findings/status, exception hierarchy, source root, filesystem layer, resource verification, admission verification, active-source-integrity aggregate, loader ni red. La frontera posterior es únicamente integrar candidate payload integrity verificada con las demás pruebas necesarias antes de afirmar active source integrity y habilitar un loader.
 
+### Physical AdmissionRecord document and atomic local publication v1
+
+`Physical AdmissionRecord document and atomic local publication v1` materializa un `AdmissionRecord` lógico ya conforme como un documento físico versionado y permite publicar ese documento como unidad completa en un path local explícito suministrado por el caller. Su responsabilidad exacta es:
+
+```text
+AdmissionRecord lógico
+-> documento físico determinista
+-> publicación local atómica
+```
+
+No adquiere documentos, no verifica provenance, no reejecuta admission gates, no crea memberships, no verifica candidates ni recursos, no acredita source integrity y no habilita loader.
+
+La garantía positiva de B40 es únicamente que un documento correctamente serializado representa fielmente un `AdmissionRecord` conforme bajo el schema físico v1 y que su publicación local puede hacerlo visible atómicamente bajo el modelo de filesystem contratado. Se mantienen obligatoriamente:
+
+```text
+physical AdmissionRecord document
+!= admission provenance verified
+!= reviewer authenticity
+!= decision authenticity
+!= candidate_revision provenance
+!= active membership proof
+!= candidate payload integrity
+!= resource integrity
+!= active source integrity
+!= loader readiness
+```
+
+El domain object reutilizado es exactamente `AdmissionRecord`, sin segundo modelo de dominio ni reinterpretación de sus invariantes. Contiene exactamente `admission_id: str`, `identity: CandidatePayloadIdentity`, `decision: Literal["admitted", "rejected"]`, `reviewer_id: str` y `decided_at: datetime` timezone-aware UTC. B40 no recalcula ni verifica ninguno de esos valores y, en particular, no exige `decision == "admitted"`: tanto `admitted` como `rejected` son decisiones finales válidas y serializables.
+
+El documento físico se denomina `AdmissionRecordDocumentV1` y contiene exactamente:
+
+```json
+{
+  "document_schema_version": "1.0",
+  "admission_id": "...",
+  "identity": {
+    "unit_id": "...",
+    "candidate_revision": "...",
+    "payload_schema_version": "...",
+    "content_digest": "..."
+  },
+  "decision": "...",
+  "reviewer_id": "...",
+  "decided_at": "..."
+}
+```
+
+No admite campos adicionales ni incorpora digest de documento, checksum, signature, MAC, trust/provenance status, resultados de gates, membership, metadata de recursos, path, publication timestamp ni source root. `document_schema_version == "1.0"` identifica solamente esta representación física y permanece separado de `CandidatePayloadIdentity.payload_schema_version`.
+
+La identity embebida copia literalmente `unit_id`, `candidate_revision`, `payload_schema_version` y `content_digest` contenidos en `record.identity`. B40 no deriva, recalcula ni verifica la identity; por tanto:
+
+```text
+embedded CandidatePayloadIdentity
+!= independently verified candidate payload
+```
+
+`CandidatePayloadIdentity.content_digest` sigue siendo el digest del payload canónico del candidate y no es un digest de `AdmissionRecordDocumentV1`. No existe document digest v1.
+
+`decided_at` se representa de forma canónica como timestamp UTC ISO-8601/RFC 3339 con exactamente seis dígitos de fracción y sufijo `Z`: `YYYY-MM-DDTHH:MM:SS.ffffffZ`. La serialización convierte el datetime UTC lógico a esa única representación, preserva sus microsegundos y no usa locale. Una futura lectura conforme reconstruirá semánticamente el mismo instante UTC y microsegundos; B40 no añade una timezone distinta ni acepta que se pierda precisión silenciosamente.
+
+Para el mismo `AdmissionRecord` lógico, la serialización v1 produce exactamente los mismos bytes: un único object JSON UTF-8 sin BOM, `ensure_ascii=False`, `separators=(",", ":")`, `sort_keys=False`, `allow_nan=False` y exactamente un newline final. Las keys se construyen en este orden contractual, como estabilidad de representación y no como preimage criptográfico:
+
+1. top level: `document_schema_version`, `admission_id`, `identity`, `decision`, `reviewer_id`, `decided_at`;
+2. `identity`: `unit_id`, `candidate_revision`, `payload_schema_version`, `content_digest`.
+
+No hay whitespace JSON opcional ni normalización Unicode. La serialización no reejecuta `verify_candidate_admission(...)`, no inspecciona candidate, membership, recursos ni artifacts de human review.
+
+Las dos capacidades públicas futuras mínimas son conceptualmente:
+
+```text
+serialize_candidate_admission_record_document(record) -> bytes
+
+publish_candidate_admission_record_document(
+    record,
+    *,
+    document_path: Path,
+) -> None
+```
+
+No se define parser ni acquisition pública en B40, ni registry, lookup o binding por `admission_id`.
+
+`document_path` debe ser un `Path` absoluto, explícito y caller-provided. Su parent debe existir y ser directory. El target puede no existir o ser un archivo regular existente; se rechazan target symlink, directory u otro existente no regular. No se usa `resolve()` para transformar paths relativos, no se crean parents y no se derivan paths desde `admission_id`, `reviewer_id`, `unit_id` ni ninguna revision. `admission_id` permanece identificador lógico, no locator; no hay source root, glob ni enumeración.
+
+La publicación sigue conceptualmente el patrón local POSIX/Linux ya contratado para `ActiveCandidateSourceSnapshotManifestV1`: serializar todo en memoria; crear el temporal en el mismo parent; escribir todos los bytes; flush; `fsync` del temporal; cerrar; `os.replace(temp, document_path)`; y `fsync` del directorio parent. El target inexistente puede publicarse y un archivo regular existente puede reemplazarse; no hay append, merge, backup automático, archive ni history. Se mantiene:
+
+```text
+atomic visibility
+!= durability confirmation
+```
+
+Si falla antes de `os.replace`, el target anterior no se reemplaza y el temporal no publicado se limpia best-effort sin ocultar el error primario. Si falla el replace, no hay rollback artificial. Si falla el `fsync` del parent después del replace, el documento nuevo puede ser visible pero su durabilidad no queda confirmada; se propaga el error físico sin rollback, segundo replace ni retry automático.
+
+El threat model v1 es filesystem local POSIX/Linux, caller controlado, single writer y parent no adversarial durante la operación. Quedan fuera de scope concurrent writers, race de reemplazo adversarial del parent, locks, `openat2`, sandboxing, semantics de filesystem remoto y network storage.
+
+La presencia física de un `AdmissionRecordDocumentV1` no demuestra quién tomó realmente la decisión, autenticidad de `reviewer_id` o `decided_at`, ejecución histórica de gates, ausencia de fabricación del record ni provenance fuerte de `candidate_revision`. B40 no introduce signatures, PKI, trust anchors ni reviewer credentials. Tampoco enlaza todavía el documento con `ActiveCandidateMembership`: no comprueba `admission_id`, identity ni `decision` frente a una membership. La futura frontera de provenance adquirirá explícitamente documentos publicados y comprobará su correspondencia con memberships y gates usando la evidencia candidate ya preservada/verificada.
+
+B40 no usa `candidate_bytes`, `CandidatePayloadIntegrityVerification` ni derived identity B39; no toca `required_resource_ids`, recursos físicos, `ActiveCandidateSourceSnapshotManifestV1` ni semánticas de source vacía. Tras B40 permanecen sin resolver admission provenance, resource integrity, active source integrity y loader; `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
+
+La cobertura futura mínima incluirá: shape/schema exactos, orden de keys, identity, admission ID, decision, reviewer y timestamp; UTF-8 sin BOM, Unicode estable, bytes deterministas y newline final; timestamp UTC canónico, microsegundos y decisiones `admitted`/`rejected`; paths válidos e inválidos; primera publicación y replacement; temporal en mismo parent, bytes finales exactos, write/flush/fsync/close/replace/fsync-parent; fallos pre-replace, de replace y de fsync posterior al replace sin rollback/retry. También comprobará ausencia de parser/acquisition, gate verification, membership lookup, candidate/resource I/O, registry, network y loader, sin inflar artificialmente el número de tests.
+
+Esta capacidad no introduce document digest, signatures, PKI, trust anchors, admission history, registry, database, remote storage, CAS, framework genérico de artifacts, source root, resource model, parser/acquisition B40, membership linking, source integrity, loader ni cambios al active-source manifest. Debe poder implementarse sin modificar `AdmissionRecord`, `CandidatePayloadIdentity`, B31–B39 ni el manifest activo.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.
@@ -1440,9 +1542,8 @@ Admission y publication pertenecen al proceso de construcción curricular; no re
 
 El artifact actual A1-U1 permanece pending y non-member mientras conserve `validation_report.status="pending"`, coverage/review `pending_approval`, decisiones humanas pendientes y ausencia de admission record y membership declaration. No está rejected. Para publicarse deberá resolver pendientes, fijar el payload final, superar validación local recalculada, recibir revisión humana final y obtener admission y membership explícitas.
 
-El manifest físico del snapshot y su mecanismo de publicación atómica quedan resueltos por `ActiveCandidateSourceSnapshotManifestV1`. También quedan para preflight técnico posterior:
+El manifest físico del snapshot y su mecanismo de publicación atómica quedan resueltos por `ActiveCandidateSourceSnapshotManifestV1`; el formato físico y la publicación atómica local de `AdmissionRecord` quedan definidos por `AdmissionRecordDocumentV1`. También quedan para frontera posterior:
 
-- formato físico de admission record;
 - namespace operativo de `reviewer_id`;
 - acquisition y source integrity de candidates/artifacts.
 
