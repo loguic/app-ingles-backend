@@ -14,19 +14,17 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Local active candidate AdmissionRecord acquisition v1 — Slice 41
+### Active candidate AdmissionRecord correspondence verification v1 — Slice 42
 
-Estado técnico: contrato e implementación **CERRADOS / PUBLICADOS / SINCRONIZADOS**. Contrato `f07e3cfc3cac17ad507fc398b227cbb07e30cebd` (`docs define local active candidate admission record acquisition v1`) e implementación `2defc1b95508f0e61b95a05e2908c7684a7449ce` (`feat add local active candidate admission record acquisition v1`) publicados; no hay cambios de código pendientes. Este cierre documental se prepara localmente y queda pendiente de su propio commit/publicación.
+Estado técnico: contrato e implementación **CERRADOS / PUBLICADOS / SINCRONIZADOS**. Contrato `4e9dee40450f0c409d6e199c76473adc50327da1` (`docs define active candidate admission record correspondence verification v1`) e implementación `ac0b07ecf245996430ca7b178006f0d02c34ba6c` (`feat add active candidate admission record correspondence verification v1`) publicados; no hay cambios de código pendientes. Este cierre documental se prepara localmente y queda pendiente de su propio commit/publicación.
 
-`acquire_active_candidate_admission_records(...)` consume `ActiveCandidateSourceCandidateIntegrityVerification` B39 y bindings explícitos `admission_id -> document_path`; añade `ActiveCandidateAdmissionRecordBinding`, `AcquiredActiveCandidateAdmissionRecordEntry` y `ActiveCandidateSourceAdmissionRecordAcquisition` frozen. Adquiere exactamente un `AdmissionRecordDocumentV1` B40 por membership como `admission records acquired / unverified`: paths absolutos caller-provided, regulares y no symlink; read-once binario; UTF-8 sin BOM, JSON estricto, duplicate keys y constantes no estándar rechazadas; shape/schema B40, timestamp `YYYY-MM-DDTHH:MM:SS.ffffffZ`, reconstrucción bytes → `CandidatePayloadIdentity` → `AdmissionRecord` y byte-conformance con el serializer B40. `payload_schema_version` permanece metadata declarada/no verificada; `admitted` y `rejected` son adquiribles; entradas en orden B39/manifest, all-or-nothing y vacío válido.
+`verify_active_candidate_admission_record_correspondence(...)` consume exclusivamente `ActiveCandidateSourceAdmissionRecordAcquisition` B41 y devuelve `ActiveCandidateSourceAdmissionRecordCorrespondenceVerification` frozen, conservando exactamente el mismo aggregate B41. Para cada entry exige `admission_record.admission_id == membership.admission_id` y `admission_record.identity == membership.identity` como igualdad completa de unit, revision, payload schema y digest. Es in-memory, preserva orden B41/manifest, es all-or-nothing y admite vacío válido; no relee bytes/paths, no reconstruye record/candidate, no recalcula identity ni ejecuta B33.
 
-La exact allowlist rechaza duplicate/missing/unexpected `admission_id` y duplicate `Path` por igualdad directa antes de todo I/O documental. El primer postflight detectó missing tardío; la corrección completa allowlist → PASS → filesystem acquisition, y el test con dos memberships intercepta `Path.open` y exige `opened_paths == []`. Validación: 16 específicas PASS en 0.14 s; regresión B31–B41, 141 passed en 0.44 s; suite backend completa, 1957 passed en 17.36 s; `git diff --check` PASS; postflight contractual PASS; primer postflight técnico corregido y re-postflight PASS, sin BLOCKING restantes. Permanecen gaps NONBLOCKING de cobertura directa para duplicate keys anidadas adicionales, `Infinity`/`-Infinity` y variantes timestamp; la lógica genérica fue revisada y los rechaza.
-
-Admission record acquired / unverified ≠ membership correspondence ≠ admitted decision/gates ≠ provenance ≠ reviewer authenticity ≠ resource integrity ≠ active source integrity ≠ loader readiness. B41 no compara record↔membership, no reejecuta gates/B39, no relee candidate/manifest, no toca recursos, source integrity ni loader. Etapas posteriores consumen B39 + membership + `admission_record_bytes` + record reconstruido sin reabrir paths. A1-U1 continúa pending / non-member; `LOADER = BLOCKED`. Routing: preflight `Sol / high`; contrato/implementación/corrección `Terra / medium`; postflights `Terra / high`.
+B39 prueba candidate bytes → identity == membership; B42 prueba record identity == membership. Por transitividad, el record adquirido declara la identity verificada por B39 para esos candidate bytes. Esto es solo correspondence: `rejected` con ID e identity correctos pasa B42. Correspondence ≠ admitted decision ≠ gates actuales/históricos ≠ reviewer/record/timestamp authenticity ≠ candidate_revision provenance ≠ recursos ≠ active source integrity ≠ loader readiness. Validación: 9 específicas PASS en 0.13 s; regresión B31–B42, 150 passed en 0.48 s; suite backend completa, 1966 passed en 16.94 s; `git diff --check` PASS; postflights contractual y técnico PASS sin findings. A1-U1 continúa pending / non-member; `LOADER = BLOCKED`. Routing: preflight `Sol / high`; contrato/implementación `Terra / medium`; postflights `Terra / high`.
 
 ## Bloque activo
 
-### Cierre documental de Slice 41
+### Cierre documental de Slice 42
 
 Estado: preparación local de este cierre documental; no hay bloque funcional/técnico adicional activo. El microbloque tooling `git_close.py --publish-url` v1 permanece cerrado y publicado, sin relación con admission, source integrity o loader.
 
@@ -52,14 +50,14 @@ Antes de cambiar de conversación: actualizar este documento, validarlo con `ope
 
 - preparación curricular ≠ ejecución del estudiante ≠ evidencia real ≠ evaluación ≠ aprendizaje ≠ mastery;
 - admission verificada ≠ publication ≠ active membership ≠ membership collection ≠ active source snapshot ≠ representación física ≠ compatibilidad curricular autoritativa;
-- physical AdmissionRecord document ≠ admission record acquired / unverified ≠ admission provenance ≠ active membership proof ≠ candidate payload integrity ≠ resource integrity ≠ active source integrity ≠ loader readiness;
+- physical AdmissionRecord document ≠ admission record acquired / unverified ≠ AdmissionRecord correspondence ≠ admission provenance ≠ active membership proof ≠ candidate payload integrity ≠ resource integrity ≠ active source integrity ≠ loader readiness;
 - `required_stages` y `SkillCoverage` heredados no producen `CurriculumPreparationState`;
 - no modificar todavía `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage`, `required_stages`, runtime, progreso, mastery, fonética, feedback ni B181;
 - membership/source state no define orden curricular; hierarchy authority no certifica admission.
 
 ## Próximo objetivo
 
-Tras publicar este cierre documental de B41, comprobar la correspondencia entre AdmissionRecord adquiridos y memberships, y reejecutar gates usando exclusivamente la evidencia candidate preservada. No se diseña ni numera aquí ese bloque posterior ni se afirma provenance fuerte; después seguirán pendientes recursos físicos, active source integrity y loader. Las etapas posteriores consumen B39 + membership + `admission_record_bytes` + record reconstruido sin reabrir paths. `LOADER = BLOCKED` y la compatibilidad curricular autoritativa sigue posterior.
+Tras publicar este cierre documental de B42, reevaluar las reglas actuales de admission gates usando exclusivamente candidate bytes preservados, AdmissionRecord adquirido/correspondido y contratos B33/validation. No se diseña ni numera aquí ese bloque posterior ni se afirma historical gate execution; después seguirán pendientes recursos físicos, active source integrity y loader. `LOADER = BLOCKED` y la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
@@ -74,6 +72,7 @@ Tras publicar este cierre documental de B41, comprobar la correspondencia entre 
 - `app/services/pedagogical_candidate_admission_verification.py`;
 - `app/services/pedagogical_candidate_admission_record_document.py`;
 - `app/services/pedagogical_active_candidate_admission_record_acquisition.py`;
+- `app/services/pedagogical_active_candidate_admission_record_correspondence.py`;
 - `app/services/pedagogical_active_candidate_membership.py`;
 - `app/services/pedagogical_active_candidate_membership_collection.py`;
 - `app/services/pedagogical_active_candidate_source_snapshot.py`;
@@ -81,4 +80,5 @@ Tras publicar este cierre documental de B41, comprobar la correspondencia entre 
 - `app/services/pedagogical_active_candidate_integrity_verification.py`;
 - `tests/test_pedagogical_candidate_admission_record_document.py`;
 - `tests/test_pedagogical_active_candidate_admission_record_acquisition.py`;
+- `tests/test_pedagogical_active_candidate_admission_record_correspondence.py`;
 - `app/services/pedagogical_validation_service.py`.
