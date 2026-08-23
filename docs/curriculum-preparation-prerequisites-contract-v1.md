@@ -1591,6 +1591,73 @@ La cobertura futura mínima incluye: single/multiple membership, bindings exacto
 
 Esta capacidad no introduce generic JSON parser, parser público reutilizable, registry, database, source root, path derivation, document digest, signatures, PKI, reviewer credentials, audit log, locks, `openat2`, remote storage, resources, active-source-integrity aggregate ni loader. Debe poder implementarse sin modificar B31–B40, `AdmissionRecord`, `CandidatePayloadIdentity`, el manifest activo ni el resultado B39. La frontera posterior es únicamente comprobar correspondencia record↔membership y reejecutar los admission gates desde la evidencia candidate preservada, sin afirmar provenance fuerte.
 
+### Active candidate AdmissionRecord correspondence verification v1
+
+`Active candidate AdmissionRecord correspondence verification v1` consume exclusivamente una `ActiveCandidateSourceAdmissionRecordAcquisition` conforme producida por B41 y verifica, para cada entry, que el `AdmissionRecord` ya adquirido y byte-conforme declara exactamente el mismo `admission_id` y la misma `CandidatePayloadIdentity` que la membership activa físicamente asociada por B41:
+
+```text
+B41 admission records acquired / unverified
+-> record.admission_id == membership.admission_id
++ record.identity == membership.identity
+-> AdmissionRecord correspondence verified
+```
+
+Un resultado positivo demuestra que todas las entries B41 pasan ambos checks, preservan íntegramente el aggregate B41 recibido y, por transitividad con B39, que cada `AdmissionRecord` adquirido declara la misma `CandidatePayloadIdentity` que B39 verificó para los `candidate_bytes` preservados de su membership. B42 no vuelve a derivar identity para sostener esta afirmación.
+
+Se mantienen estrictamente:
+
+```text
+AdmissionRecord correspondence verified
+!= admitted decision verified
+!= admission gates verified
+!= current admission rules satisfied
+!= historical gate execution proof
+!= reviewer authenticity
+!= decision authenticity
+!= timestamp authenticity
+!= AdmissionRecord authenticity
+!= candidate_revision provenance
+!= resource integrity
+!= active source integrity
+!= loader readiness
+```
+
+La equality de identity demuestra correspondencia declarada con la identity ya verificada por B39; no demuestra que `candidate_revision` esté codificada intrínsecamente en candidate bytes, chronology, unicidad global ni autenticidad externa.
+
+B42 no recibe paths, bindings adicionales, candidate, `ValidationReport`, `AdmissionGateVerification` ni recursos. Usa directamente `entry.membership` y `entry.admission_record`. B41 ya demostró `admission_record_bytes == serialize_candidate_admission_record_document(admission_record)`, por lo que B42 no reconstruye record desde bytes. B39 ya demostró candidate payload integrity respecto de `membership.identity`, por lo que B42 no reconstruye candidate, no deriva `CandidatePayloadIdentity`, no vuelve a ejecutar B39 y no reabre `document_path`, `candidate_path` ni manifest físico.
+
+El primer check exige exactamente `entry.admission_record.admission_id == entry.membership.admission_id`. Su éxito significa únicamente que el documento adquirido declara el mismo ID que la membership asociada; no demuestra admission auténtica, reviewer auténtico, provenance ni ejecución histórica de gates. El segundo exige `entry.admission_record.identity == entry.membership.identity` como igualdad estructural completa de `unit_id`, `candidate_revision`, `payload_schema_version` y `content_digest`; no admite comparación parcial ni nuevo cálculo de digest. Cualquier mismatch en cualquiera de ambos checks es correspondence verification failure.
+
+`decision="admitted"` queda expresamente fuera: un record con ID e identity correctos y `decision="rejected"` puede superar B42. La decisión admitted pertenece a la futura reevaluación actual de admission gates, concretamente a `human_decision_admitted`. B42 no llama `verify_candidate_admission(...)` ni una capacidad equivalente y no ejecuta `identity_matches`, `local_validation_passed`, `pending_human_decisions_clear` ni `human_decision_admitted`.
+
+El resultado frozen mínimo es `ActiveCandidateSourceAdmissionRecordCorrespondenceVerification`, con exactamente `admission_record_acquisition`. Su existencia positiva significa que todas las entries B41 superaron ambos checks; no se crean flags por entry ni se añaden `verified`, `identity_matches`, `admission_id_matches`, `admitted`, gates, provenance, trust, source integrity o loader readiness. La única API pública conceptual v1 es:
+
+```text
+verify_active_candidate_admission_record_correspondence(
+    admission_record_acquisition,
+) -> ActiveCandidateSourceAdmissionRecordCorrespondenceVerification
+```
+
+Una primitive individual puede permanecer privada. B42 no construye una segunda colección de entries: conserva el aggregate B41 recibido y lo recorre en su orden B41/manifest, sin sorting, reindexing, bindings ni asociación nueva. Es all-or-nothing y fail-fast basta: un mismatch de ID o identity impide resultado agregado positivo, sin resultado parcial ni findings framework. Una acquisition B41 vacía puede producir correspondence vacía estructuralmente válida, sin afirmar disponibilidad de contenido, completitud curricular, utilidad, gates, recursos, active source integrity o loader readiness.
+
+Los errores mínimos B42 son `admission_id correspondence failure` e `identity correspondence failure`; pueden informar valor esperado/declarado o `unit_id` de forma clara y determinista, sin exception hierarchy. Rejected, local validation failure, pending human decisions, gate failure, reviewer authenticity, provenance y resource/source integrity no son errores B42.
+
+La composición de evidencia permitida es:
+
+```text
+B39: candidate_bytes preservados -> derived identity == membership.identity
+B42: AdmissionRecord.identity == membership.identity
+=> AdmissionRecord adquirido declara la identity verificada por B39
+```
+
+B34 construyó originalmente una membership desde una `AdmissionGateVerification` positiva; B42 no intenta demostrar de nuevo esa causalidad histórica. La garantía nueva es que el record físico readquirido por B41 declara los mismos `admission_id` e identity que la membership existente. B42 opera in-memory sobre evidencia preservada bajo el threat model local/caller controlado heredado, sin trust anchor criptográfico; su garantía máxima es structural correspondence.
+
+La cobertura futura mínima incluye: correspondencia happy single/multiple, aggregate B41 original preservado y resultado frozen; mismatch de `admission_id`; mismatch de cada dimensión de identity (`unit_id`, `candidate_revision`, `payload_schema_version`, `content_digest`); record `rejected` con ID/identity correctos que pasa B42; all-or-nothing con mismatch posterior; vacío; orden/preservación sin sorting ni nueva asociación; y ausencia de filesystem, candidate reconstruction, `derive_candidate_payload_identity`, validation service, `verify_candidate_admission`, recursos, red y loader. No se inflará artificialmente la suite.
+
+Después de B42, admission record correspondence queda verified, pero admitted decision, admission gates actuales, historical provenance, reviewer authenticity, candidate revision provenance, resource integrity y active source integrity continúan sin resolver; `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`. La frontera posterior es únicamente reevaluar las reglas actuales de admission gates con candidate bytes preservados, AdmissionRecord adquirido/correspondido y los contratos B33/validation, manteniendo `current gate reevaluation != historical gate execution proof`.
+
+Esta capacidad no introduce generic verification/correspondence framework, parser, filesystem abstraction, registry, database, signatures, PKI, reviewer identity system, audit log, recursos, active-source-integrity aggregate ni loader. Debe poder implementarse sin modificar B31–B41, `AdmissionRecord`, `CandidatePayloadIdentity`, B39, el resultado B41, el manifest activo, validation service ni `AdmissionGateVerification`.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.
