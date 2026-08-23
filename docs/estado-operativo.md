@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-22
+Actualizado: 2026-08-23
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -14,21 +14,19 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Physical AdmissionRecord document and atomic local publication v1 — Slice 40
+### Local active candidate AdmissionRecord acquisition v1 — Slice 41
 
-Estado técnico: contrato e implementación **CERRADOS / PUBLICADOS / SINCRONIZADOS**. Contrato `60bb2693540f826ed15fd2e5562a74b7e016b705` (`docs define physical admission record document v1`) e implementación `f4a3eda438c85d1535de7837509656d6bed940e2` (`feat add physical admission record document v1`) publicados; no hay cambios de código pendientes. Este cierre documental se prepara localmente y queda pendiente de su propio commit/publicación.
+Estado técnico: contrato e implementación **CERRADOS / PUBLICADOS / SINCRONIZADOS**. Contrato `f07e3cfc3cac17ad507fc398b227cbb07e30cebd` (`docs define local active candidate admission record acquisition v1`) e implementación `2defc1b95508f0e61b95a05e2908c7684a7449ce` (`feat add local active candidate admission record acquisition v1`) publicados; no hay cambios de código pendientes. Este cierre documental se prepara localmente y queda pendiente de su propio commit/publicación.
 
-`ADMISSION_RECORD_DOCUMENT_SCHEMA_VERSION = "1.0"`, `serialize_candidate_admission_record_document(...)` y `publish_candidate_admission_record_document(...)` representan/publican un `AdmissionRecord` sin crear otro domain model. El JSON ordenado contiene `document_schema_version`, `admission_id`, identity, decision, reviewer y `decided_at`; la identity se preserva literalmente, `admitted` y `rejected` son serializables, y el timestamp UTC se emite como `YYYY-MM-DDTHH:MM:SS.ffffffZ`. Los bytes usan UTF-8 sin BOM, `ensure_ascii=False`, separators compactos, `sort_keys=False`, `allow_nan=False` y newline final; no existe digest propio de documento.
+`acquire_active_candidate_admission_records(...)` consume `ActiveCandidateSourceCandidateIntegrityVerification` B39 y bindings explícitos `admission_id -> document_path`; añade `ActiveCandidateAdmissionRecordBinding`, `AcquiredActiveCandidateAdmissionRecordEntry` y `ActiveCandidateSourceAdmissionRecordAcquisition` frozen. Adquiere exactamente un `AdmissionRecordDocumentV1` B40 por membership como `admission records acquired / unverified`: paths absolutos caller-provided, regulares y no symlink; read-once binario; UTF-8 sin BOM, JSON estricto, duplicate keys y constantes no estándar rechazadas; shape/schema B40, timestamp `YYYY-MM-DDTHH:MM:SS.ffffffZ`, reconstrucción bytes → `CandidatePayloadIdentity` → `AdmissionRecord` y byte-conformance con el serializer B40. `payload_schema_version` permanece metadata declarada/no verificada; `admitted` y `rejected` son adquiribles; entradas en orden B39/manifest, all-or-nothing y vacío válido.
 
-`document_path` es absoluto y caller-provided; exige parent existente/directorio y target inexistente o regular, rechazando symlink, directorio y no-regular. La publicación serializa antes de filesystem y sigue temp en mismo parent → write/flush/fsync(temp) → close → `os.replace` → fsync(parent). Soporta publicación inicial y replacement; un fallo pre-replace conserva S1 y cleanup best-effort no oculta el error primario. Tras fallo de fsync(parent), S2 puede estar visible sin durabilidad confirmada, sin rollback, segundo replace ni retry.
+La exact allowlist rechaza duplicate/missing/unexpected `admission_id` y duplicate `Path` por igualdad directa antes de todo I/O documental. El primer postflight detectó missing tardío; la corrección completa allowlist → PASS → filesystem acquisition, y el test con dos memberships intercepta `Path.open` y exige `opened_paths == []`. Validación: 16 específicas PASS en 0.14 s; regresión B31–B41, 141 passed en 0.44 s; suite backend completa, 1957 passed en 17.36 s; `git diff --check` PASS; postflight contractual PASS; primer postflight técnico corregido y re-postflight PASS, sin BLOCKING restantes. Permanecen gaps NONBLOCKING de cobertura directa para duplicate keys anidadas adicionales, `Infinity`/`-Infinity` y variantes timestamp; la lógica genérica fue revisada y los rechaza.
 
-Physical AdmissionRecord document ≠ admission provenance ≠ reviewer/decision authenticity ≠ candidate_revision provenance ≠ active membership proof ≠ candidate payload integrity ≠ resource integrity ≠ active source integrity ≠ loader readiness. B40 no adquiere ni parsea records, no rerun de gates, no enlaza memberships, no usa B39/candidate bytes, no toca recursos, source integrity ni loader. Threat model: POSIX/Linux local, caller controlado, single writer y parent no adversarial. Validación: 8 específicas PASS en 0.11 s; regresión B31–B40, 125 passed en 0.39 s; suite backend completa, 1941 passed en 16.87 s; `git diff --check` PASS; postflight PASS sin findings BLOCKING/NONBLOCKING. Routing: preflight `Sol / high`; contrato/implementación `Terra / medium`; postflights `Terra / high`.
-
-A1-U1 continúa pending / non-member; `LOADER = BLOCKED`.
+Admission record acquired / unverified ≠ membership correspondence ≠ admitted decision/gates ≠ provenance ≠ reviewer authenticity ≠ resource integrity ≠ active source integrity ≠ loader readiness. B41 no compara record↔membership, no reejecuta gates/B39, no relee candidate/manifest, no toca recursos, source integrity ni loader. Etapas posteriores consumen B39 + membership + `admission_record_bytes` + record reconstruido sin reabrir paths. A1-U1 continúa pending / non-member; `LOADER = BLOCKED`. Routing: preflight `Sol / high`; contrato/implementación/corrección `Terra / medium`; postflights `Terra / high`.
 
 ## Bloque activo
 
-### Cierre documental de Slice 40
+### Cierre documental de Slice 41
 
 Estado: preparación local de este cierre documental; no hay bloque funcional/técnico adicional activo. El microbloque tooling `git_close.py --publish-url` v1 permanece cerrado y publicado, sin relación con admission, source integrity o loader.
 
@@ -54,14 +52,14 @@ Antes de cambiar de conversación: actualizar este documento, validarlo con `ope
 
 - preparación curricular ≠ ejecución del estudiante ≠ evidencia real ≠ evaluación ≠ aprendizaje ≠ mastery;
 - admission verificada ≠ publication ≠ active membership ≠ membership collection ≠ active source snapshot ≠ representación física ≠ compatibilidad curricular autoritativa;
-- physical AdmissionRecord document ≠ admission provenance ≠ active membership proof ≠ candidate payload integrity ≠ resource integrity ≠ active source integrity ≠ loader readiness;
+- physical AdmissionRecord document ≠ admission record acquired / unverified ≠ admission provenance ≠ active membership proof ≠ candidate payload integrity ≠ resource integrity ≠ active source integrity ≠ loader readiness;
 - `required_stages` y `SkillCoverage` heredados no producen `CurriculumPreparationState`;
 - no modificar todavía `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage`, `required_stages`, runtime, progreso, mastery, fonética, feedback ni B181;
 - membership/source state no define orden curricular; hierarchy authority no certifica admission.
 
 ## Próximo objetivo
 
-Tras publicar este cierre documental de B40, adquirir explícitamente AdmissionRecord documents publicados y comprobar su correspondencia con memberships y gates usando la evidencia candidate ya preservada/verificada. No se diseña ni numera aquí ese bloque posterior; después seguirán pendientes recursos físicos, active source integrity y loader. `LOADER = BLOCKED` y la compatibilidad curricular autoritativa sigue posterior.
+Tras publicar este cierre documental de B41, comprobar la correspondencia entre AdmissionRecord adquiridos y memberships, y reejecutar gates usando exclusivamente la evidencia candidate preservada. No se diseña ni numera aquí ese bloque posterior ni se afirma provenance fuerte; después seguirán pendientes recursos físicos, active source integrity y loader. Las etapas posteriores consumen B39 + membership + `admission_record_bytes` + record reconstruido sin reabrir paths. `LOADER = BLOCKED` y la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
@@ -75,10 +73,12 @@ Tras publicar este cierre documental de B40, adquirir explícitamente AdmissionR
 - `app/services/pedagogical_candidate_admission.py`;
 - `app/services/pedagogical_candidate_admission_verification.py`;
 - `app/services/pedagogical_candidate_admission_record_document.py`;
+- `app/services/pedagogical_active_candidate_admission_record_acquisition.py`;
 - `app/services/pedagogical_active_candidate_membership.py`;
 - `app/services/pedagogical_active_candidate_membership_collection.py`;
 - `app/services/pedagogical_active_candidate_source_snapshot.py`;
 - `app/services/pedagogical_active_candidate_source_acquisition.py`;
 - `app/services/pedagogical_active_candidate_integrity_verification.py`;
 - `tests/test_pedagogical_candidate_admission_record_document.py`;
+- `tests/test_pedagogical_active_candidate_admission_record_acquisition.py`;
 - `app/services/pedagogical_validation_service.py`.
