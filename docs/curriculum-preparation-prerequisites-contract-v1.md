@@ -1482,6 +1482,115 @@ La cobertura futura mínima incluirá: shape/schema exactos, orden de keys, iden
 
 Esta capacidad no introduce document digest, signatures, PKI, trust anchors, admission history, registry, database, remote storage, CAS, framework genérico de artifacts, source root, resource model, parser/acquisition B40, membership linking, source integrity, loader ni cambios al active-source manifest. Debe poder implementarse sin modificar `AdmissionRecord`, `CandidatePayloadIdentity`, B31–B39 ni el manifest activo.
 
+### Local active candidate AdmissionRecord acquisition v1
+
+`Local active candidate AdmissionRecord acquisition v1` adquiere de filesystem local controlado exactamente un `AdmissionRecordDocumentV1` por cada membership del aggregate B39, mediante bindings físicos explícitos, y conserva la evidencia sin afirmar todavía correspondencia semántica ni provenance:
+
+```text
+ActiveCandidateSourceCandidateIntegrityVerification B39
++ bindings explícitos de AdmissionRecord
++ AdmissionRecordDocumentV1 físicos
+-> admission records acquired / unverified
+```
+
+Su garantía positiva es limitada: existe exactamente un binding declarado para cada `admission_id` esperado y ninguno adicional; cada path permitido se valida y se lee una vez; cada secuencia de bytes reconstruye un `AdmissionRecord` válido y byte-conforme con B40; los bytes quedan preservados; las entries siguen el orden de memberships heredado de B39/manifest; y la operación es all-or-nothing. Se mantienen:
+
+```text
+admission record acquired / unverified
+!= membership correspondence verified
+!= admitted decision verified
+!= admission gates verified
+!= admission provenance verified
+!= reviewer authenticity
+!= decision authenticity
+!= historical gate execution proof
+!= candidate_revision provenance
+!= resource integrity
+!= active source integrity
+!= loader readiness
+```
+
+B41 consume exclusivamente un `ActiveCandidateSourceCandidateIntegrityVerification` conforme producido por B39 y una secuencia explícita de bindings. No reconstruye el aggregate B39, no reabre candidate paths, no vuelve a ejecutar B39 y no relee el manifest físico.
+
+El binding mínimo frozen es `ActiveCandidateAdmissionRecordBinding`, con exactamente `admission_id` y `document_path`. `admission_id` es solo la association key que se contrasta contra el conjunto de IDs declarados por las memberships; no prueba que el documento adquirido contenga internamente ese ID. `document_path` es un `Path` explícito caller-provided y nunca se deriva de `admission_id`, unit, revision ni digest. No se añade `unit_id`, `candidate_revision`, digest esperado ni metadata adicional.
+
+Los bindings son una allowlist exacta. Fallan acquisition un `admission_id` duplicado, un binding ausente para una membership, uno inesperado o un `document_path` duplicado por igualdad de `Path`: esta última regla evita reutilización física ambigua y doble lectura deliberada de un mismo documento para admissions distintas. No se usa `resolve()` para compararlos ni se enumera filesystem. El orden de bindings recibido no gobierna el resultado: para cada membership, en orden B39/manifest, se localiza `membership.admission_id`, se adquiere su documento y se crea una entry.
+
+Cada `document_path` debe ser `Path` absoluto, existente, regular, no symlink, no directory y caller-provided; se rechazan paths relativos y otros targets existentes no regulares. B41 no crea directories, no usa source root, glob, registry lookup ni derivación de paths. Cada documento se abre una sola vez en binario, se lee completamente desde ese descriptor y se cierra. Parsing, reconstrucción y byte-conformance reutilizan exclusivamente `admission_record_bytes`; no reabren el path.
+
+La evidencia física autoritativa es `admission_record_bytes`. El `AdmissionRecord` reconstruido puede conservarse porque es frozen, pero `record reconstruido != provenance proof`. Las etapas posteriores consumen los bytes y el record preservados sin reabrir `document_path`; B41 sigue siendo utilizable aunque el path desaparezca o cambie después de acquisition.
+
+Los bytes deben ser UTF-8 válido sin BOM, JSON estándar y sin constantes JSON no estándar. El parser interno mínimo rechaza cualquier key JSON duplicada en cualquier object/nivel antes de construir `CandidatePayloadIdentity` o `AdmissionRecord`; no se introduce parser framework genérico. El documento debe ser un object con exactamente:
+
+```text
+top level: document_schema_version, admission_id, identity, decision,
+           reviewer_id, decided_at
+identity:  unit_id, candidate_revision, payload_schema_version, content_digest
+```
+
+Se rechazan fields desconocidos o ausentes y tipos físicos incorrectos, sin coerciones ambiguas. `document_schema_version` debe ser exactamente `ADMISSION_RECORD_DOCUMENT_SCHEMA_VERSION == "1.0"`; una versión de documento no soportada es acquisition failure.
+
+La identity se reconstruye desde sus cuatro valores físicos mediante `CandidatePayloadIdentity`, y después se construye el `AdmissionRecord` real para aplicar sus invariantes vigentes de `admission_id`, identity, decision, reviewer y datetime UTC. B41 no llama `derive_candidate_payload_identity`, no recalcula `content_digest`, no lee candidate ni ejecuta B31. La `payload_schema_version` dentro de la identity permanece metadata declarada: una versión B31 no soportada puede adquirirse si el documento es estructuralmente válido; su soporte, correspondencia y semántica pertenecen a verification posterior. Por ello:
+
+```text
+unsupported AdmissionRecord document_schema_version
+-> B41 acquisition failure
+
+unsupported declared payload_schema_version
+-> acquired / unverified metadata
+```
+
+`decision="admitted"` y `decision="rejected"` son documentos físicamente válidos y adquiribles. B41 no convierte `rejected` en error: podrá fallar posteriormente al verificarse correspondencia/gates.
+
+`decided_at` acepta exclusivamente el formato físico B40 `YYYY-MM-DDTHH:MM:SS.ffffffZ`: fecha y hora ISO válidas, exactamente seis dígitos de microsegundos y sufijo literal `Z`. Se rechazan ausencia de fracción, otra longitud de fracción, `+00:00`, offsets distintos, ausencia de `Z`, locale u otras variantes ISO aunque sean parseables. La reconstrucción produce `datetime` timezone-aware UTC y preserva microsegundos. Un timestamp parseable pero físicamente no canónico B40 es acquisition failure.
+
+Tras reconstruir el record, B41 debe invocar exactamente `serialize_candidate_admission_record_document(reconstructed_record)` y exigir igualdad byte a byte con `admission_record_bytes`. Así detecta key order, whitespace, separators, Unicode escaping, newline, timestamp formatting y toda representación semánticamente parseable pero no conforme a B40. Se mantiene:
+
+```text
+byte-conformant AdmissionRecordDocumentV1
+!= admission provenance verified
+```
+
+No se añade hash, digest ni firma de documento.
+
+Los resultados frozen mínimos son:
+
+- `AcquiredActiveCandidateAdmissionRecordEntry`: `membership`, `document_path`, `admission_record_bytes`, `admission_record`;
+- `ActiveCandidateSourceAdmissionRecordAcquisition`: `candidate_integrity_verification`, `entries`.
+
+`candidate_integrity_verification` es exactamente el aggregate B39 recibido; no se duplica snapshot, que permanece accesible inequívocamente desde él. `entries` conserva un tuple o equivalente inmutable. No se añaden `verified`, correspondence status, `admitted`, gates, provenance, trust, source integrity ni loader readiness.
+
+La única API pública conceptual v1 es:
+
+```text
+acquire_active_candidate_admission_records(
+    candidate_integrity_verification,
+    *,
+    admission_record_bindings,
+) -> ActiveCandidateSourceAdmissionRecordAcquisition
+```
+
+Una primitive individual, si resulta útil, permanece privada. B41 no expone API individual, parser público, lookup, bulk registry ni discovery.
+
+B41 es all-or-nothing; fail-fast basta. Binding duplicate/missing/unexpected o duplicate path; path/read inválido; UTF-8/BOM/JSON; key duplicada; schema/shape/timestamp; reconstrucción de domain; o byte nonconformance impiden retornar aggregate y no hay resultado parcial ni findings framework. Un aggregate B39 vacío con bindings vacíos produce acquisition vacía válida con `entries == ()`, sin afirmar correspondence, provenance, utilidad, completitud curricular, source integrity ni loader readiness.
+
+Deliberadamente B41 no comprueba `record.admission_id == membership.admission_id`, `record.identity == membership.identity` ni `record.decision == "admitted"`. Un documento B40 físicamente/domain válido perteneciente internamente a otro admission, con otra identity o rechazado puede adquirirse como unverified. Tampoco llama `verify_candidate_admission(...)`, reconstruye candidate para gates, ejecuta validation local, evalúa pending decisions ni reevalúa decisión humana.
+
+La cadena TOCTOU queda así:
+
+```text
+B40: AdmissionRecord lógico -> documento físico publicado
+B41: document_path -> read once -> admission_record_bytes preservados -> record reconstruido
+etapa posterior: candidate_integrity_verification + membership + admission bytes/record
+                 sin reabrir document_path, candidate_path ni manifest físico
+```
+
+B41 no toca `required_resource_ids`, identidad/adquisición/integridad de recursos, active source integrity ni loader. Después de B41 siguen sin resolver admission correspondence/gates, resource integrity, active source integrity y loader; `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
+
+La cobertura futura mínima incluye: single/multiple membership, bindings exactos y en orden inverso, bytes y records preservados; missing/duplicate/unexpected binding y duplicate path; vacío; paths válidos e inválidos y read-once; UTF-8/BOM, JSON malformado/no estándar y key duplicada nested; schema/shape/types; timestamps canónicos e inválidos; byte nonconformance por key order, whitespace, Unicode escaping, newline y timestamp; records internos con admission ID/identity distintos o `rejected` adquiribles como unverified; all-or-nothing; y continuidad tras cambiar/borrar paths. También verifica ausencia de correspondence, gates, candidate/manifest reread, recursos, red, provenance y loader, sin inflar artificialmente la suite.
+
+Esta capacidad no introduce generic JSON parser, parser público reutilizable, registry, database, source root, path derivation, document digest, signatures, PKI, reviewer credentials, audit log, locks, `openat2`, remote storage, resources, active-source-integrity aggregate ni loader. Debe poder implementarse sin modificar B31–B40, `AdmissionRecord`, `CandidatePayloadIdentity`, el manifest activo ni el resultado B39. La frontera posterior es únicamente comprobar correspondencia record↔membership y reejecutar los admission gates desde la evidencia candidate preservada, sin afirmar provenance fuerte.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.
