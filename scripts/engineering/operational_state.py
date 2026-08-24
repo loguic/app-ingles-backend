@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import argparse
+import re
 import subprocess
 from dataclasses import dataclass
-from datetime import date
+from datetime import datetime, timedelta
 from pathlib import Path
 
 
@@ -24,11 +25,17 @@ SUMMARY_SECTIONS = (
     "Próximo objetivo",
 )
 
+_UPDATED_AT_PATTERN = re.compile(
+    r"[0-9]{4}-[0-9]{2}-[0-9]{2}"
+    r"T[0-9]{2}:[0-9]{2}:[0-9]{2}"
+    r"[+-][0-9]{2}:[0-9]{2}"
+)
+
 
 @dataclass(frozen=True)
 class OperationalStateReport:
     path: Path
-    updated_on: date
+    updated_at: datetime
     line_count: int
     sections: tuple[str, ...]
 
@@ -37,23 +44,34 @@ def repository_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
-def _extract_update_date(lines: list[str]) -> date:
+def _extract_update_timestamp(lines: list[str]) -> datetime:
     prefix = "Actualizado: "
     values = [
-        line.removeprefix(prefix).strip()
+        line.removeprefix(prefix)
         for line in lines
         if line.startswith(prefix)
     ]
     if len(values) != 1:
         raise ValueError(
-            "Operational state requires exactly one update date"
+            "Operational state requires exactly one update timestamp"
+        )
+    value = values[0]
+    if _UPDATED_AT_PATTERN.fullmatch(value) is None:
+        raise ValueError(
+            "Operational state update timestamp must use "
+            "YYYY-MM-DDTHH:MM:SS±HH:MM"
         )
     try:
-        return date.fromisoformat(values[0])
+        updated_at = datetime.fromisoformat(value)
     except ValueError as exc:
         raise ValueError(
-            "Operational state update date must use YYYY-MM-DD"
+            "Operational state update timestamp is invalid"
         ) from exc
+    if updated_at.tzinfo is None or updated_at.utcoffset() is None:
+        raise ValueError(
+            "Operational state update timestamp must be timezone-aware"
+        )
+    return updated_at
 
 
 def _extract_sections(lines: list[str]) -> tuple[str, ...]:
@@ -67,7 +85,7 @@ def _extract_sections(lines: list[str]) -> tuple[str, ...]:
 def validate_operational_state(
     path: Path,
     *,
-    today: date | None = None,
+    now: datetime | None = None,
     max_age_days: int = 14,
     max_lines: int = 140,
 ) -> OperationalStateReport:
@@ -93,44 +111,103 @@ def validate_operational_state(
             + ", ".join(missing)
         )
 
-    updated_on = _extract_update_date(lines)
-    reference_date = today or date.today()
-    age_days = (reference_date - updated_on).days
+    updated_at = _extract_update_timestamp(lines)
+    reference_now = now or datetime.now().astimezone()
+    if reference_now.tzinfo is None or reference_now.utcoffset() is None:
+        raise ValueError("Operational state reference time must be timezone-aware")
+    age = reference_now - updated_at
 
-    if age_days < 0:
-        raise ValueError("Operational state update date is in the future")
-    if age_days > max_age_days:
+    if age < timedelta(0):
+        raise ValueError("Operational state update timestamp is in the future")
+    if age > timedelta(days=max_age_days):
         raise ValueError(
-            f"Operational state is stale by {age_days} days"
+            f"Operational state is stale by {age.days} days"
         )
 
     return OperationalStateReport(
         path=path,
-        updated_on=updated_on,
+        updated_at=updated_at,
         line_count=len(lines),
         sections=sections,
     )
 
 
-def latest_git_commit_date(root: Path) -> date:
+def latest_git_commit_timestamp(
+    root: Path,
+    revision: str = "HEAD",
+) -> datetime:
     result = subprocess.run(
-        ["git", "log", "-1", "--format=%cs"],
+        ["git", "log", "-1", "--format=%cI", revision],
         cwd=root,
         check=True,
         capture_output=True,
         text=True,
     )
-    return date.fromisoformat(result.stdout.strip())
+    return datetime.fromisoformat(result.stdout.strip())
+
+
+def _head_modifies_state_path(root: Path, state_path: Path) -> bool:
+    path = state_path if state_path.is_absolute() else root / state_path
+    try:
+        relative_path = path.relative_to(root)
+    except ValueError:
+        return False
+    result = subprocess.run(
+        [
+            "git",
+            "diff-tree",
+            "--root",
+            "--no-commit-id",
+            "--name-only",
+            "-r",
+            "HEAD",
+            "--",
+            relative_path.as_posix(),
+        ],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return bool(result.stdout.strip())
+
+
+def _head_has_parent(root: Path) -> bool:
+    result = subprocess.run(
+        ["git", "rev-list", "--parents", "-n", "1", "HEAD"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    parents = result.stdout.split()
+    if not parents:
+        raise ValueError("Git HEAD parent output is malformed")
+    return len(parents) > 1
+
+
+def git_baseline_timestamp(
+    root: Path,
+    state_path: Path,
+) -> datetime | None:
+    if not _head_modifies_state_path(root, state_path):
+        return latest_git_commit_timestamp(root)
+    if not _head_has_parent(root):
+        return None
+    return latest_git_commit_timestamp(root, "HEAD^")
 
 
 def validate_against_git(
     report: OperationalStateReport,
     root: Path,
 ) -> None:
-    commit_date = latest_git_commit_date(root)
-    if report.updated_on < commit_date:
+    baseline_timestamp = git_baseline_timestamp(root, report.path)
+    if (
+        baseline_timestamp is not None
+        and report.updated_at < baseline_timestamp
+    ):
         raise ValueError(
-            "Operational state is older than the latest Git commit"
+            "Operational state is older than the Git baseline"
         )
 
 
@@ -193,7 +270,7 @@ def main() -> None:
     print(
         f"OK: {report.path} "
         f"({report.line_count} lines, "
-        f"updated {report.updated_on.isoformat()})"
+        f"updated {report.updated_at.isoformat()})"
     )
 
 

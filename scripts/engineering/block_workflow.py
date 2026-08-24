@@ -36,7 +36,7 @@ def run_block_workflow(
     print(
         "Operational checkpoint OK: "
         f"{report.line_count} lines, "
-        f"updated {report.updated_on.isoformat()}"
+        f"updated {report.updated_at.isoformat()}"
     )
 
     subprocess.run(

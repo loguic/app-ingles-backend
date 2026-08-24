@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import subprocess
-from datetime import date
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -24,7 +24,7 @@ def run_git(root: Path, *args: str) -> str:
 
 
 def state_document(
-    updated_on: str,
+    updated_at: str,
     recognized_paths: tuple[str, ...] = (
         "tracked.txt",
         "new file.txt",
@@ -50,7 +50,7 @@ def state_document(
     lines = [
         "# Estado operativo — LOGUIC English",
         "",
-        f"Actualizado: {updated_on}",
+        f"Actualizado: {updated_at}",
         "",
     ]
     for section in sections:
@@ -70,7 +70,9 @@ def create_repository(tmp_path: Path) -> tuple[Path, Path]:
     state_path = root / "docs" / "estado-operativo.md"
     state_path.parent.mkdir(parents=True)
     state_path.write_text(
-        state_document(date.today().isoformat()),
+        state_document(
+            datetime.now().astimezone().isoformat(timespec="seconds")
+        ),
         encoding="utf-8",
     )
     (root / "tracked.txt").write_text("original\n", encoding="utf-8")
@@ -208,7 +210,12 @@ def test_rejects_undocumented_dirty_or_untracked_path(
     path = root / ("unknown.txt" if untracked else "tracked.txt")
     if not untracked:
         state_path.write_text(
-            state_document(date.today().isoformat(), ()),
+            state_document(
+                datetime.now().astimezone().isoformat(
+                    timespec="seconds"
+                ),
+                (),
+            ),
             encoding="utf-8",
         )
         run_git(root, "add", "docs/estado-operativo.md")
@@ -359,17 +366,23 @@ def test_fail_closed_for_state_older_than_latest_commit(
     Rechaza un estado canónico demostrablemente anterior a Git.
     """
     root, state_path = create_repository(tmp_path)
-    report_date = date(2026, 8, 12)
-    state_path.write_text(state_document(report_date.isoformat()), encoding="utf-8")
+    report_at = datetime(2026, 8, 12, 12, 0, tzinfo=timezone.utc)
+    (root / "tracked.txt").write_text("newer\n", encoding="utf-8")
+    run_git(root, "add", "tracked.txt")
+    run_git(root, "commit", "-q", "-m", "newer than state")
+    state_path.write_text(
+        state_document(report_at.isoformat()),
+        encoding="utf-8",
+    )
     validate_state = conversation_checkpoint.validate_operational_state
     monkeypatch.setattr(
         conversation_checkpoint,
         "validate_operational_state",
         lambda path: validate_state(
             path,
-            today=report_date,
+            now=report_at,
         ),
     )
 
-    with pytest.raises(ValueError, match="older than the latest Git commit"):
+    with pytest.raises(ValueError, match="older than the Git baseline"):
         build(root, state_path)

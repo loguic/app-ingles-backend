@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime, timezone
 from pathlib import Path
 from subprocess import CompletedProcess
 
@@ -18,7 +18,7 @@ def test_delegate_after_valid_checkpoint(
 
     report = OperationalStateReport(
         path=state_path,
-        updated_on=date(2026, 8, 5),
+        updated_at=datetime(2026, 8, 5, 12, 0, tzinfo=timezone.utc),
         line_count=101,
         sections=(),
     )
@@ -110,7 +110,7 @@ def test_forward_all_block_close_arguments(
     state_path = tmp_path / "estado-operativo.md"
     report = OperationalStateReport(
         path=state_path,
-        updated_on=date(2026, 8, 5),
+        updated_at=datetime(2026, 8, 5, 12, 0, tzinfo=timezone.utc),
         line_count=101,
         sections=(),
     )
