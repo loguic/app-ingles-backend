@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-24T18:51:34+02:00
+Actualizado: 2026-08-24T21:27:21+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -14,17 +14,17 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### Active candidate AdmissionRecord correspondence verification v1 — Slice 42
+### B42.1 — Timestamp preciso del estado operativo
 
-Estado técnico: contrato e implementación **CERRADOS / PUBLICADOS / SINCRONIZADOS**. Contrato `4e9dee40450f0c409d6e199c76473adc50327da1` (`docs define active candidate admission record correspondence verification v1`) e implementación `ac0b07ecf245996430ca7b178006f0d02c34ba6c` (`feat add active candidate admission record correspondence verification v1`) publicados; no hay cambios de código pendientes. Este cierre documental se prepara localmente y queda pendiente de su propio commit/publicación.
+Estado técnico: **CERRADO / PUBLICADO** mediante `46020c1e91577dc4929298f3198ce3b91e54143e` (`feat add precise operational state timestamp`); este cierre documental queda local y pendiente de su propio commit/publicación. `Actualizado:` ahora exige fecha, hora y offset ISO 8601 (`YYYY-MM-DDTHH:MM:SS±HH:MM`), con comparación aware por instante; `OperationalStateReport` migró de `updated_on` a `updated_at`.
 
-`verify_active_candidate_admission_record_correspondence(...)` consume exclusivamente `ActiveCandidateSourceAdmissionRecordAcquisition` B41 y devuelve `ActiveCandidateSourceAdmissionRecordCorrespondenceVerification` frozen, conservando exactamente el mismo aggregate B41. Para cada entry exige `admission_record.admission_id == membership.admission_id` y `admission_record.identity == membership.identity` como igualdad completa de unit, revision, payload schema y digest. Es in-memory, preserva orden B41/manifest, es all-or-nothing y admite vacío válido; no relee bytes/paths, no reconstruye record/candidate, no recalcula identity ni ejecuta B33.
+La validación usa `%cI` y compara contra HEAD, o contra HEAD^ cuando HEAD contiene este documento; un root que lo contiene no tiene baseline Git. Esto evita la autorreferencia del commit de cierre. `conversation_checkpoint.py` reutiliza el validador sin cambio productivo; `block_workflow.py` solo consume/imprime `updated_at`.
 
-B39 prueba candidate bytes → identity == membership; B42 prueba record identity == membership. Por transitividad, el record adquirido declara la identity verificada por B39 para esos candidate bytes. Esto es solo correspondence: `rejected` con ID e identity correctos pasa B42. Correspondence ≠ admitted decision ≠ gates actuales/históricos ≠ reviewer/record/timestamp authenticity ≠ candidate_revision provenance ≠ recursos ≠ active source integrity ≠ loader readiness. Validación: 9 específicas PASS en 0.13 s; regresión B31–B42, 150 passed en 0.48 s; suite backend completa, 1966 passed en 16.94 s; `git diff --check` PASS; postflights contractual y técnico PASS sin findings. A1-U1 continúa pending / non-member; `LOADER = BLOCKED`. Routing: preflight `Sol / high`; contrato/implementación `Terra / medium`; postflights `Terra / high`.
+B42 permanece cerrado: `AdmissionRecord correspondence verified`. Siguen unresolved admitted decision, current/historical admission gates, reviewer authenticity, candidate_revision provenance, resource integrity y active source integrity. Los postflights B42.1 cerraron dos findings BLOCKING; permanecen solo gaps de cobertura temporal/Git NONBLOCKING, sin fallo funcional observado. Validación: 45 tests de infraestructura PASS en 0.82 s; suite backend completa 1980 PASS en 17.66 s; `git diff --check` y validación real del estado PASS. A1-U1 continúa pending / non-member; `LOADER = BLOCKED`.
 
 ## Bloque activo
 
-### Cierre documental de Slice 42
+### Cierre documental B42.1
 
 Estado: preparación local de este cierre documental; no hay bloque funcional/técnico adicional activo. El microbloque tooling `git_close.py --publish-url` v1 permanece cerrado y publicado, sin relación con admission, source integrity o loader.
 
@@ -34,7 +34,7 @@ Estado: **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**. I1–I4 
 
 ## Automatización disponible
 
-- `operational_state.py` valida este checkpoint.
+- `operational_state.py` valida este checkpoint con `Actualizado:` timezone-aware.
 - `conversation_checkpoint.py prepare|resume` prepara y recupera una vista efímera validada al cambiar de conversación.
 - `block_close.py` realiza validaciones técnicas y staging controlado.
 - `git_close.py` realiza un cierre Git seguro de allowlist explícita, un commit y un push confirmado.
@@ -44,7 +44,7 @@ Estado: **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**. I1–I4 
 
 Cada slice pasa por definición, implementación, validación específica, revisión independiente y cierre documental. No repetir inspecciones ni validaciones ya confirmadas mientras no cambien los archivos cubiertos. Operar con Codex CLI + Bash; si una regresión en Codex queda indeterminada, ejecutarla una sola vez directamente en Bash. La suite backend completa se ejecuta directamente en Bash cuando corresponde.
 
-Antes de cambiar de conversación: actualizar este documento, validarlo con `operational_state.py`, ejecutar `conversation_checkpoint.py prepare` y cambiar solo con checkpoint válido. Al reanudar: usar `conversation_checkpoint.py resume` antes de proponer comandos, inspecciones o cambios.
+Antes de cambiar de conversación: actualizar este documento con timestamp local aware, validarlo con `operational_state.py`, ejecutar `conversation_checkpoint.py prepare` y cambiar solo con checkpoint válido. Al reanudar: usar `conversation_checkpoint.py resume` antes de proponer comandos, inspecciones o cambios.
 
 ## Fronteras obligatorias
 
@@ -57,7 +57,7 @@ Antes de cambiar de conversación: actualizar este documento, validarlo con `ope
 
 ## Próximo objetivo
 
-Tras publicar este cierre documental de B42, reevaluar las reglas actuales de admission gates usando exclusivamente candidate bytes preservados, AdmissionRecord adquirido/correspondido y contratos B33/validation. No se diseña ni numera aquí ese bloque posterior ni se afirma historical gate execution; después seguirán pendientes recursos físicos, active source integrity y loader. `LOADER = BLOCKED` y la compatibilidad curricular autoritativa sigue posterior.
+Tras publicar este cierre documental de B42.1, reevaluar las reglas actuales de admission gates usando exclusivamente candidate bytes B39 preservados, AdmissionRecord adquirido/correspondido B41/B42 y contratos B33/validation. Current gate reevaluation ≠ historical gate execution proof. No se diseña ni numera aquí ese bloque posterior; después seguirán pendientes recursos físicos, active source integrity y loader. `LOADER = BLOCKED` y la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
