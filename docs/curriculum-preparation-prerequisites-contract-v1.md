@@ -1742,6 +1742,99 @@ La cobertura futura mínima incluye: happy path single y multiple con todos los 
 
 Después de B43 positivo, la evidencia de admission es suficiente bajo el trust model actual para una futura composición de active source integrity, pero siguen faltando resource physical identity, resource acquisition/bindings, resource integrity y el aggregate de active source integrity. `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
 
+### Resource physical identity v1
+
+B44 — **Resource physical identity v1** define una primitive determinista para derivar la identidad física de **un único recurso** a partir de un `resource_id` lógico caller-provided y de los `resource_bytes` raw exactos proporcionados. Produce una garantía reusable sin filesystem, acquisition, binding, expected identity declaration, integrity comparison ni contexto de active source.
+
+El modelo existente no contiene un schema `Resource`, physical identity, expected resource digest, path/URI contractual, resource acquisition, resource manifest ni primitive de hashing de recursos. Los recursos son actualmente referencias lógicas: `required_resource_ids: list[str]`; `Pronunciation.audio_asset` también es `str` y continúa siendo una referencia lógica, no un locator físico contractual. B44 no amplía ese modelo.
+
+El value object v1 es frozen y mínimo:
+
+```text
+ResourcePhysicalIdentity
+  resource_id: str
+  content_digest: str
+```
+
+No contiene byte length, digest algorithm, schema version, media type, filename, path, URI, timestamps ni metadata de provenance. Su inmutabilidad es únicamente estructural; no almacena `resource_bytes`, pues identity != resource content storage.
+
+La API pública conceptual única es:
+
+```python
+derive_resource_physical_identity(
+    resource_bytes: bytes,
+    *,
+    resource_id: str,
+) -> ResourcePhysicalIdentity
+```
+
+`resource_bytes` acepta exactamente `bytes`; no acepta `bytearray`, `memoryview`, stream, `Path` ni file object. `resource_id` acepta `str` y se conserva literalmente. Un tipo distinto de `bytes` o `str` falla con `TypeError` o semántica simple equivalente; un fallo técnico inesperado al hashear se propaga. No se introduce una jerarquía de excepciones.
+
+`content_digest` es exactamente `sha256:<64 hexadecimal lowercase>`, donde los 64 caracteres son `SHA-256(resource_bytes)` de los raw bytes exactos. El preimage contiene únicamente esos bytes: no incluye `resource_id` ni parsing, canonicalización, normalización Unicode, transcoding, normalización de audio o texto, interpretación MIME ni metadata de filesystem. Por tanto:
+
+```text
+ResourcePhysicalIdentity.content_digest
+!= CandidatePayloadIdentity.content_digest
+
+B44: raw resource bytes
+B31: payload JSON lógico canónico
+```
+
+`resource_id` forma parte del value object como dimensión lógica independiente, pero no del preimage SHA-256. Dos IDs distintos pueden referirse intencionalmente a bytes idénticos: sus `ResourcePhysicalIdentity` son distintos y sus `content_digest` son iguales. B44 no crea grammar nueva: el ID debe ser `str` y se preserva literalmente, sin `strip`, lowercase, normalización, slug conversion ni namespace; tampoco prohíbe retroactivamente IDs vacíos o whitespace. La ausencia actual de nonblank constraint queda fuera de B44.
+
+`b""` es físicamente identificable y válido; produce exactamente `sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`. Que los bytes vacíos sean identificables no significa que sean un recurso media útil o semánticamente válido.
+
+La garantía positiva B44 es únicamente: para el `resource_id` caller-provided, `content_digest` fue derivado determinísticamente como SHA-256 de los `resource_bytes` exactos proporcionados. En particular:
+
+```text
+derive physical identity from bytes
+!= prove bytes are the intended resource
+
+SHA-256 equality
+!= provenance/authenticity
+```
+
+B44 no demuestra que el `resource_id` sea verdadero o correcto, que los bytes sean el recurso pretendido, expected identity, resource binding/acquisition/integrity, source membership o resource completeness, provenance, authenticity, author/publisher identity, licensing, malware safety, MIME/codec/audio validity, semantic o pedagogical correctness, ni loader readiness.
+
+`ResourcePhysicalIdentity` es un value object neutral: un consumidor futuro puede usarlo como expected u observed identity según su contexto causal, pero B44 no establece expectedness. No introduce `ExpectedResourcePhysicalIdentity` ni `ObservedResourcePhysicalIdentity`. Se mantiene:
+
+```text
+expected identity
+!= identity derived from acquisition bytes
+```
+
+Una futura integrity verification no puede derivar expected y observed identity de los mismos bytes y compararlos, porque sería tautológica.
+
+B44 es una capacidad in-memory, determinista y side-effect free: no usa filesystem, network, clock ni randomness. Quedan excluidos `Path`, binding `resource_id -> path`, symlink/regular-file checks, read-once, TOCTOU, permissions, atomic publication y metadata filesystem; corresponden a acquisition posterior. B44 opera sobre un recurso, no introduce collections, duplicate detection, allowlists, manifests, cross-candidate deduplication ni active-source aggregation; los duplicados no aplican todavía.
+
+B31 incluye `required_resource_ids` en el payload canónico y su candidate digest protege la declaración lógica ordenada de esos IDs. No protege resource bytes, physical digest, path, existence, MIME ni content correctness:
+
+```text
+candidate declares resource_id X
+!= physical bytes for X verified
+```
+
+B44 no modifica `CandidatePayloadIdentity`. B39 verifica candidate bytes y preserva la declaración lógica contenida en ellos, pero B44 no consume B39, no se integra en B39, no recalcula candidate digest ni modifica candidate identity: es una primitive independiente de nivel inferior. Tampoco depende de B43 ni consume `AdmissionRecord`, membership, candidate o resultado B43. No entiende WAV, MP3, codec, sample rate, duration, pronunciation semantics o decoding; `Pronunciation.audio_asset` sigue siendo una referencia lógica. Pedagogical validation != physical resource integrity.
+
+B44 no necesita documento físico, serializer JSON, manifest, atomic publication ni persistence. Una declaración preservada de expected identities será una capacidad posterior separada. Quedan excluidos path/binding, filesystem, acquisition, resource collection, byte length, MIME framework, audio parsing, transcoding, CAS/Merkle, signatures/PKI, DB/registry, generic artifact framework, versioning framework, active source aggregate y loader.
+
+La cobertura futura mínima B44 incluye: shape exacto y frozen; mismo ID y mismos bytes que producen la misma identity y determinismo repetido; golden vector SHA-256, prefijo `sha256:` y hex lowercase; cambio de un byte que altera digest; `b""` y su digest golden; mismo contenido con IDs distintos que conserva digests iguales e identities distintas; preservación literal del ID sin strip/lowercase/normalización; `resource_id` no `str`; `resource_bytes` no `bytes`, incluidos `bytearray` y `memoryview`; ausencia de bytes almacenados en la identity; y ausencia de filesystem, network, clock, randomness, parsing, transcoding o normalización. No se añadirán aquí pruebas de acquisition, bindings, collection de recursos, MIME, audio ni active source.
+
+Los riesgos no bloqueantes, externos a B44, son: resource IDs sin nonblank/namespace; `required_resource_ids` que permite IDs extra no referenciados; recopilación actual de `audio_asset` que no cubre explícitamente todas las ubicaciones de `Pronunciation`; ausencia de expected identity persistida; SHA-256 sin autenticidad; y ausencia de media validation. No forman scope B44.
+
+La frontera posterior requiere una declaración/colección preservada de **expected** resource identities. La secuencia conceptual probable es:
+
+```text
+B44 resource physical identity primitive
+-> expected resource identity declaration/collection
+-> resource bindings/acquisition read-once
+-> observed identity + integrity comparison
+-> active source integrity aggregate
+-> loader
+```
+
+No se diseña esa siguiente slice aquí. `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.
