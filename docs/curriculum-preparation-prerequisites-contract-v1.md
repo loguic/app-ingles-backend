@@ -1658,6 +1658,90 @@ Después de B42, admission record correspondence queda verified, pero admitted d
 
 Esta capacidad no introduce generic verification/correspondence framework, parser, filesystem abstraction, registry, database, signatures, PKI, reviewer identity system, audit log, recursos, active-source-integrity aggregate ni loader. Debe poder implementarse sin modificar B31–B41, `AdmissionRecord`, `CandidatePayloadIdentity`, B39, el resultado B41, el manifest activo, validation service ni `AdmissionGateVerification`.
 
+### Active candidate current admission gate reevaluation v1
+
+`Active candidate current admission gate reevaluation v1` consume exclusivamente una `ActiveCandidateSourceAdmissionRecordCorrespondenceVerification` positiva producida por B42. Reevalúa, para cada membership de la source activa, las reglas **actuales** de admission ya definidas por B33 sobre la evidencia preservada por B39, B41 y B42:
+
+```text
+B39 candidate_bytes preservados
+-> candidate payload integrity verified
+B41 AdmissionRecord adquirido
+B42 AdmissionRecord correspondence verified
++ reglas actuales B33
+-> current admission gates verified
+```
+
+La capacidad no recibe manifest, paths, bindings, memberships, candidate bytes, `AdmissionRecord`, aggregate B39 ni recursos por separado. La frontera causal pública v1 es únicamente el resultado B42:
+
+```text
+reevaluate_active_candidate_current_admission_gates(
+    admission_record_correspondence_verification,
+) -> ActiveCandidateSourceCurrentAdmissionGateReevaluation
+```
+
+Para cada entry, B43 toma los `candidate_bytes` de la entry B39 transitivamente accesible, y reconstruye de forma privada y efímera un `PedagogicalUnitCandidate` mediante `PedagogicalUnitCandidate.model_validate_json(candidate_bytes)`. Esa reconstrucción solo adapta la evidencia bytes al input tipado exigido por B33: no se persiste, no se conserva en el resultado, no sustituye `candidate_bytes` como autoridad, no usa el candidate mutable de B38 y no constituye una garantía ni una slice independiente. B39 ya resolvió los controles físicos y de integridad de payload; B43 no repite checks UTF-8, BOM, duplicate keys, constantes JSON ni derivación de identity por su cuenta.
+
+B43 reutiliza directamente, exactamente una vez por entry, `verify_candidate_admission(reconstructed_candidate, admission_record)`. No reimplementa ni descompone sus reglas. Para una versión soportada, B33 deriva una identity usando `admission_record.identity.candidate_revision`, ejecuta exactamente una vez `validate_pedagogical_candidate(candidate)` y devuelve un `AdmissionGateVerification` completo con estos cuatro gates actuales:
+
+1. `identity_matches`;
+2. `local_validation_passed`;
+3. `pending_human_decisions_clear`;
+4. `human_decision_admitted`.
+
+`AdmissionGateVerification.verified` sigue significando exactamente el AND de los cuatro gates. `local_validation_passed` es true exactamente si el `local_validation_report` recién recalculado tiene `status == "passed"`. `pending_human_decisions_clear` es true exactamente si `candidate.pending_human_decisions == []`; B43 no consulta una fuente humana externa. `human_decision_admitted` es true exactamente si `admission_record.decision == "admitted"`; no usa `reviewer_id`, `decided_at`, credenciales, autorización ni trust anchor.
+
+La garantía positiva B43 existe solamente si todas las entries devuelven `admission_gate_verification.verified == True`. En ese caso puede afirmarse únicamente que, para cada membership de la source de entrada, el candidate reconstruido exclusivamente desde los `candidate_bytes` preservados por B39 y el `AdmissionRecord` adquirido/correspondido por B41/B42 satisfacen los cuatro admission gates implementados por B33 **en el código y dependencias ejecutados actualmente**.
+
+B39 continúa siendo la autoridad de candidate payload integrity:
+
+```text
+candidate_bytes -> derived_identity == membership.identity
+```
+
+B42 continúa siendo la autoridad de correspondence:
+
+```text
+AdmissionRecord.identity == membership.identity
+```
+
+Por transitividad, `derived_identity == AdmissionRecord.identity`. B43 no crea una garantía identity adicional ni vuelve a comparar identity fuera de B33. Que B33 recalcule su gate internamente es encapsulación de la definición cerrada de B33. Si produjera `identity_matches == False` dentro de una cadena B39+B42 válida, B43 debe tratarlo como contradicción técnica y fallar cerrado, no como rechazo ordinario esperado.
+
+El resultado v1 se compone de value objects frozen mínimos:
+
+- `ActiveCandidateCurrentAdmissionGateReevaluationEntry`, con exactamente `candidate_integrity_verification`, `acquired_admission_record_entry` y `admission_gate_verification`;
+- `ActiveCandidateSourceCurrentAdmissionGateReevaluation`, con exactamente `admission_record_correspondence_verification` y `entries` inmutables.
+
+Las entries conservan referencias a evidencia B39/B41/B42 ya existente; no duplican membership, `candidate_bytes`, `AdmissionRecord` ni `derived_identity`, y nunca almacenan el candidate reconstruido. Deben conservar el orden B39/B41/manifest. La implementación debe emparejar la entry B39 con la entry B41 mediante `zip(..., strict=True)` o semántica equivalente y comprobar igualdad estructural de membership antes de reevaluar. Esa comprobación es una defensa contra un aggregate incoherente, no una nueva verification de correspondence B42; no se ordena, no se crean IDs, no se usa lookup externo y no se reasocia record con membership.
+
+`AdmissionGateVerification` completo se conserva por entry porque preserva el report local recién calculado, sus findings y los flags de gates sin repetir validation. El report puede contener estructuras Pydantic mutables, pero B43 no las transforma en una nueva autoridad ni exige deep immutability fuera de los contratos existentes.
+
+El agregado es all-or-nothing. Para `local_validation_passed == False`, `pending_human_decisions_clear == False` o `human_decision_admitted == False`, B43 no devuelve aggregate positivo; puede fallar con `ValueError` simple y claro que indique los gates no satisfechos. Así, un record `rejected` puede pasar B42 correspondence pero impide B43 positivo; lo mismo ocurre con pending human decisions no vacías o validation local `failed`/`pending`. No se retorna resultado parcial ni se crea findings framework adicional. Son technical failures —propagables o contextualizables sin exception hierarchy nueva— una reconstrucción imposible pese a B39, una inconsistencia de alineación, error técnico Pydantic, excepción del validation service, payload schema no soportada inesperada o contradicción de invariantes.
+
+B43 no añade una validación arquitectónica redundante de `payload_schema_version`: B39 ya exige una versión soportada y B42 exige la identity completa del record. El check interno de B33 se conserva como defensa; si se activa dentro de B43, es una contradicción técnica. Una source B42 vacía puede producir un aggregate B43 vacío, `entries == ()`, estructuralmente positivo, sin afirmar completitud curricular, utilidad de la source, recursos, active source integrity ni loader readiness.
+
+El `content_digest` B31 cubre únicamente el payload canónico y excluye `validation_report`, `pending_human_decisions` y `proposed_change_summary`. B33 ignora el report embebido y recalcula validation actual; consume `pending_human_decisions` directamente; no usa `proposed_change_summary`. Por ello B39 payload integrity no implica que todos los campos que B33 consume estén cubiertos por `content_digest`. B43 puede afirmar solo que el valor de `pending_human_decisions` evaluado estaba presente en los `candidate_bytes` completos preservados consumidos por B43, no que fuera históricamente auténtico ni que representara una resolución humana correcta.
+
+Se mantienen obligatoriamente:
+
+```text
+current admission gate reevaluation
+!= historical admission gate execution proof
+
+decision == "admitted"
+!= authentic human decision
+
+pending_human_decisions == []
+!= historical proof of correct human resolution
+```
+
+B43 no demuestra que los gates se ejecutaran al crear B34, que emplearan estos mismos bytes o este `AdmissionRecord` físico, ni que usaran las mismas reglas. Tampoco demuestra reviewer authenticity o authorization, decision/`decided_at`/`AdmissionRecord` authenticity, chronology admission-candidate, candidate revision provenance, que candidate revision esté dentro de candidate bytes, equivalencia histórica de software o reglas, resource physical identity/acquisition/integrity, active source integrity, loader readiness, curriculum completeness ni learning/mastery. No añade firma, PKI, provenance, trust anchor, audit log, registry, database, parser público, framework genérico de gates/findings/versioning, software fingerprint ni versionado de validators. La expresión “current admission gates” se limita a las reglas del código y dependencias ejecutados actualmente; la misma evidencia puede evaluarse de modo diferente bajo reglas futuras.
+
+B43 opera completamente in-memory sobre evidencia ya preservada. No relee `candidate_path`, `document_path` ni manifest, no toca filesystem, red, recursos físicos, current time o randomness y no usa el candidate mutable B38 como autoridad. B34 creó memberships originalmente desde una `AdmissionGateVerification` positiva; B43 no reconstruye esa causalidad histórica y produce una reevaluación nueva y actual.
+
+La cobertura futura mínima incluye: happy path single y multiple con todos los gates true; result y entries frozen; orden y asociación B39/B41 preservados; candidate reconstruido exclusivamente desde `candidate_bytes` y ausencia de uso del mutable B38; una llamada B33 por entry; record `rejected`, pending human decisions no vacías y local validation no passed que impiden resultado positivo; identity false como contradicción técnica inyectable sin fabricar evidencia física imposible; alignment mismatch y reconstruction contradiction; all-or-nothing sin resultado parcial; vacío válido; y ausencia de candidate/document/manifest reread, filesystem, red y recursos. No se ampliarán pruebas hacia otras slices.
+
+Después de B43 positivo, la evidencia de admission es suficiente bajo el trust model actual para una futura composición de active source integrity, pero siguen faltando resource physical identity, resource acquisition/bindings, resource integrity y el aggregate de active source integrity. `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.
