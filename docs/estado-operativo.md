@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-25T21:37:47+02:00
+Actualizado: 2026-08-25T23:46:04+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -13,6 +13,16 @@ Formato: checkpoint operativo compacto
 - Todo trabajo curricular parte de una capacidad observable del estudiante; `Skill` significa exclusivamente habilidad pedagógica medible.
 
 ## Último bloque cerrado
+
+### B44 — Resource physical identity v1
+
+Estado técnico: **CERRADO / PUBLICADO** mediante `f02cdc82c57cfdc97c3df8157e7b91e758e600ab` (`feat add resource physical identity v1`). Contrato publicado: `c5732af624bb651d3da8838fc7aba0807a2edc79`. Este cierre documental queda local y pendiente de su propio commit/publicación.
+
+`derive_resource_physical_identity(resource_bytes, *, resource_id)` produce `ResourcePhysicalIdentity` frozen con solo `resource_id` y `content_digest`. Deriva `sha256:` + SHA-256 de los raw bytes exactos; el ID se preserva literalmente y no entra al preimage, los bytes vacíos son válidos y el resultado no almacena contenido. Es una primitive unitaria, in-memory, determinista y sin side effects: no realiza parsing, normalización, transcoding, filesystem, red, bindings, acquisition, persistence ni integrity comparison.
+
+La garantía byte-level es limitada: para el ID caller-provided, el digest proviene determinísticamente de los bytes proporcionados. `derive physical identity from bytes != prove bytes are the intended resource` y `SHA-256 equality != provenance/authenticity`. La identity es neutral: expected y observed pertenecen a contextos posteriores; derivarlas de los mismos bytes y compararlas sería tautológico, no resource integrity. B31 solo protege la declaración lógica ordenada `required_resource_ids`, no bytes, digest físico, path, existencia, MIME ni content correctness. B44 no consume ni modifica B39/B43, candidates, memberships, AdmissionRecords ni gates.
+
+Validación: 15 directas PASS en 0.04 s; regresión B31–B44 176 PASS en 0.52 s; suite backend 2006 PASS en 17.41 s; `git diff --check`, postflight contractual y postflight técnico PASS, sin findings BLOCKING ni NONBLOCKING materiales. Persisten solo límites externos: IDs sin nonblank/namespace, IDs extra declarables, cobertura parcial de `audio_asset`, ausencia de expected identity persistida, SHA-256 sin autenticidad y falta de media validation. Siguen unresolved expected resource identity declaration, resource bindings/acquisition, resource integrity y active source integrity; `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
 
 ### B43 — Active candidate current admission gate reevaluation v1
 
@@ -32,9 +42,9 @@ B42 permanece cerrado: `AdmissionRecord correspondence verified`; B43 posterior 
 
 ## Bloque activo
 
-### Cierre documental B43
+### Cierre documental B44
 
-Estado: preparación local de este cierre documental; no hay bloque funcional/técnico adicional activo. B42.1 permanece cerrado como mejora de timestamp operativo; el microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
+Estado: preparación local de este cierre documental; no hay bloque funcional/técnico adicional activo. B43 y B42.1 permanecen cerrados; B42.1 conserva su trazabilidad como mejora de timestamp operativo. El microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -58,14 +68,14 @@ Antes de cambiar de conversación: actualizar este documento con timestamp local
 
 - preparación curricular ≠ ejecución del estudiante ≠ evidencia real ≠ evaluación ≠ aprendizaje ≠ mastery;
 - admission verificada ≠ publication ≠ active membership ≠ membership collection ≠ active source snapshot ≠ representación física ≠ compatibilidad curricular autoritativa;
-- physical AdmissionRecord document ≠ admission record acquired / unverified ≠ AdmissionRecord correspondence ≠ current admission gate reevaluation ≠ historical gate execution proof ≠ admission provenance ≠ active membership proof ≠ candidate payload integrity ≠ resource integrity ≠ active source integrity ≠ loader readiness;
+- physical AdmissionRecord document ≠ admission record acquired / unverified ≠ AdmissionRecord correspondence ≠ current admission gate reevaluation ≠ historical gate execution proof ≠ admission provenance ≠ active membership proof ≠ candidate payload integrity ≠ resource physical identity ≠ expected resource identity ≠ resource integrity ≠ active source integrity ≠ loader readiness;
 - `required_stages` y `SkillCoverage` heredados no producen `CurriculumPreparationState`;
 - no modificar todavía `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage`, `required_stages`, runtime, progreso, mastery, fonética, feedback ni B181;
 - membership/source state no define orden curricular; hierarchy authority no certifica admission.
 
 ## Próximo objetivo
 
-Tras publicar este cierre documental de B43, la siguiente frontera es resource physical identity / acquisition / integrity. No se diseña ni numera aquí ese bloque posterior. Admission-side queda suficiente bajo el trust model actual, pero active source integrity aggregate y loader siguen pendientes. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
+Tras publicar este cierre documental de B44, la siguiente frontera es expected resource identity declaration / collection. No se diseña ni numera aquí ese bloque posterior. Después seguirán resource bindings/acquisition read-once, observed identity + integrity comparison y active source integrity aggregate. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
@@ -82,6 +92,7 @@ Tras publicar este cierre documental de B43, la siguiente frontera es resource p
 - `app/services/pedagogical_active_candidate_admission_record_acquisition.py`;
 - `app/services/pedagogical_active_candidate_admission_record_correspondence.py`;
 - `app/services/pedagogical_active_candidate_current_admission_gate_reevaluation.py`;
+- `app/services/pedagogical_resource_physical_identity.py`;
 - `app/services/pedagogical_active_candidate_membership.py`;
 - `app/services/pedagogical_active_candidate_membership_collection.py`;
 - `app/services/pedagogical_active_candidate_source_snapshot.py`;
@@ -91,4 +102,5 @@ Tras publicar este cierre documental de B43, la siguiente frontera es resource p
 - `tests/test_pedagogical_active_candidate_admission_record_acquisition.py`;
 - `tests/test_pedagogical_active_candidate_admission_record_correspondence.py`;
 - `tests/test_pedagogical_active_candidate_current_admission_gate_reevaluation.py`;
+- `tests/test_pedagogical_resource_physical_identity.py`;
 - `app/services/pedagogical_validation_service.py`.
