@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-25T23:46:04+02:00
+Actualizado: 2026-08-26T08:42:56+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -14,15 +14,15 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### B44 — Resource physical identity v1
+### B45 — Expected resource identity collection v1
 
-Estado técnico: **CERRADO / PUBLICADO** mediante `f02cdc82c57cfdc97c3df8157e7b91e758e600ab` (`feat add resource physical identity v1`). Contrato publicado: `c5732af624bb651d3da8838fc7aba0807a2edc79`. Este cierre documental queda local y pendiente de su propio commit/publicación.
+Estado técnico: **CERRADO / PUBLICADO** mediante `03b29f103ab65d93f6ed2ccf96c6b47fac63ff7a`. Contrato publicado: `dd883e62e1c419eb4b422d34fd7bd10ea3b9e149`. Este cierre documental queda local y pendiente de su propio commit/publicación.
 
-`derive_resource_physical_identity(resource_bytes, *, resource_id)` produce `ResourcePhysicalIdentity` frozen con solo `resource_id` y `content_digest`. Deriva `sha256:` + SHA-256 de los raw bytes exactos; el ID se preserva literalmente y no entra al preimage, los bytes vacíos son válidos y el resultado no almacena contenido. Es una primitive unitaria, in-memory, determinista y sin side effects: no realiza parsing, normalización, transcoding, filesystem, red, bindings, acquisition, persistence ni integrity comparison.
+`ExpectedResourceIdentityCollection` frozen contiene solo `identities: tuple[ResourcePhysicalIdentity, ...]`. `build_expected_resource_identity_collection(identities)` declara como expected, exactamente y en el orden recibido, las identities caller-provided tras una sola materialización a tuple. Acepta vacío y exige unicidad total por `resource_id`: duplicate ID falla con igual o distinto digest, mientras IDs distintos pueden compartir digest. El ID se preserva literalmente; una identity manual con digest arbitrario es válida y no se hace hash ni digest validation.
 
-La garantía byte-level es limitada: para el ID caller-provided, el digest proviene determinísticamente de los bytes proporcionados. `derive physical identity from bytes != prove bytes are the intended resource` y `SHA-256 equality != provenance/authenticity`. La identity es neutral: expected y observed pertenecen a contextos posteriores; derivarlas de los mismos bytes y compararlas sería tautológico, no resource integrity. B31 solo protege la declaración lógica ordenada `required_resource_ids`, no bytes, digest físico, path, existencia, MIME ni content correctness. B44 no consume ni modifica B39/B43, candidates, memberships, AdmissionRecords ni gates.
+Expectedness es solo contextual y `ResourcePhysicalIdentity` sigue neutral. `declared as expected != authentic`; expected declaration != digest correctness; expected collection != required-resource completeness. La anti-tautología permanece: caller-provided identity -> B45 expected collection; futura acquisition -> observed bytes -> B44 observed identity; ambas evidencias podrán compararse después. Expected y observed derivados de los mismos bytes en la misma verificación no prueban integrity. B45 no acredita chronology, provenance, source membership/revision, existence, bindings, acquisition ni integrity.
 
-Validación: 15 directas PASS en 0.04 s; regresión B31–B44 176 PASS en 0.52 s; suite backend 2006 PASS en 17.41 s; `git diff --check`, postflight contractual y postflight técnico PASS, sin findings BLOCKING ni NONBLOCKING materiales. Persisten solo límites externos: IDs sin nonblank/namespace, IDs extra declarables, cobertura parcial de `audio_asset`, ausencia de expected identity persistida, SHA-256 sin autenticidad y falta de media validation. Siguen unresolved expected resource identity declaration, resource bindings/acquisition, resource integrity y active source integrity; `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
+El primer postflight cerró dos BLOCKING: `str` se rechaza antes de materializar —`""` y `"abc"` fallan; list/tuple pasan; set/generator fallan— y el tipo de entry se exige exacto con `type(identity) is ResourcePhysicalIdentity`, rechazando subclases y sin coerción. Re-postflight PASS, sin findings finales materiales. Validación: 21 directas PASS en 0.04 s; regresión B31–B45 197 PASS en 0.58 s; suite backend 2027 PASS en 17.37 s; `git diff --check` técnico final y postflight contractual PASS. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
 
 ### B43 — Active candidate current admission gate reevaluation v1
 
@@ -42,9 +42,9 @@ B42 permanece cerrado: `AdmissionRecord correspondence verified`; B43 posterior 
 
 ## Bloque activo
 
-### Cierre documental B44
+### Cierre documental B45
 
-Estado: preparación local de este cierre documental; no hay bloque funcional/técnico adicional activo. B43 y B42.1 permanecen cerrados; B42.1 conserva su trazabilidad como mejora de timestamp operativo. El microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
+Estado: preparación local de este cierre documental; no hay bloque funcional/técnico adicional activo. B44, B43 y B42.1 permanecen cerrados; B42.1 conserva su trazabilidad como mejora de timestamp operativo. El microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -75,7 +75,7 @@ Antes de cambiar de conversación: actualizar este documento con timestamp local
 
 ## Próximo objetivo
 
-Tras publicar este cierre documental de B44, la siguiente frontera es expected resource identity declaration / collection. No se diseña ni numera aquí ese bloque posterior. Después seguirán resource bindings/acquisition read-once, observed identity + integrity comparison y active source integrity aggregate. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
+Tras publicar este cierre documental de B45, siguen pendientes active-source resource coverage/context, expected physical declaration/publication si surge un consumidor, resource bindings/acquisition read-once, observed identity + integrity comparison y active source integrity aggregate. No se diseña ni numera aquí el bloque posterior. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
@@ -93,6 +93,7 @@ Tras publicar este cierre documental de B44, la siguiente frontera es expected r
 - `app/services/pedagogical_active_candidate_admission_record_correspondence.py`;
 - `app/services/pedagogical_active_candidate_current_admission_gate_reevaluation.py`;
 - `app/services/pedagogical_resource_physical_identity.py`;
+- `app/services/pedagogical_expected_resource_identity_collection.py`;
 - `app/services/pedagogical_active_candidate_membership.py`;
 - `app/services/pedagogical_active_candidate_membership_collection.py`;
 - `app/services/pedagogical_active_candidate_source_snapshot.py`;
@@ -103,4 +104,5 @@ Tras publicar este cierre documental de B44, la siguiente frontera es expected r
 - `tests/test_pedagogical_active_candidate_admission_record_correspondence.py`;
 - `tests/test_pedagogical_active_candidate_current_admission_gate_reevaluation.py`;
 - `tests/test_pedagogical_resource_physical_identity.py`;
+- `tests/test_pedagogical_expected_resource_identity_collection.py`;
 - `app/services/pedagogical_validation_service.py`.
