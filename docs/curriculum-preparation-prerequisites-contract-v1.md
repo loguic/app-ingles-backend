@@ -2003,6 +2003,117 @@ La frontera posterior podrá consumir el inventario B46 y una `ExpectedResourceI
 
 La cobertura futura mínima B46 incluye: shape frozen exacto y preservación por identidad de B39; source vacía; candidate único y múltiples; orden de manifest y orden interno preservados en la unión estable; repetición interna y cross-candidate sin segundo ID source-wide; IDs vacíos, whitespace, Unicode y case preservados literalmente; reconstrucción exclusivamente desde `candidate_bytes` aunque el candidate mutable B38 cambie; ausencia de reread de paths/manifest, de validation service, B43, B44, B45, hashing, filesystem, resource acquisition y coverage; y all-or-nothing ante evidencia B39 inválida. No se añaden aquí tests de expected coverage, resources físicos, bindings, observed identity, integrity ni loader.
 
+### Active candidate source expected resource coverage verification v1
+
+B47 — **Active candidate source expected resource coverage verification v1** verifica que el dominio lógico de `resource_id` requerido por una `ActiveCandidateSourceRequiredResourceInventory` B46 coincide exactamente con el dominio de `resource_id` declarado como expected por una `ExpectedResourceIdentityCollection` B45. Su garantía positiva mínima es únicamente: para ese dominio required source-wide, la collection B45 contiene exactamente una expected `ResourcePhysicalIdentity` por cada ID requerido y ninguna identity fuera de ese dominio.
+
+La única frontera pública conceptual v1 recibe exactamente:
+
+```python
+verify_active_candidate_source_expected_resource_coverage(
+    required_resource_inventory: (
+        ActiveCandidateSourceRequiredResourceInventory
+    ),
+    expected_resource_identity_collection: (
+        ExpectedResourceIdentityCollection
+    ),
+) -> ActiveCandidateSourceExpectedResourceCoverageVerification
+```
+
+No recibe listas caller-provided de IDs, candidates, B39, candidate bytes, memberships, snapshots, B43, B44, paths, bindings, resource bytes ni evidence de acquisition. B46 es la autoridad única del dominio source-wide requerido; B45 es la autoridad única de la declaración expected. B47 no retrocede a B39, no reconstruye candidates ni reextrae `required_resource_ids`.
+
+El resultado frozen mínimo contiene exactamente:
+
+```text
+ActiveCandidateSourceExpectedResourceCoverageVerification
+  required_resource_inventory: ActiveCandidateSourceRequiredResourceInventory
+  expected_resource_identity_collection: ExpectedResourceIdentityCollection
+```
+
+Conserva ambos inputs originales y no duplica snapshot, memberships, revision, required IDs ni identities. No contiene `verified`, status, `coverage_matches`, missing/unexpected IDs, counts, source ID, digest, findings, dict/index ni una nueva expected collection. No se crea un `SourceBoundExpectedResourceIdentityCollection` ni wrapper equivalente: el resultado positivo es la evidencia source-contextual de coverage, no una tercera collection.
+
+La condición positiva exacta es:
+
+```text
+set(required_resource_inventory.required_resource_ids)
+==
+set(
+    identity.resource_id
+    for identity
+    in expected_resource_identity_collection.identities
+)
+```
+
+B46 ya garantiza un ID source-wide único por primera aparición y B45 una identity expected única por `resource_id`. B47 confía en esas invariantes conformes: no las deduplica, reconstruye ni revalida. Los sets auxiliares solo existen durante la comparación y no se almacenan ni se exponen.
+
+Coverage compara dominios, no igualdad de tuples. Por tanto, required `("r1", "r2")` y expected `("r2", "r1")` pasan. B47 conserva intactos los órdenes representacionales de ambos inputs, no crea tercer orden canónico, no ordena y no interpreta esos órdenes como acquisition order, prioridad ni orden curricular:
+
+```text
+coverage equality
+!= representational order equality
+```
+
+Si existe un ID requerido B46 sin identity expected B45, no existe resultado positivo y B47 falla con `ValueError` simple y claro. Un ID **missing** significa únicamente `resource_id` requerido por B46 sin expected identity declarada por B45; no significa recurso inválido, inexistente, corrupto ni digest incorrecto. Si existe una expected identity B45 fuera del dominio B46, tampoco existe resultado positivo: un ID **unexpected** significa únicamente expected declaration fuera del dominio requerido por esta source, no identity inválida. Missing y unexpected simultáneos producen un único failure all-or-nothing, sin objeto negativo ni análisis separado.
+
+El mensaje de mismatch puede incluir ambos diagnósticos de forma determinista. Si informa IDs missing, sigue el orden representacional B46; si informa unexpected, sigue el orden B45. No hace sorting. Estos órdenes son exclusivamente diagnósticos y no participan en la condición de coverage.
+
+Los casos vacíos normativos son: required `== ()` y expected `== ()` producen verification positiva; required no vacío con expected vacío falla por missing; required vacío con expected no vacío falla por unexpected. Empty exact coverage no demuestra active source integrity ni loader readiness.
+
+La comparación de ID es igualdad literal de `str`. B47 no aplica strip, lowercase, uppercase, slug validation, namespace, nonblank validation ni normalización Unicode. `""`, `" "`, `"Áudio"`, `"audio"` y `"AUDIO"` son valores distintos cuando no son exactamente iguales. Un ID declarado por B46 aunque no esté referenciado internamente sigue perteneciendo al dominio required y exige una expected identity para que exista coverage positiva:
+
+```text
+declared required domain
+!= proven minimal-needed domain
+```
+
+El gap externo de recopilación de algunas referencias `Pronunciation`/`audio_asset` permanece NONBLOCKING: B47 compara exclusivamente B46 domain con B45 domain y no hace crawling de referencias internas.
+
+B47 observa exclusivamente `resource_id`. No inspecciona, valida ni compara `content_digest`; no recalcula SHA-256 ni llama B44. Un digest caller-provided arbitrario puede satisfacer coverage si el ID coincide, y dos IDs distintos con el mismo digest siguen siendo IDs distintos para coverage:
+
+```text
+exact ID-domain coverage
+!= digest correctness
+!= physical resource integrity
+```
+
+El contexto source se preserva transitivamente por `required_resource_inventory` B46, que B47 conserva completo. B47 no crea ni duplica source ID, revision, snapshot, memberships o required IDs. Un resultado positivo contextualiza la collection B45 antes source-agnostic: demuestra que su dominio expected cubre exactamente ese inventario B46, sin convertirla en una collection nueva.
+
+B43 — current admission gate reevaluation — y B47 son ramas independientes. B47 no consume B43 y no demuestra current admission validity. B44 deriva una `ResourcePhysicalIdentity` desde bytes, pero B47 no la consume directamente: usa B45 y solo compara los IDs de sus identities. B45 permanece caller-provided, source-agnostic y neutral respecto de digest correctness; B47 no la modifica, reconstruye, revalida ni copia identities. B46 permanece la autoridad de required domain; B47 no cambia el inventario ni vuelve a B39.
+
+La validación de input sigue la convención vigente de los aggregates B45/B46: exige los tipos de B46 y B45 sin coerción ni duck typing accidental. Input inválido falla con error técnico simple. Coverage mismatch es una condición de verificación negativa, no corrupción de los inputs: falla con `ValueError` simple y determinista, sin jerarquía de excepciones, findings framework, status enum ni resultado negativo. Solo existen dos outcomes públicos:
+
+```text
+exact coverage -> frozen positive verification result
+coverage mismatch -> ValueError
+```
+
+B47 es completamente in-memory, determinista y side-effect free. No usa filesystem, `Path`, network, clock, randomness, hashing, resource bytes, candidate parsing, acquisition, bindings, persistence, publication, manifest, DB, provenance framework, PKI, MIME/audio validation, active source integrity aggregate ni loader.
+
+Un resultado positivo B47 no demuestra current admission validity, que `required_resource_ids` sea el mínimo realmente necesario, derivación B44, digest correctness, authenticity, provenance, resource existence, path/binding, acquisition, observed identity, expected-vs-observed equality, resource integrity, active source integrity ni loader readiness. Se mantienen obligatoriamente:
+
+```text
+source-bound expected coverage evidence
+!= physical resource integrity
+!= active source integrity
+!= loader readiness
+```
+
+La cobertura futura mínima B47 incluye: un required/expected; múltiples exactos con mismo orden y con orden diferente; empty/empty; ambos inputs preservados por identidad; shape frozen; IDs empty/whitespace/Unicode/case con matches y mismatches literales; mismo dominio con digest arbitrario; same digest para IDs diferentes; missing; unexpected; ambos; required nonempty/expected empty; required empty/expected nonempty; orden diagnóstico missing B46 y unexpected B45 sin sorting; input B46/B45 inválido y sin duck typing; y ausencia de B39, candidate reconstruction, B43, B44, digest comparison, hashing, filesystem, network, clock, randomness, acquisition e integrity. No se añaden aquí tests de bindings, resource bytes, observed identity, expected-vs-observed integrity, persistence/publication, active source integrity ni loader.
+
+Después de B47 positivo, una capacidad futura de bindings/acquisition podrá consumir esta evidence de que cada `resource_id` requerido corresponde a exactamente una expected identity declarada para ese dominio. La secuencia posterior mínima es:
+
+```text
+B47 exact expected coverage
+-> resource bindings
+-> read-once acquisition
+-> observed identity
+-> expected-vs-observed integrity
+-> active source integrity
+-> loader
+```
+
+No existe necesidad inmediata demostrada de physical expected publication después de B47; permanece una capacidad futura opcional si aparece un consumidor que requiera persistencia física. B47 no la introduce. `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.
