@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-26T22:38:02+02:00
+Actualizado: 2026-08-26T23:12:37+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -14,15 +14,17 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### B47 — Active candidate source expected resource coverage verification v1
+### B48 — Active candidate source resource binding collection v1
 
-Estado técnico: **CERRADO / PUBLICADO** mediante `a08fdce8a36bb61d482d2892d64d705311f46ad6`. Contrato publicado: `a8ba9bcf7e96ecca9b21abeb2bc2953c90315d47`. Este cierre documental queda local y pendiente de su propio commit/publicación.
+Estado técnico: **CERRADO / PUBLICADO** mediante `5f23f8850cce88c60282885cf474bcf361a88d6a`. Contrato publicado: `8567c7de2a4caec6791a9c727ca6b7a7c98e07f7`. Este cierre documental queda local y pendiente de su propio commit/publicación; no existe todavía commit documental B48.
 
-`ActiveCandidateSourceExpectedResourceCoverageVerification` frozen contiene exactamente la `ActiveCandidateSourceRequiredResourceInventory` B46 y la `ExpectedResourceIdentityCollection` B45 originales. `verify_active_candidate_source_expected_resource_coverage(...)` compara únicamente sus dominios literales de `resource_id`: solo coverage exacta devuelve el resultado positivo y ambos inputs se conservan por identidad. Coverage es independiente de sus órdenes representacionales; no se crea orden canónico, collection source-bound ni wrapper redundante.
+`ResourceBinding` frozen contiene exactamente `resource_id: str` y `resource_path: pathlib.Path`; no lleva digest, bytes ni metadata filesystem. `ActiveCandidateSourceResourceBindingCollection` frozen contiene exactamente la `ActiveCandidateSourceExpectedResourceCoverageVerification` B47 original y `bindings: tuple[ResourceBinding, ...]`. `build_active_candidate_source_resource_binding_collection(...)` recibe B47 y `resource_bindings: Sequence[ResourceBinding]`, materializa una sola vez a tuple, exige el tipo exacto en cada entry y solo produce resultado positivo cuando hay cobertura exacta del dominio B48 → B47 → B46 → `required_resource_ids`. Conserva B47 y cada binding original por identidad; el resultado se reordena solo por referencias según el orden representacional B46, nunca por el orden caller-provided.
 
-La garantía es limitada: para el dominio required B46, B45 contiene exactamente una expected identity por cada ID requerido y ninguna fuera de ese dominio. `exact expected ID-domain coverage != current admission validity != digest correctness != expected identity authenticity != resource existence != expected-vs-observed integrity != active source integrity`. B47 no consume B39, B43 ni B44 directamente; no reconstruye candidates, no revalida B45/B46, no inspecciona digest, no usa filesystem, hashing, resource bytes, bindings, acquisition, persistence, integrity ni crawling interno. Missing/unexpected son solo diferencias de dominio; coverage mismatch produce un único `ValueError` all-or-nothing, con diagnóstico determinista en orden B46/B45 si informa IDs.
+La garantía limitada es: para el dominio source-contextual acreditado por B47 existe exactamente un `ResourceBinding` caller-provided por cada `resource_id`, ninguno fuera de él, y cada binding declara un `Path` local absoluto. Duplicados fallan tanto con mismo Path como con Path distinto; same Path/different IDs está permitido. `resource_id` es literal `str`, sin strip, lowercase, namespace, nonblank ni normalización Unicode. Missing sigue B46, unexpected y duplicate siguen caller order; missing+unexpected falla con un único `ValueError` all-or-nothing y sin sorting, findings, objeto negativo, status ni resultado parcial. Empty/empty pasa; vacíos asimétricos fallan.
 
-Validación: 13 directas PASS en 0.13 s; regresión B31–B47, 146 passed en 0.46 s; suite backend completa, 2050 passed en 16.98 s; `git diff --check` técnico y postflights contractual/técnico PASS. Findings BLOCKING: ninguno. Dos findings técnicos NONBLOCKING —sin test múltiple same-order explícito y sin mismatch exclusivamente por case— no requieren trabajo ni deuda artificial. La siguiente frontera es resource bindings; physical expected publication sigue sin necesidad inmediata demostrada. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
+El locator v1 es únicamente `pathlib.Path`: no convierte desde `str` ni `os.PathLike` genérico y preserva el Path caller-provided sin reconstruir. Solo usa `Path.is_absolute()` como check léxico no-I/O; no usa resolve, absolute, expanduser, exists, is_file, is_dir, is_symlink, stat, open ni read_bytes. Path absoluto elimina ambigüedad de CWD, pero no prueba seguridad, containment, existencia ni lectura. B48 es in-memory, determinista y side-effect free: no filesystem, red, clock, randomness, hashing, acquisition ni persistence; no introduce prechecks físicos/TOCTOU. Containment, symlink escape, special files, permisos, huge files, readability y validación de regular-file son frontera posterior de acquisition, no sandboxing B48.
+
+B48 no consume B44, no deriva ni inspecciona `ResourcePhysicalIdentity`/`content_digest`, no maneja bytes ni valida digest; la expected identity queda accesible transitivamente B48 → B47 → B45. No demuestra existencia, seguridad de Path, bytes, tamaño, MIME, digest, authenticity, acquisition, observed identity, integrity, active source integrity ni loader readiness. Validación: 27 directas PASS en 0.13 s; regresión B31–B48, 173 passed en 0.47 s; suite backend completa, 2077 passed en 16.61 s; `git diff --check` técnico y postflights contractual/técnico PASS. Findings BLOCKING y NONBLOCKING: ninguno. La siguiente frontera es read-once resource acquisition, que consumirá B48 completo sin aceptar bindings ni recalcular coverage; la política para shared Path sigue sin decidir. Physical expected publication sigue sin necesidad inmediata demostrada. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
 
 ### B43 — Active candidate current admission gate reevaluation v1
 
@@ -42,9 +44,9 @@ B42 permanece cerrado: `AdmissionRecord correspondence verified`; B43 posterior 
 
 ## Bloque activo
 
-### Cierre documental B47
+### Cierre documental local B48
 
-Estado: preparación local de este cierre documental; no hay bloque funcional/técnico adicional activo. B46, B45, B44, B43 y B42.1 permanecen cerrados; B42.1 conserva su trazabilidad como mejora de timestamp operativo. El microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
+Estado: preparación local de este cierre documental hasta su publicación; no hay bloque funcional/técnico adicional activo. B47, B46, B45, B44, B43 y B42.1 permanecen cerrados. B42.1 conserva su trazabilidad como mejora de timestamp operativo. El microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -75,7 +77,7 @@ Antes de cambiar de conversación: actualizar este documento con timestamp local
 
 ## Próximo objetivo
 
-Tras publicar este cierre documental de B47, la siguiente frontera es resource bindings. B47 ya aporta la evidencia positive-only de coverage exacta entre B46 y B45; no se diseña ni numera aquí la API de bindings. Después podrán seguir acquisition read-once, observed identity, expected-vs-observed integrity y active source integrity aggregate. Physical expected publication permanece opcional, sin necesidad inmediata demostrada. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
+Tras publicar este cierre documental de B48, la siguiente frontera es read-once resource acquisition. Deberá consumir la collection B48 completa, sin volver a aceptar bindings ni recalcular su coverage; no se diseña todavía su API. Queda sin decidir si shared Path/different IDs se leerá una vez por binding o una vez por Path físico compartido: pertenece a su preflight. Después podrán seguir observed physical identity, expected-vs-observed integrity, active source integrity y loader. Physical expected publication permanece opcional, sin necesidad inmediata demostrada. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
