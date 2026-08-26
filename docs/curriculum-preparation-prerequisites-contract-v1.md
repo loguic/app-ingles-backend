@@ -2114,6 +2114,129 @@ B47 exact expected coverage
 
 No existe necesidad inmediata demostrada de physical expected publication después de B47; permanece una capacidad futura opcional si aparece un consumidor que requiera persistencia física. B47 no la introduce. `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
 
+### Active candidate source resource binding collection v1
+
+B48 — **Active candidate source resource binding collection v1** construye una colección positiva y source-contextual de localizadores físicos declarados para el dominio de `resource_id` ya acreditado por una `ActiveCandidateSourceExpectedResourceCoverageVerification` B47. Declara bindings; no adquiere recursos. Su garantía positiva mínima es únicamente: para ese dominio source-contextual, existe exactamente un `ResourceBinding` caller-provided por cada `resource_id`, no existe binding fuera del dominio y cada binding declara un `pathlib.Path` local absoluto.
+
+El value object unitario mínimo es:
+
+```python
+@dataclass(frozen=True)
+class ResourceBinding:
+    resource_id: str
+    resource_path: Path
+```
+
+No contiene digest, expected identity, bytes, existencia, readable, file type, MIME, size, status, revision, timestamp ni metadata de filesystem. `resource_id` se compara como `str` literal: B48 no aplica strip, lowercase, uppercase, slug, namespace, nonblank ni normalización Unicode. Por tanto `""`, `" "`, `"Áudio"`, `"audio"` y `"AUDIO"` permanecen distintos cuando su contenido `str` no es exactamente igual.
+
+`resource_path` es exclusivamente un local filesystem locator caller-provided y su tipo contractual v1 es `pathlib.Path`; no se acepta `str`, `os.PathLike` genérico, URL, URI, S3, HTTP ni una abstracción de storage backend. Debe ser absoluto. B48 puede comprobar léxicamente `resource_path.is_absolute()`, pero no usa `resolve()`, `absolute()`, `expanduser()` ni una normalización filesystem-dependent. Tampoco ejecuta `exists()`, `is_file()`, `is_dir()`, `is_symlink()`, `stat()`, `open()` ni `read_bytes()`:
+
+```text
+absolute Path declaration
+!= resolved filesystem target
+!= safe filesystem target
+!= existing resource
+```
+
+Un `Path` relativo es inválido: B48 no introduce base directory, resource root, source root ni un modelo rooted-relative. La razón es impedir que la futura acquisition dependa silenciosamente del current working directory. Existence, regular-file, symlink, permissions y lectura son fronteras físicas posteriores de acquisition.
+
+La única frontera pública conceptual v1 recibe exactamente un B47 positivo y una secuencia explícita de bindings:
+
+```python
+build_active_candidate_source_resource_binding_collection(
+    expected_resource_coverage_verification: (
+        ActiveCandidateSourceExpectedResourceCoverageVerification
+    ),
+    *,
+    resource_bindings: Sequence[ResourceBinding],
+) -> ActiveCandidateSourceResourceBindingCollection
+```
+
+No recibe B45, B46, B39, B43, B44, `required_resource_ids`, expected identities, paths sueltos, mappings caller-provided ni resource bytes. B47 se conserva íntegramente; B45 y B46 solo son accesibles transitivamente mediante esa verification. B48 no vuelve a comparar B45 con B46, no reconstruye candidates, no retrocede a B39 ni reextrae `required_resource_ids`.
+
+El resultado frozen mínimo contiene exactamente:
+
+```text
+ActiveCandidateSourceResourceBindingCollection
+  expected_resource_coverage_verification:
+      ActiveCandidateSourceExpectedResourceCoverageVerification
+  bindings: tuple[ResourceBinding, ...]
+```
+
+No añade `verified`, status, counts, source ID, revision, digest, expected identity duplicada, bytes, findings, binding index, mapping ni metadata de filesystem. Conserva por identidad el B47 recibido y los mismos objetos `ResourceBinding` caller-provided; no copia bindings ni reconstruye sus `Path`.
+
+`resource_bindings` debe ser una `Sequence` conforme. La implementación futura la materializa exactamente una vez a tuple; acepta list y tuple, acepta vacío si el dominio B47 es vacío, y rechaza `str`, set y generator. No retiene una lista mutable caller-provided. Cada entry debe ser exactamente `ResourceBinding`; no se aceptan dict, tuple arbitraria, `str`, object duck-typed ni dataclass unrelated. Como `ResourceBinding` es un value object contractual cerrado, la validación futura usa `type(entry) is ResourceBinding`, siguiendo el precedente de B45 para evitar aceptación accidental de subclases; ello no introduce una política global nueva.
+
+El dominio autoritativo se obtiene transitivamente de:
+
+```text
+expected_resource_coverage_verification
+-> required_resource_inventory
+-> required_resource_ids
+```
+
+La condición positiva exacta es:
+
+```text
+set(binding.resource_id for binding in resource_bindings)
+==
+set(
+    expected_resource_coverage_verification
+        .required_resource_inventory
+        .required_resource_ids
+)
+```
+
+Además, cada `resource_id` caller-provided debe aparecer una sola vez. Binding missing, unexpected o duplicate impide el resultado positivo. No existe first-wins, last-wins, merge ni deduplicación silenciosa. Un segundo binding `r1 -> /a` o `r1 -> /b` es siempre duplicate binding declaration.
+
+La unicidad aplica a `resource_id`, no a `resource_path`. Dos IDs distintos válidos pueden declarar el mismo `Path`, por ejemplo `r1 -> /x/resource.wav` y `r2 -> /x/resource.wav`. B48 no impone path uniqueness ni inyectividad `Path -> resource_id`:
+
+```text
+same declared Path
+!= same logical resource_id
+```
+
+B48 no inspecciona filesystem ni bytes para reinterpretar esa coincidencia. La posibilidad es compatible con IDs distintos que puedan compartir digest esperado; una etapa posterior de acquisition decidirá su lectura física read-once sin alterar esta declaración lógica.
+
+El tuple `bindings` del resultado sigue el orden representacional de B47 transitivamente fijado por B46 `required_resource_ids`, nunca el orden caller-provided. Por ejemplo, para dominio B46 `("r1", "r2")` y bindings caller-provided `r2 -> /b`, `r1 -> /a`, el resultado conserva las referencias originales como `(binding r1, binding r2)`. No crea nuevos bindings ni ordena por path o ID:
+
+```text
+B46 representational order
+!= acquisition priority
+!= curriculum priority
+```
+
+Los errores son simples, deterministas y all-or-nothing. Duplicate se detecta al recorrer la secuencia materializada en caller order. Missing se diagnostica siguiendo el orden B46; unexpected, siguiendo caller order. Missing y unexpected simultáneos producen un único `ValueError`, sin sorting, findings framework, objeto negativo ni collection parcial.
+
+Los casos vacíos normativos son: dominio B47 vacío con bindings vacíos produce collection positiva con `bindings == ()`; dominio B47 no vacío con bindings vacíos falla por missing; dominio B47 vacío con bindings no vacíos falla por unexpected. Empty binding collection no demuestra acquisition readiness ni loader readiness.
+
+Solo existen dos outcomes públicos:
+
+```text
+valid inputs + exact binding domain
+-> frozen ActiveCandidateSourceResourceBindingCollection
+
+invalid input / duplicate / missing / unexpected / relative path
+-> simple error, no partial result
+```
+
+B48 es completamente in-memory, determinista y side-effect free. No usa filesystem funcional, network, clock, randomness, hashing, resource bytes, candidate parsing, B44 derivation, expected identity validation, acquisition, persistence, publication, bindings de candidates/admission records, active source integrity ni loader.
+
+Un resultado positivo B48 no demuestra resource existence, regular file, path safety, containment, ausencia de symlink, readability, permissions, inode identity, bytes, file size, MIME/media validity, digest correctness, derivación B44, expected authenticity, acquisition, observed identity, expected-vs-observed equality, resource integrity, active source integrity ni loader readiness. Se mantienen:
+
+```text
+B47 coverage
+!= binding
+!= resource existence
+!= acquisition
+!= observed bytes
+!= integrity
+```
+
+La garantía positiva B48 queda limitada a la declaración exacta de bindings sobre el dominio que B47 ya contextualizó: B47 cerró `required ID domain == expected identity ID domain`; B48 añade exclusivamente exact binding coverage, sin repetir esa coverage B45/B46. Después de B48, la frontera conceptual es resource acquisition read-once que consumirá la collection completa, validará físicamente los paths y preservará bytes adquiridos; posteriormente seguirán observed identity, expected-vs-observed integrity, active source integrity y loader. No se diseña aquí esa API. Physical expected publication sigue sin necesidad inmediata demostrada. `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
+
+La cobertura futura mínima B48 incluye: shape frozen exacto; B47 y bindings preservados por identidad; single, múltiple y vacío; bindings caller-provided en orden inverso con resultado en orden B46; list/tuple válidos y rechazo de `str`/set/generator; entry inválida y subclase rechazada; IDs empty/whitespace/Unicode/case preservados literalmente; missing, unexpected y ambos; duplicate ID con igual y distinto path; same path para IDs distintos válido; `Path` absoluto válido aunque aún no exista y relativo rechazado; aislamiento frente a mutación posterior de lista; ausencia de resolve/exists/symlink/read, hashing, digest inspection, B39/B43/B44 directos, candidate parsing, acquisition, filesystem, network, clock, randomness, integrity y loader. No se añaden pruebas de bytes, MIME, observed identities, expected-vs-observed equality, resource integrity, active source integrity ni loader.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.
