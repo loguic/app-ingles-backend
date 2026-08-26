@@ -1944,6 +1944,65 @@ Los riesgos no bloqueantes externos a B45 son: resource IDs sin nonblank/namespa
 
 Después de B45 siguen pendientes conceptualmente active-source resource coverage/context, physical expected declaration/publication si aparece un consumidor real, resource bindings, read-once acquisition, observed identity, expected-vs-observed integrity, active source integrity y loader. `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
 
+### Active candidate source required resource inventory v1
+
+B46 — **Active candidate source required resource inventory v1** deriva, desde la evidencia ya verificada de B39, el inventario lógico source-wide de los `resource_id` declarados en `PedagogicalUnitCandidate.required_resource_ids` por todos los candidates de la active candidate source. Su garantía positiva mínima es únicamente: estos son los IDs lógicos requeridos que declaran los payloads candidate cuya identidad B39 verificó, agregados de forma determinista para esa source.
+
+La única frontera pública conceptual v1 consume exclusivamente:
+
+```python
+build_active_candidate_source_required_resource_inventory(
+    candidate_integrity_verification: (
+        ActiveCandidateSourceCandidateIntegrityVerification
+    ),
+) -> ActiveCandidateSourceRequiredResourceInventory
+```
+
+No recibe candidates separados, candidate paths, memberships, manifests, snapshots, `required_resource_ids` caller-provided, B43 ni B45. `ActiveCandidateSourceCandidateIntegrityVerification` B39 es la única frontera causal de entrada: conserva el snapshot y las entries en orden de manifest, junto con `candidate_bytes` que ya reconstruyeron una `CandidatePayloadIdentity` igual a la membership declarada.
+
+El resultado frozen mínimo contiene exactamente:
+
+```text
+ActiveCandidateSourceRequiredResourceInventory
+  candidate_integrity_verification: ActiveCandidateSourceCandidateIntegrityVerification
+  required_resource_ids: tuple[str, ...]
+```
+
+No duplica snapshot, memberships, candidate bytes, candidates, candidate identities ni paths. Tampoco contiene expected identities, digests de recursos, coverage, status, findings, flags `verified`, source ID/revision adicional, índices, dicts, bytes de recursos, bindings, paths, timestamps, provenance ni metadata de acquisition. La referencia a B39 conserva el contexto source y la evidencia estable que fundamentan el inventario.
+
+Por cada entry B39, B46 reconstruye privadamente y de modo efímero el candidate únicamente mediante:
+
+```python
+PedagogicalUnitCandidate.model_validate_json(
+    candidate_integrity_entry.candidate_bytes
+)
+```
+
+No conserva el candidate reconstruido ni lo convierte en nueva autoridad. No usa el `PedagogicalUnitCandidate` mutable que B38 conservó como conveniencia, no reabre `candidate_path`, no relee manifest ni filesystem y no implementa un parser o canonicalizer alternativo. B46 tampoco vuelve a ejecutar `validate_pedagogical_candidate(...)`, B33 ni ninguna validación admission-side: B39 y B43 permanecen ramas separadas.
+
+`required_resource_ids` sigue siendo exactamente el campo modelado `list[str]`, con default `[]`. Es una declaración lógica, no un locator, path, recurso adquirido, bytes, digest, physical identity ni artifact verificado. B31 incluye la lista completa y ordenada en el payload canónico; conserva orden, duplicados y literalidad, por lo que el orden participa en el digest B31. El schema puede contener IDs duplicados; la validación local actual puede rechazarlos en otra rama, pero B46 no vuelve a validar esa condición. Asimismo, IDs extra no referenciados pueden estar declarados y forman parte del inventario; B46 no interpreta referencias de audio ni exige completitud pedagógica.
+
+El aggregate B46 forma una unión ordenada estable: recorre las entries B39 en su orden heredado y, dentro de cada candidate, los IDs en su orden declarado; cada valor literal aparece una sola vez en `required_resource_ids`, según su primera aparición. No hay sorting, normalización, strip, lowercase, namespace, prioridad, orden curricular ni orden de acquisition. Una repetición cross-candidate expresa que varias unidades declaran el mismo recurso lógico; eliminar la repetición del tuple source-wide no elige entre digests ni oculta la evidencia original, que permanece accesible transitivamente en los candidate bytes B39. Una repetición interna tampoco convierte B46 en validator de candidate: solo no añade una segunda vez el mismo ID al inventario source-wide.
+
+Una source B39 vacía produce un inventario B46 válido con `required_resource_ids == ()`. La operación es all-or-nothing: input de tipo incorrecto, reconstrucción imposible desde unos bytes B39 recibidos o fallo técnico de iteración impiden retornar un resultado parcial. Bastan `ValueError` simple o semántica equivalente para errores de frontera; no se introduce jerarquía de excepciones ni framework de findings.
+
+B46 es in-memory, determinista y side-effect free. No usa filesystem, `Path`, open/read/write, network, clock, randomness, hashing, derivación de `CandidatePayloadIdentity`, resource bytes, bindings, acquisition, serialización, publication, persistence, B43, B44, B45, `ExpectedResourceIdentityCollection`, expectedness, coverage, observed identities ni integrity comparison.
+
+Por tanto, un resultado positivo B46 no demuestra admission gates actuales o históricos, autenticidad/provenance/chronology de candidate o source, validez local de cada candidate, unicidad interna de su inventario, que los IDs correspondan a audio referenciado, resource existence, path/binding, digest correctness, expected declaration, expected coverage, acquisition, observed identity, resource integrity, active source integrity ni loader readiness. Se mantienen:
+
+```text
+B39 candidate payload integrity verified
+!= source-wide expected resource coverage
+!= resource acquisition or integrity
+
+logical required-resource inventory
+!= expected physical identity declaration
+```
+
+La frontera posterior podrá consumir el inventario B46 y una `ExpectedResourceIdentityCollection` B45 para verificar coverage exacta de dominios de `resource_id`, sin reconstruir de nuevo todos los candidates. Esa comparación futura no exige igualdad de los órdenes representacionales B45 y B46. Después seguirán, si son necesarias, expected declaration física/publication, bindings, acquisition read-once, observed identity, expected-vs-observed integrity, active source integrity y loader.
+
+La cobertura futura mínima B46 incluye: shape frozen exacto y preservación por identidad de B39; source vacía; candidate único y múltiples; orden de manifest y orden interno preservados en la unión estable; repetición interna y cross-candidate sin segundo ID source-wide; IDs vacíos, whitespace, Unicode y case preservados literalmente; reconstrucción exclusivamente desde `candidate_bytes` aunque el candidate mutable B38 cambie; ausencia de reread de paths/manifest, de validation service, B43, B44, B45, hashing, filesystem, resource acquisition y coverage; y all-or-nothing ante evidencia B39 inválida. No se añaden aquí tests de expected coverage, resources físicos, bindings, observed identity, integrity ni loader.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.
