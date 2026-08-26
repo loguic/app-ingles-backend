@@ -1835,6 +1835,115 @@ B44 resource physical identity primitive
 
 No se diseña esa siguiente slice aquí. `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
 
+### Expected resource identity collection v1
+
+B45 — **Expected resource identity collection v1** introduce una colección lógica, in-memory, reusable e independiente de acquisition que declara un conjunto ordenado de `ResourcePhysicalIdentity` caller-provided bajo el rol contextual de **expected**. Su garantía positiva mínima es únicamente: esta collection declara exactamente esas identities como expected, con un único valor por `resource_id` y en el orden recibido.
+
+`ResourcePhysicalIdentity` permanece neutral. Una identity no es expected por sí misma; expectedness surge exclusivamente de pertenecer a `ExpectedResourceIdentityCollection`. No se crean `ExpectedResourcePhysicalIdentity`, `ObservedResourcePhysicalIdentity`, wrappers unitarios, campo `expected`, role enum ni tipos paralelos. Se mantiene:
+
+```text
+caller declares identity as expected
+!= identity is authentic
+!= digest is correct for intended resource
+```
+
+El value object lógico v1 es frozen y contiene exactamente:
+
+```text
+ExpectedResourceIdentityCollection
+  identities: tuple[ResourcePhysicalIdentity, ...]
+```
+
+No contiene collection ID, revision, snapshot revision, source ID, schema version, digest, índice o dict, status, `verified`, provenance metadata, timestamps, bytes, paths, bindings ni evidence de acquisition. La inmutabilidad es estructural; las identities y sus strings se preservan como objetos/value objects suministrados y no se recalculan.
+
+La única construcción conceptual pública v1 es equivalente a:
+
+```python
+build_expected_resource_identity_collection(
+    identities: Sequence[ResourcePhysicalIdentity],
+) -> ExpectedResourceIdentityCollection
+```
+
+`Sequence` expresa que el input posee orden explícito, sigue el patrón de la collection B35 y excluye inputs no ordenados como `set`; no se acepta `Iterable` genérico para no introducir semántica ambigua de generators de una sola pasada. La construcción materializa exactamente una vez la sequence recibida y almacena una `tuple`. Por tanto, mutar posteriormente una lista caller-provided no altera la collection y nunca se conserva la sequence mutable original ni un índice mutable.
+
+La collection preserva literal y exactamente el orden de entrada. No ordena por `resource_id`, no canonicaliza y no interpreta ese orden como prioridad, orden curricular ni orden de acquisition. Es orden representacional para determinismo, trazabilidad y una serialización física futura si una capacidad posterior la necesita. Al ser `identities` una tuple, el orden participa en la igualdad estructural del value object, sin convertirse por ello en una política operativa.
+
+La collection puede ser vacía: `ExpectedResourceIdentityCollection(identities=())` es estructuralmente válida y declara que no contiene expectations. No demuestra que una active source no requiera recursos, resource completeness, source validity ni loader readiness.
+
+Existe unicidad total por `resource_id` dentro de una collection. Cualquier segundo entry con el mismo ID falla de forma cerrada con `ValueError` simple o semántica equivalente, tanto si tiene el mismo digest como si tiene un digest distinto. No existen first-wins, last-wins, deduplicación silenciosa, overwrite ni merge. La invariante expresa:
+
+```text
+resource_id -> one expected ResourcePhysicalIdentity
+```
+
+La unicidad no es por `content_digest`. Dos IDs lógicos diferentes pueden declarar intencionalmente bytes físicos iguales y, por tanto, compartir digest; `resource_id A -> digest X` y `resource_id B -> digest X` es válido. B45 no reinterpreta esa coincidencia como colisión.
+
+B45 no endurece `resource_id`: hereda de B44 que debe ser `str` y se preserva literalmente, sin `strip`, lowercase, normalization, namespace, slug grammar ni nonblank retroactivo. Su única invariante nueva sobre IDs es la unicidad exacta dentro de esta collection.
+
+La collection declara `ResourcePhysicalIdentity` caller-provided sin revalidar ni reinterpretar `content_digest`. En particular, no vuelve a comprobar el prefijo `sha256:`, longitud, hexadecimal lowercase, origen B44 ni derivación real desde bytes. Una identity fabricada manualmente, incluso con digest arbitrario, puede preservarse como expected declaration. Se mantiene:
+
+```text
+expected declaration
+!= proof that identity was derived through B44
+```
+
+La separación causal anti-tautología v1 es:
+
+```text
+caller-provided ResourcePhysicalIdentity
+-> B45 ExpectedResourceIdentityCollection
+
+future resource acquisition
+-> preserved observed bytes
+-> B44 observed ResourcePhysicalIdentity
+
+expected collection + observed acquisition evidence
+-> future integrity comparison
+```
+
+B45 no acepta resource bytes, `Path`, bindings, acquired resource evidence ni un observed identity derivado como convenience dentro de la misma acquisition/verificación. Una verificación futura no puede derivar expected y observed de los mismos bytes dentro de esa operación y llamar a su equality resource integrity: sería tautológica y no demostraría integridad.
+
+Esta frontera no acredita cronología externa. B45 no puede impedir que un caller lea bytes, derive una `ResourcePhysicalIdentity` y después la suministre como expected. Por ello, “expected antes de acquisition” significa una precondición arquitectónica independiente para la futura acquisition/verificación, no prueba temporal histórica, provenance, autenticidad, trusted timestamp ni trust anchor.
+
+B45 no es source-aware: no consume `ActiveCandidateSourceSnapshot`, B39, B43, candidate, membership, `required_resource_ids` de una source ni `AdmissionRecord`. La collection es genérica y reusable. Se mantienen obligatoriamente:
+
+```text
+expected identity collection
+!= active-source required-resource allowlist
+!= active-source resource completeness
+```
+
+Por tanto, una collection B45 puede contener identities extra respecto de una source concreta, omitir identities que esa source requiera y reutilizarse entre sources. La unión de `required_resource_ids`, deduplicación cross-candidate, coverage de memberships, conflictos entre candidates y source revision pertenecen a una capacidad posterior de active-source resource coverage/context; B45 no los resuelve.
+
+B31 protege la sequence lógica `required_resource_ids` dentro del candidate digest, y B39 preserva/verifica candidate bytes que contienen esa declaración lógica. B45 no consume B31 ni B39, no deriva una unión cross-candidate y no comprueba coverage. Se mantiene:
+
+```text
+logical required-resource declaration
+!= expected physical identity declaration
+```
+
+B43 — current admission gate reevaluation — y B45 pertenecen a ramas independientes. B45 no consume B43; ambas capacidades podrán componerse posteriormente en active source integrity sin anticipar ese aggregate.
+
+B45 es puramente in-memory, determinista y side-effect free. No accede a filesystem, `Path`, open/read/write, network, clock, randomness, resource bytes, bindings, acquisition, serialization, publication, manifests ni persistence. Tampoco crea documento físico, serializer, manifest ni atomic publication. La posible cadena posterior permanece separada:
+
+```text
+logical expected collection
+-> possible physical expected declaration/publication
+-> future acquisition
+```
+
+No se fija aún formato físico, collection revision, snapshot/source revision, collection digest, canonical collection hashing, Merkle tree, CAS, registry, DB, signatures/PKI, MIME/audio validation, provenance framework, active source aggregate ni loader.
+
+Los errores normales mínimos son únicamente duplicate `resource_id`, con `ValueError` claro y construcción all-or-nothing; errores técnicos inesperados se propagan. No se introducen findings, status object, partial result, framework genérico de validación ni jerarquía nueva de excepciones.
+
+La cobertura futura mínima de B45 incluye: identity única y múltiples; shape exacto, frozen y tuple interna; preservation de object/value y de input order; empty válido; materialización y aislamiento frente a mutación posterior de la lista caller; duplicate `resource_id` con mismo digest y con digest diferente rechazados con error claro; IDs distintos con mismo digest válidos; literalidad de IDs, incluidos empty/whitespace si B44 los permite; identity manual con digest arbitrario preservada sin rehash ni validación; y ausencia de wrapper expected unitario, bytes, candidate, source, B31/B39/B43, coverage, filesystem, network, clock, randomness, acquisition, integrity comparison, serialización y persistence. No se añaden tests de source coverage ni de persistencia.
+
+Un resultado B45 positivo demuestra únicamente que esas identities fueron suministradas como expected declaration de esta collection, que cada `resource_id` aparece como máximo una vez y que se preservó el orden recibido. No demuestra quién declaró las identities, cuándo, autorización, provenance, autenticidad, corrección del digest, vínculo con publisher, correspondencia con bytes intended, source coverage, resource existence, binding, acquisition, observed identity, expected-vs-observed integrity, MIME/media validity, corrección semántica, active source integrity ni loader readiness.
+
+Los riesgos no bloqueantes externos a B45 son: resource IDs sin nonblank/namespace, `ResourcePhysicalIdentity` fabricable manualmente con digest arbitrario, expected declaration sin provenance/authenticity, ausencia de active-source resource coverage, de persistence física expected y de acquisition/integrity. No son defectos B45 ni fuerzan la siguiente slice.
+
+Después de B45 siguen pendientes conceptualmente active-source resource coverage/context, physical expected declaration/publication si aparece un consumidor real, resource bindings, read-once acquisition, observed identity, expected-vs-observed integrity, active source integrity y loader. `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.
