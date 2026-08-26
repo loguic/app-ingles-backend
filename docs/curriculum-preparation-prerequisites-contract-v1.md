@@ -2237,6 +2237,99 @@ La garantía positiva B48 queda limitada a la declaración exacta de bindings so
 
 La cobertura futura mínima B48 incluye: shape frozen exacto; B47 y bindings preservados por identidad; single, múltiple y vacío; bindings caller-provided en orden inverso con resultado en orden B46; list/tuple válidos y rechazo de `str`/set/generator; entry inválida y subclase rechazada; IDs empty/whitespace/Unicode/case preservados literalmente; missing, unexpected y ambos; duplicate ID con igual y distinto path; same path para IDs distintos válido; `Path` absoluto válido aunque aún no exista y relativo rechazado; aislamiento frente a mutación posterior de lista; ausencia de resolve/exists/symlink/read, hashing, digest inspection, B39/B43/B44 directos, candidate parsing, acquisition, filesystem, network, clock, randomness, integrity y loader. No se añaden pruebas de bytes, MIME, observed identities, expected-vs-observed equality, resource integrity, active source integrity ni loader.
 
+### Active candidate source resource acquisition v1
+
+B49 — **Active candidate source resource acquisition v1** transforma una `ActiveCandidateSourceResourceBindingCollection` B48 ya acreditada en evidencia física adquirida desde filesystem local. Adquiere cada `Path` declarado distinto, valida el objeto abierto como archivo regular y preserva exactamente los bytes observados; no verifica todavía identidad física ni integridad.
+
+La cadena causal queda deliberadamente separada:
+
+```text
+B48 exact resource binding collection
+-> B49 local resource acquisition
+-> future B50 observed ResourcePhysicalIdentity
+-> expected-vs-observed resource integrity
+-> active source integrity
+-> loader
+
+binding
+!= acquisition
+!= observed identity
+!= expected-vs-observed integrity
+!= active source integrity
+!= loader readiness
+```
+
+La única frontera pública conceptual v1 recibe exclusivamente B48:
+
+```python
+acquire_active_candidate_source_resources(
+    resource_binding_collection: ActiveCandidateSourceResourceBindingCollection,
+) -> ActiveCandidateSourceResourceAcquisition
+```
+
+No recibe B47, B46, B45, `required_resource_ids`, expected identities, secuencias de `ResourceBinding`, Paths separados, reader, root ni policy. B49 confía en las invariantes lógicas ya garantizadas por B48 y no vuelve a validar exact binding domain, duplicate `resource_id`, orden B46, contrato de Path absoluto ni coverage B47. La desaparición, sustitución o inaccesibilidad física de un Path después de B48 sí pertenece a B49 como acquisition failure.
+
+Los value objects/resultados frozen mínimos son exactamente:
+
+```python
+@dataclass(frozen=True)
+class AcquiredResource:
+    binding: ResourceBinding
+    resource_bytes: bytes
+
+
+@dataclass(frozen=True)
+class ActiveCandidateSourceResourceAcquisition:
+    resource_binding_collection: ActiveCandidateSourceResourceBindingCollection
+    entries: tuple[AcquiredResource, ...]
+```
+
+Cada `binding` es exactamente el objeto `ResourceBinding` original procedente de B48, preservado por identidad y no reconstruido. `resource_bytes` es `bytes` inmutable y conserva la secuencia exacta observada durante acquisition. No es digest, expected bytes, verified bytes ni metadata filesystem. No se duplican `resource_id`, `resource_path`, size, mode, inode, mtime, timestamp, status o digest: ID y Path permanecen accesibles únicamente a través del binding, y cualquier metadata usada para validar el descriptor se descarta.
+
+B49 procesa las `entries` en el orden exacto de `resource_binding_collection.bindings`, que es el orden representacional B48/B46. El orden de adquisición de Paths distintos es su primera aparición en ese mismo orden. No crea prioridad de acquisition, orden curricular, sorting ni reindexing.
+
+La semántica read-once v1 es por valor `Path` declarado distinto según igualdad/hash de `pathlib.Path`, sin `resolve()`, `samefile()`, inode ni resolución de symlinks. Por tanto, `Path("/x/a")` y `Path("/x/../x/a")` son locators distintos aunque el filesystem pudiera llevarlos al mismo target. Durante una llamada cada Path distinto se intenta abrir como máximo una vez; en un resultado positivo, cada uno fue abierto exactamente una vez, validado como regular sobre ese mismo descriptor y leído completamente mediante un único stream. Read-once no promete una syscall única.
+
+B48 permite same Path/different IDs. Si `r1 -> /x/a.wav` y `r2 -> /x/a.wav`, B49 abre y lee `/x/a.wav` una sola vez, preserva esa secuencia de bytes y la reutiliza para ambas entries, que conservan sus bindings/IDs distintos en orden B48. La garantía contractual es mismo evento de acquisition, no identidad Python del objeto `bytes`. Una caché privada y efímera `dict[Path, bytes]` es una implementación suficiente; no se expone, no se persiste y no altera B48. Paths distintos que sean hard links o aliases físicos no se deduplican.
+
+B49 opera sobre filesystem local POSIX/Linux controlado. La acquisition profesional v1 abre una vez el Path, valida el descriptor abierto mediante `fstat`, exige `stat.S_ISREG`, lee desde ese mismo descriptor y lo cierra. Debe impedir seguir un symlink final durante apertura, por ejemplo mediante `O_NOFOLLOW`; para evitar bloqueo inicial sobre FIFO puede abrir con semántica nonblocking, por ejemplo `O_NONBLOCK`. `O_CLOEXEC` es hardening de implementación admisible. Los flags concretos no son parte del value model, pero las garantías sí lo son: no seguir symlink final, no leer antes de acreditar regular-file y leer/cerrar el mismo descriptor validado.
+
+Se rechazan directories, FIFOs, sockets, block devices, character devices y todo target que no sea regular. No se usan `exists()`, `is_file()`, `is_dir()`, `is_symlink()`, `stat()` previo ni `read_bytes()` como prechecks autoritativos; abrir tras esos checks introduciría una ventana TOCTOU evitable. Una apertura fallida prueba únicamente que la adquisición no pudo realizarse; una apertura seguida de `fstat` exitoso acredita que el descriptor observado era regular en ese instante.
+
+La policy v1 rechaza symlink solo en el componente final abierto. No impone root, containment ni rechazo de symlinks en componentes padre: B48 no define root autoritativo y una containment léxica no resolvería escapes por symlink. Paths con `..` no se rechazan por apariencia; siguen siendo locators absolutos declarados. Por tanto B49 puede leer cualquier Path absoluto accesible al proceso bajo el threat model local/caller controlado y no constituye sandboxing ni protección para bindings no confiables.
+
+Cada regular file se lee completamente hasta EOF desde un único stream y los bytes resultantes son la evidencia autoritativa B49. El archivo vacío es válido, coherente con B44 y `b""`. No hay límite máximo de tamaño en v1: no existe aún una policy ni un valor causalmente justificado. El riesgo de memoria queda explícito y no bloquea este scope local controlado; una policy futura, si aparece un caller no confiable o un requisito de capacidad, deberá usar límite explícito y lectura acotada, sin convertir `st_size` mutable en garantía suficiente.
+
+Una mutación durante lectura no se convierte en snapshot guarantee: B49 preserva solamente la secuencia entregada por el stream abierto. No demuestra estabilidad antes, durante o después de la lectura, igualdad con un `st_size` previo, atomicidad entre recursos ni snapshot atómico de source. La preservación de bytes evita rereads posteriores:
+
+```text
+declared Path
+-> one local acquisition stream
+-> preserved resource_bytes
+-> future B50 derives observed identity from those bytes
+```
+
+B49 es all-or-nothing y fail-fast basta. Input no conforme, descriptor no regular, symlink final rechazado, path inexistente, permiso, open failure o read failure impiden retornar aggregate y no existe cache, entry ni evidencia parcial pública. Puede haber observaciones físicas previas dentro de una llamada que falla posteriormente; `no partial result != no prior reads`. No hace falta framework de findings ni objeto negativo. `ValueError` es adecuado para input/target contractual inválido; failures de apertura o lectura pueden propagarse como `OSError` o contextualizarse preservando la causa, sin crear una hierarchy nueva.
+
+Una B48 vacía produce acquisition positiva vacía con `entries == ()` y cero I/O. Empty acquisition no demuestra recurso útil, expectedness, integrity, active source integrity ni loader readiness.
+
+B49 no consume B44, no deriva `ResourcePhysicalIdentity`, no hashea, no inspecciona `content_digest` y no compara expected identities B45, aunque sean accesibles transitivamente. Una expected identity arbitraria o mismatch futuro no es acquisition failure. B50 deberá consumir exclusivamente los `resource_bytes` B49 y usar B44 con `entry.binding.resource_id`, sin reabrir ningún Path:
+
+```text
+acquired bytes
+!= expected bytes
+!= observed identity
+!= expected-vs-observed equality
+```
+
+B49 solo hace lecturas locales; no escribe, no usa red, clock, randomness, hashing, persistence, candidate parsing, B39/B43, MIME/media validation, decoding de audio, provenance, signatures, PKI, registry, DB, storage remoto, watcher, lock distribuido, filesystem snapshot, root policy, active-source-integrity aggregate ni loader. No es pure ni determinista respecto de un Path por sí solo; es determinista únicamente respecto de los bytes efectivamente observados durante la ejecución. Las lecturas pueden tener efectos propios del filesystem, como atime o caché.
+
+La garantía positiva B49 se limita a: B48 y cada binding se conservan por identidad; hay una entry por binding en orden B48; cada Path declarado distinto de una llamada positiva se adquirió una vez, se validó como regular sobre el descriptor abierto, no siguió symlink final, se leyó hasta EOF y sus bytes exactos se preservaron; bindings que comparten el mismo Path usan evidencia del mismo evento de acquisition. No demuestra expected-vs-observed equality, digest correctness, derivación B44, authenticity, provenance, containment, seguridad frente a symlinks padre, inode identity, absence de hard-link aliases, size safety, media validity, atomic source snapshot, resource integrity, active source integrity ni loader readiness.
+
+La cobertura futura mínima B49 incluye: shape frozen exacto; B48 y bindings preservados por identidad; single/multiple; orden B48; bytes exactos; empty con cero I/O; archivo vacío; same Path/different IDs con una sola adquisición y entries ordenadas; Paths lexicalmente distintos sin canonicalización física; inexistente, directory, symlink final y targets especiales cuando sean prácticos sin tests frágiles; open/read failure; descriptor regular validado antes de leer; all-or-nothing sin aggregate parcial; ausencia de B44/hash/expected comparison/candidate parsing/red/writes/clock/randomness; y continuidad de la evidencia tras cambiar o borrar Paths. El read-count se demuestra mediante helper privada o monkeypatch del punto de apertura/lectura, sin reader público ni filesystem abstraction genérica.
+
+Después de B49 permanece únicamente la derivación B50 de observed `ResourcePhysicalIdentity` desde bytes ya adquiridos; después podrán seguir expected-vs-observed resource integrity, active source integrity y loader. Physical expected publication continúa opcional, sin necesidad inmediata demostrada. `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.
