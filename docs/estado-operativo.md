@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-26T08:42:56+02:00
+Actualizado: 2026-08-26T20:32:34+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -14,15 +14,15 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### B45 — Expected resource identity collection v1
+### B46 — Active candidate source required resource inventory v1
 
-Estado técnico: **CERRADO / PUBLICADO** mediante `03b29f103ab65d93f6ed2ccf96c6b47fac63ff7a`. Contrato publicado: `dd883e62e1c419eb4b422d34fd7bd10ea3b9e149`. Este cierre documental queda local y pendiente de su propio commit/publicación.
+Estado técnico: **CERRADO / PUBLICADO** mediante `92862647bd9c4114596f1210a4067d641d27c135`. Contrato publicado: `1d72322b0367d28c5c5130f9ed3b075b1b087569`. Este cierre documental queda local y pendiente de su propio commit/publicación.
 
-`ExpectedResourceIdentityCollection` frozen contiene solo `identities: tuple[ResourcePhysicalIdentity, ...]`. `build_expected_resource_identity_collection(identities)` declara como expected, exactamente y en el orden recibido, las identities caller-provided tras una sola materialización a tuple. Acepta vacío y exige unicidad total por `resource_id`: duplicate ID falla con igual o distinto digest, mientras IDs distintos pueden compartir digest. El ID se preserva literalmente; una identity manual con digest arbitrario es válida y no se hace hash ni digest validation.
+`ActiveCandidateSourceRequiredResourceInventory` frozen contiene solo la verification B39 recibida y `required_resource_ids: tuple[str, ...]`. `build_active_candidate_source_required_resource_inventory(...)` reconstruye una vez cada candidate exclusivamente desde sus `candidate_bytes` B39 y forma la unión estable source-wide por primera aparición, respetando orden B39/manifest y orden interno. Duplicados locales/cross-candidate no fallan ni se repiten; fuente o listas vacías producen `()`; los IDs se preservan literalmente.
 
-Expectedness es solo contextual y `ResourcePhysicalIdentity` sigue neutral. `declared as expected != authentic`; expected declaration != digest correctness; expected collection != required-resource completeness. La anti-tautología permanece: caller-provided identity -> B45 expected collection; futura acquisition -> observed bytes -> B44 observed identity; ambas evidencias podrán compararse después. Expected y observed derivados de los mismos bytes en la misma verificación no prueban integrity. B45 no acredita chronology, provenance, source membership/revision, existence, bindings, acquisition ni integrity.
+La garantía es limitada: source-wide required resource inventory != current admission validity != expected resource coverage != physical resource integrity. B46 no usa B43/B44/B45, candidate B38 mutable, validation service, filesystem, hashing, recursos físicos, bindings, acquisition, persistence, observed identity ni loader. IDs extra no referenciados permanecen en el inventario; B46 no interpreta audio references ni afirma completitud.
 
-El primer postflight cerró dos BLOCKING: `str` se rechaza antes de materializar —`""` y `"abc"` fallan; list/tuple pasan; set/generator fallan— y el tipo de entry se exige exacto con `type(identity) is ResourcePhysicalIdentity`, rechazando subclases y sin coerción. Re-postflight PASS, sin findings finales materiales. Validación: 21 directas PASS en 0.04 s; regresión B31–B45 197 PASS en 0.58 s; suite backend 2027 PASS en 17.37 s; `git diff --check` técnico final y postflight contractual PASS. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
+Validación: 10 directas PASS en 0.13 s; `git diff --check` técnico, postflight contractual y postflight técnico independiente PASS, sin findings BLOCKING/NONBLOCKING materiales. La frontera posterior podrá componer B46 + B45 para coverage exacta por ID; después siguen expected publication si hiciera falta, bindings/acquisition, observed identity, integrity, active source integrity y loader. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
 
 ### B43 — Active candidate current admission gate reevaluation v1
 
@@ -42,9 +42,9 @@ B42 permanece cerrado: `AdmissionRecord correspondence verified`; B43 posterior 
 
 ## Bloque activo
 
-### Cierre documental B45
+### Cierre documental B46
 
-Estado: preparación local de este cierre documental; no hay bloque funcional/técnico adicional activo. B44, B43 y B42.1 permanecen cerrados; B42.1 conserva su trazabilidad como mejora de timestamp operativo. El microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
+Estado: preparación local de este cierre documental; no hay bloque funcional/técnico adicional activo. B45, B44, B43 y B42.1 permanecen cerrados; B42.1 conserva su trazabilidad como mejora de timestamp operativo. El microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -75,7 +75,7 @@ Antes de cambiar de conversación: actualizar este documento con timestamp local
 
 ## Próximo objetivo
 
-Tras publicar este cierre documental de B45, siguen pendientes active-source resource coverage/context, expected physical declaration/publication si surge un consumidor, resource bindings/acquisition read-once, observed identity + integrity comparison y active source integrity aggregate. No se diseña ni numera aquí el bloque posterior. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
+Tras publicar este cierre documental de B46, la siguiente frontera es expected resource coverage/context mediante B46 + B45. Después seguirán expected physical declaration/publication si surge un consumidor, resource bindings/acquisition read-once, observed identity + integrity comparison y active source integrity aggregate. No se diseña ni numera aquí el bloque posterior. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
@@ -94,6 +94,7 @@ Tras publicar este cierre documental de B45, siguen pendientes active-source res
 - `app/services/pedagogical_active_candidate_current_admission_gate_reevaluation.py`;
 - `app/services/pedagogical_resource_physical_identity.py`;
 - `app/services/pedagogical_expected_resource_identity_collection.py`;
+- `app/services/pedagogical_active_candidate_source_required_resource_inventory.py`;
 - `app/services/pedagogical_active_candidate_membership.py`;
 - `app/services/pedagogical_active_candidate_membership_collection.py`;
 - `app/services/pedagogical_active_candidate_source_snapshot.py`;
@@ -105,4 +106,5 @@ Tras publicar este cierre documental de B45, siguen pendientes active-source res
 - `tests/test_pedagogical_active_candidate_current_admission_gate_reevaluation.py`;
 - `tests/test_pedagogical_resource_physical_identity.py`;
 - `tests/test_pedagogical_expected_resource_identity_collection.py`;
+- `tests/test_pedagogical_active_candidate_source_required_resource_inventory.py`;
 - `app/services/pedagogical_validation_service.py`.
