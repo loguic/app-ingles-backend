@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-26T20:32:34+02:00
+Actualizado: 2026-08-26T22:38:02+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -14,15 +14,15 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### B46 — Active candidate source required resource inventory v1
+### B47 — Active candidate source expected resource coverage verification v1
 
-Estado técnico: **CERRADO / PUBLICADO** mediante `92862647bd9c4114596f1210a4067d641d27c135`. Contrato publicado: `1d72322b0367d28c5c5130f9ed3b075b1b087569`. Este cierre documental queda local y pendiente de su propio commit/publicación.
+Estado técnico: **CERRADO / PUBLICADO** mediante `a08fdce8a36bb61d482d2892d64d705311f46ad6`. Contrato publicado: `a8ba9bcf7e96ecca9b21abeb2bc2953c90315d47`. Este cierre documental queda local y pendiente de su propio commit/publicación.
 
-`ActiveCandidateSourceRequiredResourceInventory` frozen contiene solo la verification B39 recibida y `required_resource_ids: tuple[str, ...]`. `build_active_candidate_source_required_resource_inventory(...)` reconstruye una vez cada candidate exclusivamente desde sus `candidate_bytes` B39 y forma la unión estable source-wide por primera aparición, respetando orden B39/manifest y orden interno. Duplicados locales/cross-candidate no fallan ni se repiten; fuente o listas vacías producen `()`; los IDs se preservan literalmente.
+`ActiveCandidateSourceExpectedResourceCoverageVerification` frozen contiene exactamente la `ActiveCandidateSourceRequiredResourceInventory` B46 y la `ExpectedResourceIdentityCollection` B45 originales. `verify_active_candidate_source_expected_resource_coverage(...)` compara únicamente sus dominios literales de `resource_id`: solo coverage exacta devuelve el resultado positivo y ambos inputs se conservan por identidad. Coverage es independiente de sus órdenes representacionales; no se crea orden canónico, collection source-bound ni wrapper redundante.
 
-La garantía es limitada: source-wide required resource inventory != current admission validity != expected resource coverage != physical resource integrity. B46 no usa B43/B44/B45, candidate B38 mutable, validation service, filesystem, hashing, recursos físicos, bindings, acquisition, persistence, observed identity ni loader. IDs extra no referenciados permanecen en el inventario; B46 no interpreta audio references ni afirma completitud.
+La garantía es limitada: para el dominio required B46, B45 contiene exactamente una expected identity por cada ID requerido y ninguna fuera de ese dominio. `exact expected ID-domain coverage != current admission validity != digest correctness != expected identity authenticity != resource existence != expected-vs-observed integrity != active source integrity`. B47 no consume B39, B43 ni B44 directamente; no reconstruye candidates, no revalida B45/B46, no inspecciona digest, no usa filesystem, hashing, resource bytes, bindings, acquisition, persistence, integrity ni crawling interno. Missing/unexpected son solo diferencias de dominio; coverage mismatch produce un único `ValueError` all-or-nothing, con diagnóstico determinista en orden B46/B45 si informa IDs.
 
-Validación: 10 directas PASS en 0.13 s; `git diff --check` técnico, postflight contractual y postflight técnico independiente PASS, sin findings BLOCKING/NONBLOCKING materiales. La frontera posterior podrá componer B46 + B45 para coverage exacta por ID; después siguen expected publication si hiciera falta, bindings/acquisition, observed identity, integrity, active source integrity y loader. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
+Validación: 13 directas PASS en 0.13 s; regresión B31–B47, 146 passed en 0.46 s; suite backend completa, 2050 passed en 16.98 s; `git diff --check` técnico y postflights contractual/técnico PASS. Findings BLOCKING: ninguno. Dos findings técnicos NONBLOCKING —sin test múltiple same-order explícito y sin mismatch exclusivamente por case— no requieren trabajo ni deuda artificial. La siguiente frontera es resource bindings; physical expected publication sigue sin necesidad inmediata demostrada. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
 
 ### B43 — Active candidate current admission gate reevaluation v1
 
@@ -42,9 +42,9 @@ B42 permanece cerrado: `AdmissionRecord correspondence verified`; B43 posterior 
 
 ## Bloque activo
 
-### Cierre documental B46
+### Cierre documental B47
 
-Estado: preparación local de este cierre documental; no hay bloque funcional/técnico adicional activo. B45, B44, B43 y B42.1 permanecen cerrados; B42.1 conserva su trazabilidad como mejora de timestamp operativo. El microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
+Estado: preparación local de este cierre documental; no hay bloque funcional/técnico adicional activo. B46, B45, B44, B43 y B42.1 permanecen cerrados; B42.1 conserva su trazabilidad como mejora de timestamp operativo. El microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -75,7 +75,7 @@ Antes de cambiar de conversación: actualizar este documento con timestamp local
 
 ## Próximo objetivo
 
-Tras publicar este cierre documental de B46, la siguiente frontera es expected resource coverage/context mediante B46 + B45. Después seguirán expected physical declaration/publication si surge un consumidor, resource bindings/acquisition read-once, observed identity + integrity comparison y active source integrity aggregate. No se diseña ni numera aquí el bloque posterior. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
+Tras publicar este cierre documental de B47, la siguiente frontera es resource bindings. B47 ya aporta la evidencia positive-only de coverage exacta entre B46 y B45; no se diseña ni numera aquí la API de bindings. Después podrán seguir acquisition read-once, observed identity, expected-vs-observed integrity y active source integrity aggregate. Physical expected publication permanece opcional, sin necesidad inmediata demostrada. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
@@ -95,6 +95,7 @@ Tras publicar este cierre documental de B46, la siguiente frontera es expected r
 - `app/services/pedagogical_resource_physical_identity.py`;
 - `app/services/pedagogical_expected_resource_identity_collection.py`;
 - `app/services/pedagogical_active_candidate_source_required_resource_inventory.py`;
+- `app/services/pedagogical_active_candidate_source_expected_resource_coverage_verification.py`;
 - `app/services/pedagogical_active_candidate_membership.py`;
 - `app/services/pedagogical_active_candidate_membership_collection.py`;
 - `app/services/pedagogical_active_candidate_source_snapshot.py`;
@@ -107,4 +108,5 @@ Tras publicar este cierre documental de B46, la siguiente frontera es expected r
 - `tests/test_pedagogical_resource_physical_identity.py`;
 - `tests/test_pedagogical_expected_resource_identity_collection.py`;
 - `tests/test_pedagogical_active_candidate_source_required_resource_inventory.py`;
+- `tests/test_pedagogical_active_candidate_source_expected_resource_coverage_verification.py`;
 - `app/services/pedagogical_validation_service.py`.
