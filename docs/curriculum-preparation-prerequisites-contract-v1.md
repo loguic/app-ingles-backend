@@ -2505,6 +2505,148 @@ La cobertura futura mínima B51 incluye: single y multiple match; shape frozen e
 
 Después de B51 queda pendiente únicamente active source integrity como siguiente frontera. Esa composición futura deberá considerar las demás ramas causales pertinentes, pero B51 no diseña su input, result shape, API, relación definitiva con B43 ni loader. `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
 
+B52 — **Active source integrity v1** es la composición causal positive-only que acredita, para una misma evidencia B39, que las ramas ya positivas de current admission gates B43 y expected-vs-observed resource integrity B51 pertenecen a exactamente la misma source verificada. Su responsabilidad única es componer esas dos garantías sin volver a ejecutar, reinterpretar ni ampliar ninguna de ellas:
+
+```text
+B39 candidate payload integrity verified
+-> B43 current admission gates verified
+
+same B39 candidate payload integrity verified
+-> B46 required-resource inventory
++ B45 expected resource identities
+-> B47 expected-domain coverage
+-> B48 bindings
+-> B49 acquired resource bytes
+-> B50 observed ResourcePhysicalIdentity
+-> B51 resource integrity verified
+
+B43 + B51 preserving the same B39 object
+-> B52 active source integrity verified
+-> future loader
+```
+
+Se mantienen separadas obligatoriamente:
+
+```text
+candidate payload integrity
+!= current admission gate reevaluation
+!= resource integrity
+!= active source integrity
+!= loader readiness
+```
+
+El módulo futuro es exactamente:
+
+```text
+app/services/pedagogical_active_candidate_source_integrity_verification.py
+```
+
+La frontera pública conceptual v1 recibe exactamente los dos aggregates positivos ya existentes:
+
+```python
+verify_active_candidate_source_integrity(
+    current_admission_gate_reevaluation:
+        ActiveCandidateSourceCurrentAdmissionGateReevaluation,
+    resource_integrity_verification:
+        ActiveCandidateSourceResourceIntegrityVerification,
+) -> ActiveCandidateSourceIntegrityVerification
+```
+
+No recibe B39 como tercer input ni acepta B45, B46, B47, B48, B49, B50, snapshot, memberships, entries, `AdmissionRecord`, expected identities, observed identities, resource IDs, digests, bytes, Paths, mappings, comparison policy ni loader input. Los dos inputs públicos impiden reabrir las ramas upstream; la condición causal posterior impide mezclar resultados positivos de sources diferentes. La validación de frontera sigue el precedente de aggregates mediante `isinstance`, sin duck typing, coerción, dicts, tuples arbitrarias ni inputs alternativos.
+
+El resultado positive-only frozen mínimo contiene exactamente:
+
+```python
+@dataclass(frozen=True)
+class ActiveCandidateSourceIntegrityVerification:
+    current_admission_gate_reevaluation: (
+        ActiveCandidateSourceCurrentAdmissionGateReevaluation
+    )
+    resource_integrity_verification: (
+        ActiveCandidateSourceResourceIntegrityVerification
+    )
+```
+
+La existencia del objeto significa que la composición completa fue positiva. Ambos aggregates recibidos se preservan exactamente por identidad; no se reconstruyen. No se añaden entries propias, snapshot, B39, memberships, bytes, paths, expected/observed identities duplicadas, status, `verified`, bool, findings, counts, pairs, diagnostics persistidos, mappings, índices ni metadata. Toda la evidencia ya comprobada permanece accesible transitivamente desde las dos ramas preservadas.
+
+La única ruta autorizada B43 hacia su B39 es:
+
+```text
+current_admission_gate_reevaluation
+.admission_record_correspondence_verification
+.admission_record_acquisition
+.candidate_integrity_verification
+```
+
+La única ruta autorizada B51 hacia su B39 es:
+
+```text
+resource_integrity_verification
+.observed_resource_identity_collection
+.resource_acquisition
+.resource_binding_collection
+.expected_resource_coverage_verification
+.required_resource_inventory
+.candidate_integrity_verification
+```
+
+B52 debe exigir la condición causal exacta:
+
+```python
+b43_candidate_integrity_verification is b51_candidate_integrity_verification
+```
+
+La igualdad estructural, `snapshot_revision`, equality de snapshot, equality de memberships, orden, IDs, bytes, digests o cualquier derivación no sustituyen esta identidad Python. B43 y B51 pueden tener entries con dominios, cardinalidades y órdenes distintos: B43 representa candidates/memberships/admission records y B51 representa `resource_id`; B52 nunca los empareja mediante posición, `zip`, cardinalidad, ID ni digest.
+
+Si los dos B39 transitivos no son exactamente el mismo objeto, B52 debe fallar cerrado con un único `ValueError` determinista equivalente a:
+
+```text
+active source integrity causal source mismatch
+```
+
+Es una contradicción técnica de composición causal o cross-source mixing, no un fallo ordinario de candidate, admission, resource, digest, authenticity ni loader. No retorna verification, resultado parcial, report negativo, findings ni status. Los errores de input inválido, contradicción técnica inesperada o fallo interno también producen error y ningún resultado.
+
+B52 es all-or-nothing y positive-only. Una vez validados los dos aggregates y su B39 común por identidad, devuelve únicamente:
+
+```python
+ActiveCandidateSourceIntegrityVerification(
+    current_admission_gate_reevaluation=current_admission_gate_reevaluation,
+    resource_integrity_verification=resource_integrity_verification,
+)
+```
+
+El resultado público se construye solo después de completar la comprobación causal. B52 no revalida el contenido de B39, B43 o B51: la presencia de los dos inputs positivos es la autoridad de sus respectivas garantías; B52 añade únicamente su pertenencia a la misma evidencia B39.
+
+Una source B39 vacía puede producir B43 y B51 positivos vacíos. Si ambas ramas preservan exactamente ese mismo B39 vacío, B52 produce una verification positiva vacía estructuralmente válida. `empty active source integrity verification != source usefulness != curriculum completeness != loader readiness`.
+
+La garantía positiva B52 significa exclusivamente que, para la única `ActiveCandidateSourceCandidateIntegrityVerification` B39 preservada por ambas ramas, se cumplen conjuntamente las garantías ya cerradas:
+
+```text
+B39:
+candidate_bytes acquired evidence
+-> derived CandidatePayloadIdentity == declared active membership identity
+
+B43:
+same B39 preserved evidence + B41/B42 AdmissionRecord evidence
+-> current admission gates verified
+
+B51:
+same B39-derived required-resource context + B49/B50 observed evidence
+-> observed content_digest == B45 declared expected content_digest
+
+therefore:
+same active source evidence
+-> active source integrity verified
+```
+
+Esto no vuelve a convertir B43 en prueba de ejecución histórica de admission ni B51 en autenticación de expected digests. En particular, B52 no demuestra reviewer, `AdmissionRecord`, publisher o expected-digest authenticity/authorization; provenance, chronology, signatures, PKI, trust anchor, audit trail, corrección respecto del mundo real, ausencia matemática de hash collision, filesystem freshness/snapshot/file stability, path safety, containment, sandboxing, MIME/codec/audio validity, que los bytes sean semánticamente los recursos pretendidos, corrección semántica/pedagógica, curriculum compatibility, learning, progress, mastery ni loader readiness.
+
+B52 es completamente in-memory, deterministic y side-effect free respecto de sus dos inputs. No abre ni relee candidate, admission, manifest o resource paths; no accede a bytes, no parsea candidates ni records, no llama B33, B39, B43, B44, B47, B51 ni otra verificación upstream, no calcula hashes ni compara digests, no hace filesystem I/O, network, DB, persistence, clock, randomness, publication ni loader. No crea framework genérico de composition/status/findings, reporte de cross-source mixing, exception hierarchy, cache o índice persistente.
+
+La cobertura futura mínima B52 incluye: shape frozen exacto con los dos campos y sin datos extra; firma con únicamente B43+B51; rechazo de inputs no aggregates sin duck typing; preservación por identidad de ambos inputs; PASS cuando ambos preservan el mismo B39; FAIL con `ValueError` determinista cuando preservan B39 distintos incluso si son estructuralmente iguales —prueba material de `is`, no `==`—; source vacía común positiva; all-or-nothing sin construcción de resultado ante causal source mismatch; ausencia de B39 como tercer input, de alineación B43/B51 entries y de rerun B33/B39/B43/B44/B47/B51; y ausencia de filesystem, parsing, bytes, hashing, I/O, status, findings, curriculum compatibility y loader. No se duplican tests de las garantías internas ya cubiertas por B43 y B51.
+
+Después de B52 podrá estudiarse un loader, pero B52 no lo diseña, activa ni habilita. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.
