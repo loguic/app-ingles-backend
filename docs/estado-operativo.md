@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-27T18:39:00+02:00
+Actualizado: 2026-08-27T19:16:43+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -8,6 +8,7 @@ Formato: checkpoint operativo compacto
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
+- Método operativo canónico: `docs/loguic-engineering-operating-method-v1.md`.
 - Política operativa transversal de routing: `docs/loguic-ai-model-routing-policy-v1.md` (default: `Terra / medium`; por tarea y sin escalamiento automático).
 - Git final requerido: limpio y sincronizado con `origin/master`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante; `Skill` significa exclusivamente habilidad pedagógica medible.
@@ -44,9 +45,13 @@ B42 permanece cerrado: `AdmissionRecord correspondence verified`; B43 posterior 
 
 ## Bloque activo
 
-### Sin bloque funcional/técnico activo
+### B52 — Active source integrity v1
 
-Estado: no hay bloque funcional/técnico activo. B51, B50, B49, B48, B47, B46, B45, B44, B43 y B42.1 permanecen cerrados. La siguiente frontera pendiente es active source integrity. B42.1 conserva su trazabilidad como mejora de timestamp operativo. El microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
+Estado: **IMPLEMENTACIÓN LOCAL VALIDADA / PENDIENTE DE CIERRE TÉCNICO Y DOCUMENTAL**. Contrato publicado mediante `5d318c125acdc7128b0af73abafae0bee8c7b454`. La implementación y sus tests existen únicamente en local; B52 no tiene todavía commit técnico y no está cerrado ni publicado.
+
+Archivos locales: `app/services/pedagogical_active_candidate_source_integrity_verification.py` y `tests/test_pedagogical_active_candidate_source_integrity_verification.py`. B52 compone exclusivamente B43+B51 cuando ambas ramas conservan el mismo B39 por identidad Python; no habilita loader.
+
+Validación confirmada: 7 tests específicos PASS; regresión seleccionada B43+B51+B52, 29 PASS; postflight técnico PASS; findings BLOCKING: 0; findings NONBLOCKING: 0; suite backend completa ejecutada directamente en Bash, 2118 passed en 17.49 s; `git diff --check` PASS. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -62,13 +67,9 @@ Estado: **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**. I1–I4 
 
 ## Método operativo vigente
 
-Cada slice pasa por definición, implementación, validación específica, revisión independiente y cierre documental. No repetir inspecciones, validaciones ni decisiones ya confirmadas mientras no cambien los archivos cubiertos. Antes de proponer una inspección, comprobar si el checkpoint ya aporta evidencia vigente suficiente.
+El método completo y canónico está en `docs/loguic-engineering-operating-method-v1.md`. Este documento conserva únicamente el checkpoint operativo compacto.
 
-Al reanudar una conversación, ejecutar primero `python3 scripts/engineering/conversation_checkpoint.py resume`. Su resultado y este documento son la autoridad para continuar. Antes de cambiar de conversación: actualizar este documento con timestamp local aware, validarlo con `operational_state.py`, ejecutar `conversation_checkpoint.py prepare` y cambiar solo con checkpoint válido.
-
-El trabajo técnico se realiza con Codex CLI + Bash directamente sobre el repositorio; evitar `cat`/`sed` más copiar y pegar código al chat salvo necesidad real demostrada. Reutilizar antes de operaciones manuales los helpers vigentes, incluidos `operational_state.py`, `conversation_checkpoint.py`, `block_close.py` y `git_close.py`. Si una regresión en Codex queda indeterminada, ejecutarla una sola vez directamente en Bash; la suite backend completa se ejecuta directamente en Bash cuando corresponde.
-
-El routing LOGUIC selecciona modelo y reasoning por tarea conforme a la política vigente; no trasladar al usuario su inspección o selección manual cuando política y tipo de tarea ya lo resuelven. Pedir intervención solo ante indisponibilidad real, contradicción o decisión nueva. No convertir permisos de Codex en una secuencia manual: usar flujos seguros y allowlists existentes y, si el sandbox exige aprobación inevitable, presentar únicamente la aprobación mínima necesaria. Las respuestas operativas ofrecen opciones numeradas solo cuando existe una decisión real; no crean opciones artificiales cuando hay un único siguiente paso correcto.
+Al reanudar, ejecutar primero `python3 scripts/engineering/conversation_checkpoint.py resume` y continuar desde su salida más este checkpoint, sin repetir evidencia vigente. Antes de cambiar de conversación, actualizar y validar este estado y ejecutar `conversation_checkpoint.py prepare`.
 
 ## Fronteras obligatorias
 
@@ -81,14 +82,15 @@ El routing LOGUIC selecciona modelo y reasoning por tarea conforme a la polític
 
 ## Próximo objetivo
 
-La siguiente frontera es active source integrity. No se diseña todavía input, result shape, API, composición exacta, relación definitiva con B43 ni loader. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
+El siguiente paso es cerrar técnica y documentalmente B52 sin ampliar su contrato. B52 permanece local y no publicado; no iniciar loader. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
-- `docs/estado-operativo.md` y `docs/bitacora.md`;
+- `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/loguic-engineering-operating-method-v1.md`;
 - `docs/curriculum-preparation-prerequisites-contract-v1.md`;
 - `scripts/engineering/operational_state.py`;
 - `scripts/engineering/conversation_checkpoint.py`;
+- `scripts/engineering/block_close.py`;
 - `scripts/engineering/git_close.py`;
 - `tests/test_git_close.py`;
 - `app/services/pedagogical_candidate_payload_identity.py`;
@@ -102,6 +104,7 @@ La siguiente frontera es active source integrity. No se diseña todavía input, 
 - `app/services/pedagogical_active_candidate_source_resource_acquisition.py`;
 - `app/services/pedagogical_active_candidate_source_observed_resource_identity_collection.py`;
 - `app/services/pedagogical_active_candidate_source_resource_integrity_verification.py`;
+- `app/services/pedagogical_active_candidate_source_integrity_verification.py`;
 - `app/services/pedagogical_expected_resource_identity_collection.py`;
 - `app/services/pedagogical_active_candidate_source_required_resource_inventory.py`;
 - `app/services/pedagogical_active_candidate_source_expected_resource_coverage_verification.py`;
@@ -118,6 +121,7 @@ La siguiente frontera es active source integrity. No se diseña todavía input, 
 - `tests/test_pedagogical_active_candidate_source_resource_acquisition.py`;
 - `tests/test_pedagogical_active_candidate_source_observed_resource_identity_collection.py`;
 - `tests/test_pedagogical_active_candidate_source_resource_integrity_verification.py`;
+- `tests/test_pedagogical_active_candidate_source_integrity_verification.py`;
 - `tests/test_pedagogical_expected_resource_identity_collection.py`;
 - `tests/test_pedagogical_active_candidate_source_required_resource_inventory.py`;
 - `tests/test_pedagogical_active_candidate_source_expected_resource_coverage_verification.py`;
