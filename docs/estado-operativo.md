@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-27T19:16:43+02:00
+Actualizado: 2026-08-27T19:35:31+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -15,17 +15,17 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### B51 — Expected-vs-observed resource integrity v1
+### B52 — Active source integrity v1
 
-Estado: **CERRADO / DOCUMENTADO / PUBLICADO / SINCRONIZADO**. Contrato publicado: `409dc4184c58fe8137563cddf3baa067b0fa62cf`. Implementación técnica publicada: `b607bc9a8513792c4001357c175a254f45281756`. Cierre documental publicado: `0577a9204a91517eec479c7250d4408d41e856bd`.
+Estado técnico: **CERRADO / PUBLICADO**. Contrato publicado: `5d318c125acdc7128b0af73abafae0bee8c7b454`. Implementación técnica publicada: `605564ecbeb9079fef248d348ad26f52f042ca30`. Cierre documental actual: **LOCAL / VALIDADO / PENDIENTE DE COMMIT Y PUBLICACIÓN**; no existe todavía commit documental B52.
 
-`ActiveCandidateSourceResourceIntegrityVerification` frozen contiene exactamente `observed_resource_identity_collection: ActiveCandidateSourceObservedResourceIdentityCollection`. `verify_active_candidate_source_resource_integrity(...)` consume exclusivamente B50 y conserva ese B50 por identidad; es una verification causal positive-only, sin status, bool, counts, pairs, mismatches persistidos, expected collection duplicada ni segundo input que permita cross-source mixing.
+`ActiveCandidateSourceIntegrityVerification` frozen contiene exactamente B43 `current_admission_gate_reevaluation` y B51 `resource_integrity_verification`. `verify_active_candidate_source_integrity(...)` consume únicamente ambos aggregates y exige que sus rutas transitivas conserven exactamente el mismo B39 por identidad Python; no recibe B39 como tercer input ni alinea entries de dominios distintos.
 
-La expected authority se obtiene transitivamente desde B50 mediante `resource_acquisition.resource_binding_collection.expected_resource_coverage_verification.expected_resource_identity_collection`; la observed authority es `B50.entries[*].physical_identity`. El pairing es por `resource_id` literal, nunca por posición, Path ni digest; B45 y B50 pueden tener órdenes diferentes. La comparación es literal y exacta: `expected.content_digest == observed.content_digest`. Se recorre B50 order: todos los matches devuelven verification positiva frozen; uno o más mismatches acumulan IDs en ese orden y producen un único `ValueError` determinista, sin resultado parcial.
+B52 es positive-only, frozen y all-or-nothing. Un mismo B39 produce verification conservando B43+B51 por identidad; B39 distintos producen `ValueError("active source integrity causal source mismatch")` fail-closed, sin resultado parcial, status, findings ni pairs. Una source vacía común es positiva.
 
-La garantía positiva acredita únicamente que, para cada `resource_id` del dominio source-contextual acreditado por B47, el digest observed B50 coincide literalmente con el digest expected B45 correspondiente: `B49 acquired bytes → B44/B50 observed ResourcePhysicalIdentity → B51 comparison == B45 declared expected ResourcePhysicalIdentity`. `resource integrity != expected authenticity != active source integrity != loader readiness`. Same digest/different IDs es válido si cada ID coincide con su expected; digests intercambiados entre IDs fallan aunque el multiset coincida; B50 vacío devuelve verification positiva vacía; un expected digest arbitrario B45 se compara literalmente.
+La garantía se limita a la conjunción causal sobre una misma source B39: candidate payload integrity B39, current admission gates B43 y expected-vs-observed resource integrity B51. B52 no reejecuta upstream, no usa filesystem, parsing, bytes, hashing o I/O y no acredita authenticity, provenance, chronology, corrección semántica/pedagógica, curriculum compatibility ni loader readiness.
 
-B51 no revalida dominio B47, no reejecuta B39, no llama B44, no recalcula hashes, no relee filesystem ni compara bytes; tampoco acredita expected digest correctness/autenticidad, provenance, active source integrity ni loader readiness. No compone B43 ni activa loader. Validación: 11 directas PASS en 0.15 s; regresión seleccionada, 281 passed en 0.74 s; suite backend completa, 2111 passed en 16.88 s; `git diff --check` técnico, postflight contractual y postflight técnico independiente PASS. Findings BLOCKING: 0. Findings NONBLOCKING: 0. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
+Validación: 7 tests específicos PASS; regresión seleccionada B43+B51+B52, 29 PASS; postflight técnico independiente PASS; findings BLOCKING: 0; findings NONBLOCKING: 0; suite backend completa ejecutada directamente en Bash, 2118 passed en 17.49 s; `git diff --check` técnico PASS. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
 
 ### B43 — Active candidate current admission gate reevaluation v1
 
@@ -45,13 +45,9 @@ B42 permanece cerrado: `AdmissionRecord correspondence verified`; B43 posterior 
 
 ## Bloque activo
 
-### B52 — Active source integrity v1
+### Cierre documental local B52
 
-Estado: **IMPLEMENTACIÓN LOCAL VALIDADA / PENDIENTE DE CIERRE TÉCNICO Y DOCUMENTAL**. Contrato publicado mediante `5d318c125acdc7128b0af73abafae0bee8c7b454`. La implementación y sus tests existen únicamente en local; B52 no tiene todavía commit técnico y no está cerrado ni publicado.
-
-Archivos locales: `app/services/pedagogical_active_candidate_source_integrity_verification.py` y `tests/test_pedagogical_active_candidate_source_integrity_verification.py`. B52 compone exclusivamente B43+B51 cuando ambas ramas conservan el mismo B39 por identidad Python; no habilita loader.
-
-Validación confirmada: 7 tests específicos PASS; regresión seleccionada B43+B51+B52, 29 PASS; postflight técnico PASS; findings BLOCKING: 0; findings NONBLOCKING: 0; suite backend completa ejecutada directamente en Bash, 2118 passed en 17.49 s; `git diff --check` PASS. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
+Estado: no hay bloque funcional/técnico activo. B52 está técnicamente cerrado y publicado; este cierre documental permanece local, validado y pendiente de commit/publicación. La siguiente frontera es únicamente conceptual y no habilita loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -82,7 +78,7 @@ Al reanudar, ejecutar primero `python3 scripts/engineering/conversation_checkpoi
 
 ## Próximo objetivo
 
-El siguiente paso es cerrar técnica y documentalmente B52 sin ampliar su contrato. B52 permanece local y no publicado; no iniciar loader. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
+La siguiente frontera conceptual soportada por los contratos existentes es estudiar un loader que consuma evidencia B52 positiva. No se diseña todavía API, input, result shape ni nuevo slice, y B52 no implica loader readiness. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
