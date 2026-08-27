@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-26T23:12:37+02:00
+Actualizado: 2026-08-27T10:30:05+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -14,17 +14,17 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### B48 — Active candidate source resource binding collection v1
+### B49 — Active candidate source resource acquisition v1
 
-Estado técnico: **CERRADO / PUBLICADO** mediante `5f23f8850cce88c60282885cf474bcf361a88d6a`. Contrato publicado: `8567c7de2a4caec6791a9c727ca6b7a7c98e07f7`. Este cierre documental queda local y pendiente de su propio commit/publicación; no existe todavía commit documental B48.
+Estado técnico: **CERRADO / PUBLICADO** mediante `0e01cbe5ca94adecffb48dc42857c7ba2da4edcd`. Contrato publicado: `dce635e2cccdb0eb7f78798d91ea6d2743feb0e7`. Este cierre documental queda local y pendiente de su propio commit/publicación; no existe todavía commit documental B49.
 
-`ResourceBinding` frozen contiene exactamente `resource_id: str` y `resource_path: pathlib.Path`; no lleva digest, bytes ni metadata filesystem. `ActiveCandidateSourceResourceBindingCollection` frozen contiene exactamente la `ActiveCandidateSourceExpectedResourceCoverageVerification` B47 original y `bindings: tuple[ResourceBinding, ...]`. `build_active_candidate_source_resource_binding_collection(...)` recibe B47 y `resource_bindings: Sequence[ResourceBinding]`, materializa una sola vez a tuple, exige el tipo exacto en cada entry y solo produce resultado positivo cuando hay cobertura exacta del dominio B48 → B47 → B46 → `required_resource_ids`. Conserva B47 y cada binding original por identidad; el resultado se reordena solo por referencias según el orden representacional B46, nunca por el orden caller-provided.
+`AcquiredResource` frozen contiene exactamente `binding: ResourceBinding` y `resource_bytes: bytes`. `ActiveCandidateSourceResourceAcquisition` frozen contiene exactamente la `ActiveCandidateSourceResourceBindingCollection` B48 original y `entries: tuple[AcquiredResource, ...]`. `acquire_active_candidate_source_resources(...)` recibe exclusivamente B48, no revalida su dominio, duplicados, orden B46, Path absoluto ni coverage B47, y conserva B48 y cada binding original por identidad. Entries sigue exactamente B48/B46.
 
-La garantía limitada es: para el dominio source-contextual acreditado por B47 existe exactamente un `ResourceBinding` caller-provided por cada `resource_id`, ninguno fuera de él, y cada binding declara un `Path` local absoluto. Duplicados fallan tanto con mismo Path como con Path distinto; same Path/different IDs está permitido. `resource_id` es literal `str`, sin strip, lowercase, namespace, nonblank ni normalización Unicode. Missing sigue B46, unexpected y duplicate siguen caller order; missing+unexpected falla con un único `ValueError` all-or-nothing y sin sorting, findings, objeto negativo, status ni resultado parcial. Empty/empty pasa; vacíos asimétricos fallan.
+La garantía positiva se limita a la llamada: cada valor `pathlib.Path` distinto por igualdad/hash normal se adquiere una sola vez, el descriptor abierto se valida como regular file, no sigue symlink final, se lee hasta EOF desde ese mismo descriptor y sus bytes exactos se preservan. Same Path/different IDs reutiliza evidencia del mismo evento y crea varias entries ordenadas; no hay garantía de identidad Python de `bytes`. No hay deduplicación por binding, inode, `samefile()`, `resolve()` o target físico; Paths declarados distintos no prueban objetos físicos distintos.
 
-El locator v1 es únicamente `pathlib.Path`: no convierte desde `str` ni `os.PathLike` genérico y preserva el Path caller-provided sin reconstruir. Solo usa `Path.is_absolute()` como check léxico no-I/O; no usa resolve, absolute, expanduser, exists, is_file, is_dir, is_symlink, stat, open ni read_bytes. Path absoluto elimina ambigüedad de CWD, pero no prueba seguridad, containment, existencia ni lectura. B48 es in-memory, determinista y side-effect free: no filesystem, red, clock, randomness, hashing, acquisition ni persistence; no introduce prechecks físicos/TOCTOU. Containment, symlink escape, special files, permisos, huge files, readability y validación de regular-file son frontera posterior de acquisition, no sandboxing B48.
+La adquisición sigue `open → fstat del descriptor abierto → require regular file → read del mismo descriptor → close`, no prechecks `exists/is_file/is_symlink` seguidos de otra apertura. Directory, FIFO, socket, block/character device y cualquier descriptor no regular se rechazan antes de leer contenido; la estrategia POSIX evita bloqueo material de FIFO antes de `fstat`. Final symlink se rechaza en open-time, pero no hay protección de symlinks padre, containment ni sandboxing. `final symlink rejected != trusted path != contained path != sandboxed path`.
 
-B48 no consume B44, no deriva ni inspecciona `ResourcePhysicalIdentity`/`content_digest`, no maneja bytes ni valida digest; la expected identity queda accesible transitivamente B48 → B47 → B45. No demuestra existencia, seguridad de Path, bytes, tamaño, MIME, digest, authenticity, acquisition, observed identity, integrity, active source integrity ni loader readiness. Validación: 27 directas PASS en 0.13 s; regresión B31–B48, 173 passed en 0.47 s; suite backend completa, 2077 passed en 16.61 s; `git diff --check` técnico y postflights contractual/técnico PASS. Findings BLOCKING y NONBLOCKING: ninguno. La siguiente frontera es read-once resource acquisition, que consumirá B48 completo sin aceptar bindings ni recalcular coverage; la política para shared Path sigue sin decidir. Physical expected publication sigue sin necesidad inmediata demostrada. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
+`resource_bytes` es evidencia exacta de observación adquirida, no bytes expected/verified ni integrity; toda medición posterior consume esos bytes sin reread. B49 no usa B44, expected identities/digests, hashing ni produce observed identity o integrity. Hace solo local filesystem read I/O, sin writes, red, DB, persistence, clock, randomness ni remote acquisition; no garantiza snapshot, estabilidad, atomicidad multiarchivo o existencia posterior. Absolute Path no equivale a trusted/contained/sandboxed Path; sin maximum size v1, un archivo enorme puede consumir memoria: riesgo NONBLOCKING bajo bindings locales controlados. Validación: 11 directas PASS en 0.15 s; regresión inmediata B48–B49, 38 passed en 0.16 s; regresión B31–B49, 184 passed en 0.53 s; suite backend completa, 2088 passed en 17.16 s; `git diff --check` técnico y postflights contractual/técnico PASS. Findings BLOCKING: ninguno. Finding NONBLOCKING: la cobertura de cierre explícito de descriptor ante read failure puede reforzarse, aunque `with`/`finally` actual demuestra cierre correcto y no hay defecto observado. La siguiente frontera es B50 — observed `ResourcePhysicalIdentity` from acquired resource bytes, sin diseñarla. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
 
 ### B43 — Active candidate current admission gate reevaluation v1
 
@@ -44,9 +44,9 @@ B42 permanece cerrado: `AdmissionRecord correspondence verified`; B43 posterior 
 
 ## Bloque activo
 
-### Cierre documental local B48
+### Cierre documental local B49
 
-Estado: preparación local de este cierre documental hasta su publicación; no hay bloque funcional/técnico adicional activo. B47, B46, B45, B44, B43 y B42.1 permanecen cerrados. B42.1 conserva su trazabilidad como mejora de timestamp operativo. El microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
+Estado: preparación local de este cierre documental hasta su publicación; no hay bloque funcional/técnico adicional activo. B48, B47, B46, B45, B44, B43 y B42.1 permanecen cerrados. B42.1 conserva su trazabilidad como mejora de timestamp operativo. El microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -77,7 +77,7 @@ Antes de cambiar de conversación: actualizar este documento con timestamp local
 
 ## Próximo objetivo
 
-Tras publicar este cierre documental de B48, la siguiente frontera es read-once resource acquisition. Deberá consumir la collection B48 completa, sin volver a aceptar bindings ni recalcular su coverage; no se diseña todavía su API. Queda sin decidir si shared Path/different IDs se leerá una vez por binding o una vez por Path físico compartido: pertenece a su preflight. Después podrán seguir observed physical identity, expected-vs-observed integrity, active source integrity y loader. Physical expected publication permanece opcional, sin necesidad inmediata demostrada. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
+Tras publicar este cierre documental de B49, la siguiente frontera es B50 — observed `ResourcePhysicalIdentity` from acquired resource bytes. Conceptualmente consumirá `AcquiredResource.resource_bytes` y `entry.binding.resource_id` para usar B44, sin releer filesystem; no se diseña todavía su contrato. Después podrán seguir expected-vs-observed integrity, active source integrity y loader. Physical expected publication permanece opcional, sin necesidad inmediata demostrada. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
