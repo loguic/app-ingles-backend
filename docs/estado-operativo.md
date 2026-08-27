@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-27T10:30:05+02:00
+Actualizado: 2026-08-27T12:11:59+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -14,17 +14,17 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### B49 — Active candidate source resource acquisition v1
+### B50 — Observed ResourcePhysicalIdentity from acquired resource bytes v1
 
-Estado técnico: **CERRADO / PUBLICADO** mediante `0e01cbe5ca94adecffb48dc42857c7ba2da4edcd`. Contrato publicado: `dce635e2cccdb0eb7f78798d91ea6d2743feb0e7`. Este cierre documental queda local y pendiente de su propio commit/publicación; no existe todavía commit documental B49.
+Estado técnico: **CERRADO / PUBLICADO** mediante `8ed695d3d59ab44f33ec11ef3dd47f7085b0f345`. Contrato publicado: `6934def64d2d9a12bcac712252eaf0c6cfcf557a`. Este cierre documental queda local y pendiente de su propio commit/publicación; no existe todavía commit documental B50.
 
-`AcquiredResource` frozen contiene exactamente `binding: ResourceBinding` y `resource_bytes: bytes`. `ActiveCandidateSourceResourceAcquisition` frozen contiene exactamente la `ActiveCandidateSourceResourceBindingCollection` B48 original y `entries: tuple[AcquiredResource, ...]`. `acquire_active_candidate_source_resources(...)` recibe exclusivamente B48, no revalida su dominio, duplicados, orden B46, Path absoluto ni coverage B47, y conserva B48 y cada binding original por identidad. Entries sigue exactamente B48/B46.
+`ObservedResourcePhysicalIdentity` frozen contiene exactamente `acquired_resource: AcquiredResource` y `physical_identity: ResourcePhysicalIdentity`. `ActiveCandidateSourceObservedResourceIdentityCollection` frozen contiene exactamente `resource_acquisition: ActiveCandidateSourceResourceAcquisition` y `entries: tuple[ObservedResourcePhysicalIdentity, ...]`. `derive_active_candidate_source_observed_resource_identities(...)` acepta exclusivamente B49 mediante `isinstance`, conserva B49 y cada `AcquiredResource` por identidad, no revalida B49/B48/B47/B46/B45 y produce una entry por cada entry B49 en el mismo orden B49/B48/B46.
 
-La garantía positiva se limita a la llamada: cada valor `pathlib.Path` distinto por igualdad/hash normal se adquiere una sola vez, el descriptor abierto se valida como regular file, no sigue symlink final, se lee hasta EOF desde ese mismo descriptor y sus bytes exactos se preservan. Same Path/different IDs reutiliza evidencia del mismo evento y crea varias entries ordenadas; no hay garantía de identidad Python de `bytes`. No hay deduplicación por binding, inode, `samefile()`, `resolve()` o target físico; Paths declarados distintos no prueban objetos físicos distintos.
+Por cada `AcquiredResource`, B50 llama exactamente una vez a B44: `derive_resource_physical_identity(acquired_resource.resource_bytes, resource_id=acquired_resource.binding.resource_id)`. Los bytes y el ID son literales y autoritativos; el retorno B44 se conserva directamente. No hay `hashlib`, hash/digest manual, reconstrucción de `ResourcePhysicalIdentity`, Path derivation, cache, sorting, grouping ni deduplicación. Same bytes/different IDs produce dos llamadas, dos entries, IDs distintos y digest igual permitido; `same digest != same logical resource`.
 
-La adquisición sigue `open → fstat del descriptor abierto → require regular file → read del mismo descriptor → close`, no prechecks `exists/is_file/is_symlink` seguidos de otra apertura. Directory, FIFO, socket, block/character device y cualquier descriptor no regular se rechazan antes de leer contenido; la estrategia POSIX evita bloqueo material de FIFO antes de `fstat`. Final symlink se rechaza en open-time, pero no hay protección de symlinks padre, containment ni sandboxing. `final symlink rejected != trusted path != contained path != sandboxed path`.
+La garantía positiva se limita a observed identity desde evidencia adquirida: `acquired bytes != observed ResourcePhysicalIdentity != expected-vs-observed equality != resource integrity != active source integrity != loader readiness`. B50 es in-memory y funciona aunque el Path original desaparezca tras B49; no usa filesystem I/O, network, DB, persistence, clock ni randomness. Expected identities accesibles B50 → B49 → B48 → B47 → B45 no influyen: no hay consulta B45, expected digest, match, status ni integrity. ResourcePhysicalIdentity permanece neutral; observedness procede del wrapper B50.
 
-`resource_bytes` es evidencia exacta de observación adquirida, no bytes expected/verified ni integrity; toda medición posterior consume esos bytes sin reread. B49 no usa B44, expected identities/digests, hashing ni produce observed identity o integrity. Hace solo local filesystem read I/O, sin writes, red, DB, persistence, clock, randomness ni remote acquisition; no garantiza snapshot, estabilidad, atomicidad multiarchivo o existencia posterior. Absolute Path no equivale a trusted/contained/sandboxed Path; sin maximum size v1, un archivo enorme puede consumir memoria: riesgo NONBLOCKING bajo bindings locales controlados. Validación: 11 directas PASS en 0.15 s; regresión inmediata B48–B49, 38 passed en 0.16 s; regresión B31–B49, 184 passed en 0.53 s; suite backend completa, 2088 passed en 17.16 s; `git diff --check` técnico y postflights contractual/técnico PASS. Findings BLOCKING: ninguno. Finding NONBLOCKING: la cobertura de cierre explícito de descriptor ante read failure puede reforzarse, aunque `with`/`finally` actual demuestra cierre correcto y no hay defecto observado. La siguiente frontera es B50 — observed `ResourcePhysicalIdentity` from acquired resource bytes, sin diseñarla. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
+B49 vacío produce B50 positivo vacío sin llamadas B44. Si B44 falla, no hay aggregate ni tuple parcial pública, findings, status o resultado negativo; el error se propaga. B50 no duplica bytes, IDs, Paths, digest map, índices, counts, expected identities ni metadata. No prueba expected-vs-observed equality, expected digest correctness, integrity, intended-resource correctness, autenticidad, provenance, snapshot, path safety, media validity, corrección semántica/pedagógica, active source integrity ni loader readiness. Validación: 12 directas PASS en 0.14 s; regresión B31–B50, 196 passed en 0.54 s; suite backend completa, 2100 passed en 16.99 s; `git diff --check` técnico, postflight contractual y postflight técnico PASS. Findings BLOCKING: ninguno. Findings NONBLOCKING: ninguno. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
 
 ### B43 — Active candidate current admission gate reevaluation v1
 
@@ -44,9 +44,9 @@ B42 permanece cerrado: `AdmissionRecord correspondence verified`; B43 posterior 
 
 ## Bloque activo
 
-### Cierre documental local B49
+### Cierre documental local B50
 
-Estado: preparación local de este cierre documental hasta su publicación; no hay bloque funcional/técnico adicional activo. B48, B47, B46, B45, B44, B43 y B42.1 permanecen cerrados. B42.1 conserva su trazabilidad como mejora de timestamp operativo. El microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
+Estado: preparación local de este cierre documental hasta su publicación; no hay bloque funcional/técnico adicional activo. B50, B49, B48, B47, B46, B45, B44, B43 y B42.1 permanecen cerrados. B42.1 conserva su trazabilidad como mejora de timestamp operativo. El microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -77,7 +77,7 @@ Antes de cambiar de conversación: actualizar este documento con timestamp local
 
 ## Próximo objetivo
 
-Tras publicar este cierre documental de B49, la siguiente frontera es B50 — observed `ResourcePhysicalIdentity` from acquired resource bytes. Conceptualmente consumirá `AcquiredResource.resource_bytes` y `entry.binding.resource_id` para usar B44, sin releer filesystem; no se diseña todavía su contrato. Después podrán seguir expected-vs-observed integrity, active source integrity y loader. Physical expected publication permanece opcional, sin necesidad inmediata demostrada. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
+Tras publicar este cierre documental de B50, la siguiente frontera es expected-vs-observed resource integrity. Conceptualmente comparará de forma independiente las observed identities B50 con expected identities accesibles transitivamente por `resource_id`/digest; no se diseña todavía API, result shape, diagnostics ni objeto success/failure. Después podrán seguir active source integrity y loader. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
@@ -95,6 +95,8 @@ Tras publicar este cierre documental de B49, la siguiente frontera es B50 — ob
 - `app/services/pedagogical_active_candidate_admission_record_correspondence.py`;
 - `app/services/pedagogical_active_candidate_current_admission_gate_reevaluation.py`;
 - `app/services/pedagogical_resource_physical_identity.py`;
+- `app/services/pedagogical_active_candidate_source_resource_acquisition.py`;
+- `app/services/pedagogical_active_candidate_source_observed_resource_identity_collection.py`;
 - `app/services/pedagogical_expected_resource_identity_collection.py`;
 - `app/services/pedagogical_active_candidate_source_required_resource_inventory.py`;
 - `app/services/pedagogical_active_candidate_source_expected_resource_coverage_verification.py`;
@@ -108,6 +110,8 @@ Tras publicar este cierre documental de B49, la siguiente frontera es B50 — ob
 - `tests/test_pedagogical_active_candidate_admission_record_correspondence.py`;
 - `tests/test_pedagogical_active_candidate_current_admission_gate_reevaluation.py`;
 - `tests/test_pedagogical_resource_physical_identity.py`;
+- `tests/test_pedagogical_active_candidate_source_resource_acquisition.py`;
+- `tests/test_pedagogical_active_candidate_source_observed_resource_identity_collection.py`;
 - `tests/test_pedagogical_expected_resource_identity_collection.py`;
 - `tests/test_pedagogical_active_candidate_source_required_resource_inventory.py`;
 - `tests/test_pedagogical_active_candidate_source_expected_resource_coverage_verification.py`;
