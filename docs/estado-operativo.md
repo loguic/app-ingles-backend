@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-27T15:36:10+02:00
+Actualizado: 2026-08-27T16:27:45+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -16,7 +16,7 @@ Formato: checkpoint operativo compacto
 
 ### B51 — Expected-vs-observed resource integrity v1
 
-Estado técnico: **CERRADO / PUBLICADO** mediante `b607bc9a8513792c4001357c175a254f45281756`. Contrato publicado: `409dc4184c58fe8137563cddf3baa067b0fa62cf`. Este cierre documental queda local y pendiente de su propio commit/publicación; no existe todavía commit documental B51.
+Estado: **CERRADO / DOCUMENTADO / PUBLICADO / SINCRONIZADO**. Contrato publicado: `409dc4184c58fe8137563cddf3baa067b0fa62cf`. Implementación técnica publicada: `b607bc9a8513792c4001357c175a254f45281756`. Cierre documental publicado: `0577a9204a91517eec479c7250d4408d41e856bd`.
 
 `ActiveCandidateSourceResourceIntegrityVerification` frozen contiene exactamente `observed_resource_identity_collection: ActiveCandidateSourceObservedResourceIdentityCollection`. `verify_active_candidate_source_resource_integrity(...)` consume exclusivamente B50 y conserva ese B50 por identidad; es una verification causal positive-only, sin status, bool, counts, pairs, mismatches persistidos, expected collection duplicada ni segundo input que permita cross-source mixing.
 
@@ -44,9 +44,9 @@ B42 permanece cerrado: `AdmissionRecord correspondence verified`; B43 posterior 
 
 ## Bloque activo
 
-### Cierre documental local B51
+### Sin bloque funcional/técnico activo
 
-Estado: preparación local de este cierre documental hasta su publicación; no hay bloque funcional/técnico adicional activo. B51, B50, B49, B48, B47, B46, B45, B44, B43 y B42.1 permanecen cerrados. B42.1 conserva su trazabilidad como mejora de timestamp operativo. El microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
+Estado: no hay bloque funcional/técnico activo. B51, B50, B49, B48, B47, B46, B45, B44, B43 y B42.1 permanecen cerrados. La siguiente frontera pendiente es active source integrity. B42.1 conserva su trazabilidad como mejora de timestamp operativo. El microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -77,7 +77,7 @@ Antes de cambiar de conversación: actualizar este documento con timestamp local
 
 ## Próximo objetivo
 
-Tras publicar este cierre documental de B51, la siguiente frontera es active source integrity. No se diseña todavía input, result shape, API, composición exacta, relación definitiva con B43 ni loader. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
+La siguiente frontera es active source integrity. No se diseña todavía input, result shape, API, composición exacta, relación definitiva con B43 ni loader. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
