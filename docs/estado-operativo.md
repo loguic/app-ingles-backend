@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-27T20:05:26+02:00
+Actualizado: 2026-08-27T20:12:34+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -17,7 +17,7 @@ Formato: checkpoint operativo compacto
 
 ### B52 — Active source integrity v1
 
-Estado técnico: **CERRADO / PUBLICADO**. Contrato publicado: `5d318c125acdc7128b0af73abafae0bee8c7b454`. Implementación técnica publicada: `605564ecbeb9079fef248d348ad26f52f042ca30`. Cierre documental actual: **LOCAL / VALIDADO / PENDIENTE DE COMMIT Y PUBLICACIÓN**; no existe todavía commit documental B52.
+Estado: **CERRADO / DOCUMENTADO / PUBLICADO / SINCRONIZADO**. Contrato publicado: `5d318c125acdc7128b0af73abafae0bee8c7b454`. Implementación técnica publicada: `605564ecbeb9079fef248d348ad26f52f042ca30`.
 
 `ActiveCandidateSourceIntegrityVerification` frozen contiene exactamente B43 `current_admission_gate_reevaluation` y B51 `resource_integrity_verification`. `verify_active_candidate_source_integrity(...)` consume únicamente ambos aggregates y exige que sus rutas transitivas conserven exactamente el mismo B39 por identidad Python; no recibe B39 como tercer input ni alinea entries de dominios distintos.
 
@@ -45,9 +45,9 @@ B42 permanece cerrado: `AdmissionRecord correspondence verified`; B43 posterior 
 
 ## Bloque activo
 
-### Cierre documental local B52
+### Checkpoint visual ejecutable de LOGUIC English en Flutter
 
-Estado: no hay bloque funcional/técnico activo. B52 está técnicamente cerrado y publicado; este cierre documental permanece local, validado y pendiente de commit/publicación. La siguiente frontera es únicamente conceptual y no habilita loader.
+Estado: **SIGUIENTE BLOQUE ACORDADO / NO IMPLEMENTADO TODAVÍA**. Antes de abrir la frontera backend posterior, construir un checkpoint visual ejecutable para obtener progreso visible y validar que la arquitectura y la pedagogía se traducen en una experiencia real de producto. Debe usar contenido provisional claramente marcado, sin convertir A1 L1 en contenido pedagógico canónico, y respetar la identidad LOGUIC English y la dirección conversacional vigente.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -82,7 +82,7 @@ Al reanudar, ejecutar primero `python3 scripts/engineering/conversation_checkpoi
 
 ## Próximo objetivo
 
-La siguiente frontera conceptual soportada por los contratos existentes es estudiar un loader que consuma evidencia B52 positiva. No se diseña todavía API, input, result shape ni nuevo slice, y B52 no implica loader readiness. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
+El próximo bloque es el checkpoint visual ejecutable de LOGUIC English en Flutter descrito arriba; esta actualización solo fija el roadmap y no implementa frontend. La frontera técnica backend posterior continúa siendo un futuro loader consumidor de evidencia B52 positiva: `LOADER = BLOCKED`, todavía no se diseña su API, input, result shape ni slice, y B52 no implica loader readiness. A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
