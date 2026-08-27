@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-27T12:11:59+02:00
+Actualizado: 2026-08-27T15:36:10+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -14,17 +14,17 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-### B50 — Observed ResourcePhysicalIdentity from acquired resource bytes v1
+### B51 — Expected-vs-observed resource integrity v1
 
-Estado técnico: **CERRADO / PUBLICADO** mediante `8ed695d3d59ab44f33ec11ef3dd47f7085b0f345`. Contrato publicado: `6934def64d2d9a12bcac712252eaf0c6cfcf557a`. Este cierre documental queda local y pendiente de su propio commit/publicación; no existe todavía commit documental B50.
+Estado técnico: **CERRADO / PUBLICADO** mediante `b607bc9a8513792c4001357c175a254f45281756`. Contrato publicado: `409dc4184c58fe8137563cddf3baa067b0fa62cf`. Este cierre documental queda local y pendiente de su propio commit/publicación; no existe todavía commit documental B51.
 
-`ObservedResourcePhysicalIdentity` frozen contiene exactamente `acquired_resource: AcquiredResource` y `physical_identity: ResourcePhysicalIdentity`. `ActiveCandidateSourceObservedResourceIdentityCollection` frozen contiene exactamente `resource_acquisition: ActiveCandidateSourceResourceAcquisition` y `entries: tuple[ObservedResourcePhysicalIdentity, ...]`. `derive_active_candidate_source_observed_resource_identities(...)` acepta exclusivamente B49 mediante `isinstance`, conserva B49 y cada `AcquiredResource` por identidad, no revalida B49/B48/B47/B46/B45 y produce una entry por cada entry B49 en el mismo orden B49/B48/B46.
+`ActiveCandidateSourceResourceIntegrityVerification` frozen contiene exactamente `observed_resource_identity_collection: ActiveCandidateSourceObservedResourceIdentityCollection`. `verify_active_candidate_source_resource_integrity(...)` consume exclusivamente B50 y conserva ese B50 por identidad; es una verification causal positive-only, sin status, bool, counts, pairs, mismatches persistidos, expected collection duplicada ni segundo input que permita cross-source mixing.
 
-Por cada `AcquiredResource`, B50 llama exactamente una vez a B44: `derive_resource_physical_identity(acquired_resource.resource_bytes, resource_id=acquired_resource.binding.resource_id)`. Los bytes y el ID son literales y autoritativos; el retorno B44 se conserva directamente. No hay `hashlib`, hash/digest manual, reconstrucción de `ResourcePhysicalIdentity`, Path derivation, cache, sorting, grouping ni deduplicación. Same bytes/different IDs produce dos llamadas, dos entries, IDs distintos y digest igual permitido; `same digest != same logical resource`.
+La expected authority se obtiene transitivamente desde B50 mediante `resource_acquisition.resource_binding_collection.expected_resource_coverage_verification.expected_resource_identity_collection`; la observed authority es `B50.entries[*].physical_identity`. El pairing es por `resource_id` literal, nunca por posición, Path ni digest; B45 y B50 pueden tener órdenes diferentes. La comparación es literal y exacta: `expected.content_digest == observed.content_digest`. Se recorre B50 order: todos los matches devuelven verification positiva frozen; uno o más mismatches acumulan IDs en ese orden y producen un único `ValueError` determinista, sin resultado parcial.
 
-La garantía positiva se limita a observed identity desde evidencia adquirida: `acquired bytes != observed ResourcePhysicalIdentity != expected-vs-observed equality != resource integrity != active source integrity != loader readiness`. B50 es in-memory y funciona aunque el Path original desaparezca tras B49; no usa filesystem I/O, network, DB, persistence, clock ni randomness. Expected identities accesibles B50 → B49 → B48 → B47 → B45 no influyen: no hay consulta B45, expected digest, match, status ni integrity. ResourcePhysicalIdentity permanece neutral; observedness procede del wrapper B50.
+La garantía positiva acredita únicamente que, para cada `resource_id` del dominio source-contextual acreditado por B47, el digest observed B50 coincide literalmente con el digest expected B45 correspondiente: `B49 acquired bytes → B44/B50 observed ResourcePhysicalIdentity → B51 comparison == B45 declared expected ResourcePhysicalIdentity`. `resource integrity != expected authenticity != active source integrity != loader readiness`. Same digest/different IDs es válido si cada ID coincide con su expected; digests intercambiados entre IDs fallan aunque el multiset coincida; B50 vacío devuelve verification positiva vacía; un expected digest arbitrario B45 se compara literalmente.
 
-B49 vacío produce B50 positivo vacío sin llamadas B44. Si B44 falla, no hay aggregate ni tuple parcial pública, findings, status o resultado negativo; el error se propaga. B50 no duplica bytes, IDs, Paths, digest map, índices, counts, expected identities ni metadata. No prueba expected-vs-observed equality, expected digest correctness, integrity, intended-resource correctness, autenticidad, provenance, snapshot, path safety, media validity, corrección semántica/pedagógica, active source integrity ni loader readiness. Validación: 12 directas PASS en 0.14 s; regresión B31–B50, 196 passed en 0.54 s; suite backend completa, 2100 passed en 16.99 s; `git diff --check` técnico, postflight contractual y postflight técnico PASS. Findings BLOCKING: ninguno. Findings NONBLOCKING: ninguno. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
+B51 no revalida dominio B47, no reejecuta B39, no llama B44, no recalcula hashes, no relee filesystem ni compara bytes; tampoco acredita expected digest correctness/autenticidad, provenance, active source integrity ni loader readiness. No compone B43 ni activa loader. Validación: 11 directas PASS en 0.15 s; regresión seleccionada, 281 passed en 0.74 s; suite backend completa, 2111 passed en 16.88 s; `git diff --check` técnico, postflight contractual y postflight técnico independiente PASS. Findings BLOCKING: 0. Findings NONBLOCKING: 0. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
 
 ### B43 — Active candidate current admission gate reevaluation v1
 
@@ -44,9 +44,9 @@ B42 permanece cerrado: `AdmissionRecord correspondence verified`; B43 posterior 
 
 ## Bloque activo
 
-### Cierre documental local B50
+### Cierre documental local B51
 
-Estado: preparación local de este cierre documental hasta su publicación; no hay bloque funcional/técnico adicional activo. B50, B49, B48, B47, B46, B45, B44, B43 y B42.1 permanecen cerrados. B42.1 conserva su trazabilidad como mejora de timestamp operativo. El microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
+Estado: preparación local de este cierre documental hasta su publicación; no hay bloque funcional/técnico adicional activo. B51, B50, B49, B48, B47, B46, B45, B44, B43 y B42.1 permanecen cerrados. B42.1 conserva su trazabilidad como mejora de timestamp operativo. El microbloque tooling `git_close.py --publish-url` v1 también permanece cerrado y publicado, sin relación con admission, source integrity o loader.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -77,7 +77,7 @@ Antes de cambiar de conversación: actualizar este documento con timestamp local
 
 ## Próximo objetivo
 
-Tras publicar este cierre documental de B50, la siguiente frontera es expected-vs-observed resource integrity. Conceptualmente comparará de forma independiente las observed identities B50 con expected identities accesibles transitivamente por `resource_id`/digest; no se diseña todavía API, result shape, diagnostics ni objeto success/failure. Después podrán seguir active source integrity y loader. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
+Tras publicar este cierre documental de B51, la siguiente frontera es active source integrity. No se diseña todavía input, result shape, API, composición exacta, relación definitiva con B43 ni loader. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
@@ -97,6 +97,7 @@ Tras publicar este cierre documental de B50, la siguiente frontera es expected-v
 - `app/services/pedagogical_resource_physical_identity.py`;
 - `app/services/pedagogical_active_candidate_source_resource_acquisition.py`;
 - `app/services/pedagogical_active_candidate_source_observed_resource_identity_collection.py`;
+- `app/services/pedagogical_active_candidate_source_resource_integrity_verification.py`;
 - `app/services/pedagogical_expected_resource_identity_collection.py`;
 - `app/services/pedagogical_active_candidate_source_required_resource_inventory.py`;
 - `app/services/pedagogical_active_candidate_source_expected_resource_coverage_verification.py`;
@@ -112,6 +113,7 @@ Tras publicar este cierre documental de B50, la siguiente frontera es expected-v
 - `tests/test_pedagogical_resource_physical_identity.py`;
 - `tests/test_pedagogical_active_candidate_source_resource_acquisition.py`;
 - `tests/test_pedagogical_active_candidate_source_observed_resource_identity_collection.py`;
+- `tests/test_pedagogical_active_candidate_source_resource_integrity_verification.py`;
 - `tests/test_pedagogical_expected_resource_identity_collection.py`;
 - `tests/test_pedagogical_active_candidate_source_required_resource_inventory.py`;
 - `tests/test_pedagogical_active_candidate_source_expected_resource_coverage_verification.py`;
