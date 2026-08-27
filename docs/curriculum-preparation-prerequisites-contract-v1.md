@@ -2406,6 +2406,105 @@ La cobertura futura mínima B50 incluye: shapes frozen exactos; API de input ún
 
 Después de B50 queda pendiente expected-vs-observed resource integrity, seguida de active source integrity y loader. Physical expected publication continúa opcional, sin necesidad inmediata demostrada. `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
 
+B51 — **expected-vs-observed resource integrity v1** es la primera capacidad que verifica la integridad física declarada de los recursos comparando las `ResourcePhysicalIdentity` expected B45 con las observed B50 para el dominio source-contextual ya acreditado. Solo produce una verificación positiva si, para cada `resource_id`, el `content_digest` observed coincide literalmente con el expected:
+
+```text
+B45 expected ResourcePhysicalIdentity
+-> B47 exact expected-domain coverage
+-> B48 exact bindings
+-> B49 acquired resource bytes
+-> B50 observed ResourcePhysicalIdentity
+-> B51 expected-vs-observed resource integrity
+-> future active source integrity
+-> loader
+```
+
+Se mantienen separadas obligatoriamente:
+
+```text
+expected identity
+!= observed identity
+!= resource integrity
+!= active source integrity
+!= loader readiness
+```
+
+La única frontera pública conceptual v1 consume exclusivamente el aggregate B50 completo:
+
+```python
+verify_active_candidate_source_resource_integrity(
+    observed_resource_identity_collection:
+        ActiveCandidateSourceObservedResourceIdentityCollection,
+) -> ActiveCandidateSourceResourceIntegrityVerification
+```
+
+No recibe B45, B47, B48, B49, una expected collection separada, observed identities separadas, sequences de `ResourcePhysicalIdentity`, resource IDs, digests, mappings, bytes, Paths ni comparison policy. El input único B50 impide que el caller mezcle observed evidence de una source con expected identities pertenecientes a otra cadena causal. La validación de frontera sigue el precedente de aggregates mediante `isinstance`; no admite duck typing, dicts, tuples arbitrarias ni entries sueltas, y no introduce una política global de exact-type para aggregates.
+
+El resultado positive-only frozen mínimo contiene exactamente:
+
+```python
+@dataclass(frozen=True)
+class ActiveCandidateSourceResourceIntegrityVerification:
+    observed_resource_identity_collection: (
+        ActiveCandidateSourceObservedResourceIdentityCollection
+    )
+```
+
+La existencia del objeto significa que la verificación completa fue positiva. `observed_resource_identity_collection` es exactamente el objeto B50 recibido, preservado por identidad y no reconstruido. No se añaden `verified`, matched/resource counts, mismatches, pairs, expected identities, observed identities duplicadas, status, findings, diagnostics persistidos, mappings ni índices públicos. Toda la evidencia expected y observed permanece accesible transitivamente desde B50.
+
+La ruta causal real y única desde B50 hasta la expected collection B45 es:
+
+```text
+observed_resource_identity_collection
+.resource_acquisition
+.resource_binding_collection
+.expected_resource_coverage_verification
+.expected_resource_identity_collection
+```
+
+Esa `expected_resource_identity_collection` transitiva es la única autoridad expected para B51. Las observed identities autoritativas son exclusivamente `observed_resource_identity_collection.entries[*].physical_identity`. B51 no reconstruye expected ni observed identities, no vuelve a llamar B44, no usa `resource_bytes` y no relee filesystem.
+
+B45 y B50 pueden conservar órdenes representacionales distintos. B51 empareja exclusivamente por `resource_id` literal, nunca por posición, digest, Path u orden B45. Para ello puede construir internamente un lookup privado y efímero `resource_id -> expected ResourcePhysicalIdentity` desde `expected_resource_identity_collection.identities`; ese lookup no se expone, persiste ni forma parte del resultado y no crea un nuevo orden canónico. No se aplican `strip`, lowercase/uppercase, normalización Unicode, aliases ni canonicalization.
+
+Por ejemplo, expected B45 en orden `r2, r1` y observed B50 en orden `r1, r2` pasan si cada ID tiene su digest correspondiente. Una implementación mediante `zip` posicional es inválida. La evaluación y los diagnostics siguen siempre el orden de `B50.entries`, que preserva transitivamente el orden representacional B48/B46; expected B45 se obtiene por lookup de ID y no por su posición. No hay sorting adicional.
+
+Para cada observed physical identity, después de emparejar por ID, la condición positiva exacta es:
+
+```text
+expected.content_digest == observed.content_digest
+```
+
+La igualdad de digest es literal. B51 no aplica lowercase, uppercase, strip, normalization, eliminación de prefijo, parsing de algoritmo, rehash, byte comparison, tolerance ni equivalencia media-aware. Tampoco revalida formato, prefijo o algoritmo del expected digest B45 ni del observed digest B50. B45 permite una expected identity caller-provided con digest arbitrario; B51 la compara literalmente sin convertirse en validator de B45. B50/B44 permanece la autoridad causal del observed digest y no se vuelve a ejecutar.
+
+B51 no revalida igualdad de dominios. Confía en las invariantes conformes ya acreditadas: B45 contiene expected resource IDs únicos; B47 demuestra `required domain == expected domain`; B48 contiene exactamente un binding por required resource ID; B49 una acquired entry por binding; y B50 una observed identity por entry B49 con el `resource_id` literal del binding. Por tanto B51 no vuelve a comparar expected domain con observed domain, no deduplica y no reconstruye coverage. Una expected identity ausente durante el lookup es una contradicción técnica de una cadena causal que debía ser conforme, no un resource-integrity mismatch ordinario; puede producir un error técnico simple o contextualizado, pero nunca un resultado negativo.
+
+Dos resource IDs distintos pueden compartir digest. Expected `r1 -> X`, `r2 -> X` y observed `r1 -> X`, `r2 -> X` pasan como dos recursos lógicos separados; no se deduplica por digest y `same digest != same logical resource`. En cambio, expected `r1 -> A`, `r2 -> B` y observed `r1 -> B`, `r2 -> A` fallan aunque el multiset de digests sea el mismo, porque la integridad se verifica mediante el par `resource_id` literal + `content_digest` correspondiente.
+
+Si uno o más digests no coinciden, B51 recorre todas las observed entries, acumula únicamente sus `resource_id` en orden B50 y después lanza un único `ValueError` determinista equivalente a `resource integrity mismatch for resource_ids: (...)`. No incluye por defecto expected/observed digests, bytes, Paths ni pairs completos, y no usa términos como corruption, tampering o authenticity failure porque un mismatch no demuestra su causa. No existe verification, tuple parcial, negative report, findings ni status. La comparación completa no convierte los diagnostics efímeros en evidencia pública persistida.
+
+B51 es all-or-nothing y positive-only. Todos los digests coincidentes producen `ActiveCandidateSourceResourceIntegrityVerification`; uno o más mismatches producen un único `ValueError` y ningún resultado; input inválido, contradicción técnica o error inesperado producen error y ningún resultado. El aggregate público solo se construye después de completar la comparación. Un B50 vacío produce una verification positiva vacía que preserva B50 por identidad, sin comparaciones materiales; `empty resource integrity verification != resource usefulness != active source integrity != loader readiness`.
+
+La garantía positiva B51 significa exclusivamente que, para cada observed `ResourcePhysicalIdentity` B50, la expected `ResourcePhysicalIdentity` B45 accesible transitivamente con exactamente el mismo `resource_id` literal contiene exactamente el mismo `content_digest`. Por causalidad:
+
+```text
+B49 acquired bytes
+-> B44/B50 observed content_digest
+==
+preexisting B45 declared expected content_digest
+```
+
+para todo el dominio source-contextual ya acreditado por B47. Esto demuestra que los `content_digest` coinciden bajo el contrato de identidad física SHA-256 definido por B44; no afirma que los bytes sean matemáticamente idénticos con certeza absoluta ni convierte la posibilidad teórica de colisión SHA-256 en blocker. Comparación literal ordinaria es suficiente: los digests no son secretos, MACs ni passwords, B51 no realiza autenticación criptográfica y no exige `hmac.compare_digest`.
+
+Expected equality no equivale a expected authenticity. Un B51 positivo no demuestra que el expected digest sea auténtico, correcto respecto del mundo real, emitido por un trusted publisher, firmado ni provisto de provenance. Tampoco demuestra que los bytes sean semánticamente el recurso pretendido, ausencia matemática de hash collision, filesystem freshness, snapshot o file stability, path safety, containment, sandboxing, MIME/codec/audio validity, corrección semántica o pedagógica, current admission validity, active source integrity ni loader readiness.
+
+B39 y B51 verifican dominios distintos: B39 compara candidate payload reconstruido desde bytes con la identity candidate declarada por manifest; B51 compara observed resource identity con expected resource identity. B39 no sustituye B51 y B51 no vuelve a ejecutar B39. B47 acredita igualdad de dominios required/expected, mientras B51 acredita igualdad de digest dentro de ese dominio; `coverage != integrity` y B51 no reevalúa B47 ni llama a sus servicios.
+
+B51 es completamente in-memory, deterministic y side-effect free. No usa filesystem, Path access, B49 bytes, B44, `hashlib`, hash recalculation, byte comparison, network, DB, persistence, clock, randomness, configurable hash algorithms, cryptographic signatures, PKI, provenance framework, public comparison pairs, mismatch report object, findings framework, persistent lookup/index, active-source-integrity aggregate ni loader.
+
+La cobertura futura mínima B51 incluye: single y multiple match; shape frozen exacto con un único campo y B50 preservado por identidad; input público único B50 y rechazo de duck typing; empty positivo; expected order distinto de observed order con PASS por pairing de ID; swapped digests por ID que fallen aunque el multiset coincida —test material obligatorio contra `zip` posicional—; single y multiple mismatch con un único `ValueError` y IDs en orden B50, sin depender de set/sorted/B45 order; same digest para IDs distintos válido; expected digest arbitrario comparado literalmente; resource IDs literales; all-or-nothing; expected collection obtenida solo por la ruta transitiva; y ausencia material de B44, `hashlib`, filesystem, bytes, B43, rerun B39/B47, active source integrity y loader. No se requieren tests frágiles de source text cuando behavior o import inspection sencilla demuestren esas fronteras, ni se sobreacoplan pruebas sin necesidad.
+
+Después de B51 queda pendiente únicamente active source integrity como siguiente frontera. Esa composición futura deberá considerar las demás ramas causales pertinentes, pero B51 no diseña su input, result shape, API, relación definitiva con B43 ni loader. `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.
