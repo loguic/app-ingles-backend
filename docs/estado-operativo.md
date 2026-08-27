@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-27T19:35:31+02:00
+Actualizado: 2026-08-27T20:05:26+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -64,6 +64,10 @@ Estado: **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**. I1–I4 
 ## Método operativo vigente
 
 El método completo y canónico está en `docs/loguic-engineering-operating-method-v1.md`. Este documento conserva únicamente el checkpoint operativo compacto.
+
+La configuración operativa Codex esperada es `Permissions: Workspace (Approve for me)`; `approvals_reviewer = "auto_review"` está confirmado.
+
+La selección de herramienta es `Codex-first` para trabajo agentic y `Bash-first` para operaciones deterministas; la regla detallada permanece en el método canónico.
 
 Al reanudar, ejecutar primero `python3 scripts/engineering/conversation_checkpoint.py resume` y continuar desde su salida más este checkpoint, sin repetir evidencia vigente. Antes de cambiar de conversación, actualizar y validar este estado y ejecutar `conversation_checkpoint.py prepare`.
 

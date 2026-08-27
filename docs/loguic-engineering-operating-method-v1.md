@@ -14,28 +14,35 @@ Las autoridades se separan así:
 
 ## 2. Roles
 
-### ChatGPT
+### ChatGPT — orquestador
 
 - actúa como arquitecto y orquestador;
 - determina el siguiente slice o bloque desde la evidencia vigente;
-- decide cuándo corresponden preflight, contrato, postflight y Bash;
+- decide qué herramienta corresponde y cuándo aplican preflight, contrato, postflight y Bash;
+- evita enviar a Codex tareas deterministas que Bash puede resolver directamente;
+- reutiliza resultados vigentes y no repite validaciones sin cambio material;
 - aplica el routing LOGUIC y redacta instrucciones ejecutables para Codex;
 - revisa resultados y mantiene separadas las garantías contractuales;
 - no obliga al usuario a administrar detalles técnicos ya sistematizados.
 
-### Codex CLI
+### Codex CLI — Codex-first
 
-- inspecciona directamente el repositorio dentro del alcance autorizado;
-- implementa cambios, tests y documentación autorizados;
-- ejecuta validaciones acotadas y reporta evidencia material;
+- se usa principalmente para inspección semántica directa del repositorio e implementación;
+- modifica de forma controlada código, tests o documentación autorizados;
+- ejecuta tests específicos o regresiones acotadas cuando forman parte natural del trabajo del agente;
+- realiza revisión técnica o contractual que requiere razonamiento;
 - reutiliza helpers y allowlists existentes;
 - no obliga a copiar o pegar código al chat cuando puede inspeccionarlo directamente.
 
-### Bash
+### Bash — Bash-first
 
-- es la autoridad determinista para suites completas, helpers y validaciones donde la IA no aporta valor;
+- es la vía directa para tareas deterministas donde la IA no aporta valor, especialmente `python3 scripts/engineering/operational_state.py validate`, `python3 scripts/engineering/conversation_checkpoint.py prepare`, `python3 scripts/engineering/conversation_checkpoint.py resume`, `git diff --check` y la suite backend completa mediante `.venv/bin/python -m pytest`;
+- ejecuta directamente los helpers deterministas de cierre o validación cuando corresponda, incluidos `block_close.py` y `git_close.py`;
 - si una regresión o suite ejecutada desde Codex queda `INDETERMINADA`, se ejecuta una sola vez directamente en Bash;
-- un resultado Bash confirmado reemplaza la indeterminación operativa, sin reejecutar después la misma validación salvo causa nueva.
+- el resultado Bash pasa a ser la evidencia canónica para ese intento, sin repetir después la misma validación salvo causa nueva;
+- `prepare` y `resume` son Bash-first: ChatGPT indica su ejecución directa en Bash cuando corresponde y no las envía a Codex sin una razón técnica concreta;
+- `git_close.py` sigue siendo la vía segura de cierre y no se reconstruyen manualmente `add`/`commit`/`push`; Codex puede invocarlo dentro de una tarea agentic autorizada, pero Bash es válido y preferible cuando solo queda ejecutar determinísticamente el cierre ya decidido;
+- auto-review evita aprobaciones rutinarias, pero no cambia esta separación de responsabilidades.
 
 ### Usuario
 
@@ -88,7 +95,7 @@ Antes de inspeccionar, ejecutar o validar:
 
 1. comprobar si el checkpoint ya contiene evidencia vigente suficiente;
 2. reutilizar resultados confirmados mientras no cambien los archivos cubiertos;
-3. no repetir tests históricos sin causa material nueva;
+3. no repetir una validación `PASS` vigente solo para confirmar: ejecutarla de nuevo únicamente si cambia materialmente algún archivo o input cubierto, o si el método de cierre exige evidencia nueva tras un cambio;
 4. no reinspeccionar archivos sin cambio material;
 5. evitar `cat`/`sed` más copiar y pegar código al chat cuando Codex puede trabajar directamente sobre el repositorio.
 
@@ -120,11 +127,15 @@ No volver a pedir `pwd`, `git status`, copia del estado, inspecciones, selecció
 
 ## 8. Permisos Codex
 
-- usar el permiso mínimo necesario;
-- reutilizar helpers y allowlists seguros;
-- si el sandbox exige una aprobación inevitable, solicitar únicamente esa aprobación mínima;
-- no convertir permisos en una secuencia manual de decisiones;
-- no recomendar autorizaciones persistentes amplias por comodidad;
+- Codex CLI opera normalmente con sandbox `Workspace` y el proyecto mantiene `trust_level = "trusted"`;
+- las aprobaciones rutinarias se gestionan mediante `approvals_reviewer = "auto_review"` en `~/.codex/config.toml`; el estado esperado en `/status` es `Permissions: Workspace (Approve for me)`;
+- `Approve for me` no elimina el sandbox ni otorga acceso irrestricto: las operaciones realmente sensibles pueden seguir bloqueadas o requerir intervención;
+- no usar `--yolo`, `dangerously-bypass-approvals-and-sandbox` ni equivalentes como configuración normal;
+- los prompts siguen delimitando la tarea autorizada; auto-review evita convertir las aprobaciones rutinarias en trabajo manual del usuario, sin ampliar ese alcance;
+- si una nueva conversación muestra `Workspace (Ask for approval)`, comprobar primero la configuración persistente y que Codex se haya reiniciado antes de cambiar el flujo técnico;
+- no pedir al usuario administrar permisos repetitivamente mientras esta configuración siga vigente;
+- esta corrección de permisos no cambia el modelo ni el reasoning;
+- reutilizar helpers y allowlists seguros y, si el sandbox exige una aprobación inevitable, solicitar únicamente la aprobación mínima;
 - si una publicación autorizada falla y el contrato prohíbe retry o fallback, detenerse y reportar el estado exacto.
 
 ## 9. Interacción paso a paso
