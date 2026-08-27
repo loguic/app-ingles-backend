@@ -2330,6 +2330,82 @@ La cobertura futura mínima B49 incluye: shape frozen exacto; B48 y bindings pre
 
 Después de B49 permanece únicamente la derivación B50 de observed `ResourcePhysicalIdentity` desde bytes ya adquiridos; después podrán seguir expected-vs-observed resource integrity, active source integrity y loader. Physical expected publication continúa opcional, sin necesidad inmediata demostrada. `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
 
+### Observed ResourcePhysicalIdentity from acquired resource bytes v1
+
+B50 — **observed ResourcePhysicalIdentity from acquired resource bytes v1** transforma exclusivamente evidencia física ya adquirida por `ActiveCandidateSourceResourceAcquisition` B49 en identidades físicas observadas mediante la primitive autoritativa B44. No relee filesystem, no consulta expected identities, no verifica integrity y no reimplementa SHA-256:
+
+```text
+B49 acquired resource evidence
+-> B50 observed ResourcePhysicalIdentity
+-> future expected-vs-observed resource integrity
+-> active source integrity
+-> loader
+```
+
+La única frontera pública conceptual v1 recibe exclusivamente B49:
+
+```python
+derive_active_candidate_source_observed_resource_identities(
+    resource_acquisition: ActiveCandidateSourceResourceAcquisition,
+) -> ActiveCandidateSourceObservedResourceIdentityCollection
+```
+
+No recibe B48, B47, B46, B45, secuencias de `AcquiredResource`, `ResourceBinding`, Paths, resource IDs, raw bytes, expected identities, hash function, reader ni policy. B49 ya contiene todo el contexto causal necesario; B50 no revalida acquisition, binding domain, duplicate IDs, orden B48/B46, Path, read-once, descriptor, symlink ni regular-file.
+
+Los resultados frozen mínimos son exactamente:
+
+```python
+@dataclass(frozen=True)
+class ObservedResourcePhysicalIdentity:
+    acquired_resource: AcquiredResource
+    physical_identity: ResourcePhysicalIdentity
+
+
+@dataclass(frozen=True)
+class ActiveCandidateSourceObservedResourceIdentityCollection:
+    resource_acquisition: ActiveCandidateSourceResourceAcquisition
+    entries: tuple[ObservedResourcePhysicalIdentity, ...]
+```
+
+Cada `acquired_resource` es exactamente el objeto original procedente de B49, preservado por identidad y no reconstruido. `physical_identity` es exactamente el objeto `ResourcePhysicalIdentity` retornado por B44 para esa entry; no se reconstruye, rehashea ni revalida. No se duplican binding, resource ID, Path, bytes, digest, byte length, status, expectedness, metadata filesystem, timestamp, provenance, findings ni mapping/index mutable. Observedness surge únicamente del vínculo causal wrapper `AcquiredResource` + identity derivada dentro de este aggregate; `ResourcePhysicalIdentity` B44 permanece neutral.
+
+B50 recorre `resource_acquisition.entries` en su orden exacto B49/B48/B46 y crea una entry por cada una. Para cada entry llama exactamente una vez a:
+
+```python
+derive_resource_physical_identity(
+    acquired_resource.resource_bytes,
+    resource_id=acquired_resource.binding.resource_id,
+)
+```
+
+Los bytes e ID se usan literalmente, sin decode, parse, strip, normalización, transformación, copia semántica, Path lookup ni digest manual. El resultado conserva `resource_acquisition` y todas las `AcquiredResource` por identidad; no crea sorting, grouping, reassociation, priority ni orden canónico nuevo.
+
+B49 puede contener IDs distintos que compartieron el mismo evento de acquisition/bytes por declarar el mismo Path. B50 deriva una identity por cada entry lógica, no por Path, bytes, digest, inode ni target físico. Así, shared bytes para `r1` y `r2` producen dos `ResourcePhysicalIdentity` con IDs distintos y el mismo digest B44. El hashing puede repetirse para bytes compartidos: no se introduce caching de digest ni construcción manual de identities porque B44 es la primitive autoritativa y la relación ID→identity debe permanecer explícita.
+
+Una B49 vacía produce un aggregate B50 positivo con `entries == ()`, preserva B49 por identidad y no llama B44. B50 es all-or-nothing: input no conforme o fallo de cualquier derivación impide retornar aggregate, entries parciales, negative result, status o findings. `ValueError` simple es adecuado para input no B49; `TypeError`/errores técnicos de B44 se propagan sin jerarquía nueva ni reinterpretación como integrity mismatch. Las derivaciones previas dentro de una llamada fallida no producen evidencia pública parcial.
+
+La garantía positiva B50 se limita a: para cada `AcquiredResource` B49 preservado, la `ResourcePhysicalIdentity` correspondiente fue derivada por B44 desde sus `resource_bytes` exactos y su `binding.resource_id` literal, en el mismo orden; por tanto su `content_digest` es SHA-256 de los bytes observados B49 bajo el contrato B44. Esto demuestra observed physical identity respecto de la evidencia adquirida, no expectedness, intended-resource correctness, integrity ni autenticidad:
+
+```text
+observed bytes B49
+-> B44 derived observed identity B50
+
+expected identity B45
+!= observed identity B50
+!= expected-vs-observed equality
+!= resource integrity
+```
+
+B50 no importa ni consulta `ExpectedResourceIdentityCollection`, B45, expected digest, B47 coverage, `hashlib`, `Path`, filesystem ni la helper B49; tampoco produce comparison, verified/status flag o integrity result. Las expected identities siguen accesibles transitivamente B50 → B49 → B48 → B47 → B45, pero no afectan aceptación ni derivación. La etapa posterior de expected-vs-observed integrity deberá consumir el aggregate B50 completo y comparar esa evidencia con la expected transitivamente accesible, sin volver a aceptar B45/B48/bytes/bindings por separado ni releer filesystem.
+
+B50 es in-memory, pure, deterministic y side-effect free respecto de sus inputs. No hace filesystem I/O, writes, network, DB, persistence, clock, randomness, resource acquisition, MIME/codec/audio parsing, provenance, signatures, PKI, root/containment, storage remoto, generic identity-role framework, active-source-integrity aggregate ni loader. Debe seguir siendo utilizable aunque los Paths B49 desaparezcan, cambien o se vuelvan inaccesibles después de acquisition.
+
+Un resultado B50 no demuestra expected-vs-observed equality, que los bytes sean el recurso intended, corrección/autenticidad del expected digest, provenance, containment, sandboxing, symlink safety, inode identity, snapshot filesystem, file stability, MIME/codec/audio validity, corrección semántica/pedagógica, resource integrity, active source integrity ni loader readiness. B50 tampoco resuelve los riesgos de tamaño ya pertenecientes a B49 ni convierte digest SHA-256 en autenticidad.
+
+La cobertura futura mínima B50 incluye: shapes frozen exactos; API de input único B49; rechazo de duck typing; preservación por identidad de B49 y cada `AcquiredResource`; una llamada B44 por entry con bytes/ID exactos; golden digest single y `b""`; múltiples entries y orden B49; IDs literales; shared bytes/IDs distintos con digests iguales e identities distintas; aggregate vacío sin llamadas B44; fallo posterior all-or-nothing sin resultado parcial; continuidad tras cambiar/borrar Paths; y ausencia de filesystem, B45/expected comparison, `hashlib` directo, parsing, network, clock, randomness, integrity y loader. No se añaden tests de acquisition B49, expected-vs-observed comparison ni active source integrity.
+
+Después de B50 queda pendiente expected-vs-observed resource integrity, seguida de active source integrity y loader. Physical expected publication continúa opcional, sin necesidad inmediata demostrada. `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.
