@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-27T16:27:45+02:00
+Actualizado: 2026-08-27T18:39:00+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -62,9 +62,13 @@ Estado: **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**. I1–I4 
 
 ## Método operativo vigente
 
-Cada slice pasa por definición, implementación, validación específica, revisión independiente y cierre documental. No repetir inspecciones ni validaciones ya confirmadas mientras no cambien los archivos cubiertos. Operar con Codex CLI + Bash; si una regresión en Codex queda indeterminada, ejecutarla una sola vez directamente en Bash. La suite backend completa se ejecuta directamente en Bash cuando corresponde.
+Cada slice pasa por definición, implementación, validación específica, revisión independiente y cierre documental. No repetir inspecciones, validaciones ni decisiones ya confirmadas mientras no cambien los archivos cubiertos. Antes de proponer una inspección, comprobar si el checkpoint ya aporta evidencia vigente suficiente.
 
-Antes de cambiar de conversación: actualizar este documento con timestamp local aware, validarlo con `operational_state.py`, ejecutar `conversation_checkpoint.py prepare` y cambiar solo con checkpoint válido. Al reanudar: usar `conversation_checkpoint.py resume` antes de proponer comandos, inspecciones o cambios.
+Al reanudar una conversación, ejecutar primero `python3 scripts/engineering/conversation_checkpoint.py resume`. Su resultado y este documento son la autoridad para continuar. Antes de cambiar de conversación: actualizar este documento con timestamp local aware, validarlo con `operational_state.py`, ejecutar `conversation_checkpoint.py prepare` y cambiar solo con checkpoint válido.
+
+El trabajo técnico se realiza con Codex CLI + Bash directamente sobre el repositorio; evitar `cat`/`sed` más copiar y pegar código al chat salvo necesidad real demostrada. Reutilizar antes de operaciones manuales los helpers vigentes, incluidos `operational_state.py`, `conversation_checkpoint.py`, `block_close.py` y `git_close.py`. Si una regresión en Codex queda indeterminada, ejecutarla una sola vez directamente en Bash; la suite backend completa se ejecuta directamente en Bash cuando corresponde.
+
+El routing LOGUIC selecciona modelo y reasoning por tarea conforme a la política vigente; no trasladar al usuario su inspección o selección manual cuando política y tipo de tarea ya lo resuelven. Pedir intervención solo ante indisponibilidad real, contradicción o decisión nueva. No convertir permisos de Codex en una secuencia manual: usar flujos seguros y allowlists existentes y, si el sandbox exige aprobación inevitable, presentar únicamente la aprobación mínima necesaria. Las respuestas operativas ofrecen opciones numeradas solo cuando existe una decisión real; no crean opciones artificiales cuando hay un único siguiente paso correcto.
 
 ## Fronteras obligatorias
 
