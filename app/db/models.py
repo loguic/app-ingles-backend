@@ -13,6 +13,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     func,
+    text,
 )
 
 from app.db.database import Base
@@ -49,6 +50,51 @@ class ConversationAttempt(Base):
         server_default=func.now(),
         nullable=False,
     )
+
+
+class ExperienceAttempt(Base):
+    """Persist one authoritative execution of a LessonExperience.
+
+    Persiste una ejecución autoritativa de una LessonExperience.
+    """
+
+    __tablename__ = "experience_attempts"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('in_progress', 'completed')",
+            name="ck_experience_attempt_status",
+        ),
+        CheckConstraint(
+            "(status = 'in_progress' AND completed_at IS NULL) OR "
+            "(status = 'completed' AND completed_at IS NOT NULL)",
+            name="ck_experience_attempt_completion",
+        ),
+        CheckConstraint(
+            "completed_at IS NULL OR completed_at >= started_at",
+            name="ck_experience_attempt_timeline",
+        ),
+        Index(
+            "uq_experience_attempt_active_context",
+            "user_id",
+            "level_id",
+            "unit_id",
+            "lesson_id",
+            "experience_contract_version",
+            unique=True,
+            postgresql_where=text("status = 'in_progress'"),
+            sqlite_where=text("status = 'in_progress'"),
+        ),
+    )
+
+    attempt_id = Column(String, primary_key=True)
+    user_id = Column(String, nullable=False)
+    level_id = Column(String, nullable=False)
+    unit_id = Column(String, nullable=False)
+    lesson_id = Column(String, nullable=False)
+    experience_contract_version = Column(String, nullable=False)
+    status = Column(String, nullable=False)
+    started_at = Column(DateTime(timezone=True), nullable=False)
+    completed_at = Column(DateTime(timezone=True), nullable=True)
 
 class ConversationProductionSubmission(Base):
     """Persist one group of captured learner productions.

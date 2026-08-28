@@ -46,6 +46,22 @@ def get_lesson_by_id(lesson_id: str):
                     return lesson
     return None
 
+
+def get_lesson_context_by_id(lesson_id: str):
+    """Return the hierarchy and lesson associated with one stable ID.
+
+    Devuelve la jerarquía y la lección asociadas a un identificador estable.
+    """
+    tree = build_content_tree()
+
+    for level in tree.levels:
+        for unit in level.units:
+            for lesson in unit.lessons:
+                if lesson.id == lesson_id:
+                    return level.code, unit.id, lesson
+
+    return None
+
 def get_conversation_context_by_id(conversation_id: str):
     """Return the hierarchy and conversation associated with one stable ID.
     Devuelve la jerarquía y conversación asociadas a un identificador estable.

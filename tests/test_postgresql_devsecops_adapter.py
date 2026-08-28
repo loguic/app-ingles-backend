@@ -80,16 +80,16 @@ def test_resolves_current_single_head_from_repository():
 
     assert resolved == ResolvedMigrationRange(
         initial_revision="f81a78f8c1c4",
-        target_revision="b181c3e4f5a6",
+        target_revision="d1841ea7f0c1",
     )
 
 
 def test_accepts_explicit_current_head_expectation():
     resolved = resolve_migration_range(
-        config(target_revision="b181c3e4f5a6")
+        config(target_revision="d1841ea7f0c1")
     )
 
-    assert resolved.target_revision == "b181c3e4f5a6"
+    assert resolved.target_revision == "d1841ea7f0c1"
 
 
 def test_rejects_obsolete_or_symbolic_target_expectation():
@@ -111,7 +111,7 @@ def test_rejects_unknown_initial_or_target_revision():
 def test_rejects_initial_revision_that_does_not_precede_head():
     with pytest.raises(AdapterError, match="must precede"):
         resolve_migration_range(
-            config(initial_revision="b181c3e4f5a6")
+            config(initial_revision="d1841ea7f0c1")
         )
 
 
@@ -543,7 +543,7 @@ def test_real_isolated_postgresql_backup_restore_and_alembic(monkeypatch):
     assert result.verified_row_count == 3
     assert result.gate_accepted is True
     assert result.initial_revision == "f81a78f8c1c4"
-    assert result.final_revision == "b181c3e4f5a6"
+    assert result.final_revision == "d1841ea7f0c1"
     assert result.restored_revision == "f81a78f8c1c4"
     assert result.evidence["environment"] == "test"
     assert result.workspace_removed is True

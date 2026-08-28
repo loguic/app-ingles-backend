@@ -4756,3 +4756,19 @@ B52 no reejecuta ni revalida B33, B39, B43, B44, B47 o B51; no inspecciona entri
 Validación: 7 tests específicos B52 PASS; regresión seleccionada B43+B51+B52, 29 PASS; postflight técnico independiente PASS; findings BLOCKING: 0; findings NONBLOCKING: 0; suite backend completa ejecutada directamente en Bash, 2118 passed en 17.49 s; `git diff --check` técnico PASS.
 
 La siguiente frontera conceptual soportada por el contrato es estudiar un loader que pueda consumir evidencia B52 positiva, pero B52 no lo diseña, activa ni habilita. No se fija todavía API, input, result shape ni nuevo slice. `LOADER = BLOCKED`; A1-U1 continúa `pending / non-member`.
+
+## B184.1 — Lifecycle autoritativo de ExperienceAttempt
+
+Estado técnico local: implementación y validación completadas; el cierre Git permanece pendiente de su fase separada.
+
+Se añadió `ExperienceAttempt` como única persistencia nueva de B184.1. Conserva `attempt_id` opaco generado por backend, usuario, jerarquía completa, `experience_contract_version`, estado `in_progress | completed` y timestamps. El índice parcial único `uq_experience_attempt_active_context` garantiza en PostgreSQL y SQLite como máximo un intento `in_progress` para la misma identidad `user + level + unit + lesson + contract_version`; los intentos históricos `completed` no se reutilizan y permiten una nueva práctica posterior. No se añadieron filas de evidencia, scoring, mastery, progreso v2, review, analytics, estados de abandono/expiración ni columnas B184.2.
+
+La migración Alembic `d1841ea7f0c1_add_experience_attempts.py` parte de `b181c3e4f5a6`, crea solo `experience_attempts`, sus checks de status/timeline/finalización y el índice parcial, y su downgrade elimina únicamente índice y tabla. La prueba PostgreSQL aislada verifica upgrade, columnas, nulabilidad de `completed_at`, checks, predicado parcial, rechazo de dos activos equivalentes, admisión de historial completed y downgrade.
+
+La API incorpora exclusivamente `POST /api/v1/experience-attempts` y `GET /api/v1/experience-attempts/{attempt_id}`. POST inicia o reanuda; no acepta `attempt_id`, version, status, timestamps, evidencia, `correct`, completion, mastery o score. Resuelve version desde `LessonExperience`; el conflicto único esperado durante una carrera hace rollback, relee el activo y devuelve éxito. GET no modifica estado: devuelve el intento persistido y las evidencias requeridas declaradas por `CompletionPolicy` en su orden declarado como `pending` derivado. No existe endpoint de completion, evidencia, reset o delete; B184.1 no consulta ni escribe `UserProgress`.
+
+Se preservan las convenciones FastAPI vigentes: recursos inexistentes devuelven `404` con `detail` textual; jerarquía o contexto inválido y lección sin experiencia devuelven `400` mediante `ValueError → HTTPException`. No se introdujeron códigos machine-readable, wrappers, middleware ni un framework de excepciones. `content_service` incorpora únicamente el lookup compartido lección+jerarquía necesario para validar y releer el contexto persistido.
+
+NO REFACTOR REQUIRED. B181 permanece PAUSED e intacto; B183/demo frontend, contenido activo, candidatos curriculares, loader, Flutter, producción/audio, review, acreditación de evidencia y completion real quedan explícitamente fuera. B184.2 queda diferida: será la única fase que podrá añadir source bindings, estados efectivos de evidencia y reevaluación transaccional de `CompletionPolicy`.
+
+Validación: `tests/test_experience_attempts.py` 13 PASS; `tests/test_experience_attempt_runtime_migration.py` 1 PASS; regresión de experiencia/conversaciones/producciones/progreso 37 PASS; regresión DevSecOps de la cabeza Alembic 23 PASS; suite backend completa 2132 PASS en 18.52 s; `git diff --check` PASS. No se ejecutó migración sobre una base de desarrollo; la migración se verificó exclusivamente en PostgreSQL aislado administrado por el adaptador existente.
