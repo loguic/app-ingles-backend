@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-28T09:40:00+02:00
+Actualizado: 2026-08-28T09:55:13+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
