@@ -45,7 +45,7 @@ B42 permanece cerrado: `AdmissionRecord correspondence verified`; B43 posterior 
 
 ### B183 — Checkpoint Visual Flutter: recorrido demo A1
 
-Estado: **CERRADO / DOCUMENTADO / PUBLICADO / SINCRONIZADO**. Commit técnico frontend: `f49a0df4e308a6e22bdad53a087029fea0728a13`; commit documental: `9860b883304019733c959f58ef81f01352bde0f5`.
+Estado: **CERRADO / DOCUMENTADO / PUBLICADO / SINCRONIZADO**. Commit técnico frontend: `f49a0df4e308a6e22bdad53a087029fea0728a13`; commit documental: `9860b883304019733c959f58ef81f01352bde0f5`. Infraestructura Git segura frontend publicada en `004b0bdb281d9a29bc1a6550f091fd24047d2078`.
 
 B183 ofrece un recorrido humano validado `Inicio → mapa A1–C2 → portada demo A1 → escucha/pronunciación → conversación breve → portada → mapa → Inicio`. La demo es estrictamente provisional bajo `demo-visual-*`; no define currículo A1, no usa `a1-u1-l1` como autoridad, presenta A1 como demo disponible y A2–C2 como horizonte neutral.
 
