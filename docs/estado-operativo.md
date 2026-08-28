@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-08-27T20:12:34+02:00
+Actualizado: 2026-08-28T09:40:00+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -43,11 +43,17 @@ La validación usa `%cI` y compara contra HEAD, o contra HEAD^ cuando HEAD conti
 
 B42 permanece cerrado: `AdmissionRecord correspondence verified`; B43 posterior verificó los admission gates actuales sobre la evidencia preservada. Siguen unresolved historical admission gates, reviewer authenticity, candidate_revision provenance, resource integrity y active source integrity. Los postflights B42.1 cerraron dos findings BLOCKING; permanecen solo gaps de cobertura temporal/Git NONBLOCKING, sin fallo funcional observado. Validación: 45 tests de infraestructura PASS en 0.82 s; suite backend completa 1980 PASS en 17.66 s; `git diff --check` y validación real del estado PASS. A1-U1 continúa pending / non-member; `LOADER = BLOCKED`.
 
+### B183 — Checkpoint Visual Flutter: recorrido demo A1
+
+Estado: **CERRADO / DOCUMENTADO / PUBLICADO / SINCRONIZADO**. Commit técnico frontend: `f49a0df4e308a6e22bdad53a087029fea0728a13`; commit documental: `9860b883304019733c959f58ef81f01352bde0f5`.
+
+B183 ofrece un recorrido humano validado `Inicio → mapa A1–C2 → portada demo A1 → escucha/pronunciación → conversación breve → portada → mapa → Inicio`. La demo es estrictamente provisional bajo `demo-visual-*`; no define currículo A1, no usa `a1-u1-l1` como autoridad, presenta A1 como demo disponible y A2–C2 como horizonte neutral.
+
+Validación final: humana PASS; `flutter analyze` sin issues; `flutter test` completo 51 passed; postflight 0 BLOCKING y 4 NONBLOCKING aceptados. B181 permanece **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**. No se introducen progreso, mastery, evaluación pedagógica ni persistencia curricular inventados.
+
 ## Bloque activo
 
-### Checkpoint visual ejecutable de LOGUIC English en Flutter
-
-Estado: **SIGUIENTE BLOQUE ACORDADO / NO IMPLEMENTADO TODAVÍA**. Antes de abrir la frontera backend posterior, construir un checkpoint visual ejecutable para obtener progreso visible y validar que la arquitectura y la pedagogía se traducen en una experiencia real de producto. Debe usar contenido provisional claramente marcado, sin convertir A1 L1 en contenido pedagógico canónico, y respetar la identidad LOGUIC English y la dirección conversacional vigente.
+No hay bloque nuevo iniciado. La próxima decisión pendiente es determinar profesionalmente el siguiente bloque de LOGUIC English manteniendo B181 PAUSED y preservando el carácter provisional de la demo B183.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -82,7 +88,7 @@ Al reanudar, ejecutar primero `python3 scripts/engineering/conversation_checkpoi
 
 ## Próximo objetivo
 
-El próximo bloque es el checkpoint visual ejecutable de LOGUIC English en Flutter descrito arriba; esta actualización solo fija el roadmap y no implementa frontend. La frontera técnica backend posterior continúa siendo un futuro loader consumidor de evidencia B52 positiva: `LOADER = BLOCKED`, todavía no se diseña su API, input, result shape ni slice, y B52 no implica loader readiness. A1-U1 permanece `pending / non-member`; la compatibilidad curricular autoritativa sigue posterior.
+Determinar el siguiente bloque sin asumir B184, loader ni currículo A1. La frontera técnica backend posterior continúa siendo un futuro loader consumidor de evidencia B52 positiva: `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member` y la compatibilidad curricular autoritativa sigue posterior.
 
 ## Archivos clave
 
