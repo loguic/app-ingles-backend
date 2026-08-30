@@ -41,6 +41,7 @@ class DirectEnglishConstructionAttemptStart(BaseModel):
     unit_id: str
     lesson_id: str
     started_at: datetime
+    experience_attempt_id: Optional[str] = None
 
     @model_validator(mode="after")
     def validate_start(self) -> "DirectEnglishConstructionAttemptStart":
@@ -53,6 +54,11 @@ class DirectEnglishConstructionAttemptStart(BaseModel):
         )
         if any(not value.strip() for value in values):
             raise ValueError("Direct-English attempt identifiers cannot be blank")
+        if (
+            self.experience_attempt_id is not None
+            and not self.experience_attempt_id.strip()
+        ):
+            raise ValueError("experience_attempt_id cannot be blank")
         _require_aware_timestamp(self.started_at, "started_at")
         return self
 
@@ -262,5 +268,6 @@ class DirectEnglishConstructionAttemptRecord(BaseModel):
     selector_version: str
     started_at: datetime
     finalized_at: Optional[datetime] = None
+    experience_attempt_id: Optional[str] = None
     productions: list[DirectEnglishConstructionAttemptProductionRecord]
     completion_requirements_met: bool

@@ -5,6 +5,8 @@ from app.db.session import get_db
 from app.schemas.experience_attempt import (
     ExperienceAttemptRecord,
     ExperienceAttemptStart,
+    ExperienceComprehensionResponseCreate,
+    ExperienceComprehensionResponseRecord,
 )
 from app.services.content_service import (
     get_level_by_code,
@@ -13,11 +15,35 @@ from app.services.content_service import (
 )
 from app.services.experience_attempt_service import (
     get_experience_attempt_state,
+    save_experience_comprehension_response,
     start_or_resume_experience_attempt,
 )
 
 
 router = APIRouter()
+
+
+@router.post(
+    "/experience-attempts/{attempt_id}/comprehension-responses/"
+    "{comprehension_exercise_id}",
+    response_model=ExperienceComprehensionResponseRecord,
+)
+def create_experience_comprehension_response(
+    attempt_id: str,
+    comprehension_exercise_id: str,
+    command: ExperienceComprehensionResponseCreate,
+    db: Session = Depends(get_db),
+) -> ExperienceComprehensionResponseRecord:
+    """Persist one backend-graded comprehension source."""
+    try:
+        return save_experience_comprehension_response(
+            attempt_id,
+            comprehension_exercise_id,
+            command.selected_index,
+            db,
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
 
 
 def _require_start_resources(command: ExperienceAttemptStart) -> None:

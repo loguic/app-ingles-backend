@@ -35,6 +35,13 @@ class UserProgress(Base):
 
 class ConversationAttempt(Base):
     __tablename__ = "conversation_attempts"
+    __table_args__ = (
+        UniqueConstraint(
+            "experience_attempt_id",
+            "id",
+            name="uq_conversation_attempt_experience_source",
+        ),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String, index=True, nullable=False)
@@ -45,6 +52,12 @@ class ConversationAttempt(Base):
     mode = Column(String, nullable=False)
     visited_turn_ids = Column(JSON, nullable=False)
     selected_choice_ids = Column(JSON, nullable=False)
+    experience_attempt_id = Column(
+        String,
+        ForeignKey("experience_attempts.attempt_id"),
+        index=True,
+        nullable=True,
+    )
     completed_at = Column(
         DateTime(timezone=True),
         server_default=func.now(),
@@ -103,6 +116,13 @@ class ConversationProductionSubmission(Base):
     """
 
     __tablename__ = "conversation_production_submissions"
+    __table_args__ = (
+        UniqueConstraint(
+            "experience_attempt_id",
+            "id",
+            name="uq_conversation_submission_experience_source",
+        ),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String, index=True, nullable=False)
@@ -110,6 +130,12 @@ class ConversationProductionSubmission(Base):
     unit_id = Column(String, index=True, nullable=False)
     lesson_id = Column(String, index=True, nullable=False)
     conversation_id = Column(String, index=True, nullable=False)
+    experience_attempt_id = Column(
+        String,
+        ForeignKey("experience_attempts.attempt_id"),
+        index=True,
+        nullable=True,
+    )
     submitted_at = Column(
         DateTime(timezone=True),
         server_default=func.now(),
@@ -222,6 +248,11 @@ class DirectEnglishConstructionAttempt(Base):
 
     __tablename__ = "direct_english_construction_attempts"
     __table_args__ = (
+        UniqueConstraint(
+            "experience_attempt_id",
+            "attempt_id",
+            name="uq_direct_english_experience_source",
+        ),
         CheckConstraint(
             "length(trim(attempt_id)) > 0",
             name="ck_direct_english_attempt_id_not_blank",
@@ -260,6 +291,12 @@ class DirectEnglishConstructionAttempt(Base):
     level_id = Column(String, nullable=False)
     unit_id = Column(String, nullable=False)
     lesson_id = Column(String, nullable=False)
+    experience_attempt_id = Column(
+        String,
+        ForeignKey("experience_attempts.attempt_id"),
+        index=True,
+        nullable=True,
+    )
     transfer_bank_id = Column(String, nullable=False)
     transfer_variant_id = Column(String, nullable=False)
     transfer_prompt_snapshot = Column(Text, nullable=False)
@@ -267,6 +304,129 @@ class DirectEnglishConstructionAttempt(Base):
     status = Column(String, nullable=False)
     started_at = Column(DateTime(timezone=True), nullable=False)
     finalized_at = Column(DateTime(timezone=True), nullable=True)
+
+
+class ExperienceComprehensionResponse(Base):
+    """Persist one immutable backend-graded comprehension response."""
+
+    __tablename__ = "experience_comprehension_responses"
+    __table_args__ = (
+        UniqueConstraint(
+            "experience_attempt_id",
+            "response_id",
+            name="uq_comprehension_response_experience_source",
+        ),
+        CheckConstraint(
+            "selected_index >= 0",
+            name="ck_comprehension_response_selected_index",
+        ),
+    )
+
+    response_id = Column(String, primary_key=True)
+    experience_attempt_id = Column(
+        String,
+        ForeignKey("experience_attempts.attempt_id"),
+        index=True,
+        nullable=False,
+    )
+    evidence_definition_id = Column(String, nullable=False)
+    activity_id = Column(String, nullable=False)
+    comprehension_exercise_id = Column(String, nullable=False)
+    selected_index = Column(Integer, nullable=False)
+    is_correct = Column(Boolean, nullable=False)
+    submitted_at = Column(DateTime(timezone=True), nullable=False)
+
+
+class ExperienceEvidenceState(Base):
+    """Persist one effective source-bound state for required evidence."""
+
+    __tablename__ = "experience_evidence_states"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('pending', 'needs_review', 'satisfied')",
+            name="ck_experience_evidence_state_status",
+        ),
+        CheckConstraint(
+            "evidence_type IN ('comprehension_result', 'contextual_response', "
+            "'guided_production', 'conversation_completion')",
+            name="ck_experience_evidence_state_type",
+        ),
+        CheckConstraint(
+            "source_type IN ('comprehension_response', "
+            "'conversation_production_submission', 'conversation_attempt', "
+            "'direct_english_construction_attempt')",
+            name="ck_experience_evidence_source_type",
+        ),
+        CheckConstraint(
+            "(CASE WHEN comprehension_response_id IS NOT NULL THEN 1 ELSE 0 END + "
+            "CASE WHEN conversation_production_submission_id IS NOT NULL THEN 1 ELSE 0 END + "
+            "CASE WHEN conversation_attempt_id IS NOT NULL THEN 1 ELSE 0 END + "
+            "CASE WHEN direct_english_construction_attempt_id IS NOT NULL THEN 1 ELSE 0 END) = 1",
+            name="ck_experience_evidence_exactly_one_source",
+        ),
+        CheckConstraint(
+            "(source_type = 'comprehension_response' AND comprehension_response_id IS NOT NULL) OR "
+            "(source_type = 'conversation_production_submission' AND conversation_production_submission_id IS NOT NULL) OR "
+            "(source_type = 'conversation_attempt' AND conversation_attempt_id IS NOT NULL) OR "
+            "(source_type = 'direct_english_construction_attempt' AND direct_english_construction_attempt_id IS NOT NULL)",
+            name="ck_experience_evidence_source_reference",
+        ),
+        CheckConstraint(
+            "(evidence_type = 'comprehension_result' AND source_type = 'comprehension_response') OR "
+            "(evidence_type = 'conversation_completion' AND source_type = 'conversation_attempt') OR "
+            "(evidence_type = 'guided_production' AND source_type = 'direct_english_construction_attempt') OR "
+            "(evidence_type = 'contextual_response' AND source_type IN "
+            "('conversation_production_submission', 'direct_english_construction_attempt'))",
+            name="ck_experience_evidence_source_compatibility",
+        ),
+        ForeignKeyConstraint(
+            ["experience_attempt_id", "comprehension_response_id"],
+            [
+                "experience_comprehension_responses.experience_attempt_id",
+                "experience_comprehension_responses.response_id",
+            ],
+            name="fk_evidence_state_comprehension_source",
+        ),
+        ForeignKeyConstraint(
+            ["experience_attempt_id", "conversation_production_submission_id"],
+            [
+                "conversation_production_submissions.experience_attempt_id",
+                "conversation_production_submissions.id",
+            ],
+            name="fk_evidence_state_submission_source",
+        ),
+        ForeignKeyConstraint(
+            ["experience_attempt_id", "conversation_attempt_id"],
+            [
+                "conversation_attempts.experience_attempt_id",
+                "conversation_attempts.id",
+            ],
+            name="fk_evidence_state_conversation_source",
+        ),
+        ForeignKeyConstraint(
+            ["experience_attempt_id", "direct_english_construction_attempt_id"],
+            [
+                "direct_english_construction_attempts.experience_attempt_id",
+                "direct_english_construction_attempts.attempt_id",
+            ],
+            name="fk_evidence_state_direct_english_source",
+        ),
+    )
+
+    experience_attempt_id = Column(
+        String,
+        ForeignKey("experience_attempts.attempt_id"),
+        primary_key=True,
+    )
+    evidence_definition_id = Column(String, primary_key=True)
+    evidence_type = Column(String, nullable=False)
+    status = Column(String, nullable=False)
+    source_type = Column(String, nullable=False)
+    comprehension_response_id = Column(String, nullable=True)
+    conversation_production_submission_id = Column(Integer, nullable=True)
+    conversation_attempt_id = Column(Integer, nullable=True)
+    direct_english_construction_attempt_id = Column(String, nullable=True)
+    accredited_at = Column(DateTime(timezone=True), nullable=False)
 
 
 class DirectEnglishConstructionAttemptProduction(Base):

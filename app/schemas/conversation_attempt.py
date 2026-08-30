@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal
+from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -17,6 +17,7 @@ class ConversationAttemptCreate(BaseModel):
     mode: Literal["guided", "branching"]
     visited_turn_ids: list[str] = Field(min_length=1)
     selected_choice_ids: list[str] = Field(default_factory=list)
+    experience_attempt_id: Optional[str] = None
 
 
 class ConversationAttemptRecord(ConversationAttemptCreate):

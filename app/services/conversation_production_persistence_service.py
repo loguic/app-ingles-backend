@@ -17,6 +17,15 @@ from app.services.content_service import (
 from app.services.conversation_production_validation import (
     validate_conversation_production_submission,
 )
+from app.services.experience_evidence_service import (
+    accredit_evidence_states,
+    required_evidence_definitions,
+    resolve_experience_attempt,
+    validate_attempt_source_context,
+)
+from app.services.production_audio_storage_service import (
+    resolve_production_audio_path,
+)
 
 
 def _build_submission_record(
@@ -34,6 +43,7 @@ def _build_submission_record(
         unit_id=submission.unit_id,
         lesson_id=submission.lesson_id,
         conversation_id=submission.conversation_id,
+        experience_attempt_id=submission.experience_attempt_id,
         submitted_at=submission.submitted_at,
         productions=[
             LearnerProductionRecord(
@@ -53,6 +63,8 @@ def _add_validated_conversation_production_submission(
     record: ConversationProductionSubmission,
     conversation: Conversation,
     db: Session,
+    *,
+    experience_attempt_id: str | None = None,
 ) -> tuple[SubmissionModel, list[ProductionModel]]:
     """Add one validated submission without owning the transaction.
 
@@ -64,6 +76,11 @@ def _add_validated_conversation_production_submission(
         unit_id=record.unit_id,
         lesson_id=record.lesson_id,
         conversation_id=record.conversation_id,
+        experience_attempt_id=(
+            experience_attempt_id
+            if experience_attempt_id is not None
+            else record.experience_attempt_id
+        ),
     )
     db.add(submission)
     db.flush()
@@ -127,6 +144,62 @@ def save_conversation_production_submission(
     validate_conversation_production_submission(record, conversation)
 
     try:
+        attempt = None
+        lesson = None
+        evidence_by_prompt = {}
+        if record.experience_attempt_id is not None:
+            attempt, lesson = resolve_experience_attempt(
+                record.experience_attempt_id,
+                db,
+                for_update=True,
+                require_in_progress=True,
+            )
+            validate_attempt_source_context(
+                attempt,
+                user_id=record.user_id,
+                level_id=record.level_id,
+                unit_id=record.unit_id,
+                lesson_id=record.lesson_id,
+            )
+            if not any(
+                item.id == record.conversation_id
+                for item in lesson.conversations
+            ):
+                raise ValueError(
+                    "Production conversation does not belong to experience"
+                )
+            definitions = [
+                definition
+                for definition in required_evidence_definitions(lesson)
+                if definition.evidence_type == "contextual_response"
+                and definition.activity_id == record.conversation_id
+                and definition.production_prompt_id is not None
+            ]
+            for captured in record.productions:
+                matches = [
+                    definition
+                    for definition in definitions
+                    if definition.production_prompt_id == captured.prompt_id
+                ]
+                if len(matches) != 1:
+                    raise ValueError(
+                        "Production prompt does not map to exactly one required evidence"
+                    )
+                definition = matches[0]
+                if not definition.external_review_requirements:
+                    raise ValueError(
+                        "Bound production submission requires review-backed evidence"
+                    )
+                if captured.modality != "voice" or not captured.audio_reference:
+                    raise ValueError(
+                        "Review-backed production requires managed voice audio"
+                    )
+                try:
+                    resolve_production_audio_path(captured.audio_reference)
+                except (RuntimeError, ValueError, FileNotFoundError) as error:
+                    raise ValueError(str(error)) from error
+                evidence_by_prompt[captured.prompt_id] = definition
+
         submission, productions = (
             _add_validated_conversation_production_submission(
                 record,
@@ -134,6 +207,21 @@ def save_conversation_production_submission(
                 db,
             )
         )
+        if attempt is not None and lesson is not None:
+            accredit_evidence_states(
+                attempt,
+                lesson,
+                [
+                    (
+                        evidence_by_prompt[production.prompt_id],
+                        "needs_review",
+                        "conversation_production_submission",
+                        submission.id,
+                    )
+                    for production in productions
+                ],
+                db,
+            )
         db.refresh(submission)
 
         result = _build_submission_record(
@@ -142,6 +230,9 @@ def save_conversation_production_submission(
         )
         db.commit()
     except SQLAlchemyError:
+        db.rollback()
+        raise
+    except Exception:
         db.rollback()
         raise
 

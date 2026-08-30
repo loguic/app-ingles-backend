@@ -500,6 +500,7 @@ class EvidenceDefinition(BaseModel):
     )
     required: bool = True
     production_prompt_id: Optional[str] = None
+    comprehension_exercise_id: Optional[str] = None
     external_review_requirements: List[
         "ExternalReviewRequirement"
     ] = Field(default_factory=list)
@@ -530,6 +531,27 @@ class EvidenceDefinition(BaseModel):
         ]
         if len(dimensions) != len(set(dimensions)):
             raise ValueError("External review dimensions must be unique")
+
+        if self.evidence_type == "comprehension_result":
+            if (
+                self.comprehension_exercise_id is None
+                or not self.comprehension_exercise_id.strip()
+            ):
+                raise ValueError(
+                    "Comprehension result requires comprehension_exercise_id"
+                )
+            if self.measurement_mode != "binary":
+                raise ValueError(
+                    "Comprehension result must use binary measurement"
+                )
+            if self.production_prompt_id is not None:
+                raise ValueError(
+                    "Comprehension result cannot define production_prompt_id"
+                )
+        elif self.comprehension_exercise_id is not None:
+            raise ValueError(
+                "Only comprehension result can define comprehension_exercise_id"
+            )
         return self
 
 
@@ -683,6 +705,13 @@ class LessonExperience(BaseModel):
             evidence.id
             for evidence in self.evidence_definitions
         ]
+        required_comprehension_exercise_ids = [
+            evidence.comprehension_exercise_id
+            for evidence in self.evidence_definitions
+            if evidence.required
+            and evidence.evidence_type == "comprehension_result"
+            and evidence.comprehension_exercise_id is not None
+        ]
 
         reject_duplicates(
             "LessonExperience stage IDs",
@@ -695,6 +724,10 @@ class LessonExperience(BaseModel):
         reject_duplicates(
             "Evidence definition IDs",
             evidence_ids,
+        )
+        reject_duplicates(
+            "Required comprehension exercise IDs",
+            required_comprehension_exercise_ids,
         )
 
         stage_id_set = set(stage_ids)
@@ -925,7 +958,22 @@ class Lesson(BaseModel):
         }
 
         for evidence in self.experience.evidence_definitions:
-            if evidence.evidence_type == "exercise_result":
+            if evidence.evidence_type == "comprehension_result":
+                if evidence.activity_id not in conversation_id_set:
+                    raise ValueError(
+                        "Comprehension result references unknown conversation: "
+                        + evidence.activity_id
+                    )
+                if (
+                    evidence.comprehension_exercise_id is None
+                    or evidence.comprehension_exercise_id not in exercises_by_id
+                ):
+                    raise ValueError(
+                        "Comprehension result references unknown exercise: "
+                        + str(evidence.comprehension_exercise_id)
+                    )
+
+            elif evidence.evidence_type == "exercise_result":
                 exercise = exercises_by_id.get(evidence.activity_id)
 
                 if exercise is None:

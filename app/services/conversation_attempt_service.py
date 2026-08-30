@@ -4,6 +4,12 @@ from app.db.models import ConversationAttempt
 from app.schemas.content import Conversation
 from app.schemas.conversation_attempt import ConversationAttemptCreate, ConversationAttemptRecord
 from app.services.content_service import get_conversation_context_by_id
+from app.services.experience_evidence_service import (
+    accredit_evidence_states,
+    required_evidence_definitions,
+    resolve_experience_attempt,
+    validate_attempt_source_context,
+)
 
 
 def validate_completed_conversation_attempt(
@@ -74,46 +80,97 @@ def save_conversation_attempt(
     """Validate and save one completed conversation attempt.
     Valida y guarda un intento conversacional completado.
     """
-    context = get_conversation_context_by_id(record.conversation_id)
-    if context is None:
-        raise ValueError("Conversation does not exist")
+    try:
+        context = get_conversation_context_by_id(record.conversation_id)
+        if context is None:
+            raise ValueError("Conversation does not exist")
 
-    level_id, unit_id, lesson_id, conversation = context
-    if (
-        record.level_id != level_id
-        or record.unit_id != unit_id
-        or record.lesson_id != lesson_id
-    ):
-        raise ValueError("Conversation hierarchy does not match the content tree")
+        level_id, unit_id, lesson_id, conversation = context
+        if (
+            record.level_id != level_id
+            or record.unit_id != unit_id
+            or record.lesson_id != lesson_id
+        ):
+            raise ValueError(
+                "Conversation hierarchy does not match the content tree"
+            )
 
-    validate_completed_conversation_attempt(record, conversation)
+        validate_completed_conversation_attempt(record, conversation)
+        attempt = None
+        lesson = None
+        definitions = []
+        if record.experience_attempt_id is not None:
+            attempt, lesson = resolve_experience_attempt(
+                record.experience_attempt_id,
+                db,
+                for_update=True,
+                require_in_progress=True,
+            )
+            validate_attempt_source_context(
+                attempt,
+                user_id=record.user_id,
+                level_id=record.level_id,
+                unit_id=record.unit_id,
+                lesson_id=record.lesson_id,
+            )
+            definitions = [
+                definition
+                for definition in required_evidence_definitions(lesson)
+                if definition.evidence_type == "conversation_completion"
+                and definition.activity_id == record.conversation_id
+            ]
+            if not definitions:
+                raise ValueError(
+                    "Conversation does not map to required completion evidence"
+                )
 
-    item = ConversationAttempt(
-        user_id=record.user_id,
-        level_id=record.level_id,
-        unit_id=record.unit_id,
-        lesson_id=record.lesson_id,
-        conversation_id=record.conversation_id,
-        mode=record.mode,
-        visited_turn_ids=list(record.visited_turn_ids),
-        selected_choice_ids=list(record.selected_choice_ids),
-    )
+        item = ConversationAttempt(
+            user_id=record.user_id,
+            level_id=record.level_id,
+            unit_id=record.unit_id,
+            lesson_id=record.lesson_id,
+            conversation_id=record.conversation_id,
+            mode=record.mode,
+            visited_turn_ids=list(record.visited_turn_ids),
+            selected_choice_ids=list(record.selected_choice_ids),
+            experience_attempt_id=record.experience_attempt_id,
+        )
 
-    db.add(item)
-    db.commit()
-    db.refresh(item)
-
-    return ConversationAttemptRecord(
-        user_id=item.user_id,
-        level_id=item.level_id,
-        unit_id=item.unit_id,
-        lesson_id=item.lesson_id,
-        conversation_id=item.conversation_id,
-        mode=item.mode,
-        visited_turn_ids=item.visited_turn_ids,
-        selected_choice_ids=item.selected_choice_ids,
-        completed_at=item.completed_at,
-    )
+        db.add(item)
+        db.flush()
+        if attempt is not None and lesson is not None:
+            accredit_evidence_states(
+                attempt,
+                lesson,
+                [
+                    (
+                        definition,
+                        "satisfied",
+                        "conversation_attempt",
+                        item.id,
+                    )
+                    for definition in definitions
+                ],
+                db,
+            )
+        db.refresh(item)
+        result = ConversationAttemptRecord(
+            user_id=item.user_id,
+            level_id=item.level_id,
+            unit_id=item.unit_id,
+            lesson_id=item.lesson_id,
+            conversation_id=item.conversation_id,
+            mode=item.mode,
+            visited_turn_ids=item.visited_turn_ids,
+            selected_choice_ids=item.selected_choice_ids,
+            experience_attempt_id=item.experience_attempt_id,
+            completed_at=item.completed_at,
+        )
+        db.commit()
+        return result
+    except Exception:
+        db.rollback()
+        raise
 
 
 def get_conversation_attempts_by_user(
@@ -143,6 +200,7 @@ def get_conversation_attempts_by_user(
             mode=item.mode,
             visited_turn_ids=item.visited_turn_ids,
             selected_choice_ids=item.selected_choice_ids,
+            experience_attempt_id=item.experience_attempt_id,
             completed_at=item.completed_at,
         )
         for item in items

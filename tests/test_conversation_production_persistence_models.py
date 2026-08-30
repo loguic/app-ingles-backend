@@ -26,6 +26,7 @@ def test_conversation_production_persistence_metadata():
         "unit_id",
         "lesson_id",
         "conversation_id",
+        "experience_attempt_id",
         "submitted_at",
     }
     assert set(production.columns.keys()) == {

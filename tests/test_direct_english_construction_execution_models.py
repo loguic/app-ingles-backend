@@ -42,6 +42,7 @@ def test_attempt_model_contains_only_execution_identity_and_snapshot():
         table.c.level_id,
         table.c.unit_id,
         table.c.lesson_id,
+        table.c.experience_attempt_id,
         table.c.transfer_bank_id,
         table.c.transfer_variant_id,
         table.c.transfer_prompt_snapshot,

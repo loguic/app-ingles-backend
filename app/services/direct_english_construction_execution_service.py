@@ -38,6 +38,14 @@ from app.services.conversation_production_validation import (
 from app.services.direct_english_construction_content_validation import (
     validate_direct_english_construction_lesson,
 )
+from app.services.experience_evidence_service import (
+    accredit_evidence_states,
+    resolve_experience_attempt,
+    validate_attempt_source_context,
+)
+from app.services.production_audio_storage_service import (
+    resolve_production_audio_path,
+)
 
 
 SELECTOR_VERSION = "sha256-v1"
@@ -407,6 +415,7 @@ def get_direct_english_construction_attempt(
         selector_version=attempt.selector_version,
         started_at=attempt.started_at,
         finalized_at=attempt.finalized_at,
+        experience_attempt_id=attempt.experience_attempt_id,
         productions=productions,
         completion_requirements_met=_completion_requirements_met(
             attempt.status,
@@ -428,34 +437,53 @@ def start_direct_english_construction_attempt(
         command.unit_id,
         command.lesson_id,
     )
-    if (
-        db.query(AttemptModel.attempt_id)
-        .filter(AttemptModel.attempt_id == command.attempt_id)
-        .first()
-        is not None
-    ):
-        raise DirectEnglishConstructionAttemptAlreadyExistsError(
-            "Direct-English construction attempt already exists"
-        )
-    bank_id, variant = select_direct_english_transfer_variant(
-        lesson,
-        command.attempt_id,
-    )
-    attempt = AttemptModel(
-        attempt_id=command.attempt_id,
-        user_id=command.user_id,
-        level_id=command.level_id,
-        unit_id=command.unit_id,
-        lesson_id=command.lesson_id,
-        transfer_bank_id=bank_id,
-        transfer_variant_id=variant.id,
-        transfer_prompt_snapshot=variant.prompt,
-        selector_version=SELECTOR_VERSION,
-        status="started",
-        started_at=command.started_at,
-        finalized_at=None,
-    )
     try:
+        if command.experience_attempt_id is not None:
+            experience_attempt, experience_lesson = resolve_experience_attempt(
+                command.experience_attempt_id,
+                db,
+                for_update=True,
+                require_in_progress=True,
+            )
+            validate_attempt_source_context(
+                experience_attempt,
+                user_id=command.user_id,
+                level_id=command.level_id,
+                unit_id=command.unit_id,
+                lesson_id=command.lesson_id,
+            )
+            if experience_lesson.id != lesson.id:
+                raise DirectEnglishConstructionInvariantError(
+                    "Direct-English source does not belong to experience"
+                )
+        if (
+            db.query(AttemptModel.attempt_id)
+            .filter(AttemptModel.attempt_id == command.attempt_id)
+            .first()
+            is not None
+        ):
+            raise DirectEnglishConstructionAttemptAlreadyExistsError(
+                "Direct-English construction attempt already exists"
+            )
+        bank_id, variant = select_direct_english_transfer_variant(
+            lesson,
+            command.attempt_id,
+        )
+        attempt = AttemptModel(
+            attempt_id=command.attempt_id,
+            user_id=command.user_id,
+            level_id=command.level_id,
+            unit_id=command.unit_id,
+            lesson_id=command.lesson_id,
+            experience_attempt_id=command.experience_attempt_id,
+            transfer_bank_id=bank_id,
+            transfer_variant_id=variant.id,
+            transfer_prompt_snapshot=variant.prompt,
+            selector_version=SELECTOR_VERSION,
+            status="started",
+            started_at=command.started_at,
+            finalized_at=None,
+        )
         db.add(attempt)
         db.flush()
         db.commit()
@@ -576,7 +604,7 @@ def save_direct_english_construction_orientation(
         raise
 
 
-def finalize_direct_english_construction_attempt(
+def _finalize_direct_english_construction_attempt(
     command: DirectEnglishConstructionAttemptFinalize,
     db: Session,
 ) -> DirectEnglishConstructionAttemptRecord:
@@ -587,6 +615,7 @@ def finalize_direct_english_construction_attempt(
     attempt = (
         db.query(AttemptModel)
         .filter(AttemptModel.attempt_id == command.attempt_id)
+        .with_for_update()
         .one_or_none()
     )
     if attempt is None:
@@ -609,6 +638,26 @@ def finalize_direct_english_construction_attempt(
         attempt.unit_id,
         attempt.lesson_id,
     )
+    experience_attempt = None
+    experience_lesson = None
+    if attempt.experience_attempt_id is not None:
+        experience_attempt, experience_lesson = resolve_experience_attempt(
+            attempt.experience_attempt_id,
+            db,
+            for_update=True,
+            require_in_progress=True,
+        )
+        validate_attempt_source_context(
+            experience_attempt,
+            user_id=attempt.user_id,
+            level_id=attempt.level_id,
+            unit_id=attempt.unit_id,
+            lesson_id=attempt.lesson_id,
+        )
+        if experience_lesson.id != lesson.id:
+            raise DirectEnglishConstructionInvariantError(
+                "Direct-English source does not belong to experience"
+            )
     entries = _execution_entries(lesson)
     captures = {
         item.production_function: item for item in command.captures
@@ -621,6 +670,13 @@ def finalize_direct_english_construction_attempt(
         capture = captures[function]
         conversation, turn, prompt, _evidence = entries[function]
         submission = capture.submission
+        if submission.experience_attempt_id not in (
+            None,
+            attempt.experience_attempt_id,
+        ):
+            raise DirectEnglishConstructionInvariantError(
+                "Production submission experience binding is incompatible"
+            )
         if (
             submission.user_id != attempt.user_id
             or submission.level_id != attempt.level_id
@@ -658,6 +714,14 @@ def finalize_direct_english_construction_attempt(
             raise DirectEnglishConstructionInvariantError(
                 "Production submission contradicts active content"
             ) from exc
+        captured = submission.productions[0]
+        if attempt.experience_attempt_id is not None and captured.modality == "voice":
+            try:
+                resolve_production_audio_path(captured.audio_reference or "")
+            except (RuntimeError, ValueError, FileNotFoundError) as exc:
+                raise DirectEnglishConstructionInvariantError(
+                    "Direct-English voice production audio is unavailable"
+                ) from exc
 
     try:
         for function in ordered_functions:
@@ -668,6 +732,7 @@ def finalize_direct_english_construction_attempt(
                     capture.submission,
                     conversation,
                     db,
+                    experience_attempt_id=attempt.experience_attempt_id,
                 )
             )
             db.add(
@@ -699,6 +764,39 @@ def finalize_direct_english_construction_attempt(
             raise DirectEnglishConstructionStateConflictError(
                 "Direct-English construction attempt changed concurrently"
             )
+        attempt.status = "finalized"
+        attempt.finalized_at = command.finalized_at
+        db.flush()
+        if experience_attempt is not None and experience_lesson is not None:
+            accredit_evidence_states(
+                experience_attempt,
+                experience_lesson,
+                [
+                    (
+                        entries[function][3],
+                        (
+                            "satisfied"
+                            if captures[function]
+                            .submission.productions[0]
+                            .modality
+                            == "voice"
+                            and SUPPORT_RANK[captures[function].support_used]
+                            <= SUPPORT_RANK[
+                                entries[function][2].support_level
+                            ]
+                            and (
+                                function != "transfer"
+                                or captures[function].support_used == "none"
+                            )
+                            else "pending"
+                        ),
+                        "direct_english_construction_attempt",
+                        attempt.attempt_id,
+                    )
+                    for function in ordered_functions
+                ],
+                db,
+            )
         db.commit()
     except DirectEnglishConstructionExecutionError:
         db.rollback()
@@ -717,3 +815,15 @@ def finalize_direct_english_construction_attempt(
         db.rollback()
         raise
     return get_direct_english_construction_attempt(command.attempt_id, db)
+
+
+def finalize_direct_english_construction_attempt(
+    command: DirectEnglishConstructionAttemptFinalize,
+    db: Session,
+) -> DirectEnglishConstructionAttemptRecord:
+    """Own rollback for validation and persistence under one transaction."""
+    try:
+        return _finalize_direct_english_construction_attempt(command, db)
+    except Exception:
+        db.rollback()
+        raise

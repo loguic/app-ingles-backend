@@ -4,13 +4,19 @@ from uuid import uuid4
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from app.db.models import ExperienceAttempt
+from app.db.models import ExperienceAttempt, ExperienceComprehensionResponse
 from app.schemas.experience_attempt import (
     ExperienceAttemptRecord,
     ExperienceAttemptStart,
-    ExperienceEvidencePendingRecord,
+    ExperienceComprehensionResponseRecord,
 )
 from app.services.content_service import get_lesson_context_by_id
+from app.services.experience_evidence_service import (
+    accredit_evidence_states,
+    effective_evidence_records,
+    required_evidence_definitions,
+    resolve_experience_attempt,
+)
 
 
 def _resolve_experience_context(
@@ -44,32 +50,10 @@ def _resolve_experience_context(
     return lesson
 
 
-def _pending_evidence_states(lesson) -> list[ExperienceEvidencePendingRecord]:
-    """Derive B184.1 pending evidence in completion-policy order.
-
-    Deriva las evidencias pendientes B184.1 en orden de completion policy.
-    """
-    experience = lesson.experience
-    if experience is None:  # pragma: no cover - guarded by resolver.
-        raise ValueError(f"Lesson '{lesson.id}' has no experience")
-
-    definitions_by_id = {
-        definition.id: definition
-        for definition in experience.evidence_definitions
-    }
-
-    return [
-        ExperienceEvidencePendingRecord(
-            evidence_definition_id=evidence_id,
-            evidence_type=definitions_by_id[evidence_id].evidence_type,
-        )
-        for evidence_id in experience.completion_policy.required_evidence_ids
-    ]
-
-
 def _record_from_model(
     attempt: ExperienceAttempt,
     lesson,
+    db: Session,
 ) -> ExperienceAttemptRecord:
     return ExperienceAttemptRecord(
         attempt_id=attempt.attempt_id,
@@ -81,7 +65,7 @@ def _record_from_model(
         status=attempt.status,
         started_at=attempt.started_at,
         completed_at=attempt.completed_at,
-        evidence_states=_pending_evidence_states(lesson),
+        evidence_states=effective_evidence_records(attempt, lesson, db),
     )
 
 
@@ -98,7 +82,25 @@ def _active_attempt_query(
         ExperienceAttempt.experience_contract_version
         == experience_contract_version,
         ExperienceAttempt.status == "in_progress",
+    ).with_for_update()
+
+
+def _is_active_attempt_uniqueness_conflict(error: IntegrityError) -> bool:
+    """Recognize only the B184.1 one-active-attempt invariant."""
+    constraint_name = getattr(
+        getattr(error.orig, "diag", None),
+        "constraint_name",
+        None,
     )
+    if constraint_name == "uq_experience_attempt_active_context":
+        return True
+    message = str(error.orig)
+    return (
+        "UNIQUE constraint failed: experience_attempts.user_id, "
+        "experience_attempts.level_id, experience_attempts.unit_id, "
+        "experience_attempts.lesson_id, "
+        "experience_attempts.experience_contract_version"
+    ) in message
 
 
 def start_or_resume_experience_attempt(
@@ -118,50 +120,60 @@ def start_or_resume_experience_attempt(
     if experience is None:  # pragma: no cover - guarded by resolver.
         raise ValueError(f"Lesson '{command.lesson_id}' has no experience")
 
-    active_query = _active_attempt_query(
-        command,
-        experience.contract_version,
-        db,
-    )
-    existing = active_query.one_or_none()
-    if existing is not None:
-        return _record_from_model(existing, lesson)
-
-    attempt = ExperienceAttempt(
-        attempt_id=uuid4().hex,
-        user_id=command.user_id,
-        level_id=command.level_id,
-        unit_id=command.unit_id,
-        lesson_id=command.lesson_id,
-        experience_contract_version=experience.contract_version,
-        status="in_progress",
-        started_at=datetime.now(timezone.utc),
-        completed_at=None,
-    )
-
-    try:
-        db.add(attempt)
-        db.flush()
-        db.commit()
-    except IntegrityError:
-        db.rollback()
+    for create_number in range(2):
         existing = _active_attempt_query(
             command,
             experience.contract_version,
             db,
         ).one_or_none()
         if existing is not None:
-            return _record_from_model(existing, lesson)
-        raise
-    except SQLAlchemyError:
-        db.rollback()
-        raise
-    except Exception:
-        db.rollback()
-        raise
+            record = _record_from_model(existing, lesson, db)
+            db.commit()
+            return record
 
-    db.refresh(attempt)
-    return _record_from_model(attempt, lesson)
+        attempt = ExperienceAttempt(
+            attempt_id=uuid4().hex,
+            user_id=command.user_id,
+            level_id=command.level_id,
+            unit_id=command.unit_id,
+            lesson_id=command.lesson_id,
+            experience_contract_version=experience.contract_version,
+            status="in_progress",
+            started_at=datetime.now(timezone.utc),
+            completed_at=None,
+        )
+
+        try:
+            db.add(attempt)
+            db.flush()
+            db.commit()
+        except IntegrityError as error:
+            db.rollback()
+            if not _is_active_attempt_uniqueness_conflict(error):
+                raise
+            existing = _active_attempt_query(
+                command,
+                experience.contract_version,
+                db,
+            ).one_or_none()
+            if existing is not None:
+                record = _record_from_model(existing, lesson, db)
+                db.commit()
+                return record
+            if create_number == 0:
+                continue
+            raise
+        except SQLAlchemyError:
+            db.rollback()
+            raise
+        except Exception:
+            db.rollback()
+            raise
+
+        db.refresh(attempt)
+        return _record_from_model(attempt, lesson, db)
+
+    raise RuntimeError("Experience attempt retry was exhausted")
 
 
 def get_experience_attempt_state(
@@ -190,4 +202,87 @@ def get_experience_attempt_state(
             "Experience hierarchy does not match the content tree"
         )
 
-    return _record_from_model(attempt, lesson)
+    return _record_from_model(attempt, lesson, db)
+
+
+def save_experience_comprehension_response(
+    attempt_id: str,
+    comprehension_exercise_id: str,
+    selected_index: int,
+    db: Session,
+) -> ExperienceComprehensionResponseRecord:
+    """Persist, accredit and possibly complete one comprehension response."""
+    try:
+        attempt, lesson = resolve_experience_attempt(
+            attempt_id,
+            db,
+            for_update=True,
+            require_in_progress=True,
+        )
+        matches = [
+            definition
+            for definition in required_evidence_definitions(lesson)
+            if definition.evidence_type == "comprehension_result"
+            and definition.comprehension_exercise_id
+            == comprehension_exercise_id
+        ]
+        if len(matches) != 1:
+            raise ValueError(
+                "Comprehension exercise does not map to exactly one required evidence"
+            )
+        definition = matches[0]
+        exercise = next(
+            (
+                item
+                for item in lesson.exercises
+                if item.id == comprehension_exercise_id
+            ),
+            None,
+        )
+        if exercise is None:
+            raise ValueError("Comprehension exercise does not exist")
+        if selected_index < 0 or selected_index >= len(exercise.options):
+            raise ValueError("Selected comprehension option is out of range")
+
+        submitted_at = datetime.now(timezone.utc)
+        response = ExperienceComprehensionResponse(
+            response_id=uuid4().hex,
+            experience_attempt_id=attempt.attempt_id,
+            evidence_definition_id=definition.id,
+            activity_id=definition.activity_id,
+            comprehension_exercise_id=comprehension_exercise_id,
+            selected_index=selected_index,
+            is_correct=selected_index == exercise.answer_index,
+            submitted_at=submitted_at,
+        )
+        db.add(response)
+        db.flush()
+        accredit_evidence_states(
+            attempt,
+            lesson,
+            [
+                (
+                    definition,
+                    "satisfied" if response.is_correct else "pending",
+                    "comprehension_response",
+                    response.response_id,
+                )
+            ],
+            db,
+            accredited_at=submitted_at,
+        )
+        record = ExperienceComprehensionResponseRecord(
+            response_id=response.response_id,
+            experience_attempt_id=response.experience_attempt_id,
+            evidence_definition_id=response.evidence_definition_id,
+            activity_id=response.activity_id,
+            comprehension_exercise_id=response.comprehension_exercise_id,
+            selected_index=response.selected_index,
+            is_correct=response.is_correct,
+            submitted_at=response.submitted_at,
+        )
+        db.commit()
+        return record
+    except Exception:
+        db.rollback()
+        raise

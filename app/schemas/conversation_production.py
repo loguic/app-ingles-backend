@@ -66,6 +66,7 @@ class ConversationProductionSubmission(BaseModel):
     lesson_id: str
     conversation_id: str
     productions: list[LearnerProductionItem] = Field(min_length=1)
+    experience_attempt_id: Optional[str] = None
 
     @model_validator(mode="after")
     def validate_unique_prompt_ids(

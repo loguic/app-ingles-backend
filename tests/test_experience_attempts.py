@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import sqlite3
 
 import pytest
 from fastapi.testclient import TestClient
@@ -58,6 +59,16 @@ def _lesson_with_b184_experience() -> Lesson:
                     ],
                 },
             ],
+            "exercises": [
+                {
+                    "id": "b184-a1-u1-l1-q-comprehension",
+                    "type": "mcq",
+                    "prompt": "What greeting did you hear?",
+                    "options": ["Hi.", "Goodbye."],
+                    "answer_index": 0,
+                    "skill_ids": ["a1_first_encounter"],
+                }
+            ],
             "experience": {
                 "contract_version": "2.0",
                 "mission": {
@@ -104,8 +115,11 @@ def _lesson_with_b184_experience() -> Lesson:
                         "skill_ids": ["a1_first_encounter"],
                         "stage_id": "b184-s-context",
                         "activity_id": "b184-a1-u1-l1-c-context",
+                        "comprehension_exercise_id": (
+                            "b184-a1-u1-l1-q-comprehension"
+                        ),
                         "evidence_type": "comprehension_result",
-                        "measurement_mode": "completion",
+                        "measurement_mode": "binary",
                     },
                     {
                         "id": "b184-ev-contextual",
@@ -209,6 +223,12 @@ def experience_context(monkeypatch):
     monkeypatch.setattr(
         service_module,
         "get_lesson_context_by_id",
+        lambda lesson_id: (level.code, unit.id, lesson)
+        if lesson_id == lesson.id
+        else None,
+    )
+    monkeypatch.setattr(
+        "app.services.experience_evidence_service.get_lesson_context_by_id",
         lambda lesson_id: (level.code, unit.id, lesson)
         if lesson_id == lesson.id
         else None,
@@ -343,7 +363,16 @@ def test_concurrent_equivalent_creation_recovers_existing_active_attempt(
             other.commit()
         finally:
             other.close()
-        raise IntegrityError("simulated concurrent unique conflict", {}, None)
+        raise IntegrityError(
+            "simulated concurrent unique conflict",
+            {},
+            sqlite3.IntegrityError(
+                "UNIQUE constraint failed: experience_attempts.user_id, "
+                "experience_attempts.level_id, experience_attempts.unit_id, "
+                "experience_attempts.lesson_id, "
+                "experience_attempts.experience_contract_version"
+            ),
+        )
 
     monkeypatch.setattr(db, "flush", race_flush)
     try:
@@ -354,6 +383,33 @@ def test_concurrent_equivalent_creation_recovers_existing_active_attempt(
 
     assert record.attempt_id == "race-winner"
     assert record.status == "in_progress"
+
+
+def test_start_does_not_swallow_unrelated_integrity_error(
+    isolated_db,
+    experience_context,
+    monkeypatch,
+):
+    command = ExperienceAttemptStart(
+        **_payload(user_id="test-user-b1841-unrelated-integrity")
+    )
+    db = isolated_db()
+    monkeypatch.setattr(
+        db,
+        "flush",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            IntegrityError(
+                "unrelated integrity failure",
+                {},
+                sqlite3.IntegrityError("CHECK constraint failed: unrelated"),
+            )
+        ),
+    )
+    try:
+        with pytest.raises(IntegrityError, match="unrelated integrity"):
+            service_module.start_or_resume_experience_attempt(command, db)
+    finally:
+        db.close()
 
 
 def test_get_returns_existing_attempt_and_pending_evidence_in_policy_order(
@@ -408,6 +464,40 @@ def test_post_and_get_cannot_complete_attempt_or_write_user_progress(
         assert db.query(UserProgress).count() == 0
     finally:
         db.close()
+
+
+def test_comprehension_endpoint_accepts_only_selection_and_derives_truth(
+    client,
+    experience_context,
+):
+    created = client.post("/api/v1/experience-attempts", json=_payload()).json()
+    route = (
+        "/api/v1/experience-attempts/"
+        + created["attempt_id"]
+        + "/comprehension-responses/b184-a1-u1-l1-q-comprehension"
+    )
+    rejected = client.post(
+        route,
+        json={"selected_index": 1, "is_correct": True, "status": "satisfied"},
+    )
+    assert rejected.status_code == 422
+
+    response = client.post(route, json={"selected_index": 0})
+    assert response.status_code == 200
+    source = response.json()
+    assert source["evidence_definition_id"] == "b184-ev-comprehension"
+    assert source["activity_id"] == "b184-a1-u1-l1-c-context"
+    assert source["is_correct"] is True
+
+    authoritative = client.get(
+        "/api/v1/experience-attempts/" + created["attempt_id"]
+    ).json()
+    statuses = {
+        item["evidence_definition_id"]: item["status"]
+        for item in authoritative["evidence_states"]
+    }
+    assert statuses["b184-ev-comprehension"] == "satisfied"
+    assert authoritative["status"] == "in_progress"
 
 
 @pytest.mark.parametrize(

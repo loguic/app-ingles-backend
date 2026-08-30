@@ -19,6 +19,12 @@ from app.services.content_service import (
     get_conversation_context_by_id,
     get_lesson_by_id,
 )
+from app.services.experience_evidence_service import (
+    accredit_evidence_states,
+    required_evidence_definitions,
+    resolve_experience_attempt,
+    validate_attempt_source_context,
+)
 
 
 B181_LESSON_ID = "a1-u1-l2"
@@ -225,7 +231,31 @@ def save_short_connected_exchange_production_reviews(
 ) -> list[ShortConnectedExchangeProductionReviewRecord]:
     """Validate and append one B181 review batch atomically."""
     try:
-        _validated_productions(batch, db)
+        by_id = _validated_productions(batch, db)
+        submission = next(iter(by_id.values()))[1]
+        experience_attempt = None
+        experience_lesson = None
+        if submission.experience_attempt_id is not None:
+            try:
+                experience_attempt, experience_lesson = (
+                    resolve_experience_attempt(
+                        submission.experience_attempt_id,
+                        db,
+                        for_update=True,
+                        require_in_progress=True,
+                    )
+                )
+                validate_attempt_source_context(
+                    experience_attempt,
+                    user_id=submission.user_id,
+                    level_id=submission.level_id,
+                    unit_id=submission.unit_id,
+                    lesson_id=submission.lesson_id,
+                )
+            except ValueError as error:
+                raise ShortConnectedExchangeReviewInvariantError(
+                    str(error)
+                ) from error
         review_ids = [review.review_id for review in batch.reviews]
         if (
             db.query(ReviewModel.review_id)
@@ -251,6 +281,64 @@ def save_short_connected_exchange_production_reviews(
         ]
         db.add_all(models)
         db.flush()
+        if experience_attempt is not None and experience_lesson is not None:
+            definitions = [
+                definition
+                for definition in required_evidence_definitions(
+                    experience_lesson
+                )
+                if definition.evidence_type == "contextual_response"
+                and definition.activity_id == submission.conversation_id
+                and definition.production_prompt_id is not None
+            ]
+            definitions_by_prompt = {
+                definition.production_prompt_id: definition
+                for definition in definitions
+            }
+            updates = []
+            for production, _source_submission in by_id.values():
+                definition = definitions_by_prompt.get(production.prompt_id)
+                if definition is None:
+                    raise ShortConnectedExchangeReviewInvariantError(
+                        "B181 production does not map to required evidence"
+                    )
+                required_dimensions = {
+                    requirement.dimension
+                    for requirement in definition.external_review_requirements
+                    if requirement.positive_required_for_completion
+                }
+                positive_dimensions = {
+                    row[0]
+                    for row in db.query(ReviewModel.dimension)
+                    .filter(
+                        ReviewModel.production_id == production.id,
+                        ReviewModel.result == "positive",
+                    )
+                    .all()
+                }
+                updates.append(
+                    (
+                        definition,
+                        (
+                            "satisfied"
+                            if required_dimensions <= positive_dimensions
+                            else "needs_review"
+                        ),
+                        "conversation_production_submission",
+                        submission.id,
+                    )
+                )
+            try:
+                accredit_evidence_states(
+                    experience_attempt,
+                    experience_lesson,
+                    updates,
+                    db,
+                )
+            except ValueError as error:
+                raise ShortConnectedExchangeReviewInvariantError(
+                    str(error)
+                ) from error
         records = [_record(model) for model in models]
         db.commit()
         return records
