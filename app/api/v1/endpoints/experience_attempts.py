@@ -8,6 +8,11 @@ from app.schemas.experience_attempt import (
     ExperienceComprehensionResponseCreate,
     ExperienceComprehensionResponseRecord,
 )
+from app.schemas.direct_english_construction_execution import (
+    DirectEnglishConstructionPublicFinalize,
+    DirectEnglishConstructionPublicSourceRecord,
+    DirectEnglishConstructionPublicStart,
+)
 from app.services.content_service import (
     get_level_by_code,
     get_lesson_by_id,
@@ -18,9 +23,73 @@ from app.services.experience_attempt_service import (
     save_experience_comprehension_response,
     start_or_resume_experience_attempt,
 )
+from app.services.direct_english_construction_execution_service import (
+    DirectEnglishConstructionAttemptAlreadyExistsError,
+    DirectEnglishConstructionInvariantError,
+    DirectEnglishConstructionReferenceNotFoundError,
+    DirectEnglishConstructionStateConflictError,
+    finalize_public_direct_english_construction_attempt,
+    start_public_direct_english_construction_attempt,
+)
 
 
 router = APIRouter()
+
+
+@router.post(
+    "/experience-attempts/{experience_attempt_id}/"
+    "direct-english-construction-attempts",
+    response_model=DirectEnglishConstructionPublicSourceRecord,
+)
+def start_public_direct_english_attempt(
+    experience_attempt_id: str,
+    command: DirectEnglishConstructionPublicStart,
+    db: Session = Depends(get_db),
+) -> DirectEnglishConstructionPublicSourceRecord:
+    """Start or retry a Direct-English source bound to one experience."""
+    try:
+        return start_public_direct_english_construction_attempt(
+            experience_attempt_id,
+            command,
+            db,
+        )
+    except DirectEnglishConstructionReferenceNotFoundError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except (
+        DirectEnglishConstructionAttemptAlreadyExistsError,
+        DirectEnglishConstructionInvariantError,
+        DirectEnglishConstructionStateConflictError,
+    ) as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+
+
+@router.post(
+    "/experience-attempts/{experience_attempt_id}/"
+    "direct-english-construction-attempts/{direct_english_attempt_id}/finalize",
+    response_model=DirectEnglishConstructionPublicSourceRecord,
+)
+def finalize_public_direct_english_attempt(
+    experience_attempt_id: str,
+    direct_english_attempt_id: str,
+    command: DirectEnglishConstructionPublicFinalize,
+    db: Session = Depends(get_db),
+) -> DirectEnglishConstructionPublicSourceRecord:
+    """Finalize a Direct-English source under its persisted experience."""
+    try:
+        return finalize_public_direct_english_construction_attempt(
+            experience_attempt_id,
+            direct_english_attempt_id,
+            command,
+            db,
+        )
+    except DirectEnglishConstructionReferenceNotFoundError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except (
+        DirectEnglishConstructionAttemptAlreadyExistsError,
+        DirectEnglishConstructionInvariantError,
+        DirectEnglishConstructionStateConflictError,
+    ) as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
 
 
 @router.post(

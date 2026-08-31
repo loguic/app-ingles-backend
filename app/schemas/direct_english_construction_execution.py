@@ -6,7 +6,7 @@ Contratos para la ejecución interna de construcción directa en inglés.
 from datetime import datetime
 from typing import Literal, Optional
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.schemas.conversation_production import (
     ConversationProductionSubmission,
@@ -27,6 +27,84 @@ OrientationSourceType = Literal["human", "external"]
 def _require_aware_timestamp(value: datetime, field_name: str) -> None:
     if value.tzinfo is None or value.utcoffset() is None:
         raise ValueError(field_name + " must include timezone information")
+
+
+class DirectEnglishConstructionPublicStart(BaseModel):
+    """Accept only the stable source identity for a bound public start."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    attempt_id: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_attempt_id(
+        self,
+    ) -> "DirectEnglishConstructionPublicStart":
+        if not self.attempt_id.strip():
+            raise ValueError("attempt_id cannot be blank")
+        return self
+
+
+class DirectEnglishConstructionPublicCapture(BaseModel):
+    """Capture only learner-produced text or backend-managed audio."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    production_function: ProductionFunction
+    modality: Literal["text", "voice"]
+    response_text: Optional[str] = None
+    audio_reference: Optional[str] = None
+
+    @model_validator(mode="after")
+    def validate_modality_content(
+        self,
+    ) -> "DirectEnglishConstructionPublicCapture":
+        if self.modality == "text":
+            if self.response_text is None or not self.response_text.strip():
+                raise ValueError("Text production requires non-blank response_text")
+            if self.audio_reference is not None:
+                raise ValueError("Text production cannot define audio_reference")
+            return self
+
+        if self.audio_reference is None or not self.audio_reference.strip():
+            raise ValueError("Voice production requires non-blank audio_reference")
+        if self.response_text is not None:
+            raise ValueError("Voice production cannot define response_text")
+        return self
+
+
+class DirectEnglishConstructionPublicFinalize(BaseModel):
+    """Finalize a bound source with exactly the three production functions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    captures: list[DirectEnglishConstructionPublicCapture] = Field(
+        min_length=3,
+        max_length=3,
+    )
+
+    @model_validator(mode="after")
+    def validate_functions(
+        self,
+    ) -> "DirectEnglishConstructionPublicFinalize":
+        functions = [item.production_function for item in self.captures]
+        if len(functions) != len(set(functions)):
+            raise ValueError("Production functions must be unique")
+        if set(functions) != {"guided", "expanded", "transfer"}:
+            raise ValueError(
+                "Finalize requires guided, expanded and transfer captures"
+            )
+        return self
+
+
+class DirectEnglishConstructionPublicSourceRecord(BaseModel):
+    """Expose source lifecycle facts without pedagogical state."""
+
+    direct_english_attempt_id: str
+    experience_attempt_id: str
+    status: Literal["started", "finalized"]
+    transfer_variant_id: str
+    transfer_prompt: str
 
 
 class DirectEnglishConstructionAttemptStart(BaseModel):

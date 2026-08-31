@@ -25,6 +25,9 @@ from app.schemas.direct_english_construction_execution import (
     DirectEnglishConstructionAttemptStart,
     DirectEnglishConstructionOrientationCreate,
     DirectEnglishConstructionOrientationRecord,
+    DirectEnglishConstructionPublicFinalize,
+    DirectEnglishConstructionPublicSourceRecord,
+    DirectEnglishConstructionPublicStart,
     DirectEnglishConstructionRetryPreparation,
     DirectEnglishConstructionRetryPreparationRequest,
 )
@@ -827,3 +830,207 @@ def finalize_direct_english_construction_attempt(
     except Exception:
         db.rollback()
         raise
+
+
+def _public_source_record(
+    record: DirectEnglishConstructionAttemptRecord,
+) -> DirectEnglishConstructionPublicSourceRecord:
+    """Return only source lifecycle facts required by the public adapter."""
+    if record.experience_attempt_id is None:
+        raise DirectEnglishConstructionInvariantError(
+            "Public Direct-English source requires an experience binding"
+        )
+    return DirectEnglishConstructionPublicSourceRecord(
+        direct_english_attempt_id=record.attempt_id,
+        experience_attempt_id=record.experience_attempt_id,
+        status=record.status,
+        transfer_variant_id=record.transfer_variant_id,
+        transfer_prompt=record.transfer_prompt_snapshot,
+    )
+
+
+def _raise_public_experience_error(error: ValueError) -> None:
+    """Translate authoritative attempt resolution into existing domain errors."""
+    detail = str(error)
+    if "not found" in detail:
+        raise DirectEnglishConstructionReferenceNotFoundError(detail) from error
+    if "already completed" in detail:
+        raise DirectEnglishConstructionStateConflictError(detail) from error
+    raise DirectEnglishConstructionInvariantError(detail) from error
+
+
+def _matching_public_start(
+    attempt: AttemptModel,
+    *,
+    experience_attempt_id: str,
+    user_id: str,
+    level_id: str,
+    unit_id: str,
+    lesson_id: str,
+    db: Session,
+) -> DirectEnglishConstructionPublicSourceRecord:
+    """Return one exact retry or reject a source identity collision."""
+    if (
+        attempt.experience_attempt_id != experience_attempt_id
+        or attempt.user_id != user_id
+        or attempt.level_id != level_id
+        or attempt.unit_id != unit_id
+        or attempt.lesson_id != lesson_id
+    ):
+        raise DirectEnglishConstructionInvariantError(
+            "Direct-English construction attempt identity is already in use"
+        )
+    if attempt.status != "started":
+        raise DirectEnglishConstructionStateConflictError(
+            "Direct-English construction attempt is not started"
+        )
+    return _public_source_record(
+        get_direct_english_construction_attempt(attempt.attempt_id, db)
+    )
+
+
+def start_public_direct_english_construction_attempt(
+    experience_attempt_id: str,
+    command: DirectEnglishConstructionPublicStart,
+    db: Session,
+) -> DirectEnglishConstructionPublicSourceRecord:
+    """Start or retry one public source bound to an ExperienceAttempt."""
+    try:
+        experience_attempt, _lesson = resolve_experience_attempt(
+            experience_attempt_id,
+            db,
+            for_update=False,
+            require_in_progress=True,
+        )
+    except ValueError as error:
+        _raise_public_experience_error(error)
+
+    lesson = _resolve_lesson(
+        experience_attempt.level_id,
+        experience_attempt.unit_id,
+        experience_attempt.lesson_id,
+    )
+    if lesson.id != experience_attempt.lesson_id:
+        raise DirectEnglishConstructionInvariantError(
+            "Direct-English source does not belong to experience"
+        )
+
+    existing = db.get(AttemptModel, command.attempt_id)
+    if existing is not None:
+        return _matching_public_start(
+            existing,
+            experience_attempt_id=experience_attempt.attempt_id,
+            user_id=experience_attempt.user_id,
+            level_id=experience_attempt.level_id,
+            unit_id=experience_attempt.unit_id,
+            lesson_id=experience_attempt.lesson_id,
+            db=db,
+        )
+
+    internal_command = DirectEnglishConstructionAttemptStart(
+        attempt_id=command.attempt_id,
+        user_id=experience_attempt.user_id,
+        level_id=experience_attempt.level_id,
+        unit_id=experience_attempt.unit_id,
+        lesson_id=experience_attempt.lesson_id,
+        started_at=datetime.now(UTC),
+        experience_attempt_id=experience_attempt.attempt_id,
+    )
+    try:
+        record = start_direct_english_construction_attempt(
+            internal_command,
+            db,
+        )
+    except DirectEnglishConstructionAttemptAlreadyExistsError:
+        concurrent = db.get(AttemptModel, command.attempt_id)
+        if concurrent is None:  # pragma: no cover - constraint guarantees it.
+            raise
+        return _matching_public_start(
+            concurrent,
+            experience_attempt_id=experience_attempt.attempt_id,
+            user_id=experience_attempt.user_id,
+            level_id=experience_attempt.level_id,
+            unit_id=experience_attempt.unit_id,
+            lesson_id=experience_attempt.lesson_id,
+            db=db,
+        )
+    return _public_source_record(record)
+
+
+def finalize_public_direct_english_construction_attempt(
+    experience_attempt_id: str,
+    direct_english_attempt_id: str,
+    command: DirectEnglishConstructionPublicFinalize,
+    db: Session,
+) -> DirectEnglishConstructionPublicSourceRecord:
+    """Derive trusted context and delegate one bound public finalization."""
+    attempt = db.get(AttemptModel, direct_english_attempt_id)
+    if attempt is None:
+        raise DirectEnglishConstructionReferenceNotFoundError(
+            "Direct-English construction attempt does not exist"
+        )
+    if attempt.experience_attempt_id != experience_attempt_id:
+        raise DirectEnglishConstructionInvariantError(
+            "Direct-English source does not belong to experience"
+        )
+    if attempt.status != "started":
+        raise DirectEnglishConstructionStateConflictError(
+            "Direct-English construction attempt is not started"
+        )
+
+    lesson = _resolve_lesson(
+        attempt.level_id,
+        attempt.unit_id,
+        attempt.lesson_id,
+    )
+    entries = _execution_entries(lesson)
+    public_captures = {
+        item.production_function: item for item in command.captures
+    }
+    captures: list[dict] = []
+    for function in ("guided", "expanded", "transfer"):
+        public_capture = public_captures[function]
+        conversation, turn, prompt, _evidence = entries[function]
+        if prompt.support_level is None:
+            raise DirectEnglishConstructionInvariantError(
+                "Direct-English production support is unavailable"
+            )
+        production = {
+            "prompt_id": prompt.id,
+            "turn_id": turn.id,
+            "modality": public_capture.modality,
+            "response_text": public_capture.response_text,
+            "audio_reference": public_capture.audio_reference,
+        }
+        capture = {
+            "production_function": function,
+            "submission": {
+                "user_id": attempt.user_id,
+                "level_id": attempt.level_id,
+                "unit_id": attempt.unit_id,
+                "lesson_id": attempt.lesson_id,
+                "conversation_id": conversation.id,
+                "productions": [production],
+                "experience_attempt_id": experience_attempt_id,
+            },
+            "support_used": prompt.support_level,
+        }
+        if function == "transfer":
+            capture["transfer_variant_id"] = attempt.transfer_variant_id
+        captures.append(capture)
+
+    internal_command = DirectEnglishConstructionAttemptFinalize.model_validate(
+        {
+            "attempt_id": attempt.attempt_id,
+            "captures": captures,
+            "finalized_at": datetime.now(UTC),
+        }
+    )
+    try:
+        record = finalize_direct_english_construction_attempt(
+            internal_command,
+            db,
+        )
+    except ValueError as error:
+        _raise_public_experience_error(error)
+    return _public_source_record(record)
