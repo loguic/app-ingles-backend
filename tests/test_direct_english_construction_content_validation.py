@@ -26,6 +26,19 @@ def production_prompt(payload: dict, function: str) -> dict:
     raise AssertionError("missing production function " + function)
 
 
+def production_prompts(payload: dict, function: str) -> list[dict]:
+    prompts = [
+        prompt
+        for conversation in payload["conversations"]
+        for turn in conversation["turns"]
+        if (prompt := turn.get("production_prompt")) is not None
+        and prompt.get("production_function") == function
+    ]
+    if not prompts:
+        raise AssertionError("missing production function " + function)
+    return prompts
+
+
 def learner_turn(payload: dict, function: str) -> dict:
     for conversation in payload["conversations"]:
         for turn in conversation["turns"]:
@@ -164,6 +177,51 @@ def test_v3_rejects_a_direct_attempt_activity_without_all_three_captures():
         validate_payload(payload)
 
 
+def test_v3_accepts_one_transfer_variant_per_direct_activity():
+    payload = build_v3_lesson_payload()
+    for prompt in production_prompts(payload, "transfer"):
+        prompt["transfer_variants"] = prompt["transfer_variants"][:1]
+
+    lesson = validate_payload(payload)
+
+    assert all(
+        len(prompt.transfer_variants) == 1
+        for conversation in lesson.conversations
+        for turn in conversation.turns
+        if (prompt := turn.production_prompt) is not None
+        and prompt.production_function == "transfer"
+    )
+
+
+def test_v3_rejects_transfer_without_a_bank():
+    payload = build_v3_lesson_payload()
+    transfer_prompt = production_prompts(payload, "transfer")[0]
+    transfer_prompt.pop("transfer_bank_id")
+    transfer_prompt["transfer_variants"] = []
+
+    with pytest.raises(ValueError, match="v3 transfer requires a bank"):
+        validate_payload(payload)
+
+
+def test_v3_rejects_transfer_bank_without_variants():
+    payload = build_v3_lesson_payload()
+    production_prompts(payload, "transfer")[0]["transfer_variants"] = []
+
+    with pytest.raises(ValidationError, match="one to four variants"):
+        Lesson.model_validate(payload)
+
+
+def test_v3_rejects_transfer_bank_with_five_variants():
+    payload = build_v3_lesson_payload()
+    prompt = production_prompts(payload, "transfer")[0]
+    prompt["transfer_variants"].append(
+        {"id": "a1-u1-l1-transfer-v5", "prompt": "What makes you happy?"}
+    )
+
+    with pytest.raises(ValidationError, match="at most 4 items"):
+        Lesson.model_validate(payload)
+
+
 def test_reuses_regional_audio_and_adds_shadowing_before_production():
     lesson = validate_payload(build_lesson_payload())
     experience = lesson.experience
@@ -266,13 +324,13 @@ def test_rejects_full_answer_model_for_independent_production(function):
         Lesson.model_validate(payload)
 
 
-@pytest.mark.parametrize("variant_count", [1, 5])
-def test_rejects_transfer_bank_outside_two_to_four_variants(variant_count):
+@pytest.mark.parametrize("variant_count", [0, 5])
+def test_schema_rejects_empty_or_oversized_transfer_bank(variant_count):
     payload = build_lesson_payload()
     prompt = production_prompt(payload, "transfer")
     source = prompt["transfer_variants"]
-    if variant_count == 1:
-        prompt["transfer_variants"] = source[:1]
+    if variant_count == 0:
+        prompt["transfer_variants"] = []
     else:
         prompt["transfer_variants"].append(
             {"id": "a1-u1-l1-transfer-v5", "prompt": "What makes you happy?"}
@@ -282,12 +340,60 @@ def test_rejects_transfer_bank_outside_two_to_four_variants(variant_count):
         Lesson.model_validate(payload)
 
 
+def test_v2_rejects_one_transfer_variant():
+    payload = build_lesson_payload()
+    prompt = production_prompt(payload, "transfer")
+    prompt["transfer_variants"] = prompt["transfer_variants"][:1]
+
+    with pytest.raises(ValueError, match="v2 transfer requires two to four"):
+        validate_payload(payload)
+
+
+@pytest.mark.parametrize("variant_count", [2, 4])
+def test_v2_accepts_two_to_four_transfer_variants(variant_count):
+    payload = build_lesson_payload()
+    prompt = production_prompt(payload, "transfer")
+    prompt["transfer_variants"] = prompt["transfer_variants"][:variant_count]
+
+    lesson = validate_payload(payload)
+
+    validated_prompt = production_prompt(
+        lesson.model_dump(mode="json"), "transfer"
+    )
+    assert len(validated_prompt["transfer_variants"]) == variant_count
+
+
 def test_rejects_duplicate_transfer_variant_ids():
     payload = build_lesson_payload()
     variants = production_prompt(payload, "transfer")["transfer_variants"]
     variants[1]["id"] = variants[0]["id"]
 
     with pytest.raises(ValidationError, match="variant IDs must be unique"):
+        Lesson.model_validate(payload)
+
+
+def test_rejects_duplicate_normalized_transfer_variant_prompts():
+    payload = build_lesson_payload()
+    variants = production_prompt(payload, "transfer")["transfer_variants"]
+    variants[1]["prompt"] = "  " + variants[0]["prompt"].upper() + "  "
+
+    with pytest.raises(ValidationError, match="variant prompts must be unique"):
+        Lesson.model_validate(payload)
+
+
+def test_v3_rejects_duplicate_transfer_variant_ids_and_prompts():
+    payload = build_v3_lesson_payload()
+    variants = production_prompts(payload, "transfer")[0]["transfer_variants"]
+    variants[1]["id"] = variants[0]["id"]
+
+    with pytest.raises(ValidationError, match="variant IDs must be unique"):
+        Lesson.model_validate(payload)
+
+    payload = build_v3_lesson_payload()
+    variants = production_prompts(payload, "transfer")[0]["transfer_variants"]
+    variants[1]["prompt"] = "  " + variants[0]["prompt"].upper() + "  "
+
+    with pytest.raises(ValidationError, match="variant prompts must be unique"):
         Lesson.model_validate(payload)
 
 

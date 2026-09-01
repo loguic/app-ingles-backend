@@ -173,9 +173,9 @@ class LearnerProductionPrompt(BaseModel):
         if self.transfer_bank_id is not None:
             if not self.transfer_bank_id.strip():
                 raise ValueError("Transfer prompt bank ID cannot be blank")
-            if not 2 <= len(self.transfer_variants) <= 4:
+            if not 1 <= len(self.transfer_variants) <= 4:
                 raise ValueError(
-                    "Transfer prompt bank requires two to four variants"
+                    "Transfer prompt bank requires one to four variants"
                 )
         elif self.transfer_variants:
             raise ValueError(

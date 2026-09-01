@@ -22,6 +22,7 @@ from app.schemas.direct_english_construction_execution import (
     DirectEnglishConstructionRetryPreparation,
     DirectEnglishConstructionRetryPreparationRequest,
 )
+from app.schemas.content import Lesson
 from app.services.content_service import get_lesson_by_id
 from app.services.direct_english_construction_execution_service import (
     SELECTOR_VERSION,
@@ -200,6 +201,34 @@ def test_selector_is_reproducible_auditable_and_uses_no_random():
     assert variant in transfer_prompt.transfer_variants
     assert SELECTOR_VERSION == "sha256-v1"
     assert "random" not in execution_service.__dict__
+
+
+def test_selector_returns_the_sole_transfer_variant_deterministically():
+    lesson = get_lesson_by_id("a1-u1-l1")
+    assert lesson is not None
+    payload = lesson.model_dump(mode="json")
+    transfer_prompt = next(
+        turn["production_prompt"]
+        for conversation in payload["conversations"]
+        for turn in conversation["turns"]
+        if turn.get("production_prompt") is not None
+        and turn["production_prompt"].get("production_function") == "transfer"
+    )
+    transfer_prompt["transfer_variants"] = transfer_prompt[
+        "transfer_variants"
+    ][:1]
+    one_variant_lesson = Lesson.model_validate(payload)
+
+    first = select_direct_english_transfer_variant(
+        one_variant_lesson, "sole-variant-attempt"
+    )
+    second = select_direct_english_transfer_variant(
+        one_variant_lesson, "sole-variant-attempt"
+    )
+
+    assert first == second
+    assert first[0] == transfer_prompt["transfer_bank_id"]
+    assert first[1].id == transfer_prompt["transfer_variants"][0]["id"]
 
 
 def test_start_persists_exact_snapshot_and_one_commit(db, monkeypatch):

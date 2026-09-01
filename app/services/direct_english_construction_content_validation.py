@@ -130,6 +130,14 @@ def _validate_v3_direct_english_construction_lesson(lesson: Lesson) -> None:
                 raise ValueError(
                     "Direct construction v3 requires text fallback"
                 )
+            if prompt.production_function == "transfer" and (
+                prompt.transfer_bank_id is None
+                or not 1 <= len(prompt.transfer_variants) <= 4
+            ):
+                raise ValueError(
+                    "Direct construction v3 transfer requires a bank with one "
+                    "to four variants"
+                )
 
     direct_entries = [
         (conversation, turn.production_prompt)
@@ -325,6 +333,10 @@ def validate_direct_english_construction_lesson(lesson: Lesson) -> None:
         raise ValueError("Transfer prompt must differ from expansion prompt")
     if transfer_prompt.transfer_bank_id is None:
         raise ValueError("Transfer production requires a prompt bank")
+    if not 2 <= len(transfer_prompt.transfer_variants) <= 4:
+        raise ValueError(
+            "Direct construction v2 transfer requires two to four variants"
+        )
     if any(
         item.prompt.strip().casefold()
         == expanded_turn.en.strip().casefold()
