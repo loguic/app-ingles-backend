@@ -47,6 +47,106 @@ def _require_complete_prompt(prompt: LearnerProductionPrompt) -> None:
         )
 
 
+def _validate_v3_direct_english_construction_lesson(lesson: Lesson) -> None:
+    """Validate the closed v3 one-source-to-one-evidence mapping."""
+    experience = lesson.experience
+    if experience is None:  # pragma: no cover - caller guards it.
+        raise ValueError("Direct construction lesson requires an experience")
+
+    evidence_by_id = {
+        item.id: item for item in experience.evidence_definitions
+    }
+    required_evidence = [
+        evidence_by_id[item_id]
+        for item_id in experience.completion_policy.required_evidence_ids
+    ]
+    required_types = [item.evidence_type for item in required_evidence]
+    if sorted(required_types) != sorted(
+        [
+            "comprehension_result",
+            "guided_production",
+            "contextual_response",
+            "conversation_completion",
+        ]
+    ):
+        raise ValueError(
+            "Direct construction v3 requires exactly four canonical evidence"
+        )
+
+    direct_evidence = [
+        item
+        for item in required_evidence
+        if item.evidence_type in {"guided_production", "contextual_response"}
+    ]
+    if [item.evidence_type for item in direct_evidence] != [
+        "guided_production",
+        "contextual_response",
+    ]:
+        raise ValueError(
+            "Direct construction v3 requires guided then contextual evidence"
+        )
+    if len({item.activity_id for item in direct_evidence}) != 2:
+        raise ValueError(
+            "Direct construction v3 evidence activities must be distinct"
+        )
+
+    conversations_by_id = {
+        conversation.id: conversation for conversation in lesson.conversations
+    }
+    direct_activity_ids = {item.activity_id for item in direct_evidence}
+    for evidence in direct_evidence:
+        conversation = conversations_by_id.get(evidence.activity_id)
+        if conversation is None:
+            raise ValueError(
+                "Direct construction v3 evidence activity is unavailable"
+            )
+        entries = [
+            turn.production_prompt
+            for turn in conversation.turns
+            if turn.production_prompt is not None
+            and turn.production_prompt.production_function is not None
+        ]
+        functions = [item.production_function for item in entries]
+        if set(functions) != EXPECTED_FUNCTIONS or len(functions) != 3:
+            raise ValueError(
+                "Direct construction v3 evidence requires guided, expanded "
+                "and transfer captures"
+            )
+        for prompt in entries:
+            _require_complete_prompt(prompt)
+            if not prompt.required:
+                raise ValueError(
+                    "Direct construction v3 prompts must be required"
+                )
+            if prompt.primary_modality != "voice":
+                raise ValueError(
+                    "Direct construction v3 requires voice as primary modality"
+                )
+            if set(prompt.accepted_modalities) != {"voice", "text"}:
+                raise ValueError(
+                    "Direct construction v3 requires text fallback"
+                )
+            if prompt.fallback_modalities != ["text"]:
+                raise ValueError(
+                    "Direct construction v3 requires text fallback"
+                )
+
+    direct_entries = [
+        (conversation, turn.production_prompt)
+        for conversation in lesson.conversations
+        for turn in conversation.turns
+        if turn.production_prompt is not None
+        and turn.production_prompt.production_function in EXPECTED_FUNCTIONS
+    ]
+    if any(
+        conversation.id not in direct_activity_ids
+        for conversation, _ in direct_entries
+    ):
+        raise ValueError(
+            "Direct construction v3 captures must belong to direct evidence"
+        )
+
+
 def validate_direct_english_construction_lesson(lesson: Lesson) -> None:
     """Validate the deterministic structure of one direct-English lesson.
 
@@ -62,6 +162,10 @@ def validate_direct_english_construction_lesson(lesson: Lesson) -> None:
         or experience.pedagogical_method
         != "direct_english_construction"
     ):
+        return
+
+    if experience.contract_version == "3.0":
+        _validate_v3_direct_english_construction_lesson(lesson)
         return
 
     if experience.skill_ids != [EXPECTED_SKILL_ID]:

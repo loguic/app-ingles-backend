@@ -15,6 +15,7 @@ from app.db.models import (
     DirectEnglishConstructionAttempt as AttemptModel,
     DirectEnglishConstructionAttemptProduction as AttemptProductionModel,
     DirectEnglishConstructionProductionOrientation as OrientationModel,
+    ExperienceEvidenceState,
     LearnerProduction as ProductionModel,
 )
 from app.schemas.content import Lesson, TransferPromptVariant
@@ -118,8 +119,88 @@ def _resolve_lesson(
     )
 
 
-def _transfer_prompt(lesson: Lesson):
-    for conversation in lesson.conversations:
+def _uses_single_evidence_mapping(lesson: Lesson) -> bool:
+    return (
+        lesson.experience is not None
+        and lesson.experience.contract_version == "3.0"
+    )
+
+
+def _direct_evidence_definitions(lesson: Lesson) -> list:
+    experience = lesson.experience
+    if experience is None:
+        raise DirectEnglishConstructionInvariantError(
+            "Direct-English lesson has no experience"
+        )
+    by_id = {item.id: item for item in experience.evidence_definitions}
+    return [
+        by_id[evidence_id]
+        for evidence_id in experience.completion_policy.required_evidence_ids
+        if by_id[evidence_id].evidence_type
+        in {"guided_production", "contextual_response"}
+    ]
+
+
+def _select_v3_evidence_definition(
+    attempt,
+    lesson: Lesson,
+    db: Session,
+):
+    for definition in _direct_evidence_definitions(lesson):
+        state = db.get(
+            ExperienceEvidenceState,
+            (attempt.attempt_id, definition.id),
+        )
+        if state is not None and state.status == "satisfied":
+            continue
+        started_source = (
+            db.query(AttemptModel.attempt_id)
+            .filter(
+                AttemptModel.experience_attempt_id == attempt.attempt_id,
+                AttemptModel.evidence_definition_id == definition.id,
+                AttemptModel.status == "started",
+            )
+            .first()
+        )
+        if started_source is not None:
+            raise DirectEnglishConstructionStateConflictError(
+                "Direct-English evidence already has a started source"
+            )
+        return definition
+    raise DirectEnglishConstructionStateConflictError(
+        "Direct-English experience has no incomplete evidence"
+    )
+
+
+def _transfer_prompt(
+    lesson: Lesson,
+    evidence_definition_id: str | None = None,
+):
+    conversations = lesson.conversations
+    if evidence_definition_id is not None:
+        experience = lesson.experience
+        if experience is None:
+            raise DirectEnglishConstructionInvariantError(
+                "Direct-English lesson has no experience"
+            )
+        definition = next(
+            (
+                item
+                for item in experience.evidence_definitions
+                if item.id == evidence_definition_id
+            ),
+            None,
+        )
+        if definition is None:
+            raise DirectEnglishConstructionInvariantError(
+                "Direct-English evidence definition is unavailable"
+            )
+        conversations = [
+            item
+            for item in lesson.conversations
+            if item.id == definition.activity_id
+        ]
+    for conversation in conversations:
         for turn in conversation.turns:
             prompt = turn.production_prompt
             if prompt is not None and prompt.production_function == "transfer":
@@ -132,25 +213,27 @@ def _transfer_prompt(lesson: Lesson):
 def select_direct_english_transfer_variant(
     lesson: Lesson,
     attempt_id: str,
+    evidence_definition_id: str | None = None,
 ) -> tuple[str, TransferPromptVariant]:
     """Select one transfer variant without random or global state.
 
     Selecciona una variante sin aleatoriedad ni estado global.
     """
-    prompt = _transfer_prompt(lesson)
+    prompt = _transfer_prompt(lesson, evidence_definition_id)
     if prompt.transfer_bank_id is None or not prompt.transfer_variants:
         raise DirectEnglishConstructionInvariantError(
             "Transfer prompt bank is unavailable"
         )
     variants = sorted(prompt.transfer_variants, key=lambda item: item.id)
-    canonical_input = "\x1f".join(
-        (
-            SELECTOR_VERSION,
-            attempt_id,
-            lesson.id,
-            prompt.transfer_bank_id,
-        )
-    ).encode("utf-8")
+    canonical_values = [
+        SELECTOR_VERSION,
+        attempt_id,
+        lesson.id,
+        prompt.transfer_bank_id,
+    ]
+    if evidence_definition_id is not None:
+        canonical_values.append(evidence_definition_id)
+    canonical_input = "\x1f".join(canonical_values).encode("utf-8")
     index = int.from_bytes(
         hashlib.sha256(canonical_input).digest(),
         byteorder="big",
@@ -158,11 +241,55 @@ def select_direct_english_transfer_variant(
     return prompt.transfer_bank_id, variants[index]
 
 
-def _execution_entries(lesson: Lesson) -> dict[str, tuple]:
+def _execution_entries(
+    lesson: Lesson,
+    evidence_definition_id: str | None = None,
+) -> dict[str, tuple]:
     if lesson.experience is None:
         raise DirectEnglishConstructionInvariantError(
             "Direct-English lesson has no experience"
         )
+    if _uses_single_evidence_mapping(lesson):
+        if evidence_definition_id is None:
+            raise DirectEnglishConstructionInvariantError(
+                "Direct-English evidence binding is unavailable"
+            )
+        evidence = next(
+            (
+                item
+                for item in lesson.experience.evidence_definitions
+                if item.id == evidence_definition_id
+            ),
+            None,
+        )
+        if evidence is None:
+            raise DirectEnglishConstructionInvariantError(
+                "Direct-English evidence definition is unavailable"
+            )
+        conversation = next(
+            (
+                item
+                for item in lesson.conversations
+                if item.id == evidence.activity_id
+            ),
+            None,
+        )
+        if conversation is None:
+            raise DirectEnglishConstructionInvariantError(
+                "Direct-English evidence activity is unavailable"
+            )
+        entries = {
+            prompt.production_function: (conversation, turn, prompt, evidence)
+            for turn in conversation.turns
+            if (prompt := turn.production_prompt) is not None
+            and prompt.production_function is not None
+        }
+        if set(entries) != set(FUNCTION_ORDER) or len(entries) != 3:
+            raise DirectEnglishConstructionInvariantError(
+                "Direct-English evidence activity has incompatible captures"
+            )
+        return entries
+
     evidence_by_activity = {
         item.activity_id: item
         for item in lesson.experience.evidence_definitions
@@ -185,6 +312,24 @@ def _execution_entries(lesson: Lesson) -> dict[str, tuple]:
                 evidence,
             )
     return entries
+
+
+def _capture_validation_conversation(
+    lesson: Lesson,
+    conversation,
+    turn,
+):
+    """Keep the v3 aggregate's three captures individually trustworthy.
+
+    A v3 Direct-English activity owns all three required prompts, while the
+    established persistence boundary still stores one submission per capture.
+    Validate each persisted submission against its exact configured turn; the
+    finalizer remains responsible for requiring the complete three-capture
+    aggregate before any accreditation occurs.
+    """
+    if _uses_single_evidence_mapping(lesson):
+        return conversation.model_copy(update={"turns": [turn]})
+    return conversation
 
 
 def _normalize_timestamp(value: datetime) -> datetime:
@@ -312,7 +457,10 @@ def prepare_direct_english_construction_retry(
         attempt.unit_id,
         attempt.lesson_id,
     )
-    entry = _execution_entries(lesson).get(request.production_function)
+    entry = _execution_entries(
+        lesson,
+        attempt.evidence_definition_id,
+    ).get(request.production_function)
     if entry is None:
         raise DirectEnglishConstructionInvariantError(
             "Active content has no retry production function"
@@ -440,6 +588,7 @@ def start_direct_english_construction_attempt(
         command.unit_id,
         command.lesson_id,
     )
+    evidence_definition_id = None
     try:
         if command.experience_attempt_id is not None:
             experience_attempt, experience_lesson = resolve_experience_attempt(
@@ -459,6 +608,16 @@ def start_direct_english_construction_attempt(
                 raise DirectEnglishConstructionInvariantError(
                     "Direct-English source does not belong to experience"
                 )
+            if _uses_single_evidence_mapping(lesson):
+                evidence_definition_id = _select_v3_evidence_definition(
+                    experience_attempt,
+                    lesson,
+                    db,
+                ).id
+        elif _uses_single_evidence_mapping(lesson):
+            raise DirectEnglishConstructionInvariantError(
+                "Direct-English v3 source requires an experience binding"
+            )
         if (
             db.query(AttemptModel.attempt_id)
             .filter(AttemptModel.attempt_id == command.attempt_id)
@@ -471,6 +630,7 @@ def start_direct_english_construction_attempt(
         bank_id, variant = select_direct_english_transfer_variant(
             lesson,
             command.attempt_id,
+            evidence_definition_id,
         )
         attempt = AttemptModel(
             attempt_id=command.attempt_id,
@@ -479,6 +639,7 @@ def start_direct_english_construction_attempt(
             unit_id=command.unit_id,
             lesson_id=command.lesson_id,
             experience_attempt_id=command.experience_attempt_id,
+            evidence_definition_id=evidence_definition_id,
             transfer_bank_id=bank_id,
             transfer_variant_id=variant.id,
             transfer_prompt_snapshot=variant.prompt,
@@ -661,7 +822,10 @@ def _finalize_direct_english_construction_attempt(
             raise DirectEnglishConstructionInvariantError(
                 "Direct-English source does not belong to experience"
             )
-    entries = _execution_entries(lesson)
+    entries = _execution_entries(
+        lesson,
+        attempt.evidence_definition_id,
+    )
     captures = {
         item.production_function: item for item in command.captures
     }
@@ -711,7 +875,11 @@ def _finalize_direct_english_construction_attempt(
         try:
             validate_conversation_production_submission(
                 submission,
-                conversation,
+                _capture_validation_conversation(
+                    lesson,
+                    conversation,
+                    turn,
+                ),
             )
         except ValueError as exc:
             raise DirectEnglishConstructionInvariantError(
@@ -771,33 +939,61 @@ def _finalize_direct_english_construction_attempt(
         attempt.finalized_at = command.finalized_at
         db.flush()
         if experience_attempt is not None and experience_lesson is not None:
-            accredit_evidence_states(
-                experience_attempt,
-                experience_lesson,
-                [
+            capture_statuses = {
+                function: (
+                    "satisfied"
+                    if captures[function].submission.productions[0].modality
+                    == "voice"
+                    and SUPPORT_RANK[captures[function].support_used]
+                    <= SUPPORT_RANK[entries[function][2].support_level]
+                    and (
+                        function != "transfer"
+                        or captures[function].support_used == "none"
+                    )
+                    else "pending"
+                )
+                for function in ordered_functions
+            }
+            if _uses_single_evidence_mapping(lesson):
+                evidence_ids = {
+                    entries[function][3].id for function in ordered_functions
+                }
+                if (
+                    evidence_ids != {attempt.evidence_definition_id}
+                    or attempt.evidence_definition_id is None
+                ):
+                    raise DirectEnglishConstructionInvariantError(
+                        "Direct-English evidence binding is incompatible"
+                    )
+                updates = [
                     (
-                        entries[function][3],
+                        entries["guided"][3],
                         (
                             "satisfied"
-                            if captures[function]
-                            .submission.productions[0]
-                            .modality
-                            == "voice"
-                            and SUPPORT_RANK[captures[function].support_used]
-                            <= SUPPORT_RANK[
-                                entries[function][2].support_level
-                            ]
-                            and (
-                                function != "transfer"
-                                or captures[function].support_used == "none"
+                            if all(
+                                status == "satisfied"
+                                for status in capture_statuses.values()
                             )
                             else "pending"
                         ),
                         "direct_english_construction_attempt",
                         attempt.attempt_id,
                     )
+                ]
+            else:
+                updates = [
+                    (
+                        entries[function][3],
+                        capture_statuses[function],
+                        "direct_english_construction_attempt",
+                        attempt.attempt_id,
+                    )
                     for function in ordered_functions
-                ],
+                ]
+            accredit_evidence_states(
+                experience_attempt,
+                experience_lesson,
+                updates,
                 db,
             )
         db.commit()
@@ -983,7 +1179,10 @@ def finalize_public_direct_english_construction_attempt(
         attempt.unit_id,
         attempt.lesson_id,
     )
-    entries = _execution_entries(lesson)
+    entries = _execution_entries(
+        lesson,
+        attempt.evidence_definition_id,
+    )
     public_captures = {
         item.production_function: item for item in command.captures
     }

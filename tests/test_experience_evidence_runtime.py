@@ -5,9 +5,11 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
+import app.services.direct_english_construction_execution_service as direct_execution_service
 from app.db.database import Base
 from app.db.models import (
     ConversationAttempt,
+    DirectEnglishConstructionAttempt,
     DirectEnglishConstructionAttemptProduction,
     ExperienceAttempt,
     ExperienceComprehensionResponse,
@@ -34,6 +36,9 @@ from app.services.conversation_production_persistence_service import (
 from app.services.direct_english_construction_execution_service import (
     finalize_direct_english_construction_attempt,
     start_direct_english_construction_attempt,
+)
+from app.services.direct_english_construction_content_validation import (
+    validate_direct_english_construction_lesson,
 )
 from app.services.experience_attempt_service import (
     get_experience_attempt_state,
@@ -167,6 +172,184 @@ def comprehension_lesson() -> Lesson:
             },
         }
     )
+
+
+def direct_english_v3_lesson() -> Lesson:
+    """Future active content used only to exercise the closed v3 mapping."""
+
+    def capture(group: str, function: str, support_level: str) -> dict:
+        prompt = {
+            "id": group + "-prompt-" + function,
+            "accepted_modalities": ["voice", "text"],
+            "required": True,
+            "production_function": function,
+            "primary_modality": "voice",
+            "fallback_modalities": ["text"],
+            "support_level": support_level,
+            "allow_full_answer_model": False,
+        }
+        if function == "transfer":
+            prompt["transfer_bank_id"] = group + "-transfer-bank"
+            prompt["transfer_variants"] = [
+                {"id": group + "-transfer-one", "prompt": "What is your name?"},
+                {"id": group + "-transfer-two", "prompt": "Where are you from?"},
+            ]
+        return {
+            "id": group + "-turn-" + function,
+            "speaker": "learner",
+            "en": "Produce the " + function + " response.",
+            "production_prompt": prompt,
+        }
+
+    def direct_activity(group: str) -> dict:
+        return {
+            "id": group,
+            "title": group,
+            "mode": "guided",
+            "turns": [
+                capture(group, "guided", "anchors"),
+                capture(group, "expanded", "initial_word"),
+                capture(group, "transfer", "none"),
+            ],
+        }
+
+    lesson = Lesson.model_validate(
+        {
+            "id": "direct-v3-lesson",
+            "title": "Direct English v3 mapping",
+            "conversations": [
+                {
+                    "id": "direct-v3-comprehension",
+                    "title": "Listen",
+                    "mode": "guided",
+                    "turns": [
+                        {
+                            "id": "direct-v3-comprehension-turn",
+                            "speaker": "partner",
+                            "en": "Hello.",
+                        }
+                    ],
+                },
+                direct_activity("direct-v3-guided"),
+                direct_activity("direct-v3-contextual"),
+                {
+                    "id": "direct-v3-conversation",
+                    "title": "Complete the conversation",
+                    "mode": "guided",
+                    "turns": [
+                        {
+                            "id": "direct-v3-conversation-turn",
+                            "speaker": "partner",
+                            "en": "Nice to meet you.",
+                        }
+                    ],
+                },
+            ],
+            "exercises": [
+                {
+                    "id": "direct-v3-question",
+                    "type": "mcq",
+                    "prompt": "Choose the greeting.",
+                    "options": ["Hello", "Goodbye"],
+                    "answer_index": 0,
+                    "skill_ids": ["direct-v3-skill"],
+                }
+            ],
+            "experience": {
+                "contract_version": "3.0",
+                "pedagogical_method": "direct_english_construction",
+                "mission": {
+                    "id": "direct-v3-mission",
+                    "title": "Produce two complete direct-English attempts",
+                    "situation": "Meet and respond.",
+                    "observable_outcome": "Complete each three-capture attempt.",
+                    "success_criteria": ["Complete the required evidence."],
+                },
+                "skill_ids": ["direct-v3-skill"],
+                "stages": [
+                    {
+                        "id": "direct-v3-stage-comprehension",
+                        "type": "comprehension",
+                        "instruction": "Understand.",
+                        "activity_ids": ["direct-v3-comprehension"],
+                        "completion_condition": "evidence_recorded",
+                    },
+                    {
+                        "id": "direct-v3-stage-guided",
+                        "type": "guided_production",
+                        "instruction": "Introduce yourself.",
+                        "activity_ids": ["direct-v3-guided"],
+                        "completion_condition": "evidence_recorded",
+                    },
+                    {
+                        "id": "direct-v3-stage-contextual",
+                        "type": "assisted_response",
+                        "instruction": "Respond socially.",
+                        "activity_ids": ["direct-v3-contextual"],
+                        "completion_condition": "evidence_recorded",
+                    },
+                    {
+                        "id": "direct-v3-stage-conversation",
+                        "type": "applied_conversation",
+                        "instruction": "Complete the conversation.",
+                        "activity_ids": ["direct-v3-conversation"],
+                        "completion_condition": "evidence_recorded",
+                    },
+                ],
+                "evidence_definitions": [
+                    {
+                        "id": "direct-v3-comprehension-evidence",
+                        "skill_ids": ["direct-v3-skill"],
+                        "stage_id": "direct-v3-stage-comprehension",
+                        "activity_id": "direct-v3-comprehension",
+                        "comprehension_exercise_id": "direct-v3-question",
+                        "evidence_type": "comprehension_result",
+                        "measurement_mode": "binary",
+                    },
+                    {
+                        "id": "direct-v3-guided-evidence",
+                        "skill_ids": ["direct-v3-skill"],
+                        "stage_id": "direct-v3-stage-guided",
+                        "activity_id": "direct-v3-guided",
+                        "evidence_type": "guided_production",
+                        "measurement_mode": "completion",
+                    },
+                    {
+                        "id": "direct-v3-contextual-evidence",
+                        "skill_ids": ["direct-v3-skill"],
+                        "stage_id": "direct-v3-stage-contextual",
+                        "activity_id": "direct-v3-contextual",
+                        "evidence_type": "contextual_response",
+                        "measurement_mode": "completion",
+                    },
+                    {
+                        "id": "direct-v3-conversation-evidence",
+                        "skill_ids": ["direct-v3-skill"],
+                        "stage_id": "direct-v3-stage-conversation",
+                        "activity_id": "direct-v3-conversation",
+                        "evidence_type": "conversation_completion",
+                        "measurement_mode": "completion",
+                    },
+                ],
+                "completion_policy": {
+                    "practiced_stage_ids": [
+                        "direct-v3-stage-comprehension",
+                        "direct-v3-stage-guided",
+                        "direct-v3-stage-contextual",
+                        "direct-v3-stage-conversation",
+                    ],
+                    "required_evidence_ids": [
+                        "direct-v3-comprehension-evidence",
+                        "direct-v3-guided-evidence",
+                        "direct-v3-contextual-evidence",
+                        "direct-v3-conversation-evidence",
+                    ],
+                },
+            },
+        }
+    )
+    validate_direct_english_construction_lesson(lesson)
+    return lesson
 
 
 def add_attempt(
@@ -553,6 +736,238 @@ def _audio_references(tmp_path, count):
         ).audio_reference
         for _ in range(count)
     ]
+
+
+def _v3_attempt(db, lesson: Lesson, attempt_id: str) -> ExperienceAttempt:
+    attempt = ExperienceAttempt(
+        attempt_id=attempt_id,
+        user_id="direct-v3-user",
+        level_id="A1",
+        unit_id="direct-v3-unit",
+        lesson_id=lesson.id,
+        experience_contract_version="3.0",
+        status="in_progress",
+        started_at=NOW,
+        completed_at=None,
+    )
+    db.add(attempt)
+    db.commit()
+    return attempt
+
+
+def _bind_v3_direct_execution(monkeypatch, db, lesson: Lesson) -> None:
+    monkeypatch.setattr(
+        direct_execution_service,
+        "_resolve_lesson",
+        lambda _level_id, _unit_id, _lesson_id: lesson,
+    )
+    monkeypatch.setattr(
+        direct_execution_service,
+        "resolve_experience_attempt",
+        lambda attempt_id, _db, **_kwargs: (
+            db.get(ExperienceAttempt, attempt_id),
+            lesson,
+        ),
+    )
+    monkeypatch.setattr(
+        "app.services.experience_attempt_service.get_lesson_context_by_id",
+        lambda lesson_id: (
+            ("A1", "direct-v3-unit", lesson)
+            if lesson_id == lesson.id
+            else None
+        ),
+    )
+    monkeypatch.setattr(
+        "app.services.experience_attempt_service."
+        "get_lesson_context_by_id_and_contract_version",
+        lambda lesson_id, contract_version: (
+            ("A1", "direct-v3-unit", lesson)
+            if lesson_id == lesson.id and contract_version == "3.0"
+            else None
+        ),
+    )
+
+
+def _v3_start_command(attempt: ExperienceAttempt, source_id: str):
+    return DirectEnglishConstructionAttemptStart.model_validate(
+        {
+            "attempt_id": source_id,
+            "user_id": attempt.user_id,
+            "level_id": attempt.level_id,
+            "unit_id": attempt.unit_id,
+            "lesson_id": attempt.lesson_id,
+            "experience_attempt_id": attempt.attempt_id,
+            "started_at": NOW,
+        }
+    )
+
+
+def _v3_finalize_command(
+    attempt: ExperienceAttempt,
+    source,
+    lesson: Lesson,
+    tmp_path,
+    *,
+    text_function: str | None = None,
+):
+    entries = direct_execution_service._execution_entries(
+        lesson,
+        source.evidence_definition_id,
+    )
+    audio_references = iter(
+        _audio_references(
+            tmp_path,
+            2 if text_function is not None else 3,
+        )
+    )
+    captures = []
+    for function in ("guided", "expanded", "transfer"):
+        conversation, turn, prompt, _evidence = entries[function]
+        production = {
+            "prompt_id": prompt.id,
+            "turn_id": turn.id,
+            "modality": "text" if function == text_function else "voice",
+        }
+        if function == text_function:
+            production["response_text"] = "Text fallback."
+        else:
+            production["audio_reference"] = next(audio_references)
+        capture = {
+            "production_function": function,
+            "submission": {
+                "user_id": attempt.user_id,
+                "level_id": attempt.level_id,
+                "unit_id": attempt.unit_id,
+                "lesson_id": attempt.lesson_id,
+                "conversation_id": conversation.id,
+                "productions": [production],
+            },
+            "support_used": prompt.support_level,
+        }
+        if function == "transfer":
+            capture["transfer_variant_id"] = source.transfer_variant_id
+        captures.append(capture)
+    return DirectEnglishConstructionAttemptFinalize.model_validate(
+        {
+            "attempt_id": source.attempt_id,
+            "captures": captures,
+            "finalized_at": NOW + timedelta(minutes=5),
+        }
+    )
+
+
+def test_v3_direct_english_uses_one_server_selected_evidence_per_attempt(
+    db,
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.setenv("PRODUCTION_AUDIO_DIR", str(tmp_path))
+    lesson = direct_english_v3_lesson()
+    experience = _v3_attempt(db, lesson, "experience-direct-v3")
+    _bind_v3_direct_execution(monkeypatch, db, lesson)
+
+    first = start_direct_english_construction_attempt(
+        _v3_start_command(experience, "direct-v3-guided-source"),
+        db,
+    )
+    persisted_first = db.get(
+        DirectEnglishConstructionAttempt,
+        first.attempt_id,
+    )
+    assert persisted_first.evidence_definition_id == "direct-v3-guided-evidence"
+    assert db.query(ExperienceEvidenceState).count() == 0
+
+    finalize_direct_english_construction_attempt(
+        _v3_finalize_command(experience, persisted_first, lesson, tmp_path),
+        db,
+    )
+    first_links = db.query(DirectEnglishConstructionAttemptProduction).filter_by(
+        attempt_id=first.attempt_id
+    )
+    assert {
+        link.evidence_id for link in first_links
+    } == {"direct-v3-guided-evidence"}
+    assert evidence_statuses(db, experience.attempt_id) == {
+        "direct-v3-guided-evidence": "satisfied"
+    }
+
+    authoritative = get_experience_attempt_state(experience.attempt_id, db)
+    assert authoritative is not None
+    assert [item.evidence_definition_id for item in authoritative.evidence_states] == [
+        "direct-v3-comprehension-evidence",
+        "direct-v3-guided-evidence",
+        "direct-v3-contextual-evidence",
+        "direct-v3-conversation-evidence",
+    ]
+    assert [item.status for item in authoritative.evidence_states] == [
+        "pending",
+        "satisfied",
+        "pending",
+        "pending",
+    ]
+
+    second = start_direct_english_construction_attempt(
+        _v3_start_command(experience, "direct-v3-contextual-source"),
+        db,
+    )
+    persisted_second = db.get(
+        DirectEnglishConstructionAttempt,
+        second.attempt_id,
+    )
+    assert persisted_second.evidence_definition_id == "direct-v3-contextual-evidence"
+    finalize_direct_english_construction_attempt(
+        _v3_finalize_command(experience, persisted_second, lesson, tmp_path),
+        db,
+    )
+
+    assert evidence_statuses(db, experience.attempt_id) == {
+        "direct-v3-guided-evidence": "satisfied",
+        "direct-v3-contextual-evidence": "satisfied",
+    }
+    assert db.query(DirectEnglishConstructionAttempt).count() == 2
+    assert db.get(ExperienceAttempt, experience.attempt_id).status == "in_progress"
+
+
+def test_v3_text_fallback_does_not_accredit_or_unlock_next_direct_evidence(
+    db,
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.setenv("PRODUCTION_AUDIO_DIR", str(tmp_path))
+    lesson = direct_english_v3_lesson()
+    experience = _v3_attempt(db, lesson, "experience-direct-v3-pending")
+    _bind_v3_direct_execution(monkeypatch, db, lesson)
+
+    first = start_direct_english_construction_attempt(
+        _v3_start_command(experience, "direct-v3-pending-source"),
+        db,
+    )
+    persisted_first = db.get(
+        DirectEnglishConstructionAttempt,
+        first.attempt_id,
+    )
+    finalize_direct_english_construction_attempt(
+        _v3_finalize_command(
+            experience,
+            persisted_first,
+            lesson,
+            tmp_path,
+            text_function="expanded",
+        ),
+        db,
+    )
+    assert evidence_statuses(db, experience.attempt_id) == {
+        "direct-v3-guided-evidence": "pending"
+    }
+
+    retry = start_direct_english_construction_attempt(
+        _v3_start_command(experience, "direct-v3-pending-retry"),
+        db,
+    )
+    assert db.get(
+        DirectEnglishConstructionAttempt,
+        retry.attempt_id,
+    ).evidence_definition_id == "direct-v3-guided-evidence"
 
 
 def test_bound_direct_english_finalization_satisfies_and_completes(

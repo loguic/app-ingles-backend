@@ -219,6 +219,11 @@ def test_start_persists_exact_snapshot_and_one_commit(db, monkeypatch):
     assert record.productions == []
     assert record.completion_requirements_met is False
     assert record.selector_version == SELECTOR_VERSION
+    assert (
+        db.get(DirectEnglishConstructionAttempt, record.attempt_id)
+        .evidence_definition_id
+        is None
+    )
     lesson = get_lesson_by_id("a1-u1-l1")
     assert lesson is not None
     _bank_id, expected = select_direct_english_transfer_variant(
@@ -898,8 +903,8 @@ def test_prepare_retry_rejects_active_content_mismatch(db, monkeypatch):
     finalized_attempt_with_orientation(db)
     original = execution_service._execution_entries
 
-    def incompatible_entries(lesson):
-        entries = original(lesson)
+    def incompatible_entries(lesson, evidence_definition_id=None):
+        entries = original(lesson, evidence_definition_id)
         conversation, turn, prompt, evidence = entries["guided"]
         prompt = prompt.model_copy(update={"id": "changed-prompt"})
         return entries | {"guided": (conversation, turn, prompt, evidence)}

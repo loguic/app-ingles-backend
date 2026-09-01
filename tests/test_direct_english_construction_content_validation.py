@@ -41,6 +41,84 @@ def validate_payload(payload: dict) -> Lesson:
     return lesson
 
 
+def conversation(payload: dict, conversation_id: str) -> dict:
+    return next(
+        item
+        for item in payload["conversations"]
+        if item["id"] == conversation_id
+    )
+
+
+def build_v3_lesson_payload() -> dict:
+    """Build isolated future content without activating the curriculum."""
+    payload = build_lesson_payload()
+    experience = payload["experience"]
+    experience["contract_version"] = "3.0"
+    payload["exercises"][0]["skill_ids"] = ["a1_introduce_yourself"]
+
+    guided = conversation(payload, "a1-u1-l1-c-direct-guided")
+    expanded = conversation(payload, "a1-u1-l1-c-direct-expanded")
+    transfer = conversation(payload, "a1-u1-l1-c-direct-transfer")
+    original_turns = {
+        function: deepcopy(learner_turn(payload, function))
+        for function in ("guided", "expanded", "transfer")
+    }
+
+    def copy_capture(function: str, target: dict) -> dict:
+        turn = deepcopy(original_turns[function])
+        turn["id"] = target["id"] + "-t-v3-" + function
+        turn["production_prompt"]["id"] = target["id"] + "-p-v3-" + function
+        return turn
+
+    guided["turns"].extend(
+        [copy_capture("expanded", guided), copy_capture("transfer", guided)]
+    )
+    expanded["turns"].extend(
+        [copy_capture("guided", expanded), copy_capture("transfer", expanded)]
+    )
+    transfer["turns"][1].pop("production_prompt")
+
+    experience["evidence_definitions"] = [
+        {
+            "id": "a1-u1-l1-ev-comprehension-v3",
+            "skill_ids": ["a1_introduce_yourself"],
+            "stage_id": "a1-u1-l1-s1",
+            "activity_id": "a1-u1-l1-c1",
+            "comprehension_exercise_id": "a1-u1-l1-q1",
+            "evidence_type": "comprehension_result",
+            "measurement_mode": "binary",
+        },
+        {
+            "id": "a1-u1-l1-ev-guided-v3",
+            "skill_ids": ["a1_introduce_yourself"],
+            "stage_id": "a1-u1-l1-s2",
+            "activity_id": guided["id"],
+            "evidence_type": "guided_production",
+            "measurement_mode": "completion",
+        },
+        {
+            "id": "a1-u1-l1-ev-contextual-v3",
+            "skill_ids": ["a1_introduce_yourself"],
+            "stage_id": "a1-u1-l1-s3",
+            "activity_id": expanded["id"],
+            "evidence_type": "contextual_response",
+            "measurement_mode": "completion",
+        },
+        {
+            "id": "a1-u1-l1-ev-conversation-v3",
+            "skill_ids": ["a1_introduce_yourself"],
+            "stage_id": "a1-u1-l1-s4",
+            "activity_id": transfer["id"],
+            "evidence_type": "conversation_completion",
+            "measurement_mode": "completion",
+        },
+    ]
+    experience["completion_policy"]["required_evidence_ids"] = [
+        item["id"] for item in experience["evidence_definitions"]
+    ]
+    return payload
+
+
 def test_active_first_lesson_is_valid_direct_construction_content():
     lesson = validate_payload(build_lesson_payload())
     experience = lesson.experience
@@ -60,6 +138,30 @@ def test_active_first_lesson_is_valid_direct_construction_content():
     assert experience.correction_policy.priorities == (
         EXPECTED_CORRECTION_PRIORITIES
     )
+
+
+def test_v3_requires_two_direct_attempt_activities_with_three_captures_each():
+    lesson = validate_payload(build_v3_lesson_payload())
+    assert lesson.experience is not None
+    assert lesson.experience.contract_version == "3.0"
+    assert [
+        item.evidence_type
+        for item in lesson.experience.evidence_definitions
+    ] == [
+        "comprehension_result",
+        "guided_production",
+        "contextual_response",
+        "conversation_completion",
+    ]
+
+
+def test_v3_rejects_a_direct_attempt_activity_without_all_three_captures():
+    payload = build_v3_lesson_payload()
+    contextual = conversation(payload, "a1-u1-l1-c-direct-expanded")
+    contextual["turns"] = contextual["turns"][:-1]
+
+    with pytest.raises(ValueError, match="requires guided, expanded and transfer"):
+        validate_payload(payload)
 
 
 def test_reuses_regional_audio_and_adds_shadowing_before_production():

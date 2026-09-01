@@ -297,6 +297,7 @@ class DirectEnglishConstructionAttempt(Base):
         index=True,
         nullable=True,
     )
+    evidence_definition_id = Column(String, nullable=True)
     transfer_bank_id = Column(String, nullable=False)
     transfer_variant_id = Column(String, nullable=False)
     transfer_prompt_snapshot = Column(Text, nullable=False)

@@ -22,6 +22,12 @@ ORIENTATION_MIGRATION = (
     / "versions"
     / "a4c8e2f6b901_add_direct_english_construction_orientations.py"
 )
+EVIDENCE_BINDING_MIGRATION = (
+    ROOT
+    / "alembic"
+    / "versions"
+    / "c1844e9f2a31_add_direct_english_attempt_evidence_binding.py"
+)
 
 
 def constraint_names(table, constraint_type):
@@ -32,7 +38,7 @@ def constraint_names(table, constraint_type):
     }
 
 
-def test_attempt_model_contains_only_execution_identity_and_snapshot():
+def test_attempt_model_contains_execution_identity_snapshot_and_evidence_binding():
     table = DirectEnglishConstructionAttempt.__table__
 
     assert table.name == "direct_english_construction_attempts"
@@ -43,6 +49,7 @@ def test_attempt_model_contains_only_execution_identity_and_snapshot():
         table.c.unit_id,
         table.c.lesson_id,
         table.c.experience_attempt_id,
+        table.c.evidence_definition_id,
         table.c.transfer_bank_id,
         table.c.transfer_variant_id,
         table.c.transfer_prompt_snapshot,
@@ -63,6 +70,17 @@ def test_attempt_model_contains_only_execution_identity_and_snapshot():
     assert "ck_direct_english_attempt_timeline" in constraint_names(
         table, CheckConstraint
     )
+
+
+def test_evidence_binding_migration_is_linear_and_reversible():
+    source = EVIDENCE_BINDING_MIGRATION.read_text(encoding="utf-8")
+
+    assert 'revision: str = "c1844e9f2a31"' in source
+    assert 'down_revision: Union[str, Sequence[str], None] = "22c69d857dc6"' in source
+    assert source.count("op.add_column(") == 1
+    assert source.count("op.drop_column(") == 1
+    assert "evidence_definition_id" in source
+    assert "nullable=True" in source
 
 
 def test_attempt_production_has_required_relational_integrity():

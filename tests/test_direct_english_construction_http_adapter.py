@@ -2,6 +2,7 @@ from datetime import UTC, datetime
 
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -20,6 +21,7 @@ from app.db.session import get_db
 from app.main import app
 from app.schemas.direct_english_construction_execution import (
     DirectEnglishConstructionAttemptStart,
+    DirectEnglishConstructionPublicStart,
 )
 from app.services.direct_english_construction_execution_service import (
     start_direct_english_construction_attempt,
@@ -166,6 +168,19 @@ def _captures(
     return captures
 
 
+def test_public_start_contract_has_no_evidence_definition_selector():
+    assert set(DirectEnglishConstructionPublicStart.model_fields) == {
+        "attempt_id"
+    }
+    with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
+        DirectEnglishConstructionPublicStart.model_validate(
+            {
+                "attempt_id": "client-source",
+                "evidence_definition_id": "client-must-not-select-this",
+            }
+        )
+
+
 def test_public_start_derives_bound_context_and_returns_narrow_source(
     client,
     session_factory,
@@ -177,6 +192,7 @@ def test_public_start_derives_bound_context_and_returns_narrow_source(
 
     assert response.status_code == 200
     assert set(response.json()) == PUBLIC_SOURCE_FIELDS
+    assert "evidence_definition_id" not in response.json()
     assert response.json() == {
         "direct_english_attempt_id": "http-source-1",
         "experience_attempt_id": experience["attempt_id"],
@@ -192,6 +208,7 @@ def test_public_start_derives_bound_context_and_returns_narrow_source(
         assert source.unit_id == "a1-u1"
         assert source.lesson_id == "a1-u1-l1"
         assert source.experience_attempt_id == experience["attempt_id"]
+        assert source.evidence_definition_id is None
         started_at = source.started_at
         if started_at.tzinfo is None:
             started_at = started_at.replace(tzinfo=UTC)
