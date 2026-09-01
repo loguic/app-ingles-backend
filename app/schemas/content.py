@@ -652,7 +652,7 @@ class LessonExperience(BaseModel):
     Orquesta la experiencia profesional pública de la lección.
     """
 
-    contract_version: Literal["2.0"] = "2.0"
+    contract_version: Literal["2.0", "3.0"] = "2.0"
     pedagogical_method: Optional[
         Literal[
             "direct_english_construction",

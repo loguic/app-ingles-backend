@@ -100,9 +100,34 @@ def test_lesson_parses_professional_experience_v2():
     assert len(lesson.experience.stages) == 2
 
 
+@pytest.mark.parametrize("contract_version", ["2.0", "3.0"])
+def test_lesson_accepts_declared_experience_versions(contract_version):
+    payload = build_experience_payload()
+    payload["contract_version"] = contract_version
+
+    lesson = Lesson.model_validate({
+        "id": "a1-u1-l1",
+        "title": "Declared version",
+        "experience": payload,
+        "exercises": [
+            {
+                "id": "a1-u1-l1-q1",
+                "type": "mcq",
+                "prompt": "Complete the introduction.",
+                "options": ["Hello.", "Goodbye."],
+                "answer_index": 0,
+                "skill_ids": ["a1_introduce_yourself"],
+            }
+        ],
+    })
+
+    assert lesson.experience is not None
+    assert lesson.experience.contract_version == contract_version
+
+
 def test_lesson_rejects_unsupported_experience_version():
     payload = build_experience_payload()
-    payload["contract_version"] = "3.0"
+    payload["contract_version"] = "2.1"
 
     with pytest.raises(ValidationError):
         Lesson.model_validate({

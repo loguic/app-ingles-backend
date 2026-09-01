@@ -10,7 +10,10 @@ from app.schemas.experience_attempt import (
     ExperienceAttemptStart,
     ExperienceComprehensionResponseRecord,
 )
-from app.services.content_service import get_lesson_context_by_id
+from app.services.content_service import (
+    get_lesson_context_by_id,
+    get_lesson_context_by_id_and_contract_version,
+)
 from app.services.experience_evidence_service import (
     accredit_evidence_states,
     effective_evidence_records,
@@ -23,12 +26,26 @@ def _resolve_experience_context(
     level_id: str,
     unit_id: str,
     lesson_id: str,
+    experience_contract_version: str | None = None,
 ):
     """Resolve one persisted hierarchy to a lesson experience.
 
     Resuelve una jerarquía persistida hacia una experiencia de lección.
     """
     context = get_lesson_context_by_id(lesson_id)
+    if (
+        experience_contract_version is not None
+        and (
+            context is None
+            or context[2].experience is None
+            or context[2].experience.contract_version
+            != experience_contract_version
+        )
+    ):
+        context = get_lesson_context_by_id_and_contract_version(
+            lesson_id,
+            experience_contract_version,
+        )
     if context is None:
         raise ValueError(
             "Experience hierarchy does not match the content tree"
@@ -46,6 +63,14 @@ def _resolve_experience_context(
 
     if lesson.experience is None:
         raise ValueError(f"Lesson '{lesson_id}' has no experience")
+
+    if (
+        experience_contract_version is not None
+        and lesson.experience.contract_version != experience_contract_version
+    ):
+        raise ValueError(
+            "Experience hierarchy does not match the content tree"
+        )
 
     return lesson
 
@@ -192,6 +217,7 @@ def get_experience_attempt_state(
         attempt.level_id,
         attempt.unit_id,
         attempt.lesson_id,
+        attempt.experience_contract_version,
     )
     experience = lesson.experience
     if experience is None:  # pragma: no cover - guarded by resolver.

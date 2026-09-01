@@ -1,0 +1,506 @@
+{
+  "level_id": "A1",
+  "unit_id": "a1-u1",
+  "lesson": {
+    "id": "a1-u1-l1",
+    "title": "Introduce yourself directly",
+    "objective": "Build, expand and transfer a personal introduction directly in English.",
+    "experience": {
+      "contract_version": "2.0",
+      "pedagogical_method": "direct_english_construction",
+      "mission": {
+        "id": "a1-u1-l1-m1",
+        "title": "Meet someone and introduce yourself",
+        "situation": "Meet a new person and share only the simple personal information you choose, which may be fictional.",
+        "observable_outcome": "Build an introduction from a person and a verb, add one relevant detail and answer one related variation in your own words.",
+        "success_criteria": [
+          "The learner constructs a guided personal response without copying a complete answer.",
+          "The learner adds new information about origin, routine, activity or interest.",
+          "The learner answers a related transfer prompt without language support.",
+          "Voice is the primary evidence modality and any text response remains a fallback."
+        ]
+      },
+      "skill_ids": [
+        "a1_introduce_yourself"
+      ],
+      "stages": [
+        {
+          "id": "a1-u1-l1-s1",
+          "type": "encounter",
+          "instruction": "Notice Persona, Verbo and detail in the model, listen for rhythm and shadow the short phrase.",
+          "activity_ids": [
+            "a1-u1-l1-c1",
+            "a1-u1-l1-c2"
+          ],
+          "mode": "required",
+          "completion_condition": "all_activities_completed"
+        },
+        {
+          "id": "a1-u1-l1-s2",
+          "type": "guided_production",
+          "instruction": "Build a personal response using only the Persona and Verbo anchors.",
+          "activity_ids": [
+            "a1-u1-l1-c-direct-guided"
+          ],
+          "mode": "required",
+          "completion_condition": "evidence_recorded"
+        },
+        {
+          "id": "a1-u1-l1-s3",
+          "type": "applied_conversation",
+          "instruction": "Expand the construction with one relevant detail using only the initial word.",
+          "activity_ids": [
+            "a1-u1-l1-c-direct-expanded"
+          ],
+          "mode": "required",
+          "completion_condition": "evidence_recorded"
+        },
+        {
+          "id": "a1-u1-l1-s4",
+          "type": "evidence",
+          "instruction": "Answer one related unexpected question in your own words without language support.",
+          "activity_ids": [
+            "a1-u1-l1-c-direct-transfer"
+          ],
+          "mode": "required",
+          "completion_condition": "evidence_recorded"
+        },
+        {
+          "id": "a1-u1-l1-s5",
+          "type": "closure",
+          "instruction": "Confirm that guided, expanded and transfer productions were recorded; completion does not mean progress or mastery.",
+          "activity_ids": [],
+          "mode": "required",
+          "completion_condition": "acknowledged"
+        }
+      ],
+      "language_support": [
+        {
+          "id": "a1-u1-l1-ls1",
+          "type": "reference_expression",
+          "en": "Hello, I am John.",
+          "es": "Hola, soy John.",
+          "pronunciations": [
+            {
+              "locale": "en-US",
+              "ipa": "/həˈloʊ, aɪ æm dʒɑːn/",
+              "audio_asset": "audio/a1_u1_l1_hello_us.wav"
+            },
+            {
+              "locale": "en-GB",
+              "ipa": "/həˈləʊ, aɪ æm dʒɒn/",
+              "audio_asset": "audio/a1_u1_l1_hello_uk.wav"
+            }
+          ],
+          "usage_note": "Complete model for conscious noticing and shadowing only.",
+          "stage_ids": [
+            "a1-u1-l1-s1"
+          ]
+        },
+        {
+          "id": "a1-u1-l1-ls2",
+          "type": "pattern",
+          "en": "Persona: I",
+          "usage_note": "Choose the person before the action.",
+          "stage_ids": [
+            "a1-u1-l1-s2"
+          ]
+        },
+        {
+          "id": "a1-u1-l1-ls3",
+          "type": "pattern",
+          "en": "Verbos: am · live · work · study · like",
+          "usage_note": "Choose one action that matches the intended meaning.",
+          "stage_ids": [
+            "a1-u1-l1-s2"
+          ]
+        },
+        {
+          "id": "a1-u1-l1-ls4",
+          "type": "word",
+          "en": "I",
+          "usage_note": "Only the initial word remains during expansion.",
+          "stage_ids": [
+            "a1-u1-l1-s3"
+          ]
+        }
+      ],
+      "evidence_definitions": [
+        {
+          "id": "a1-u1-l1-ev-guided",
+          "skill_ids": [
+            "a1_introduce_yourself"
+          ],
+          "stage_id": "a1-u1-l1-s2",
+          "activity_id": "a1-u1-l1-c-direct-guided",
+          "evidence_type": "guided_production",
+          "measurement_mode": "completion",
+          "required": true
+        },
+        {
+          "id": "a1-u1-l1-ev-expanded",
+          "skill_ids": [
+            "a1_introduce_yourself"
+          ],
+          "stage_id": "a1-u1-l1-s3",
+          "activity_id": "a1-u1-l1-c-direct-expanded",
+          "evidence_type": "contextual_response",
+          "measurement_mode": "completion",
+          "required": true
+        },
+        {
+          "id": "a1-u1-l1-ev-transfer",
+          "skill_ids": [
+            "a1_introduce_yourself"
+          ],
+          "stage_id": "a1-u1-l1-s4",
+          "activity_id": "a1-u1-l1-c-direct-transfer",
+          "evidence_type": "contextual_response",
+          "measurement_mode": "completion",
+          "required": true
+        }
+      ],
+      "completion_policy": {
+        "practiced_stage_ids": [
+          "a1-u1-l1-s1",
+          "a1-u1-l1-s2",
+          "a1-u1-l1-s3",
+          "a1-u1-l1-s4"
+        ],
+        "required_evidence_ids": [
+          "a1-u1-l1-ev-guided",
+          "a1-u1-l1-ev-expanded",
+          "a1-u1-l1-ev-transfer"
+        ],
+        "reinforcement_on_failure": true,
+        "allow_retry": true
+      },
+      "correction_policy": {
+        "max_guidance_items": 1,
+        "priorities": [
+          "relevance",
+          "direct_english_construction",
+          "intelligibility",
+          "secondary_accuracy"
+        ]
+      },
+      "pronunciation_reinforcement": {
+        "stage_id": "a1-u1-l1-s1",
+        "reference_text": "Nice to meet you, John.",
+        "listening_objective": "Follow the short phrase rhythm and notice /iː/ in meet before shadowing it.",
+        "shadowing": true,
+        "pronunciations": [
+          {
+            "locale": "en-US",
+            "ipa": "nˈaɪs tə mˈiːt juː dʒˈɑːn",
+            "audio_asset": "audio/a1_u1_l1_c1_t3_us.wav"
+          },
+          {
+            "locale": "en-GB",
+            "ipa": "nˈaɪs tə mˈiːt juː dʒˈɒn",
+            "audio_asset": "audio/a1_u1_l1_c1_t3_uk.wav"
+          }
+        ],
+        "phonetic_targets": [
+          "/iː/"
+        ]
+      }
+    },
+    "vocabulary": [
+      "hello",
+      "hi",
+      "goodbye",
+      "bye"
+    ],
+    "grammar": [
+      "Persona + Verbo as an initial construction scaffold"
+    ],
+    "examples": [
+      {
+        "en": "Hello, I am John.",
+        "es": "Hola, soy John.",
+        "pronunciations": [
+          {
+            "locale": "en-US",
+            "ipa": "/həˈloʊ, aɪ æm dʒɑːn/",
+            "audio_asset": "audio/a1_u1_l1_hello_us.wav"
+          },
+          {
+            "locale": "en-GB",
+            "ipa": "/həˈləʊ, aɪ æm dʒɒn/",
+            "audio_asset": "audio/a1_u1_l1_hello_uk.wav"
+          }
+        ],
+        "id": "a1-u1-l1-e1"
+      },
+      {
+        "en": "Goodbye! See you later.",
+        "es": "¡Adiós! Hasta luego.",
+        "id": "a1-u1-l1-e2"
+      }
+    ],
+    "conversations": [
+      {
+        "id": "a1-u1-l1-c1",
+        "title": "Meeting someone: conscious model",
+        "context": "Notice Persona, Verbo and one detail in a short model before personal production.",
+        "mode": "guided",
+        "turns": [
+          {
+            "id": "a1-u1-l1-c1-t1",
+            "speaker": "partner",
+            "en": "Hello! What is your name?",
+            "es": "¡Hola! ¿Cómo te llamas?",
+            "pronunciations": [
+              {
+                "locale": "en-US",
+                "ipa": "həlˈoʊ wˌʌt ɪz jʊɹ nˈeɪm",
+                "audio_asset": "audio/a1_u1_l1_c1_t1_us.wav"
+              },
+              {
+                "locale": "en-GB",
+                "ipa": "həlˈəʊ wˌɒt ɪz jɔː nˈeɪm",
+                "audio_asset": "audio/a1_u1_l1_c1_t1_uk.wav"
+              }
+            ]
+          },
+          {
+            "id": "a1-u1-l1-c1-t2",
+            "speaker": "learner",
+            "en": "Hello, I am John.",
+            "es": "Hola, soy John.",
+            "pronunciations": [
+              {
+                "locale": "en-US",
+                "ipa": "/həˈloʊ, aɪ æm dʒɑːn/",
+                "audio_asset": "audio/a1_u1_l1_hello_us.wav"
+              },
+              {
+                "locale": "en-GB",
+                "ipa": "/həˈləʊ, aɪ æm dʒɒn/",
+                "audio_asset": "audio/a1_u1_l1_hello_uk.wav"
+              }
+            ]
+          },
+          {
+            "id": "a1-u1-l1-c1-t3",
+            "speaker": "partner",
+            "en": "Nice to meet you, John.",
+            "es": "Encantado de conocerte, John.",
+            "pronunciations": [
+              {
+                "locale": "en-US",
+                "ipa": "nˈaɪs tə mˈiːt juː dʒˈɑːn",
+                "audio_asset": "audio/a1_u1_l1_c1_t3_us.wav"
+              },
+              {
+                "locale": "en-GB",
+                "ipa": "nˈaɪs tə mˈiːt juː dʒˈɒn",
+                "audio_asset": "audio/a1_u1_l1_c1_t3_uk.wav"
+              }
+            ]
+          },
+          {
+            "id": "a1-u1-l1-c1-t4",
+            "speaker": "learner",
+            "en": "Nice to meet you too.",
+            "es": "Encantado de conocerte también."
+          }
+        ]
+      },
+      {
+        "id": "a1-u1-l1-c2",
+        "title": "How are you today?",
+        "context": "Choose a natural response and continue through the matching model route.",
+        "mode": "branching",
+        "start_turn_id": "a1-u1-l1-c2-t1",
+        "turns": [
+          {
+            "id": "a1-u1-l1-c2-t1",
+            "speaker": "partner",
+            "en": "Hello! How are you today?",
+            "es": "¡Hola! ¿Cómo estás hoy?",
+            "next_turn_id": "a1-u1-l1-c2-t2"
+          },
+          {
+            "id": "a1-u1-l1-c2-t2",
+            "speaker": "learner",
+            "en": "Choose how you want to answer.",
+            "es": "Elige cómo quieres responder.",
+            "choices": [
+              {
+                "id": "a1-u1-l1-c2-choice-fine",
+                "en": "I'm fine, thank you.",
+                "es": "Estoy bien, gracias.",
+                "next_turn_id": "a1-u1-l1-c2-t3"
+              },
+              {
+                "id": "a1-u1-l1-c2-choice-tired",
+                "en": "I'm tired today.",
+                "es": "Estoy cansado hoy.",
+                "next_turn_id": "a1-u1-l1-c2-t4"
+              }
+            ]
+          },
+          {
+            "id": "a1-u1-l1-c2-t3",
+            "speaker": "partner",
+            "en": "I'm glad to hear that.",
+            "es": "Me alegra escuchar eso.",
+            "next_turn_id": "a1-u1-l1-c2-t5"
+          },
+          {
+            "id": "a1-u1-l1-c2-t4",
+            "speaker": "partner",
+            "en": "I'm sorry to hear that. Get some rest.",
+            "es": "Siento escuchar eso. Descansa un poco.",
+            "next_turn_id": "a1-u1-l1-c2-t5"
+          },
+          {
+            "id": "a1-u1-l1-c2-t5",
+            "speaker": "learner",
+            "en": "Thank you. See you later.",
+            "es": "Gracias. Hasta luego."
+          }
+        ]
+      },
+      {
+        "id": "a1-u1-l1-c-direct-guided",
+        "title": "Build from Persona and Verbo",
+        "context": "Construct a personal introduction from intention and anchors.",
+        "mode": "guided",
+        "turns": [
+          {
+            "id": "a1-u1-l1-c-direct-guided-t1",
+            "speaker": "partner",
+            "en": "Hello! What is your name?",
+            "es": "¡Hola! ¿Cómo te llamas?"
+          },
+          {
+            "id": "a1-u1-l1-c-direct-guided-t2",
+            "speaker": "learner",
+            "en": "Introduce yourself to the new person. Build your answer from a person and a verb.",
+            "production_prompt": {
+              "id": "a1-u1-l1-p-guided",
+              "accepted_modalities": [
+                "voice",
+                "text"
+              ],
+              "required": true,
+              "production_function": "guided",
+              "primary_modality": "voice",
+              "fallback_modalities": [
+                "text"
+              ],
+              "support_level": "anchors",
+              "allow_full_answer_model": false
+            }
+          }
+        ]
+      },
+      {
+        "id": "a1-u1-l1-c-direct-expanded",
+        "title": "Expand your introduction",
+        "context": "Add one voluntary and relevant personal detail, which may be fictional.",
+        "mode": "free",
+        "turns": [
+          {
+            "id": "a1-u1-l1-c-direct-expanded-t1",
+            "speaker": "partner",
+            "en": "Tell me a little more about you."
+          },
+          {
+            "id": "a1-u1-l1-c-direct-expanded-t2",
+            "speaker": "learner",
+            "en": "Tell the person who you are and add one relevant detail about where you are from, what you do, or what you like.",
+            "production_prompt": {
+              "id": "a1-u1-l1-p-expanded",
+              "accepted_modalities": [
+                "voice",
+                "text"
+              ],
+              "required": true,
+              "production_function": "expanded",
+              "primary_modality": "voice",
+              "fallback_modalities": [
+                "text"
+              ],
+              "support_level": "initial_word",
+              "allow_full_answer_model": false
+            }
+          }
+        ]
+      },
+      {
+        "id": "a1-u1-l1-c-direct-transfer",
+        "title": "Unexpected related question",
+        "context": "Respond personally to one related variant without language support.",
+        "mode": "free",
+        "turns": [
+          {
+            "id": "a1-u1-l1-c-direct-transfer-t1",
+            "speaker": "partner",
+            "en": "What do you like doing in your free time?"
+          },
+          {
+            "id": "a1-u1-l1-c-direct-transfer-t2",
+            "speaker": "learner",
+            "en": "Answer the related question in your own words.",
+            "production_prompt": {
+              "id": "a1-u1-l1-p-transfer",
+              "accepted_modalities": [
+                "voice",
+                "text"
+              ],
+              "required": true,
+              "production_function": "transfer",
+              "primary_modality": "voice",
+              "fallback_modalities": [
+                "text"
+              ],
+              "support_level": "none",
+              "allow_full_answer_model": false,
+              "transfer_bank_id": "a1-u1-l1-transfer-bank-1",
+              "transfer_variants": [
+                {
+                  "id": "a1-u1-l1-transfer-v1",
+                  "prompt": "What do you like doing in your free time?"
+                },
+                {
+                  "id": "a1-u1-l1-transfer-v2",
+                  "prompt": "What do you usually do in the morning or evening?"
+                },
+                {
+                  "id": "a1-u1-l1-transfer-v3",
+                  "prompt": "What is one activity you enjoy?"
+                },
+                {
+                  "id": "a1-u1-l1-transfer-v4",
+                  "prompt": "What do you like doing at home or outside?"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "exercises": [
+      {
+        "id": "a1-u1-l1-q1",
+        "type": "mcq",
+        "prompt": "Choose the best greeting:",
+        "options": [
+          "Goodbye",
+          "Hello",
+          "Thanks",
+          "Sorry"
+        ],
+        "answer_index": 1,
+        "skill_ids": [
+          "a1_greetings_basic",
+          "a1_vocabulary_greetings"
+        ]
+      }
+    ]
+  }
+}
