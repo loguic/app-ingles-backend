@@ -65,6 +65,77 @@ def build_experience_payload() -> dict:
     }
 
 
+def build_support_timing_lesson_payload(
+    contract_version: str = "3.0",
+) -> dict:
+    payload = build_experience_payload()
+    payload["contract_version"] = contract_version
+    payload["stages"][1].update({
+        "type": "comprehension",
+        "activity_ids": ["a1-u1-l1-c1"],
+    })
+    payload["evidence_definitions"] = [
+        {
+            "id": "a1-u1-l1-ev-comprehension",
+            "skill_ids": ["a1_introduce_yourself"],
+            "stage_id": "a1-u1-l1-s2",
+            "activity_id": "a1-u1-l1-c1",
+            "comprehension_exercise_id": "a1-u1-l1-q1",
+            "evidence_type": "comprehension_result",
+            "measurement_mode": "binary",
+            "required": True,
+        },
+    ]
+    payload["completion_policy"]["required_evidence_ids"] = [
+        "a1-u1-l1-ev-comprehension"
+    ]
+    payload["language_support"][0][
+        "spanish_reveal_after_first_response_to_exercise_id"
+    ] = "a1-u1-l1-q1"
+    return {
+        "id": "a1-u1-l1",
+        "title": "Support timing",
+        "experience": payload,
+        "conversations": [
+            {
+                "id": "a1-u1-l1-c1",
+                "title": "Audio-first context",
+                "mode": "guided",
+                "audio_first_policy": {
+                    "primary_presentation": "audio",
+                    "audio_replay_allowed": True,
+                    "transcript_initially_hidden": True,
+                    "transcript_access": "contingency_accessibility",
+                    "transcript_use_interpretation": (
+                        "assisted_not_exclusively_auditory"
+                    ),
+                    "transcript_is_answer_model": False,
+                    "transcript_reveal_after_first_response_to_exercise_id": (
+                        "a1-u1-l1-q1"
+                    ),
+                },
+                "turns": [
+                    {
+                        "id": "a1-u1-l1-c1-t1",
+                        "speaker": "partner",
+                        "en": "What is your name?",
+                    }
+                ],
+            }
+        ],
+        "exercises": [
+            {
+                "id": "a1-u1-l1-q1",
+                "type": "mcq",
+                "prompt": "What does the speaker ask?",
+                "options": ["Your name", "Your age"],
+                "answer_index": 0,
+                "skill_ids": ["a1_introduce_yourself"],
+            }
+        ],
+    }
+
+
 def test_legacy_lesson_remains_compatible_without_experience():
     lesson = Lesson.model_validate({
         "id": "a1-u1-l1",
@@ -135,6 +206,62 @@ def test_lesson_rejects_unsupported_experience_version():
             "title": "Unsupported version",
             "experience": payload,
         })
+
+
+@pytest.mark.parametrize("field", ["spanish", "transcript"])
+def test_v2_rejects_populated_support_timing_metadata(field):
+    payload = build_support_timing_lesson_payload("2.0")
+    if field == "spanish":
+        payload["conversations"][0]["audio_first_policy"].pop(
+            "transcript_reveal_after_first_response_to_exercise_id"
+        )
+    else:
+        payload["experience"]["language_support"][0].pop(
+            "spanish_reveal_after_first_response_to_exercise_id"
+        )
+
+    with pytest.raises(
+        ValidationError,
+        match="requires contract version 3.0",
+    ):
+        Lesson.model_validate(payload)
+
+
+def test_v3_accepts_optional_support_timing_metadata():
+    lesson = Lesson.model_validate(build_support_timing_lesson_payload())
+
+    assert lesson.experience is not None
+    assert (
+        lesson.conversations[0]
+        .audio_first_policy
+        .transcript_reveal_after_first_response_to_exercise_id
+        == "a1-u1-l1-q1"
+    )
+    assert (
+        lesson.experience.language_support[0]
+        .spanish_reveal_after_first_response_to_exercise_id
+        == "a1-u1-l1-q1"
+    )
+
+
+def test_v3_without_support_timing_metadata_preserves_existing_behavior():
+    payload = build_support_timing_lesson_payload()
+    payload["experience"]["language_support"][0].pop(
+        "spanish_reveal_after_first_response_to_exercise_id"
+    )
+    payload["conversations"][0]["audio_first_policy"].pop(
+        "transcript_reveal_after_first_response_to_exercise_id"
+    )
+
+    lesson = Lesson.model_validate(payload)
+
+    assert lesson.conversations[0].audio_first_policy is not None
+    assert (
+        lesson.conversations[0]
+        .audio_first_policy
+        .transcript_reveal_after_first_response_to_exercise_id
+        is None
+    )
 
 
 def test_score_evidence_requires_success_threshold():

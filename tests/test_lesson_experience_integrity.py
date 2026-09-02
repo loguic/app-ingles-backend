@@ -2,7 +2,10 @@ import pytest
 from pydantic import ValidationError
 
 from app.schemas.content import Lesson
-from tests.test_lesson_experience_schema import build_experience_payload
+from tests.test_lesson_experience_schema import (
+    build_experience_payload,
+    build_support_timing_lesson_payload,
+)
 
 
 def assert_invalid(payload: dict, message: str) -> None:
@@ -200,3 +203,78 @@ def test_activity_completion_conditions_require_activity(condition):
     stage['completion_condition'] = condition
 
     assert_invalid(payload, 'requires at least one activity')
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        (
+            "spanish_reveal_after_first_response_to_exercise_id",
+            "a1-u1-l1-q-missing",
+            "Spanish reveal timing metadata must reference exactly one",
+        ),
+        (
+            "transcript_reveal_after_first_response_to_exercise_id",
+            "a1-u1-l1-q-missing",
+            "Transcript reveal timing metadata must reference exactly one",
+        ),
+    ],
+)
+def test_rejects_unknown_support_timing_exercise_reference(
+    field,
+    value,
+    message,
+):
+    lesson_payload = build_support_timing_lesson_payload()
+    if field.startswith("spanish"):
+        lesson_payload["experience"]["language_support"][0][field] = value
+    else:
+        lesson_payload["conversations"][0]["audio_first_policy"][field] = value
+
+    with pytest.raises(ValidationError, match=message):
+        Lesson.model_validate(lesson_payload)
+
+
+def test_rejects_transcript_timing_for_another_conversation():
+    lesson_payload = build_support_timing_lesson_payload()
+    second = dict(lesson_payload["conversations"][0])
+    second["id"] = "a1-u1-l1-c2"
+    second["audio_first_policy"] = dict(second["audio_first_policy"])
+    lesson_payload["conversations"].append(second)
+
+    with pytest.raises(
+        ValidationError,
+        match="must reference comprehension for its own conversation",
+    ):
+        Lesson.model_validate(lesson_payload)
+
+
+def test_rejects_non_required_support_timing_exercise_reference():
+    lesson_payload = build_support_timing_lesson_payload()
+    lesson_payload["experience"]["evidence_definitions"][0]["required"] = False
+    lesson_payload["experience"]["stages"].append({
+        "id": "a1-u1-l1-s3",
+        "type": "evidence",
+        "instruction": "Complete the check.",
+        "activity_ids": ["a1-u1-l1-q1"],
+        "mode": "required",
+        "completion_condition": "evidence_recorded",
+    })
+    lesson_payload["experience"]["evidence_definitions"].append({
+        "id": "a1-u1-l1-ev-required",
+        "skill_ids": ["a1_introduce_yourself"],
+        "stage_id": "a1-u1-l1-s3",
+        "activity_id": "a1-u1-l1-q1",
+        "evidence_type": "exercise_result",
+        "measurement_mode": "binary",
+        "required": True,
+    })
+    lesson_payload["experience"]["completion_policy"][
+        "required_evidence_ids"
+    ] = ["a1-u1-l1-ev-required"]
+
+    with pytest.raises(
+        ValidationError,
+        match="must reference exactly one required comprehension result",
+    ):
+        Lesson.model_validate(lesson_payload)

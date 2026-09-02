@@ -258,6 +258,7 @@ def test_start_creates_authoritative_in_progress_attempt(
     assert record["completed_at"] is None
     assert record["experience_contract_version"] == "2.0"
     assert record["started_at"]
+    assert record["submitted_comprehension_exercise_ids"] == []
 
 
 def test_repeated_start_resumes_same_attempt_without_changing_started_at(
@@ -478,7 +479,14 @@ def test_comprehension_endpoint_accepts_only_selection_and_derives_truth(
     )
     rejected = client.post(
         route,
-        json={"selected_index": 1, "is_correct": True, "status": "satisfied"},
+        json={
+            "selected_index": 1,
+            "is_correct": True,
+            "status": "satisfied",
+            "submitted_comprehension_exercise_ids": [
+                "b184-a1-u1-l1-q-comprehension"
+            ],
+        },
     )
     assert rejected.status_code == 422
 
@@ -498,6 +506,9 @@ def test_comprehension_endpoint_accepts_only_selection_and_derives_truth(
     }
     assert statuses["b184-ev-comprehension"] == "satisfied"
     assert authoritative["status"] == "in_progress"
+    assert authoritative["submitted_comprehension_exercise_ids"] == [
+        "b184-a1-u1-l1-q-comprehension"
+    ]
 
 
 @pytest.mark.parametrize(

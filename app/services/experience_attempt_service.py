@@ -80,6 +80,24 @@ def _record_from_model(
     lesson,
     db: Session,
 ) -> ExperienceAttemptRecord:
+    submitted_exercise_ids = {
+        exercise_id
+        for (exercise_id,) in db.query(
+            ExperienceComprehensionResponse.comprehension_exercise_id
+        ).filter(
+            ExperienceComprehensionResponse.experience_attempt_id
+            == attempt.attempt_id
+        )
+    }
+    content_order = [
+        evidence.comprehension_exercise_id
+        for evidence in required_evidence_definitions(lesson)
+        if evidence.evidence_type == "comprehension_result"
+        and evidence.comprehension_exercise_id in submitted_exercise_ids
+    ]
+    ordered_submitted_exercise_ids = content_order + sorted(
+        submitted_exercise_ids - set(content_order)
+    )
     return ExperienceAttemptRecord(
         attempt_id=attempt.attempt_id,
         user_id=attempt.user_id,
@@ -91,6 +109,7 @@ def _record_from_model(
         started_at=attempt.started_at,
         completed_at=attempt.completed_at,
         evidence_states=effective_evidence_records(attempt, lesson, db),
+        submitted_comprehension_exercise_ids=ordered_submitted_exercise_ids,
     )
 
 

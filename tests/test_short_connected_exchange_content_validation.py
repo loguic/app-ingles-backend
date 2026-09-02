@@ -70,6 +70,10 @@ def test_b181_audio_first_transcript_contingency_and_pending_assets():
         == "assisted_not_exclusively_auditory"
     )
     assert policy.transcript_is_answer_model is False
+    assert (
+        policy.transcript_reveal_after_first_response_to_exercise_id
+        is None
+    )
     assert [item.locale for item in conversation.turns[0].pronunciations] == [
         "en-US",
         "en-GB",

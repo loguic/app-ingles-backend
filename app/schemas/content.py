@@ -77,6 +77,7 @@ class AudioFirstPresentationPolicy(BaseModel):
         "assisted_not_exclusively_auditory"
     ]
     transcript_is_answer_model: Literal[False]
+    transcript_reveal_after_first_response_to_exercise_id: str | None = None
 
     @model_validator(mode="after")
     def validate_audio_first_policy(self) -> "AudioFirstPresentationPolicy":
@@ -444,6 +445,7 @@ class LanguageSupportItem(BaseModel):
     pronunciations: List[Pronunciation] = Field(default_factory=list)
     usage_note: Optional[str] = None
     stage_ids: List[str] = Field(min_length=1)
+    spanish_reveal_after_first_response_to_exercise_id: str | None = None
 
 
 class LessonStage(BaseModel):
@@ -957,6 +959,46 @@ class Lesson(BaseModel):
             for exercise in self.exercises
         }
 
+        def reveal_evidence_for_exercise(
+            exercise_id: str,
+            label: str,
+        ) -> EvidenceDefinition:
+            matches = [
+                evidence
+                for evidence in self.experience.evidence_definitions
+                if evidence.required
+                and evidence.evidence_type == "comprehension_result"
+                and evidence.comprehension_exercise_id == exercise_id
+            ]
+            if len(matches) != 1:
+                raise ValueError(
+                    label
+                    + " must reference exactly one required "
+                    "comprehension result exercise: "
+                    + exercise_id
+                )
+            return matches[0]
+
+        if self.experience.contract_version == "2.0":
+            if any(
+                item.spanish_reveal_after_first_response_to_exercise_id
+                is not None
+                for item in self.experience.language_support
+            ):
+                raise ValueError(
+                    "Spanish reveal timing metadata requires contract version 3.0"
+                )
+            if any(
+                conversation.audio_first_policy is not None
+                and conversation.audio_first_policy
+                .transcript_reveal_after_first_response_to_exercise_id
+                is not None
+                for conversation in self.conversations
+            ):
+                raise ValueError(
+                    "Transcript reveal timing metadata requires contract version 3.0"
+                )
+
         for evidence in self.experience.evidence_definitions:
             if evidence.evidence_type == "comprehension_result":
                 if evidence.activity_id not in conversation_id_set:
@@ -1047,6 +1089,34 @@ class Lesson(BaseModel):
                         + " references unknown conversation: "
                         + evidence.activity_id
                     )
+
+        for conversation in self.conversations:
+            policy = conversation.audio_first_policy
+            if (
+                policy is None
+                or policy.transcript_reveal_after_first_response_to_exercise_id
+                is None
+            ):
+                continue
+            evidence = reveal_evidence_for_exercise(
+                policy.transcript_reveal_after_first_response_to_exercise_id,
+                "Transcript reveal timing metadata",
+            )
+            if evidence.activity_id != conversation.id:
+                raise ValueError(
+                    "Transcript reveal timing metadata must reference "
+                    "comprehension for its own conversation"
+                )
+
+        for support in self.experience.language_support:
+            exercise_id = (
+                support.spanish_reveal_after_first_response_to_exercise_id
+            )
+            if exercise_id is not None:
+                reveal_evidence_for_exercise(
+                    exercise_id,
+                    "Spanish reveal timing metadata",
+                )
 
         return self
 

@@ -66,3 +66,6 @@ class ExperienceAttemptRecord(BaseModel):
     started_at: datetime
     completed_at: datetime | None
     evidence_states: list[ExperienceEvidenceStateRecord]
+    submitted_comprehension_exercise_ids: list[str] = Field(
+        default_factory=list
+    )

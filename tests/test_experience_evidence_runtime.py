@@ -425,6 +425,9 @@ def test_comprehension_is_backend_graded_and_later_correct_supersedes_pending(
     db, synthetic_content
 ):
     attempt = add_attempt(db)
+    fresh_state = get_experience_attempt_state(attempt.attempt_id, db)
+    assert fresh_state is not None
+    assert fresh_state.submitted_comprehension_exercise_ids == []
     db.add(
         UserProgress(
             user_id=attempt.user_id,
@@ -446,6 +449,11 @@ def test_comprehension_is_backend_graded_and_later_correct_supersedes_pending(
         "runtime-comprehension": "pending"
     }
     assert db.get(ExperienceAttempt, attempt.attempt_id).status == "in_progress"
+    incorrect_state = get_experience_attempt_state(attempt.attempt_id, db)
+    assert incorrect_state is not None
+    assert incorrect_state.submitted_comprehension_exercise_ids == [
+        "runtime-question"
+    ]
 
     correct = save_experience_comprehension_response(
         attempt.attempt_id, "runtime-question", 0, db
@@ -460,6 +468,79 @@ def test_comprehension_is_backend_graded_and_later_correct_supersedes_pending(
     assert [item.status for item in state.evidence_states] == [
         "satisfied",
         "pending",
+    ]
+    assert state.submitted_comprehension_exercise_ids == [
+        "runtime-question"
+    ]
+
+
+def test_submitted_comprehension_history_is_attempt_scoped_and_deterministic(
+    db, synthetic_content
+):
+    first = add_attempt(db, attempt_id="experience-submitted-first")
+    second = add_attempt(
+        db,
+        attempt_id="experience-submitted-second",
+        user_id="runtime-user-second",
+    )
+    db.add_all(
+        [
+            ExperienceComprehensionResponse(
+                response_id="submitted-z",
+                experience_attempt_id=first.attempt_id,
+                evidence_definition_id="runtime-comprehension",
+                activity_id="runtime-context",
+                comprehension_exercise_id="z-extra",
+                selected_index=0,
+                is_correct=False,
+                submitted_at=NOW,
+            ),
+            ExperienceComprehensionResponse(
+                response_id="submitted-a",
+                experience_attempt_id=first.attempt_id,
+                evidence_definition_id="runtime-comprehension",
+                activity_id="runtime-context",
+                comprehension_exercise_id="a-extra",
+                selected_index=0,
+                is_correct=False,
+                submitted_at=NOW,
+            ),
+            ExperienceComprehensionResponse(
+                response_id="submitted-runtime",
+                experience_attempt_id=first.attempt_id,
+                evidence_definition_id="runtime-comprehension",
+                activity_id="runtime-context",
+                comprehension_exercise_id="runtime-question",
+                selected_index=1,
+                is_correct=False,
+                submitted_at=NOW,
+            ),
+            ExperienceComprehensionResponse(
+                response_id="submitted-other-attempt",
+                experience_attempt_id=second.attempt_id,
+                evidence_definition_id="runtime-comprehension",
+                activity_id="runtime-context",
+                comprehension_exercise_id="other-attempt-question",
+                selected_index=0,
+                is_correct=False,
+                submitted_at=NOW,
+            ),
+        ]
+    )
+    db.commit()
+
+    first_state = get_experience_attempt_state(first.attempt_id, db)
+    second_state = get_experience_attempt_state(second.attempt_id, db)
+
+    assert first_state is not None
+    assert first_state.submitted_comprehension_exercise_ids == [
+        "runtime-question",
+        "a-extra",
+        "z-extra",
+    ]
+    assert second_state is not None
+    assert second_state.submitted_comprehension_exercise_ids == [
+        "other-attempt-question"
     ]
 
 
