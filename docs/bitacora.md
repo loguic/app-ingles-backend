@@ -4759,7 +4759,7 @@ La siguiente frontera conceptual soportada por el contrato es estudiar un loader
 
 ## B184.1 — Lifecycle autoritativo de ExperienceAttempt
 
-Estado técnico local: implementación y validación completadas; el cierre Git permanece pendiente de su fase separada.
+Estado: **CERRADO / PUBLICADO / SINCRONIZADO** mediante `d54a47ecef93bbefa0dc2b37d74ea578e2a215ef` (`feat add authoritative experience attempt lifecycle`).
 
 Se añadió `ExperienceAttempt` como única persistencia nueva de B184.1. Conserva `attempt_id` opaco generado por backend, usuario, jerarquía completa, `experience_contract_version`, estado `in_progress | completed` y timestamps. El índice parcial único `uq_experience_attempt_active_context` garantiza en PostgreSQL y SQLite como máximo un intento `in_progress` para la misma identidad `user + level + unit + lesson + contract_version`; los intentos históricos `completed` no se reutilizan y permiten una nueva práctica posterior. No se añadieron filas de evidencia, scoring, mastery, progreso v2, review, analytics, estados de abandono/expiración ni columnas B184.2.
 
@@ -4775,7 +4775,7 @@ Validación: `tests/test_experience_attempts.py` 13 PASS; `tests/test_experience
 
 ## B184.2 — Runtime autoritativo de evidencia y finalización atómica
 
-Estado técnico local: implementación y validación completadas; pendiente de postflight independiente antes del cierre Git. B184.2 extiende, sin sustituir, el lifecycle B184.1 con acreditación interna ligada a fuentes persistidas y finalización atómica de `ExperienceAttempt`. `EvidenceDefinition.comprehension_exercise_id` separa la actividad comprendida de su `ExerciseMCQ` evaluador: el backend resuelve la evidencia requerida, deriva `is_correct` desde `answer_index` y persiste cada intento inmutable en `ExperienceComprehensionResponse`. El único endpoint nuevo es `POST /api/v1/experience-attempts/{attempt_id}/comprehension-responses/{comprehension_exercise_id}` y acepta exclusivamente `selected_index`; no existe API genérica de evidencia ni endpoint público de completion.
+Estado: **CERRADO / PUBLICADO / SINCRONIZADO** mediante `18bb7555fb3007e607ad1857529c44411bf73ea1` (`feat add authoritative experience evidence runtime`). B184.2 extiende, sin sustituir, el lifecycle B184.1 con acreditación interna ligada a fuentes persistidas y finalización atómica de `ExperienceAttempt`. `EvidenceDefinition.comprehension_exercise_id` separa la actividad comprendida de su `ExerciseMCQ` evaluador: el backend resuelve la evidencia requerida, deriva `is_correct` desde `answer_index` y persiste cada intento inmutable en `ExperienceComprehensionResponse`. El único endpoint nuevo es `POST /api/v1/experience-attempts/{attempt_id}/comprehension-responses/{comprehension_exercise_id}` y acepta exclusivamente `selected_index`; no existe API genérica de evidencia ni endpoint público de completion.
 
 `ExperienceEvidenceState` conserva un único estado efectivo por intento y definición requerida: `pending | needs_review | satisfied`. La ausencia de fila equivale a `pending`; no se precrean filas. Cada fila referencia exactamente una fuente tipada y compatible —respuesta de comprensión, submission conversacional, intento conversacional o intento de construcción directa— y FKs compuestas demuestran en base de datos que fuente y evidencia pertenecen al mismo `ExperienceAttempt`. `satisfied` es monotónico; una fuente suficiente más nueva puede sustituir `pending` o `needs_review`, una fuente insuficiente no degrada `satisfied` y las fuentes/reviews históricas permanecen intactas.
 
@@ -4788,3 +4788,13 @@ La migración `22c69d857dc6_add_experience_evidence_runtime.py`, descendiente di
 Validación: foco B184.2 + regresión B184.1, 31 PASS; migraciones/DevSecOps PostgreSQL, 26 PASS; regresión de ConversationAttempt, ConversationProduction, Direct English, B181, evaluación, integridad de contenido, ejercicios y progreso, 160 PASS; concurrencia real PostgreSQL, PASS; suite backend completa en PostgreSQL aislado migrado a `22c69d857dc6`, 2150 PASS en 22.20 s; `git diff --check` PASS. La prueba SQLite confirma upgrade/downgrade e integridad equivalente de schema; no se alteró la base PostgreSQL compartida de desarrollo.
 
 NO REFACTOR REQUIRED. Permanecen fuera Flutter/B184.3, activación de candidatos, UserProgress v2, mastery, porcentajes/scores como completion, framework genérico de evidencia/fuentes/review/progreso, event bus, workflow/state machine, event sourcing, loader y LOGUIC OS.
+
+## B184 — Reconciliación de publicación canónica
+
+- **B184.1 — ExperienceAttempt:** **CERRADO / PUBLICADO / SINCRONIZADO** en `d54a47ecef93bbefa0dc2b37d74ea578e2a215ef` (`feat add authoritative experience attempt lifecycle`).
+- **B184.2 — Runtime de evidencia:** **CERRADO / PUBLICADO / SINCRONIZADO** en `18bb7555fb3007e607ad1857529c44411bf73ea1` (`feat add authoritative experience evidence runtime`).
+- **Direct English HTTP/runtime adapter:** **CERRADO / PUBLICADO / SINCRONIZADO** en `e4dbe043d7722fd88b74a9b45c458a785dfdc4ae` (`feat expose direct english construction runtime`).
+- **B184.4 — Compatibilidad de versiones:** **CERRADO / PUBLICADO / SINCRONIZADO** en `96192439dd56f74e50b032af7e977c4a7070d834` (`feat add experience contract version compatibility`). Conserva lectura histórica 2.0 sin activar la lección canónica v3.
+- **B184.4 — Mapeo Direct English v3:** **CERRADO / PUBLICADO / SINCRONIZADO** en `6b044e55bd16ed7060e27f3af801d38fe9ad46e6` (`feat support direct english evidence mapping v3`), con cabeza Alembic `c1844e9f2a31`.
+- **B184.4 — Transfer variants:** **CERRADO / PUBLICADO / SINCRONIZADO** en `105b431925bc4c7f4985a656c3305fc886e228c7` (`feat allow single transfer variant in v3`). V2 conserva el mínimo de dos variantes; v3 admite una a cuatro.
+- **Strict Support Timing:** **PENDIENTE / NO IMPLEMENTADO**. No hay cambio de contenido canónico ni activación de A1 L1 v3 asociado a esta reconciliación documental.
