@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-02T22:54:18+02:00
+Actualizado: 2026-09-02T23:32:56+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -94,7 +94,7 @@ Al reanudar, ejecutar primero `python3 scripts/engineering/conversation_checkpoi
 
 ## Próximo objetivo
 
-Ejecutar la validación Bash del checkpoint recuperado. Todo trabajo posterior debe partir del estado B184 publicado, preservar B181 pausado y mantener A1 L1 v3 inactiva hasta una autorización curricular separada.
+La recuperación del estado operativo está completa. El siguiente backend autorizado es B184.4 Strict Support Timing, que permanece **PENDIENTE / NO IMPLEMENTADO**. Canonical A1 L1 v3 remains inactive; B181 remains paused.
 
 ## Archivos clave
 
