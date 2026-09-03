@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-02T23:32:56+02:00
+Actualizado: 2026-09-03T01:12:51+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -17,7 +17,7 @@ Formato: checkpoint operativo compacto
 
 ### B184 — Runtime autoritativo de experiencia y enmiendas v3
 
-Estado: **CERRADO / PUBLICADO / SINCRONIZADO** en el backend hasta `105b431925bc4c7f4985a656c3305fc886e228c7` (`feat allow single transfer variant in v3`). Cabeza Alembic: `c1844e9f2a31`.
+Estado: **CERRADO / PUBLICADO / SINCRONIZADO** en el backend hasta `729e58e725dd7683405ab59e7aa8cb213507df77` (`feat strict support timing with devsecops head correction`). Cabeza Alembic: `c1844e9f2a31`.
 
 - `d54a47e`: lifecycle autoritativo de `ExperienceAttempt`.
 - `18bb755`: runtime autoritativo de evidencia y finalización.
@@ -25,8 +25,9 @@ Estado: **CERRADO / PUBLICADO / SINCRONIZADO** en el backend hasta `105b431925bc
 - `9619243`: compatibilidad de versiones de contrato de experiencia.
 - `6b044e5`: mapeo de evidencia Direct English v3.
 - `105b431`: bancos de transferencia v3 de una a cuatro variantes, preservando v2.
+- `729e58e`: Strict Support Timing backend cerrado y corrección test-only del gate DevSecOps para la cabeza Alembic vigente.
 
-Las enmiendas B184.4 preservan la lectura histórica 2.0, mantienen start/resume sobre contenido activo y no activan contenido curricular canónico v3. El backend sigue sin una lección canónica A1 L1 v3 activa.
+Las enmiendas B184.4 preservan la lectura histórica 2.0, mantienen start/resume sobre contenido activo y no activan contenido curricular canónico v3. Strict Support Timing valida metadata v3 opcional y deriva historial de respuestas por intento; no cambia correctness, evidence, completion, mastery, retention ni progress. El backend sigue sin una lección canónica A1 L1 v3 activa.
 
 ### B52 — Active source integrity v1
 
@@ -61,8 +62,7 @@ Estado: **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**. I1–I4 
 
 ### Strict Support Timing
 
-Estado: **PENDIENTE / NO IMPLEMENTADO**. Si se autoriza, será el siguiente trabajo backend para el timing estricto de transcript y rescate español tras la primera respuesta de comprensión persistida. No existe activación de contenido canónico A1 L1 v3.
-
+Estado: **CERRADO / VALIDADO / PUBLICADO / SINCRONIZADO** mediante `729e58e725dd7683405ab59e7aa8cb213507df77`. No existe activación de contenido canónico A1 L1 v3; el trabajo Flutter correspondiente permanece separado y futuro.
 ## Automatización disponible
 
 - `operational_state.py` valida este checkpoint con `Actualizado:` timezone-aware.
@@ -73,7 +73,7 @@ Estado: **PENDIENTE / NO IMPLEMENTADO**. Si se autoriza, será el siguiente trab
 
 ## Método operativo vigente
 
-El método completo y canónico está en `docs/loguic-engineering-operating-method-v1.md`. Este documento conserva únicamente el checkpoint operativo compacto.
+El método completo y canónico, incluido su guard de continuidad y anti-degradación, está en `docs/loguic-engineering-operating-method-v1.md`. Este documento conserva únicamente el checkpoint operativo compacto.
 
 La configuración operativa Codex esperada es `Permissions: Workspace (Approve for me)`; `approvals_reviewer = "auto_review"` está confirmado.
 
@@ -90,11 +90,11 @@ Al reanudar, ejecutar primero `python3 scripts/engineering/conversation_checkpoi
 - no modificar todavía `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage`, `required_stages`, runtime, progreso, mastery, fonética, feedback ni B181;
 - membership/source state no define orden curricular; hierarchy authority no certifica admission.
 - no activar `a1-u1-l1` v3, no modificar `content/content_tree.json` ni sustituir el contenido histórico 2.0 sin autorización explícita;
-- Strict Support Timing permanece pendiente y no autoriza cambios de contenido, Flutter o semánticas de completion.
+- Strict Support Timing backend está cerrado en `729e58e`; solo su slice Flutter permanece futuro y no iniciado, sin autorizar activación de contenido ni cambios de completion.
 
 ## Próximo objetivo
 
-La recuperación del estado operativo está completa. El siguiente backend autorizado es B184.4 Strict Support Timing, que permanece **PENDIENTE / NO IMPLEMENTADO**. Canonical A1 L1 v3 remains inactive; B181 remains paused.
+La recuperación del estado operativo y el backend Strict Support Timing están completos. El siguiente objetivo es decidir y, si se autoriza, ejecutar el slice Flutter de Strict Support Timing; no está iniciado ni implementado. Canonical A1 L1 v3 remains inactive; B181 remains paused.
 
 ## Archivos clave
 

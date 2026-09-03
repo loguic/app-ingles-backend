@@ -74,8 +74,8 @@ definición / preflight
 → implementación
 → tests específicos
 → regresión seleccionada
-→ postflight independiente
 → suite completa cuando corresponda
+→ postflight independiente
 → documentación
 → cierre Git seguro
 → checkpoint estable
@@ -125,7 +125,27 @@ Las frases humanas **“Reanudar App Inglés”** y **“Recuperar el método co
 
 No volver a pedir `pwd`, `git status`, copia del estado, inspecciones, selección de modelo/reasoning o decisiones ya resueltas salvo contradicción real. `resume` reconstruye Git y el checkpoint operativo como vista efímera read-only. La evidencia histórica documentada no implica reejecutar tests.
 
-## 8. Permisos Codex
+## 8. Continuidad y guard anti-degradación
+
+Estas reglas son obligatorias tras cambio de conversación, agotamiento de contexto/tokens, interrupción de cuota o cualquier recuperación:
+
+1. ChatGPT actúa como arquitecto, orquestador y reviewer. El usuario no reconstruye el estado del proyecto, analiza logs largos, compara archivos ni recuerda decisiones técnicas previas.
+2. Codex es el agente de implementación y revisión. Bash y los scripts canónicos son la autoridad determinista para tests, validación, Git y cierres seguros.
+3. En cada conversación nueva o recuperación se ejecuta primero `conversation_checkpoint.py resume`; ChatGPT interpreta el checkpoint, continúa desde la última frontera canónica exacta y no pide al usuario interpretarlo ni repite evidencia válida sin causa concreta.
+4. Toda tarea Codex declara explícitamente el modelo elegido, el esfuerzo de reasoning y por qué ese routing es apropiado.
+5. El routing usa primero herramientas deterministas/Bash; Luna para trabajo claro, mecánico y verificable; Terra para implementación o revisión acotada; Sol para arquitectura, pedagogía o gobernanza fundacional, seguridad y trabajo irreversible, de alto impacto o muy acoplado. Modelo y reasoning se deciden por separado.
+6. La interacción con el usuario avanza un comando o acción por paso, indicando objetivo, acción exacta y resultado esperado; las decisiones reales se presentan numeradas. El usuario ejecuta y ChatGPT analiza.
+7. Nunca se exige al usuario analizar manualmente output largo: ChatGPT/Codex lo resume o produce un informe/archivo cuando corresponda, y el usuario aporta solo el resultado necesario para orquestar.
+8. Ante interrupción, tokens o cuota, no se continúa mediante parches improvisados: se congela la última frontera estable, se recupera el checkpoint, se reconcilia documentación stale y se reanuda el bloque exacto inacabado.
+9. Antes de tocar código por un fallo nuevo, se clasifica como regresión del slice actual, deuda preexistente, problema de entorno/harness o fallo no relacionado. Una causa ajena no se corrige modificando la feature vigente.
+10. Preflight, tests focalizados, regresión, postflight y suite completa ya válidos siguen siendo autoridad mientras no cambie el código cubierto ni aparezca una contradicción concreta.
+11. La disciplina de cierre es: cambio técnico → validación focalizada → regresión/suite cuando aplique → postflight independiente → documentación → cierre Git seguro → checkpoint canónico. Sin documentación y Git limpio/sincronizado no hay bloque cerrado.
+12. Si ChatGPT detecta degradación del método, detiene de inmediato el avance técnico, identifica la desviación, vuelve al último estado estable, restaura este flujo y reanuda con un paso pequeño.
+13. No se añaden abstracciones, herramientas, migraciones, capas, inspecciones ni validaciones repetidas salvo que resuelvan un problema confirmado.
+14. `docs/estado-operativo.md` es la fuente compacta de continuidad; `docs/bitacora.md` aporta trazabilidad histórica; este documento define cómo se trabaja. Sus funciones no se confunden.
+15. Tras recuperar contexto, ChatGPT explicita bloque actual, último commit cerrado, trabajo pendiente, contratos/fronteras relevantes, routing de modelo y siguiente acción exacta; el usuario no debe volver a explicarlos.
+
+## 9. Permisos Codex
 
 - Codex CLI opera normalmente con sandbox `Workspace` y el proyecto mantiene `trust_level = "trusted"`;
 - las aprobaciones rutinarias se gestionan mediante `approvals_reviewer = "auto_review"` en `~/.codex/config.toml`; el estado esperado en `/status` es `Permissions: Workspace (Approve for me)`;
@@ -138,7 +158,7 @@ No volver a pedir `pwd`, `git status`, copia del estado, inspecciones, selecció
 - reutilizar helpers y allowlists seguros y, si el sandbox exige una aprobación inevitable, solicitar únicamente la aprobación mínima;
 - si una publicación autorizada falla y el contrato prohíbe retry o fallback, detenerse y reportar el estado exacto.
 
-## 9. Interacción paso a paso
+## 10. Interacción paso a paso
 
 - trabajar con una sola acción o comando por paso;
 - explicar de forma breve el objetivo y el resultado esperado;
@@ -146,7 +166,7 @@ No volver a pedir `pwd`, `git status`, copia del estado, inspecciones, selecció
 - si solo existe un siguiente paso correcto, ejecutarlo o proponerlo sin opciones artificiales;
 - no trasladar al usuario decisiones internas ya cubiertas por contrato, routing o helpers.
 
-## 10. Autocorrección del método
+## 11. Autocorrección del método
 
 Si el flujo se degrada:
 
@@ -158,7 +178,7 @@ Si el flujo se degrada:
 
 La autocorrección del método no modifica garantías técnicas ni pedagógicas y no permite cerrar un bloque sin evidencia.
 
-## 11. Cierre
+## 12. Cierre
 
 Un bloque no está cerrado hasta disponer, cuando aplique, de:
 

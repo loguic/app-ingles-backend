@@ -4798,3 +4798,13 @@ NO REFACTOR REQUIRED. Permanecen fuera Flutter/B184.3, activación de candidatos
 - **B184.4 — Mapeo Direct English v3:** **CERRADO / PUBLICADO / SINCRONIZADO** en `6b044e55bd16ed7060e27f3af801d38fe9ad46e6` (`feat support direct english evidence mapping v3`), con cabeza Alembic `c1844e9f2a31`.
 - **B184.4 — Transfer variants:** **CERRADO / PUBLICADO / SINCRONIZADO** en `105b431925bc4c7f4985a656c3305fc886e228c7` (`feat allow single transfer variant in v3`). V2 conserva el mínimo de dos variantes; v3 admite una a cuatro.
 - **Strict Support Timing:** **PENDIENTE / NO IMPLEMENTADO**. No hay cambio de contenido canónico ni activación de A1 L1 v3 asociado a esta reconciliación documental.
+
+## B184.4 — Strict Support Timing backend
+
+Estado: **CERRADO / VALIDADO / PUBLICADO / SINCRONIZADO** mediante `729e58e725dd7683405ab59e7aa8cb213507df77`. Se añadieron los campos públicos de timing v3 y el historial backend derivado de respuestas de comprensión persistidas por `ExperienceAttempt`, preservando las autoridades de correctness, evidence, completion, mastery, retention y progress. La metadata ausente conserva el comportamiento previo; la metadata poblada es v3-only y sus referencias se validan contra la evidencia de comprensión requerida y, para transcript, contra su conversación propietaria. No hubo migración, tabla, endpoint, cambio de request, activación de contenido ni cambio frontend. A1 L1 v3 permanece inactivo y B181 pausado.
+
+Validación registrada: 67 tests focalizados Codex; `test_experience_attempts.py` en Bash, 15 PASS; regresión focalizada Bash, 82 PASS; validación DevSecOps D1, 23 PASS; suite backend completa, 2239 PASS en 24.44 s; postflight técnico independiente PASS; BLOCKING: 0; NONBLOCKING: 0; `git diff --check` PASS; cabeza Alembic `c1844e9f2a31`.
+
+## D1 — Corrección de deuda preexistente del gate DevSecOps
+
+Estado: **CERRADO / PUBLICADO / SINCRONIZADO** dentro de `729e58e725dd7683405ab59e7aa8cb213507df77`, como corrección únicamente de expectativas obsoletas en `tests/test_postgresql_devsecops_adapter.py`. La deuda provenía de expectativas B184.2 para `22c69d857dc6` después de que `6b044e5` publicara `c1844e9f2a31` como cabeza vigente. El adaptador de producción no cambió y D1 no constituye funcionalidad de Strict Support Timing. La separación se mantuvo documentalmente aunque el cierre técnico conjunto fue necesario porque `git_close.py` exige que el allowlist coincida con todo el scope dirty.
