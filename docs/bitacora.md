@@ -4808,3 +4808,11 @@ Validación registrada: 67 tests focalizados Codex; `test_experience_attempts.py
 ## D1 — Corrección de deuda preexistente del gate DevSecOps
 
 Estado: **CERRADO / PUBLICADO / SINCRONIZADO** dentro de `729e58e725dd7683405ab59e7aa8cb213507df77`, como corrección únicamente de expectativas obsoletas en `tests/test_postgresql_devsecops_adapter.py`. La deuda provenía de expectativas B184.2 para `22c69d857dc6` después de que `6b044e5` publicara `c1844e9f2a31` como cabeza vigente. El adaptador de producción no cambió y D1 no constituye funcionalidad de Strict Support Timing. La separación se mantuvo documentalmente aunque el cierre técnico conjunto fue necesario porque `git_close.py` exige que el allowlist coincida con todo el scope dirty.
+
+## B184.4 Flutter — Strict Support Timing cross-repo
+
+Estado externo reconciliado: **CERRADO / PUBLICADO / SINCRONIZADO** en el frontend mediante `1b1835405c324d0189d46bcb0a6a4e869da193f1` (`feat enforce strict support timing B184.4`). El commit contiene exactamente los siete archivos técnicos del slice y `docs/bitacora-frontend.md`; `master == origin/master`, ahead/behind `0/0` y working tree limpio. Validaciones frontend vigentes: `git diff --check` PASS, `flutter test` 98 passed y `flutter analyze` sin issues.
+
+Este cierre cross-repo no modifica backend, contratos, contenido curricular ni estado pedagógico: B184 backend permanece cerrado en `729e58e725dd7683405ab59e7aa8cb213507df77`; B181 permanece pausado en puerta pedagógica; A1 L1 v3 continúa inactiva y A1-U1 `pending / non-member`; `content/content_tree.json` no se activa; `LOADER = BLOCKED`.
+
+No queda un siguiente bloque técnico inequívocamente autorizado. La autoridad pedagógica exige seleccionar cualquier nuevo macrobloque mediante Puerta 1 y la ruta documentada de reanudación de B181 pasa antes por construir canónicamente la entrada A1 y su candidata. Como frontera técnica alternativa, B52 solo respalda estudiar un loader que consuma evidencia B52 positiva, pero no fija API, result shape, identificador de slice ni lo activa o habilita. La elección entre rutas requiere decisión humana; no se inventa un bloque nuevo ni se inicia trabajo técnico.

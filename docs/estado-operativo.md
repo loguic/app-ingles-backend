@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-03T01:12:51+02:00
+Actualizado: 2026-09-05T04:25:37+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -25,7 +25,7 @@ Estado: **CERRADO / PUBLICADO / SINCRONIZADO** en el backend hasta `729e58e725dd
 - `9619243`: compatibilidad de versiones de contrato de experiencia.
 - `6b044e5`: mapeo de evidencia Direct English v3.
 - `105b431`: bancos de transferencia v3 de una a cuatro variantes, preservando v2.
-- `729e58e`: Strict Support Timing backend cerrado y corrección test-only del gate DevSecOps para la cabeza Alembic vigente.
+- `729e58e`: Strict Support Timing backend cerrado y corrección test-only del gate DevSecOps para la cabeza Alembic vigente; el slice Flutter cross-repo está cerrado en `1b1835405c324d0189d46bcb0a6a4e869da193f1`.
 
 Las enmiendas B184.4 preservan la lectura histórica 2.0, mantienen start/resume sobre contenido activo y no activan contenido curricular canónico v3. Strict Support Timing valida metadata v3 opcional y deriva historial de respuestas por intento; no cambia correctness, evidence, completion, mastery, retention ni progress. El backend sigue sin una lección canónica A1 L1 v3 activa.
 
@@ -62,7 +62,7 @@ Estado: **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**. I1–I4 
 
 ### Strict Support Timing
 
-Estado: **CERRADO / VALIDADO / PUBLICADO / SINCRONIZADO** mediante `729e58e725dd7683405ab59e7aa8cb213507df77`. No existe activación de contenido canónico A1 L1 v3; el trabajo Flutter correspondiente permanece separado y futuro.
+Estado backend: **CERRADO / VALIDADO / PUBLICADO / SINCRONIZADO** mediante `729e58e725dd7683405ab59e7aa8cb213507df77`. Estado B184.4 Flutter: **CERRADO / PUBLICADO / SINCRONIZADO** mediante `1b1835405c324d0189d46bcb0a6a4e869da193f1` (`feat enforce strict support timing B184.4`), con 98 tests y `flutter analyze` sin issues. No existe activación de contenido canónico A1 L1 v3.
 ## Automatización disponible
 
 - `operational_state.py` valida este checkpoint con `Actualizado:` timezone-aware.
@@ -90,11 +90,11 @@ Al reanudar, ejecutar primero `python3 scripts/engineering/conversation_checkpoi
 - no modificar todavía `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage`, `required_stages`, runtime, progreso, mastery, fonética, feedback ni B181;
 - membership/source state no define orden curricular; hierarchy authority no certifica admission.
 - no activar `a1-u1-l1` v3, no modificar `content/content_tree.json` ni sustituir el contenido histórico 2.0 sin autorización explícita;
-- Strict Support Timing backend está cerrado en `729e58e`; solo su slice Flutter permanece futuro y no iniciado, sin autorizar activación de contenido ni cambios de completion.
+- Strict Support Timing backend y B184.4 Flutter están cerrados; este cierre cross-repo no autoriza activación de contenido ni cambios adicionales de completion.
 
 ## Próximo objetivo
 
-La recuperación del estado operativo y el backend Strict Support Timing están completos. El siguiente objetivo es decidir y, si se autoriza, ejecutar el slice Flutter de Strict Support Timing; no está iniciado ni implementado. Canonical A1 L1 v3 remains inactive; B181 remains paused.
+No existe un siguiente bloque técnico inequívocamente autorizado. Queda una decisión humana entre definir mediante Puerta 1 el próximo macrobloque pedagógico —la ruta documentada hacia B181 exige construir antes la entrada A1 y su candidata canónica— o autorizar solo el estudio de un loader que consuma evidencia B52 positiva; B52 no diseña, activa ni habilita ese loader. A1 L1 v3 permanece inactiva, B181 pausado y `LOADER = BLOCKED`.
 
 ## Archivos clave
 
