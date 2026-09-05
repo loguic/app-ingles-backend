@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-05T04:25:37+02:00
+Actualizado: 2026-09-05T05:04:29+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -9,7 +9,7 @@ Formato: checkpoint operativo compacto
 - Documento rector: `docs/modelo-pedagogico-maestro.md`.
 - Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
 - Método operativo canónico: `docs/loguic-engineering-operating-method-v1.md`.
-- Política operativa transversal de routing: `docs/loguic-ai-model-routing-policy-v1.md` (default: `Terra / medium`; por tarea y sin escalamiento automático).
+- Política operativa transversal de routing: `docs/loguic-ai-model-routing-policy-v1.md` (v1.1 Astra vigente; default `Terra / medium`, por tarea y sin escalamiento automático).
 - Git final requerido: limpio y sincronizado con `origin/master`.
 - Todo trabajo curricular parte de una capacidad observable del estudiante; `Skill` significa exclusivamente habilidad pedagógica medible.
 
@@ -54,7 +54,7 @@ Checkpoint visual frontend histórico y aislado; no activa currículo A1 ni modi
 
 ## Bloque activo
 
-No hay activación curricular v3 en curso.
+LOGUIC AI Model Routing Policy v1.1 — Astra Extension: **CERRADA / PUBLICADA / SINCRONIZADA** mediante este cierre documental. Repostflight independiente PASS, sin findings BLOCKING ni NONBLOCKING nuevos; B1, N1 y N3 resueltos. La v1.1 preserva las bandas base y añade Astra solo como override excepcional documentado, fuera del score. N2 (`extra-high`) permanece deuda heredada fuera del slice. No hay activación curricular v3 en curso.
 
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
@@ -94,11 +94,11 @@ Al reanudar, ejecutar primero `python3 scripts/engineering/conversation_checkpoi
 
 ## Próximo objetivo
 
-No existe un siguiente bloque técnico inequívocamente autorizado. Queda una decisión humana entre definir mediante Puerta 1 el próximo macrobloque pedagógico —la ruta documentada hacia B181 exige construir antes la entrada A1 y su candidata canónica— o autorizar solo el estudio de un loader que consuma evidencia B52 positiva; B52 no diseña, activa ni habilita ese loader. A1 L1 v3 permanece inactiva, B181 pausado y `LOADER = BLOCKED`.
+No existe un siguiente bloque técnico inequívocamente autorizado. Sigue pendiente la decisión humana entre definir mediante Puerta 1 el próximo macrobloque pedagógico y autorizar solo el estudio del loader posterior a B52. La ruta hacia B181 exige antes la entrada A1 y su candidata canónica. Ningún bloque técnico nuevo está seleccionado: A1 L1 v3 inactiva, B181 pausado y `LOADER = BLOCKED`.
 
 ## Archivos clave
 
-- `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/loguic-engineering-operating-method-v1.md`;
+- `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/loguic-engineering-operating-method-v1.md` y `docs/loguic-ai-model-routing-policy-v1.md`;
 - `docs/curriculum-preparation-prerequisites-contract-v1.md`;
 - `scripts/engineering/operational_state.py`;
 - `scripts/engineering/conversation_checkpoint.py`;

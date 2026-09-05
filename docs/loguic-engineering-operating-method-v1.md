@@ -58,7 +58,8 @@ Se usan primero herramientas deterministas cuando bastan. Si la tarea requiere m
 - Luna: tareas mecánicas, acotadas y verificables;
 - Terra: implementación y revisión moderadas con arquitectura cerrada;
 - Sol: arquitectura, contradicciones, decisiones fundacionales, seguridad o debugging complejo;
-- cuando la incertidumbre se cierra, degradar `Sol → Terra → Luna`;
+- Astra (extensión v1.1 vigente): override excepcional con evidencia conforme a la sección 10.1 de la política; no añade una banda de score ni cambia el default;
+- cuando la incertidumbre se cierra, degradar `Astra → Sol → Terra → Luna → herramientas/Bash`, pudiendo saltar directamente al mínimo fiable;
 - no pedir al usuario cambiar manualmente modelo o reasoning salvo indisponibilidad real, contradicción o decisión nueva que impida continuar.
 
 La política detallada y vigente permanece en `docs/loguic-ai-model-routing-policy-v1.md`.
@@ -133,7 +134,7 @@ Estas reglas son obligatorias tras cambio de conversación, agotamiento de conte
 2. Codex es el agente de implementación y revisión. Bash y los scripts canónicos son la autoridad determinista para tests, validación, Git y cierres seguros.
 3. En cada conversación nueva o recuperación se ejecuta primero `conversation_checkpoint.py resume`; ChatGPT interpreta el checkpoint, continúa desde la última frontera canónica exacta y no pide al usuario interpretarlo ni repite evidencia válida sin causa concreta.
 4. Toda tarea Codex declara explícitamente el modelo elegido, el esfuerzo de reasoning y por qué ese routing es apropiado.
-5. El routing usa primero herramientas deterministas/Bash; Luna para trabajo claro, mecánico y verificable; Terra para implementación o revisión acotada; Sol para arquitectura, pedagogía o gobernanza fundacional, seguridad y trabajo irreversible, de alto impacto o muy acoplado. Modelo y reasoning se deciden por separado.
+5. El routing usa primero herramientas deterministas/Bash; Luna para trabajo claro, mecánico y verificable; Terra para implementación o revisión acotada; Sol para arquitectura, pedagogía o gobernanza fundacional, seguridad y trabajo irreversible, de alto impacto o muy acoplado. La v1.1 reserva Astra para el override documentado de la sección 10.1 de la política, sin añadir una banda de score ni desplazar el default. Modelo y reasoning se deciden por separado.
 6. La interacción con el usuario avanza un comando o acción por paso, indicando objetivo, acción exacta y resultado esperado; las decisiones reales se presentan numeradas. El usuario ejecuta y ChatGPT analiza.
 7. Nunca se exige al usuario analizar manualmente output largo: ChatGPT/Codex lo resume o produce un informe/archivo cuando corresponda, y el usuario aporta solo el resultado necesario para orquestar.
 8. Ante interrupción, tokens o cuota, no se continúa mediante parches improvisados: se congela la última frontera estable, se recupera el checkpoint, se reconcilia documentación stale y se reanuda el bloque exacto inacabado.
