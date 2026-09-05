@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-05T05:04:29+02:00
+Actualizado: 2026-09-05T05:31:16+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -54,8 +54,7 @@ Checkpoint visual frontend histórico y aislado; no activa currículo A1 ni modi
 
 ## Bloque activo
 
-LOGUIC AI Model Routing Policy v1.1 — Astra Extension: **CERRADA / PUBLICADA / SINCRONIZADA** mediante este cierre documental. Repostflight independiente PASS, sin findings BLOCKING ni NONBLOCKING nuevos; B1, N1 y N3 resueltos. La v1.1 preserva las bandas base y añade Astra solo como override excepcional documentado, fuera del score. N2 (`extra-high`) permanece deuda heredada fuera del slice. No hay activación curricular v3 en curso.
-
+Entrada A1 canónica — **HUMAN GATE 1 = APPROVED**. Se aprueba para alumnado con inglés muy bajo o nulo la primera capacidad instructiva de la progresión A1: ante una intención comunicativa inmediata presentada oralmente y con contexto visual claro, producir una respuesta oral mínima, pertinente e inteligible construida directamente en inglés mediante Persona + Acción y reutilizarla en una variación cercana con menos apoyo. Método: intención → Persona → Acción → producción oral; experiencia: audio y contexto visual, comprensión guiada, construcción propia, pronunciación funcional, microinteracción y retirada progresiva de apoyo; español solo como rescate opcional. Evidencia: producción oral propia con pertinencia, construcción e inteligibilidad; transferencia: variación cercana con menor apoyo. Esta aprobación no activa contenido ni autoriza implementación, runtime, loader, `content/content_tree.json`, A1 L1 v3 o reanudación de B181. Permanecen para Puerta 2 la posible separación técnica entre comprensión receptiva y producción, el tratamiento exacto de transferencia y rescate, el marco mínimo de unidad, la reutilización de capacidades existentes y las brechas técnicas demostradas.
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
 Estado: **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**. I1–I4 y correcciones frontend están publicados; la reanudación depende de construcción pedagógica canónica A1 y una nueva validación humana.
@@ -94,11 +93,11 @@ Al reanudar, ejecutar primero `python3 scripts/engineering/conversation_checkpoi
 
 ## Próximo objetivo
 
-No existe un siguiente bloque técnico inequívocamente autorizado. Sigue pendiente la decisión humana entre definir mediante Puerta 1 el próximo macrobloque pedagógico y autorizar solo el estudio del loader posterior a B52. La ruta hacia B181 exige antes la entrada A1 y su candidata canónica. Ningún bloque técnico nuevo está seleccionado: A1 L1 v3 inactiva, B181 pausado y `LOADER = BLOCKED`.
+Preparar exclusivamente Puerta 2 de la entrada A1 canónica: marco mínimo de unidad, capacidades existentes reutilizables y brechas técnicas realmente demostradas, sin diseñar contenido ni implementar. La ruta hacia B181 sigue exigiendo después construir y revisar su candidata canónica antes de una nueva validación humana. A1 L1 v3 permanece inactiva, B181 pausado y `LOADER = BLOCKED`.
 
 ## Archivos clave
 
-- `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/loguic-engineering-operating-method-v1.md` y `docs/loguic-ai-model-routing-policy-v1.md`;
+- `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`, `docs/loguic-engineering-operating-method-v1.md` y `docs/loguic-ai-model-routing-policy-v1.md`;
 - `docs/curriculum-preparation-prerequisites-contract-v1.md`;
 - `scripts/engineering/operational_state.py`;
 - `scripts/engineering/conversation_checkpoint.py`;

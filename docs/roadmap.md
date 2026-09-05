@@ -686,22 +686,11 @@ La fuente canónica de estas decisiones es:
 
 `docs/modelo-pedagogico-maestro.md`
 
-## Próximo macrobloque
+## Próximo frente pedagógico
 
-Todavía no está seleccionado.
+Entrada A1 canónica — **HUMAN GATE 1 = APPROVED**. La aprobación define para alumnado con inglés muy bajo o nulo la primera capacidad instructiva de la progresión A1: responder oralmente a una intención comunicativa inmediata con contexto visual claro mediante una construcción propia Persona + Acción, pertinente e inteligible, y reutilizarla en una variación cercana con menos apoyo. Se aprueban método de construcción directa, audio y contexto visual, comprensión guiada, producción oral, pronunciación funcional, microinteracción, retirada progresiva de apoyo, español solo como rescate opcional y evidencia oral propia de pertinencia, construcción e inteligibilidad.
 
-No se asignará automáticamente B177 a una deuda técnica ni a una capacidad futura ya listada.
-
-El próximo macrobloque deberá superar primero la Puerta 1 y definir:
-
-- problema del estudiante;
-- fase pedagógica;
-- capacidad objetivo;
-- método;
-- experiencia;
-- evidencia observable;
-- transferencia;
-- criterios de aceptación.
+La única autorización siguiente es preparar Puerta 2: definir el marco mínimo de unidad, capacidades existentes reutilizables y brechas técnicas realmente demostradas. No se asigna un identificador nuevo ni se autoriza contenido, implementación, activación, loader o reanudación de B181.
 ## B177 — Diagnóstico conversacional contextual
 
 Estado: en desarrollo.
