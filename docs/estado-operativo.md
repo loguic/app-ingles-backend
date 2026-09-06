@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-05T05:31:16+02:00
+Actualizado: 2026-09-06T17:21:11+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -54,7 +54,7 @@ Checkpoint visual frontend histórico y aislado; no activa currículo A1 ni modi
 
 ## Bloque activo
 
-Entrada A1 canónica — **HUMAN GATE 1 = APPROVED**. Se aprueba para alumnado con inglés muy bajo o nulo la primera capacidad instructiva de la progresión A1: ante una intención comunicativa inmediata presentada oralmente y con contexto visual claro, producir una respuesta oral mínima, pertinente e inteligible construida directamente en inglés mediante Persona + Acción y reutilizarla en una variación cercana con menos apoyo. Método: intención → Persona → Acción → producción oral; experiencia: audio y contexto visual, comprensión guiada, construcción propia, pronunciación funcional, microinteracción y retirada progresiva de apoyo; español solo como rescate opcional. Evidencia: producción oral propia con pertinencia, construcción e inteligibilidad; transferencia: variación cercana con menor apoyo. Esta aprobación no activa contenido ni autoriza implementación, runtime, loader, `content/content_tree.json`, A1 L1 v3 o reanudación de B181. Permanecen para Puerta 2 la posible separación técnica entre comprensión receptiva y producción, el tratamiento exacto de transferencia y rescate, el marco mínimo de unidad, la reutilización de capacidades existentes y las brechas técnicas demostradas.
+Entrada A1 canónica — **HUMAN GATE 1 y HUMAN GATE 2 = APPROVED**. Para alumnado con inglés muy bajo o nulo se aprueba una unidad mínima completa centrada en una Skill integrada: ante una intención inmediata con contexto visual y audio, producir una respuesta oral mínima, pertinente e inteligible mediante Persona + Acción y reutilizarla en una variación cercana con apoyo estrictamente menor. Comprensión, producción y transferencia conservan evidencias separables; comprensión es preparación/comprobación, no mastery receptivo. Construcción propia se operacionaliza mediante producción personal, ausencia de modelo completo, apoyo decreciente y variación. Transcript y español son práctica/rescate; la evidencia final deberá producirse sin ellos. La evaluación inicial de pertinencia e inteligibilidad podrá ser humana/externa; automatización solo de apoyo. Brechas demostradas: contexto visual canónico accesible y conexión de evaluación oral cualitativa con evidence states. Persistencia de ayudas o adaptación Direct English v3 quedan condicionadas a necesidad demostrada por candidata real. No se activan contenido, runtime, loader, `content/content_tree.json`, A1 L1 v3 ni B181.
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
 Estado: **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**. I1–I4 y correcciones frontend están publicados; la reanudación depende de construcción pedagógica canónica A1 y una nueva validación humana.
@@ -93,7 +93,7 @@ Al reanudar, ejecutar primero `python3 scripts/engineering/conversation_checkpoi
 
 ## Próximo objetivo
 
-Preparar exclusivamente Puerta 2 de la entrada A1 canónica: marco mínimo de unidad, capacidades existentes reutilizables y brechas técnicas realmente demostradas, sin diseñar contenido ni implementar. La ruta hacia B181 sigue exigiendo después construir y revisar su candidata canónica antes de una nueva validación humana. A1 L1 v3 permanece inactiva, B181 pausado y `LOADER = BLOCKED`.
+Preparar exclusivamente la especificación y candidata aislada de la unidad mínima A1, y delimitar los mínimos cambios demostrados para contexto visual canónico y evaluación oral cualitativa, sin implementación ni activación en esta ejecución. La ruta hacia B181 sigue exigiendo candidata construida, validada y revisada antes de una nueva validación humana. A1 L1 v3 permanece inactiva, B181 pausado, A1-U1 `pending / non-member` y `LOADER = BLOCKED`.
 
 ## Archivos clave
 
