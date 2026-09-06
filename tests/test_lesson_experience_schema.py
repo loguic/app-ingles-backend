@@ -169,6 +169,7 @@ def test_lesson_parses_professional_experience_v2():
     assert lesson.experience.mission.id == "a1-u1-l1-m1"
     assert lesson.experience.skill_ids == ["a1_introduce_yourself"]
     assert len(lesson.experience.stages) == 2
+    assert lesson.experience.visual_contexts == []
 
 
 @pytest.mark.parametrize("contract_version", ["2.0", "3.0"])
@@ -262,6 +263,209 @@ def test_v3_without_support_timing_metadata_preserves_existing_behavior():
         .transcript_reveal_after_first_response_to_exercise_id
         is None
     )
+
+
+def test_v3_accepts_valid_visual_context():
+    payload = build_experience_payload()
+    payload["contract_version"] = "3.0"
+    payload["visual_contexts"] = [
+        {
+            "id": "a1-u1-l1-vc1",
+            "resource_id": "visual/a1_u1_l1_meeting.svg",
+            "accessibility_label": "Two people meeting at work.",
+            "stage_ids": ["a1-u1-l1-s1"],
+        }
+    ]
+
+    lesson = Lesson.model_validate({
+        "id": "a1-u1-l1",
+        "title": "Visual context",
+        "experience": payload,
+        "exercises": [
+            {
+                "id": "a1-u1-l1-q1",
+                "type": "mcq",
+                "prompt": "Complete the introduction.",
+                "options": ["Hello.", "Goodbye."],
+                "answer_index": 0,
+                "skill_ids": ["a1_introduce_yourself"],
+            }
+        ],
+    })
+
+    assert lesson.experience is not None
+    assert lesson.experience.visual_contexts[0].resource_id == (
+        "visual/a1_u1_l1_meeting.svg"
+    )
+
+
+def test_visual_context_rejects_empty_stage_ids():
+    payload = build_experience_payload()
+    payload["contract_version"] = "3.0"
+    payload["visual_contexts"] = [
+        {
+            "id": "a1-u1-l1-vc1",
+            "resource_id": "visual/a1_u1_l1_meeting.svg",
+            "accessibility_label": "Two people meeting at work.",
+            "stage_ids": [],
+        }
+    ]
+
+    with pytest.raises(ValidationError, match="at least 1 item"):
+        Lesson.model_validate({
+            "id": "a1-u1-l1",
+            "title": "Visual context",
+            "experience": payload,
+        })
+
+
+def test_v2_rejects_populated_visual_contexts():
+    payload = build_experience_payload()
+    payload["visual_contexts"] = [
+        {
+            "id": "a1-u1-l1-vc1",
+            "resource_id": "visual/a1_u1_l1_meeting.svg",
+            "accessibility_label": "Two people meeting at work.",
+            "stage_ids": ["a1-u1-l1-s1"],
+        }
+    ]
+
+    with pytest.raises(
+        ValidationError,
+        match="Visual contexts require contract version 3.0",
+    ):
+        Lesson.model_validate({
+            "id": "a1-u1-l1",
+            "title": "Visual context",
+            "experience": payload,
+        })
+
+
+def test_v3_without_visual_contexts_preserves_existing_behavior():
+    payload = build_experience_payload()
+    payload["contract_version"] = "3.0"
+
+    lesson = Lesson.model_validate({
+        "id": "a1-u1-l1",
+        "title": "No visual context",
+        "experience": payload,
+        "exercises": [
+            {
+                "id": "a1-u1-l1-q1",
+                "type": "mcq",
+                "prompt": "Complete the introduction.",
+                "options": ["Hello.", "Goodbye."],
+                "answer_index": 0,
+                "skill_ids": ["a1_introduce_yourself"],
+            }
+        ],
+    })
+
+    assert lesson.experience is not None
+    assert lesson.experience.visual_contexts == []
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("id", ""),
+        ("resource_id", " "),
+        ("accessibility_label", ""),
+    ],
+)
+def test_visual_context_rejects_blank_required_values(field, value):
+    payload = build_experience_payload()
+    payload["contract_version"] = "3.0"
+    context = {
+        "id": "a1-u1-l1-vc1",
+        "resource_id": "visual/a1_u1_l1_meeting.svg",
+        "accessibility_label": "Two people meeting at work.",
+        "stage_ids": ["a1-u1-l1-s1"],
+    }
+    context[field] = value
+    payload["visual_contexts"] = [context]
+
+    with pytest.raises(
+        ValidationError,
+        match="Visual context values cannot be blank",
+    ):
+        Lesson.model_validate({
+            "id": "a1-u1-l1",
+            "title": "Visual context",
+            "experience": payload,
+        })
+
+
+def test_visual_context_rejects_duplicate_ids():
+    payload = build_experience_payload()
+    payload["contract_version"] = "3.0"
+    payload["visual_contexts"] = [
+        {
+            "id": "a1-u1-l1-vc1",
+            "resource_id": "visual/a1_u1_l1_meeting.svg",
+            "accessibility_label": "Two people meeting at work.",
+            "stage_ids": ["a1-u1-l1-s1"],
+        },
+        {
+            "id": "a1-u1-l1-vc1",
+            "resource_id": "visual/a1_u1_l1_response.svg",
+            "accessibility_label": "A learner responding.",
+            "stage_ids": ["a1-u1-l1-s2"],
+        },
+    ]
+
+    with pytest.raises(ValidationError, match="Visual context IDs must be unique"):
+        Lesson.model_validate({
+            "id": "a1-u1-l1",
+            "title": "Visual context",
+            "experience": payload,
+        })
+
+
+def test_visual_context_rejects_duplicate_stage_ids():
+    payload = build_experience_payload()
+    payload["contract_version"] = "3.0"
+    payload["visual_contexts"] = [
+        {
+            "id": "a1-u1-l1-vc1",
+            "resource_id": "visual/a1_u1_l1_meeting.svg",
+            "accessibility_label": "Two people meeting at work.",
+            "stage_ids": ["a1-u1-l1-s1", "a1-u1-l1-s1"],
+        }
+    ]
+
+    with pytest.raises(
+        ValidationError,
+        match="Visual context stage_ids must be unique",
+    ):
+        Lesson.model_validate({
+            "id": "a1-u1-l1",
+            "title": "Visual context",
+            "experience": payload,
+        })
+
+
+def test_visual_context_rejects_unknown_stage_id():
+    payload = build_experience_payload()
+    payload["contract_version"] = "3.0"
+    payload["visual_contexts"] = [
+        {
+            "id": "a1-u1-l1-vc1",
+            "resource_id": "visual/a1_u1_l1_meeting.svg",
+            "accessibility_label": "Two people meeting at work.",
+            "stage_ids": ["a1-u1-l1-s9"],
+        }
+    ]
+
+    with pytest.raises(
+        ValidationError,
+        match="Visual context a1-u1-l1-vc1 references unknown stages",
+    ):
+        Lesson.model_validate({
+            "id": "a1-u1-l1",
+            "title": "Visual context",
+            "experience": payload,
+        })
 
 
 def test_score_evidence_requires_success_threshold():

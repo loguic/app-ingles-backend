@@ -352,6 +352,21 @@ def _collect_referenced_audio_assets(
     }
 
 
+def _collect_referenced_visual_context_resource_ids(
+    candidate: PedagogicalUnitCandidate,
+) -> set[str]:
+    """Collect logical visual resources referenced by lesson experiences.
+
+    Recopila recursos visuales lógicos referenciados por experiencias.
+    """
+    return {
+        context.resource_id
+        for lesson in candidate.candidate_unit.lessons
+        if lesson.experience is not None
+        for context in lesson.experience.visual_contexts
+    }
+
+
 def validate_required_resource_inventory(
     candidate: PedagogicalUnitCandidate,
 ) -> list[ValidationFinding]:
@@ -383,6 +398,23 @@ def validate_required_resource_inventory(
                 message=(
                     f"Referenced audio resource is missing from the "
                     f"inventory: {resource_id}."
+                ),
+                reference_ids=[resource_id],
+            )
+        )
+
+    missing_visual_context_resource_ids = sorted(
+        _collect_referenced_visual_context_resource_ids(candidate)
+        - set(inventory)
+    )
+    for resource_id in missing_visual_context_resource_ids:
+        findings.append(
+            ValidationFinding(
+                validator_id="resource_inventory_complete",
+                severity="error",
+                message=(
+                    "Referenced visual context resource is missing from "
+                    f"the inventory: {resource_id}."
                 ),
                 reference_ids=[resource_id],
             )

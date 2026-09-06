@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-06T17:21:11+02:00
+Actualizado: 2026-09-06T18:28:55+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -54,7 +54,7 @@ Checkpoint visual frontend histórico y aislado; no activa currículo A1 ni modi
 
 ## Bloque activo
 
-Entrada A1 canónica — **HUMAN GATE 1 y HUMAN GATE 2 = APPROVED**. Para alumnado con inglés muy bajo o nulo se aprueba una unidad mínima completa centrada en una Skill integrada: ante una intención inmediata con contexto visual y audio, producir una respuesta oral mínima, pertinente e inteligible mediante Persona + Acción y reutilizarla en una variación cercana con apoyo estrictamente menor. Comprensión, producción y transferencia conservan evidencias separables; comprensión es preparación/comprobación, no mastery receptivo. Construcción propia se operacionaliza mediante producción personal, ausencia de modelo completo, apoyo decreciente y variación. Transcript y español son práctica/rescate; la evidencia final deberá producirse sin ellos. La evaluación inicial de pertinencia e inteligibilidad podrá ser humana/externa; automatización solo de apoyo. Brechas demostradas: contexto visual canónico accesible y conexión de evaluación oral cualitativa con evidence states. Persistencia de ayudas o adaptación Direct English v3 quedan condicionadas a necesidad demostrada por candidata real. No se activan contenido, runtime, loader, `content/content_tree.json`, A1 L1 v3 ni B181.
+Entrada A1 canónica — **HUMAN GATE 1 y HUMAN GATE 2 = APPROVED**. Para alumnado con inglés muy bajo o nulo se aprueba una unidad mínima completa centrada en una Skill integrada: ante una intención inmediata con contexto visual y audio, producir una respuesta oral mínima, pertinente e inteligible mediante Persona + Acción y reutilizarla en una variación cercana con apoyo estrictamente menor. Comprensión, producción y transferencia conservan evidencias separables; comprensión es preparación/comprobación, no mastery receptivo. Construcción propia se operacionaliza mediante producción personal, ausencia de modelo completo, apoyo decreciente y variación. Transcript y español son práctica/rescate; la evidencia final deberá producirse sin ellos. La evaluación inicial de pertinencia e inteligibilidad podrá ser humana/externa; automatización solo de apoyo. El Incremento 1 de contexto visual v3 está técnicamente completado y postflight PASS: `VisualContext` opcional/accesible se vincula a una o más etapas, requiere recurso lógico inventariado y preserva v2/v3 sin contexto; 64 tests PASS. Sigue pendiente la conexión de evaluación oral cualitativa con evidence states; persistencia de ayudas o adaptación Direct English v3 quedan condicionadas a candidata real. No se activan contenido, runtime, loader, `content/content_tree.json`, A1 L1 v3 ni B181.
 ### B181 — Comprensión contingente y continuidad conversacional breve
 
 Estado: **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**. I1–I4 y correcciones frontend están publicados; la reanudación depende de construcción pedagógica canónica A1 y una nueva validación humana.
@@ -93,7 +93,7 @@ Al reanudar, ejecutar primero `python3 scripts/engineering/conversation_checkpoi
 
 ## Próximo objetivo
 
-Preparar exclusivamente la especificación y candidata aislada de la unidad mínima A1, y delimitar los mínimos cambios demostrados para contexto visual canónico y evaluación oral cualitativa, sin implementación ni activación en esta ejecución. La ruta hacia B181 sigue exigiendo candidata construida, validada y revisada antes de una nueva validación humana. A1 L1 v3 permanece inactiva, B181 pausado, A1-U1 `pending / non-member` y `LOADER = BLOCKED`.
+Cerrar Git exclusivamente el Incremento 1 de contexto visual contractual; no iniciar Incremento 2, candidata aislada ni evaluación oral cualitativa en esta ejecución. La ruta hacia B181 sigue exigiendo candidata construida, validada y revisada antes de una nueva validación humana. A1 L1 v3 permanece inactiva, B181 pausado, A1-U1 `pending / non-member` y `LOADER = BLOCKED`.
 
 ## Archivos clave
 
@@ -136,4 +136,4 @@ Preparar exclusivamente la especificación y candidata aislada de la unidad mín
 - `tests/test_pedagogical_expected_resource_identity_collection.py`;
 - `tests/test_pedagogical_active_candidate_source_required_resource_inventory.py`;
 - `tests/test_pedagogical_active_candidate_source_expected_resource_coverage_verification.py`;
-- `app/services/pedagogical_validation_service.py`.
+- `app/schemas/content.py`, `app/services/pedagogical_validation_service.py`, `docs/lesson-experience-contract.md`, `tests/test_lesson_experience_schema.py` y `tests/test_pedagogical_validation_service.py`.

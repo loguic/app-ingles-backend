@@ -129,6 +129,19 @@ Contendrá recursos subordinados a la misión:
 - pronunciación;
 - frases de referencia cuando aporten valor.
 
+#### `visual_contexts` (v3 opcional)
+
+Puede declarar contexto visual accesible para una o más etapas mediante una
+lista opcional de `VisualContext`. Cada entrada contiene un `id` único dentro de
+la experiencia, un `resource_id` lógico incluido en
+`PedagogicalUnitCandidate.required_resource_ids`, un `accessibility_label` no
+vacío y `stage_ids` únicos que existen en la misma `LessonExperience`.
+
+El campo solo puede poblarse con `contract_version == "3.0"`; su ausencia
+conserva intacto el comportamiento de v2 y v3. `resource_id` no es una URL,
+path, bytes ni binding físico: el contrato no incorpora assets, MIME,
+dimensiones, variantes, coordenadas, animación, descarga ni telemetría.
+
 #### `evidence`
 
 Declarará evidencias observables vinculadas a Skills, actividades y condiciones de logro.

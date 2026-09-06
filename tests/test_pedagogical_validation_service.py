@@ -382,6 +382,97 @@ def test_missing_referenced_audio_fails_validation(
     )
 
 
+def build_visual_context_candidate_payload() -> dict:
+    """Return a valid candidate payload with one v3 visual context.
+
+    Devuelve un payload de candidata válido con un contexto visual v3.
+    """
+    payload = deepcopy(build_candidate_payload())
+    payload["candidate_unit"]["lessons"][0]["experience"] = {
+        "contract_version": "3.0",
+        "mission": {
+            "id": "a1-u1-l1-m1",
+            "title": "Introduce yourself",
+            "situation": "Meet a new colleague.",
+            "observable_outcome": "State your name and origin.",
+            "success_criteria": ["The learner responds."],
+        },
+        "skill_ids": ["a1_introduce_yourself"],
+        "stages": [
+            {
+                "id": "a1-u1-l1-s1",
+                "type": "encounter",
+                "instruction": "Listen to the opening exchange.",
+                "activity_ids": ["a1-u1-l1-c1"],
+                "completion_condition": "any_activity_completed",
+            }
+        ],
+        "visual_contexts": [
+            {
+                "id": "a1-u1-l1-vc1",
+                "resource_id": "visual/a1_u1_l1_meeting.svg",
+                "accessibility_label": "Two people meeting at work.",
+                "stage_ids": ["a1-u1-l1-s1"],
+            }
+        ],
+        "evidence_definitions": [
+            {
+                "id": "a1-u1-l1-ev1",
+                "skill_ids": ["a1_introduce_yourself"],
+                "stage_id": "a1-u1-l1-s1",
+                "activity_id": "a1-u1-l1-c1",
+                "evidence_type": "conversation_completion",
+                "measurement_mode": "completion",
+            }
+        ],
+        "completion_policy": {
+            "practiced_stage_ids": ["a1-u1-l1-s1"],
+            "required_evidence_ids": ["a1-u1-l1-ev1"],
+        },
+    }
+    return payload
+
+
+def test_missing_visual_context_resource_fails_validation():
+    """Reject visual context absent from the logical inventory.
+
+    Rechaza contexto visual ausente del inventario lógico.
+    """
+    payload = build_visual_context_candidate_payload()
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    report = validate_pedagogical_candidate(candidate)
+
+    assert report.status == "failed"
+    assert len(report.findings) == 1
+
+    finding = report.findings[0]
+    assert finding.validator_id == "resource_inventory_complete"
+    assert finding.severity == "error"
+    assert finding.reference_ids == ["visual/a1_u1_l1_meeting.svg"]
+    assert finding.message == (
+        "Referenced visual context resource is missing from the inventory: "
+        "visual/a1_u1_l1_meeting.svg."
+    )
+
+
+def test_visual_context_resource_in_inventory_passes_validation():
+    """Accept visual context declared in the logical inventory.
+
+    Acepta contexto visual declarado en el inventario lógico.
+    """
+    payload = build_visual_context_candidate_payload()
+    payload["required_resource_ids"].append(
+        "visual/a1_u1_l1_meeting.svg"
+    )
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    report = validate_pedagogical_candidate(candidate)
+
+    assert report.status == "passed"
+    assert report.findings == []
+
+
 def test_duplicate_required_resource_id_fails_validation():
     """Reject duplicated identifiers in the logical resource inventory.
 

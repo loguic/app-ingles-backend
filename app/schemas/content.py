@@ -477,6 +477,39 @@ class LessonStage(BaseModel):
     ]
 
 
+class VisualContext(BaseModel):
+    """Reference accessible visual context for one or more lesson stages.
+
+    Referencia contexto visual accesible para una o varias etapas de lección.
+    """
+
+    id: str
+    resource_id: str
+    accessibility_label: str
+    stage_ids: List[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_internal_integrity(self) -> "VisualContext":
+        values = {
+            "id": self.id,
+            "resource_id": self.resource_id,
+            "accessibility_label": self.accessibility_label,
+        }
+        blank_values = [
+            field_name
+            for field_name, value in values.items()
+            if not value.strip()
+        ]
+        if blank_values:
+            raise ValueError(
+                "Visual context values cannot be blank: "
+                + ", ".join(blank_values)
+            )
+        if len(self.stage_ids) != len(set(self.stage_ids)):
+            raise ValueError("Visual context stage_ids must be unique")
+        return self
+
+
 class EvidenceDefinition(BaseModel):
     """Define measurable evidence without storing learner results.
 
@@ -667,6 +700,7 @@ class LessonExperience(BaseModel):
     language_support: List[LanguageSupportItem] = Field(
         default_factory=list
     )
+    visual_contexts: List[VisualContext] = Field(default_factory=list)
     evidence_definitions: List[EvidenceDefinition] = Field(min_length=1)
     completion_policy: CompletionPolicy
     correction_policy: Optional[CorrectionGuidancePolicy] = None
@@ -703,6 +737,7 @@ class LessonExperience(BaseModel):
 
         stage_ids = [stage.id for stage in self.stages]
         support_ids = [item.id for item in self.language_support]
+        visual_context_ids = [item.id for item in self.visual_contexts]
         evidence_ids = [
             evidence.id
             for evidence in self.evidence_definitions
@@ -724,6 +759,10 @@ class LessonExperience(BaseModel):
             support_ids,
         )
         reject_duplicates(
+            "Visual context IDs",
+            visual_context_ids,
+        )
+        reject_duplicates(
             "Evidence definition IDs",
             evidence_ids,
         )
@@ -739,6 +778,11 @@ class LessonExperience(BaseModel):
             stage.id: stage
             for stage in self.stages
         }
+
+        if self.contract_version == "2.0" and self.visual_contexts:
+            raise ValueError(
+                "Visual contexts require contract version 3.0"
+            )
 
         if (
             self.pronunciation_reinforcement is not None
@@ -765,6 +809,18 @@ class LessonExperience(BaseModel):
                 raise ValueError(
                     "Language support "
                     + item.id
+                    + " references unknown stages: "
+                    + ", ".join(unknown_stage_ids)
+                )
+
+        for context in self.visual_contexts:
+            unknown_stage_ids = sorted(
+                set(context.stage_ids) - stage_id_set
+            )
+            if unknown_stage_ids:
+                raise ValueError(
+                    "Visual context "
+                    + context.id
                     + " references unknown stages: "
                     + ", ".join(unknown_stage_ids)
                 )
