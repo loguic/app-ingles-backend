@@ -132,6 +132,31 @@ def build_v3_lesson_payload() -> dict:
     return payload
 
 
+def qualitative_review_pair(production_function: str) -> list[dict]:
+    return [
+        {
+            "dimension": "relevance",
+            "production_function": production_function,
+            "allowed_results": ["positive", "negative", "pending"],
+            "question": "Is the response relevant?",
+        },
+        {
+            "dimension": "intelligibility",
+            "production_function": production_function,
+            "allowed_results": ["positive", "negative", "pending"],
+            "question": "Is the response intelligible?",
+        },
+    ]
+
+
+def evidence(payload: dict, evidence_type: str) -> dict:
+    return next(
+        item
+        for item in payload["experience"]["evidence_definitions"]
+        if item["evidence_type"] == evidence_type
+    )
+
+
 def test_active_first_lesson_is_valid_direct_construction_content():
     lesson = validate_payload(build_lesson_payload())
     experience = lesson.experience
@@ -166,6 +191,53 @@ def test_v3_requires_two_direct_attempt_activities_with_three_captures_each():
         "contextual_response",
         "conversation_completion",
     ]
+
+
+@pytest.mark.parametrize("production_function", ["guided", "expanded", "transfer"])
+def test_v3_accepts_qualitative_review_for_available_direct_capture(
+    production_function,
+):
+    payload = build_v3_lesson_payload()
+    evidence(payload, "guided_production")[
+        "external_review_requirements"
+    ] = qualitative_review_pair(production_function)
+
+    lesson = validate_payload(payload)
+
+    assert lesson.experience is not None
+
+
+def test_v3_rejects_qualitative_review_on_non_direct_evidence():
+    payload = build_v3_lesson_payload()
+    evidence(payload, "comprehension_result")[
+        "external_review_requirements"
+    ] = qualitative_review_pair("guided")
+
+    with pytest.raises(
+        ValueError,
+        match="qualitative review requires direct production evidence",
+    ):
+        validate_payload(payload)
+
+
+def test_v3_rejects_qualitative_review_for_unavailable_direct_capture():
+    payload = build_v3_lesson_payload()
+    evidence(payload, "guided_production")[
+        "external_review_requirements"
+    ] = qualitative_review_pair("transfer")
+    guided = conversation(payload, "a1-u1-l1-c-direct-guided")
+    guided["turns"] = [
+        turn
+        for turn in guided["turns"]
+        if (turn.get("production_prompt") or {}).get("production_function")
+        != "transfer"
+    ]
+
+    with pytest.raises(
+        ValueError,
+        match="qualitative review function requires an available capture",
+    ):
+        validate_payload(payload)
 
 
 def test_v3_rejects_a_direct_attempt_activity_without_all_three_captures():

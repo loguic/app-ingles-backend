@@ -85,6 +85,14 @@ class DirectEnglishConstructionStateConflictError(
     """Raised when persisted attempt state changed concurrently."""
 
 
+def _requires_qualitative_review(evidence) -> bool:
+    return any(
+        requirement.production_function is not None
+        and requirement.positive_required_for_completion
+        for requirement in evidence.external_review_requirements
+    )
+
+
 def _resolve_lesson(
     level_id: str,
     unit_id: str,
@@ -965,16 +973,23 @@ def _finalize_direct_english_construction_attempt(
                     raise DirectEnglishConstructionInvariantError(
                         "Direct-English evidence binding is incompatible"
                     )
+                structurally_eligible = all(
+                    status == "satisfied"
+                    for status in capture_statuses.values()
+                )
                 updates = [
                     (
                         entries["guided"][3],
                         (
-                            "satisfied"
-                            if all(
-                                status == "satisfied"
-                                for status in capture_statuses.values()
+                            "pending"
+                            if not structurally_eligible
+                            else (
+                                "needs_review"
+                                if _requires_qualitative_review(
+                                    entries["guided"][3]
+                                )
+                                else "satisfied"
                             )
-                            else "pending"
                         ),
                         "direct_english_construction_attempt",
                         attempt.attempt_id,

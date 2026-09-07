@@ -136,6 +136,47 @@ def build_support_timing_lesson_payload(
     }
 
 
+def qualitative_review_requirement(
+    dimension: str,
+    production_function: str | None = None,
+) -> dict:
+    requirement = {
+        "dimension": dimension,
+        "allowed_results": ["positive", "negative", "pending"],
+        "question": "Is the learner response acceptable?",
+    }
+    if production_function is not None:
+        requirement["production_function"] = production_function
+    return requirement
+
+
+def qualitative_review_lesson(
+    requirements: list[dict],
+    *,
+    contract_version: str = "3.0",
+) -> Lesson:
+    payload = build_experience_payload()
+    payload["contract_version"] = contract_version
+    payload["evidence_definitions"][0][
+        "external_review_requirements"
+    ] = requirements
+    return Lesson.model_validate({
+        "id": "a1-u1-l1",
+        "title": "Qualitative review",
+        "experience": payload,
+        "exercises": [
+            {
+                "id": "a1-u1-l1-q1",
+                "type": "mcq",
+                "prompt": "Complete the introduction.",
+                "options": ["Hello.", "Goodbye."],
+                "answer_index": 0,
+                "skill_ids": ["a1_introduce_yourself"],
+            }
+        ],
+    })
+
+
 def test_legacy_lesson_remains_compatible_without_experience():
     lesson = Lesson.model_validate({
         "id": "a1-u1-l1",
@@ -498,3 +539,117 @@ def test_non_score_evidence_rejects_success_threshold():
             "title": "Unexpected threshold",
             "experience": payload,
         })
+
+
+@pytest.mark.parametrize("production_function", ["guided", "expanded", "transfer"])
+def test_v3_accepts_complete_qualitative_review_pair(production_function):
+    lesson = qualitative_review_lesson([
+        qualitative_review_requirement("relevance", production_function),
+        qualitative_review_requirement("intelligibility", production_function),
+    ])
+
+    assert lesson.experience is not None
+    assert [
+        (item.production_function, item.dimension)
+        for item in lesson.experience.evidence_definitions[0]
+        .external_review_requirements
+    ] == [
+        (production_function, "relevance"),
+        (production_function, "intelligibility"),
+    ]
+
+
+def test_v3_accepts_same_qualitative_dimension_for_distinct_functions():
+    lesson = qualitative_review_lesson([
+        qualitative_review_requirement("relevance", "guided"),
+        qualitative_review_requirement("intelligibility", "guided"),
+        qualitative_review_requirement("relevance", "expanded"),
+        qualitative_review_requirement("intelligibility", "expanded"),
+    ])
+
+    assert lesson.experience is not None
+    assert len(lesson.experience.evidence_definitions[0].external_review_requirements) == 4
+
+
+@pytest.mark.parametrize("dimension", ["relevance", "intelligibility"])
+def test_qualitative_review_rejects_missing_production_function(dimension):
+    with pytest.raises(
+        ValidationError,
+        match="Qualitative external review requires production_function",
+    ):
+        qualitative_review_lesson([qualitative_review_requirement(dimension)])
+
+
+@pytest.mark.parametrize(
+    "dimension",
+    ["intention_understanding", "contingent_response"],
+)
+def test_historical_review_dimension_rejects_production_function(dimension):
+    with pytest.raises(
+        ValidationError,
+        match="Historical external review dimensions cannot define",
+    ):
+        qualitative_review_lesson([
+            qualitative_review_requirement(dimension, "guided")
+        ])
+
+
+@pytest.mark.parametrize("dimension", ["relevance", "intelligibility"])
+def test_v3_rejects_incomplete_qualitative_review_pair(dimension):
+    with pytest.raises(
+        ValidationError,
+        match="requires relevance and intelligibility",
+    ):
+        qualitative_review_lesson([
+            qualitative_review_requirement(dimension, "guided")
+        ])
+
+
+def test_qualitative_review_rejects_duplicate_function_dimension_pair():
+    with pytest.raises(
+        ValidationError,
+        match="production function and dimension pairs must be unique",
+    ):
+        qualitative_review_lesson([
+            qualitative_review_requirement("relevance", "guided"),
+            qualitative_review_requirement("intelligibility", "guided"),
+            qualitative_review_requirement("relevance", "guided"),
+        ])
+
+
+def test_v2_rejects_complete_qualitative_review_extension():
+    with pytest.raises(
+        ValidationError,
+        match="requires contract version 3.0",
+    ):
+        qualitative_review_lesson([
+            qualitative_review_requirement("relevance", "guided"),
+            qualitative_review_requirement("intelligibility", "guided"),
+        ], contract_version="2.0")
+
+
+def test_v2_rejects_populated_historical_review_production_function():
+    with pytest.raises(
+        ValidationError,
+        match="Historical external review dimensions cannot define",
+    ):
+        qualitative_review_lesson([
+            qualitative_review_requirement(
+                "intention_understanding",
+                "guided",
+            )
+        ], contract_version="2.0")
+
+
+def test_v3_preserves_historical_external_review_requirements():
+    lesson = qualitative_review_lesson([
+        qualitative_review_requirement("intention_understanding"),
+        qualitative_review_requirement("contingent_response"),
+    ])
+
+    assert lesson.experience is not None
+    assert all(
+        item.production_function is None
+        for item in lesson.experience.evidence_definitions[0]
+        .external_review_requirements
+    )

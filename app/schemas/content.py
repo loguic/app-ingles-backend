@@ -560,12 +560,29 @@ class EvidenceDefinition(BaseModel):
                 "Only score evidence can define success_threshold"
             )
 
-        dimensions = [
-            requirement.dimension
+        review_keys = [
+            (requirement.production_function, requirement.dimension)
             for requirement in self.external_review_requirements
         ]
-        if len(dimensions) != len(set(dimensions)):
-            raise ValueError("External review dimensions must be unique")
+        if len(review_keys) != len(set(review_keys)):
+            raise ValueError(
+                "External review production function and dimension pairs "
+                "must be unique"
+            )
+
+        qualitative_dimensions_by_function: dict[str, set[str]] = {}
+        for requirement in self.external_review_requirements:
+            if requirement.production_function is not None:
+                qualitative_dimensions_by_function.setdefault(
+                    requirement.production_function,
+                    set(),
+                ).add(requirement.dimension)
+        for dimensions in qualitative_dimensions_by_function.values():
+            if dimensions != {"relevance", "intelligibility"}:
+                raise ValueError(
+                    "Qualitative external review requires relevance and "
+                    "intelligibility for each production function"
+                )
 
         if self.evidence_type == "comprehension_result":
             if (
@@ -596,13 +613,35 @@ class ExternalReviewRequirement(BaseModel):
     Exige un juicio externo sin almacenar ni derivar su resultado.
     """
 
-    dimension: Literal["intention_understanding", "contingent_response"]
+    dimension: Literal[
+        "intention_understanding",
+        "contingent_response",
+        "relevance",
+        "intelligibility",
+    ]
+    production_function: Optional[
+        Literal["guided", "expanded", "transfer"]
+    ] = None
     allowed_results: List[Literal["positive", "negative", "pending"]]
     question: str
     positive_required_for_completion: bool = True
 
     @model_validator(mode="after")
     def validate_review_requirement(self) -> "ExternalReviewRequirement":
+        if self.dimension in {
+            "intention_understanding",
+            "contingent_response",
+        } and self.production_function is not None:
+            raise ValueError(
+                "Historical external review dimensions cannot define "
+                "production_function"
+            )
+        if self.dimension in {"relevance", "intelligibility"} and (
+            self.production_function is None
+        ):
+            raise ValueError(
+                "Qualitative external review requires production_function"
+            )
         if self.allowed_results != ["positive", "negative", "pending"]:
             raise ValueError("External review results must use canonical order")
         if not self.question.strip():
@@ -782,6 +821,16 @@ class LessonExperience(BaseModel):
         if self.contract_version == "2.0" and self.visual_contexts:
             raise ValueError(
                 "Visual contexts require contract version 3.0"
+            )
+
+        if self.contract_version == "2.0" and any(
+            requirement.production_function is not None
+            or requirement.dimension in {"relevance", "intelligibility"}
+            for evidence in self.evidence_definitions
+            for requirement in evidence.external_review_requirements
+        ):
+            raise ValueError(
+                "Qualitative external review requires contract version 3.0"
             )
 
         if (

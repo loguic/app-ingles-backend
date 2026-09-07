@@ -486,6 +486,68 @@ class DirectEnglishConstructionAttemptProduction(Base):
     support_used = Column(String, nullable=False)
 
 
+class DirectEnglishConstructionProductionReview(Base):
+    """Persist one append-only qualitative review of a direct-English link.
+
+    Persiste una revisión cualitativa append-only de un enlace de inglés
+    directo.
+    """
+
+    __tablename__ = "direct_english_construction_production_reviews"
+    __table_args__ = (
+        CheckConstraint(
+            "length(trim(review_id)) > 0",
+            name="ck_direct_english_review_id_not_blank",
+        ),
+        CheckConstraint(
+            "dimension IN ('relevance', 'intelligibility')",
+            name="ck_direct_english_review_dimension",
+        ),
+        CheckConstraint(
+            "result IN ('positive', 'negative', 'pending')",
+            name="ck_direct_english_review_result",
+        ),
+        CheckConstraint(
+            "source_type IN ('human', 'external')",
+            name="ck_direct_english_review_source_type",
+        ),
+        CheckConstraint(
+            "length(trim(source_id)) > 0",
+            name="ck_direct_english_review_source_id",
+        ),
+        CheckConstraint(
+            "(source_type = 'human' AND "
+            "(source_version IS NULL OR length(trim(source_version)) > 0)) "
+            "OR (source_type = 'external' AND source_version IS NOT NULL "
+            "AND length(trim(source_version)) > 0)",
+            name="ck_direct_english_review_source_version",
+        ),
+        Index(
+            "ix_direct_english_review_history",
+            "attempt_production_id",
+            "dimension",
+            "reviewed_at",
+            "review_id",
+        ),
+    )
+
+    review_id = Column(String, primary_key=True)
+    attempt_production_id = Column(
+        Integer,
+        ForeignKey(
+            "direct_english_construction_attempt_productions.id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+    )
+    dimension = Column(String, nullable=False)
+    result = Column(String, nullable=False)
+    source_type = Column(String, nullable=False)
+    source_id = Column(String, nullable=False)
+    source_version = Column(String, nullable=True)
+    reviewed_at = Column(DateTime(timezone=True), nullable=False)
+
+
 class DirectEnglishConstructionProductionOrientation(Base):
     """Persist one externally selected orientation without evaluating.
 

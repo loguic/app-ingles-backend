@@ -94,6 +94,18 @@ def _validate_v3_direct_english_construction_lesson(lesson: Lesson) -> None:
         conversation.id: conversation for conversation in lesson.conversations
     }
     direct_activity_ids = {item.activity_id for item in direct_evidence}
+    direct_evidence_ids = {item.id for item in direct_evidence}
+    for evidence in experience.evidence_definitions:
+        qualitative_requirements = [
+            requirement
+            for requirement in evidence.external_review_requirements
+            if requirement.production_function is not None
+        ]
+        if qualitative_requirements and evidence.id not in direct_evidence_ids:
+            raise ValueError(
+                "Direct construction v3 qualitative review requires direct "
+                "production evidence"
+            )
     for evidence in direct_evidence:
         conversation = conversations_by_id.get(evidence.activity_id)
         if conversation is None:
@@ -107,6 +119,15 @@ def _validate_v3_direct_english_construction_lesson(lesson: Lesson) -> None:
             and turn.production_prompt.production_function is not None
         ]
         functions = [item.production_function for item in entries]
+        for requirement in evidence.external_review_requirements:
+            if (
+                requirement.production_function is not None
+                and requirement.production_function not in functions
+            ):
+                raise ValueError(
+                    "Direct construction v3 qualitative review function "
+                    "requires an available capture"
+                )
         if set(functions) != EXPECTED_FUNCTIONS or len(functions) != 3:
             raise ValueError(
                 "Direct construction v3 evidence requires guided, expanded "

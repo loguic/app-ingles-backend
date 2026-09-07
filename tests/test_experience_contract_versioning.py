@@ -121,6 +121,27 @@ def test_normal_active_lookup_does_not_expose_historical_snapshot():
     assert content_service.get_lesson_by_id("a1-u1-l1-2.0") is None
 
 
+def test_historical_b181_review_requirements_parse_without_production_function():
+    active = json.loads(
+        content_service.CONTENT_TREE_PATH.read_text(encoding="utf-8")
+    )
+    lesson_payload = active["levels"][0]["units"][0]["lessons"][1]
+
+    assert all(
+        "production_function" not in requirement
+        for evidence in lesson_payload["experience"]["evidence_definitions"]
+        for requirement in evidence["external_review_requirements"]
+    )
+    lesson = Lesson.model_validate(lesson_payload)
+
+    assert lesson.experience is not None
+    assert all(
+        requirement.production_function is None
+        for evidence in lesson.experience.evidence_definitions
+        for requirement in evidence.external_review_requirements
+    )
+
+
 def test_exact_resolver_returns_matching_active_version(monkeypatch):
     active_context = _active_v3_context()
     monkeypatch.setattr(

@@ -6,11 +6,14 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
 import app.services.direct_english_construction_execution_service as direct_execution_service
+import app.services.direct_english_construction_review_execution_service as review_execution_service
+import app.services.direct_english_construction_review_persistence_service as review_persistence_service
 from app.db.database import Base
 from app.db.models import (
     ConversationAttempt,
     DirectEnglishConstructionAttempt,
     DirectEnglishConstructionAttemptProduction,
+    DirectEnglishConstructionProductionReview,
     ExperienceAttempt,
     ExperienceComprehensionResponse,
     ExperienceEvidenceState,
@@ -18,12 +21,15 @@ from app.db.models import (
     ShortConnectedExchangeProductionReview,
     UserProgress,
 )
-from app.schemas.content import Lesson
+from app.schemas.content import ExternalReviewRequirement, Lesson
 from app.schemas.conversation_attempt import ConversationAttemptCreate
 from app.schemas.conversation_production import ConversationProductionSubmission
 from app.schemas.direct_english_construction_execution import (
     DirectEnglishConstructionAttemptFinalize,
     DirectEnglishConstructionAttemptStart,
+)
+from app.schemas.direct_english_construction_review import (
+    DirectEnglishConstructionQualitativeReviewBatch,
 )
 from app.schemas.short_connected_exchange_review import (
     ShortConnectedExchangeProductionReviewBatch,
@@ -36,6 +42,9 @@ from app.services.conversation_production_persistence_service import (
 from app.services.direct_english_construction_execution_service import (
     finalize_direct_english_construction_attempt,
     start_direct_english_construction_attempt,
+)
+from app.services.direct_english_construction_review_execution_service import (
+    save_and_accredit_direct_english_construction_qualitative_reviews,
 )
 from app.services.direct_english_construction_content_validation import (
     validate_direct_english_construction_lesson,
@@ -851,6 +860,23 @@ def _bind_v3_direct_execution(monkeypatch, db, lesson: Lesson) -> None:
         ),
     )
     monkeypatch.setattr(
+        review_persistence_service,
+        "get_lesson_context_by_id",
+        lambda lesson_id: (
+            ("A1", "direct-v3-unit", lesson)
+            if lesson_id == lesson.id
+            else None
+        ),
+    )
+    monkeypatch.setattr(
+        "app.services.experience_evidence_service.get_lesson_context_by_id",
+        lambda lesson_id: (
+            ("A1", "direct-v3-unit", lesson)
+            if lesson_id == lesson.id
+            else None
+        ),
+    )
+    monkeypatch.setattr(
         "app.services.experience_attempt_service.get_lesson_context_by_id",
         lambda lesson_id: (
             ("A1", "direct-v3-unit", lesson)
@@ -935,6 +961,93 @@ def _v3_finalize_command(
             "finalized_at": NOW + timedelta(minutes=5),
         }
     )
+
+
+def _qualitative_v3_lesson(
+    evidence_id="direct-v3-guided-evidence",
+    functions=("guided",),
+) -> Lesson:
+    lesson = direct_english_v3_lesson().model_copy(deep=True)
+    evidence = next(
+        item
+        for item in lesson.experience.evidence_definitions
+        if item.id == evidence_id
+    )
+    evidence.external_review_requirements = [
+        ExternalReviewRequirement.model_validate(
+            {
+                "dimension": dimension,
+                "production_function": function,
+                "allowed_results": ["positive", "negative", "pending"],
+                "question": "Is this production qualitatively acceptable?",
+            }
+        )
+        for function in functions
+        for dimension in ("relevance", "intelligibility")
+    ]
+    validate_direct_english_construction_lesson(lesson)
+    return lesson
+
+
+def _qualitative_review_batch(
+    experience,
+    direct_attempt,
+    rows,
+    *,
+    source_id="runtime-reviewer",
+    source_version="1.0",
+):
+    return DirectEnglishConstructionQualitativeReviewBatch.model_validate(
+        {
+            "experience_attempt_id": experience.attempt_id,
+            "direct_english_attempt_id": direct_attempt.attempt_id,
+            "evidence_definition_id": direct_attempt.evidence_definition_id,
+            "reviews": [
+                {
+                    "review_id": review_id,
+                    "production_function": function,
+                    "dimension": dimension,
+                    "result": result,
+                    "source_type": "external",
+                    "source_id": source_id,
+                    "source_version": source_version,
+                    "reviewed_at": NOW + timedelta(minutes=10),
+                }
+                for review_id, function, dimension, result in rows
+            ],
+        }
+    )
+
+
+def _finalize_qualitative_v3_source(
+    db,
+    tmp_path,
+    monkeypatch,
+    *,
+    experience_id="experience-direct-v3-review",
+    source_id="direct-v3-review-source",
+    text_function=None,
+):
+    monkeypatch.setenv("PRODUCTION_AUDIO_DIR", str(tmp_path))
+    lesson = _qualitative_v3_lesson()
+    experience = _v3_attempt(db, lesson, experience_id)
+    _bind_v3_direct_execution(monkeypatch, db, lesson)
+    source = start_direct_english_construction_attempt(
+        _v3_start_command(experience, source_id),
+        db,
+    )
+    persisted = db.get(DirectEnglishConstructionAttempt, source.attempt_id)
+    finalize_direct_english_construction_attempt(
+        _v3_finalize_command(
+            experience,
+            persisted,
+            lesson,
+            tmp_path,
+            text_function=text_function,
+        ),
+        db,
+    )
+    return lesson, experience, persisted
 
 
 def test_v3_direct_english_uses_one_server_selected_evidence_per_attempt(
@@ -1049,6 +1162,451 @@ def test_v3_text_fallback_does_not_accredit_or_unlock_next_direct_evidence(
         DirectEnglishConstructionAttempt,
         retry.attempt_id,
     ).evidence_definition_id == "direct-v3-guided-evidence"
+
+
+def test_v3_qualitative_requirement_changes_only_eligible_finalize_to_review(
+    db,
+    tmp_path,
+    monkeypatch,
+):
+    _lesson, experience, source = _finalize_qualitative_v3_source(
+        db,
+        tmp_path,
+        monkeypatch,
+    )
+
+    state = db.get(
+        ExperienceEvidenceState,
+        (experience.attempt_id, source.evidence_definition_id),
+    )
+    assert state.status == "needs_review"
+    assert state.direct_english_construction_attempt_id == source.attempt_id
+
+
+def test_v3_structurally_ineligible_qualitative_source_remains_pending(
+    db,
+    tmp_path,
+    monkeypatch,
+):
+    _lesson, experience, source = _finalize_qualitative_v3_source(
+        db,
+        tmp_path,
+        monkeypatch,
+        text_function="expanded",
+    )
+    positive = _qualitative_review_batch(
+        experience,
+        source,
+        [
+            ("pending-positive-relevance", "guided", "relevance", "positive"),
+            (
+                "pending-positive-intelligibility",
+                "guided",
+                "intelligibility",
+                "positive",
+            ),
+        ],
+    )
+
+    save_and_accredit_direct_english_construction_qualitative_reviews(
+        positive,
+        db,
+    )
+
+    state = db.get(
+        ExperienceEvidenceState,
+        (experience.attempt_id, source.evidence_definition_id),
+    )
+    assert state.status == "pending"
+    assert db.get(ExperienceAttempt, experience.attempt_id).status == "in_progress"
+
+
+def test_positive_coverage_accumulates_only_within_one_reviewer_identity(
+    db,
+    tmp_path,
+    monkeypatch,
+):
+    _lesson, experience, source = _finalize_qualitative_v3_source(
+        db,
+        tmp_path,
+        monkeypatch,
+    )
+    save_and_accredit_direct_english_construction_qualitative_reviews(
+        _qualitative_review_batch(
+            experience,
+            source,
+            [("partial-relevance", "guided", "relevance", "positive")],
+        ),
+        db,
+    )
+    save_and_accredit_direct_english_construction_qualitative_reviews(
+        _qualitative_review_batch(
+            experience,
+            source,
+            [
+                (
+                    "other-intelligibility",
+                    "guided",
+                    "intelligibility",
+                    "positive",
+                )
+            ],
+            source_id="other-reviewer",
+        ),
+        db,
+    )
+    state = db.get(
+        ExperienceEvidenceState,
+        (experience.attempt_id, source.evidence_definition_id),
+    )
+    assert state.status == "needs_review"
+
+    save_and_accredit_direct_english_construction_qualitative_reviews(
+        _qualitative_review_batch(
+            experience,
+            source,
+            [
+                (
+                    "matching-intelligibility",
+                    "guided",
+                    "intelligibility",
+                    "positive",
+                )
+            ],
+        ),
+        db,
+    )
+
+    state = db.get(
+        ExperienceEvidenceState,
+        (experience.attempt_id, source.evidence_definition_id),
+    )
+    assert state.status == "satisfied"
+    assert db.get(ExperienceAttempt, experience.attempt_id).status == "in_progress"
+
+
+@pytest.mark.parametrize("result", ["negative", "pending"])
+def test_nonpositive_complete_review_does_not_satisfy(
+    result,
+    db,
+    tmp_path,
+    monkeypatch,
+):
+    _lesson, experience, source = _finalize_qualitative_v3_source(
+        db,
+        tmp_path,
+        monkeypatch,
+    )
+    save_and_accredit_direct_english_construction_qualitative_reviews(
+        _qualitative_review_batch(
+            experience,
+            source,
+            [
+                (f"{result}-relevance", "guided", "relevance", result),
+                (
+                    f"{result}-intelligibility",
+                    "guided",
+                    "intelligibility",
+                    result,
+                ),
+            ],
+        ),
+        db,
+    )
+
+    assert db.get(
+        ExperienceEvidenceState,
+        (experience.attempt_id, source.evidence_definition_id),
+    ).status == "needs_review"
+
+
+def test_satisfied_qualitative_evidence_is_not_revoked_by_later_negative(
+    db,
+    tmp_path,
+    monkeypatch,
+):
+    _lesson, experience, source = _finalize_qualitative_v3_source(
+        db,
+        tmp_path,
+        monkeypatch,
+    )
+    save_and_accredit_direct_english_construction_qualitative_reviews(
+        _qualitative_review_batch(
+            experience,
+            source,
+            [
+                ("positive-relevance", "guided", "relevance", "positive"),
+                (
+                    "positive-intelligibility",
+                    "guided",
+                    "intelligibility",
+                    "positive",
+                ),
+            ],
+        ),
+        db,
+    )
+    save_and_accredit_direct_english_construction_qualitative_reviews(
+        _qualitative_review_batch(
+            experience,
+            source,
+            [
+                ("later-negative-relevance", "guided", "relevance", "negative"),
+                (
+                    "later-negative-intelligibility",
+                    "guided",
+                    "intelligibility",
+                    "negative",
+                ),
+            ],
+        ),
+        db,
+    )
+
+    assert db.get(
+        ExperienceEvidenceState,
+        (experience.attempt_id, source.evidence_definition_id),
+    ).status == "satisfied"
+
+
+def test_replaced_direct_source_does_not_use_old_review_coverage(
+    db,
+    tmp_path,
+    monkeypatch,
+):
+    lesson, experience, old_source = _finalize_qualitative_v3_source(
+        db,
+        tmp_path,
+        monkeypatch,
+    )
+    new = start_direct_english_construction_attempt(
+        _v3_start_command(experience, "direct-v3-review-retry"),
+        db,
+    )
+    new_source = db.get(DirectEnglishConstructionAttempt, new.attempt_id)
+    finalize_direct_english_construction_attempt(
+        _v3_finalize_command(experience, new_source, lesson, tmp_path),
+        db,
+    )
+    state = db.get(
+        ExperienceEvidenceState,
+        (experience.attempt_id, old_source.evidence_definition_id),
+    )
+    assert state.status == "needs_review"
+    assert state.direct_english_construction_attempt_id == new_source.attempt_id
+
+    save_and_accredit_direct_english_construction_qualitative_reviews(
+        _qualitative_review_batch(
+            experience,
+            old_source,
+            [
+                ("old-relevance", "guided", "relevance", "positive"),
+                (
+                    "old-intelligibility",
+                    "guided",
+                    "intelligibility",
+                    "positive",
+                ),
+            ],
+        ),
+        db,
+    )
+
+    state = db.get(
+        ExperienceEvidenceState,
+        (experience.attempt_id, old_source.evidence_definition_id),
+    )
+    assert state.status == "needs_review"
+    assert state.direct_english_construction_attempt_id == new_source.attempt_id
+
+
+def test_review_and_promotion_roll_back_as_one_transaction(
+    db,
+    tmp_path,
+    monkeypatch,
+):
+    _lesson, experience, source = _finalize_qualitative_v3_source(
+        db,
+        tmp_path,
+        monkeypatch,
+    )
+    monkeypatch.setattr(
+        review_execution_service,
+        "accredit_evidence_states",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            RuntimeError("forced accreditation failure")
+        ),
+    )
+
+    with pytest.raises(RuntimeError, match="forced accreditation failure"):
+        save_and_accredit_direct_english_construction_qualitative_reviews(
+            _qualitative_review_batch(
+                experience,
+                source,
+                [
+                    ("atomic-relevance", "guided", "relevance", "positive"),
+                    (
+                        "atomic-intelligibility",
+                        "guided",
+                        "intelligibility",
+                        "positive",
+                    ),
+                ],
+            ),
+            db,
+        )
+
+    assert db.query(DirectEnglishConstructionProductionReview).count() == 0
+    assert db.get(
+        ExperienceEvidenceState,
+        (experience.attempt_id, source.evidence_definition_id),
+    ).status == "needs_review"
+
+
+def test_automatic_production_evaluation_does_not_satisfy_qualitative_review(
+    db,
+    tmp_path,
+    monkeypatch,
+):
+    _lesson, experience, source = _finalize_qualitative_v3_source(
+        db,
+        tmp_path,
+        monkeypatch,
+    )
+    production = (
+        db.query(DirectEnglishConstructionAttemptProduction)
+        .filter_by(attempt_id=source.attempt_id, production_function="guided")
+        .one()
+    )
+    db.add(
+        ProductionEvaluationResult(
+            production_id=production.learner_production_id,
+            criterion_id="automatic-quality",
+            status="passed",
+            score=1.0,
+            evaluator_id="automatic-evaluator",
+            evaluator_version="1.0",
+            evaluated_at=NOW + timedelta(minutes=8),
+        )
+    )
+    db.commit()
+
+    assert db.get(
+        ExperienceEvidenceState,
+        (experience.attempt_id, source.evidence_definition_id),
+    ).status == "needs_review"
+
+
+def test_complete_qualitative_coverage_uses_authoritative_completion(
+    db,
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.setenv("PRODUCTION_AUDIO_DIR", str(tmp_path))
+    lesson = _qualitative_v3_lesson(
+        evidence_id="direct-v3-contextual-evidence"
+    )
+    experience = _v3_attempt(db, lesson, "experience-direct-v3-completion")
+    _bind_v3_direct_execution(monkeypatch, db, lesson)
+    final_conversation = next(
+        item
+        for item in lesson.conversations
+        if item.id == "direct-v3-conversation"
+    )
+    monkeypatch.setattr(
+        "app.services.conversation_attempt_service."
+        "get_conversation_context_by_id",
+        lambda conversation_id: (
+            "A1",
+            "direct-v3-unit",
+            lesson.id,
+            final_conversation,
+        )
+        if conversation_id == final_conversation.id
+        else None,
+    )
+    save_experience_comprehension_response(
+        experience.attempt_id,
+        "direct-v3-question",
+        0,
+        db,
+    )
+    save_conversation_attempt(
+        ConversationAttemptCreate(
+            user_id=experience.user_id,
+            level_id=experience.level_id,
+            unit_id=experience.unit_id,
+            lesson_id=experience.lesson_id,
+            conversation_id=final_conversation.id,
+            mode="guided",
+            visited_turn_ids=["direct-v3-conversation-turn"],
+            experience_attempt_id=experience.attempt_id,
+        ),
+        db,
+    )
+    guided = start_direct_english_construction_attempt(
+        _v3_start_command(experience, "direct-v3-completion-guided"),
+        db,
+    )
+    guided_source = db.get(
+        DirectEnglishConstructionAttempt,
+        guided.attempt_id,
+    )
+    finalize_direct_english_construction_attempt(
+        _v3_finalize_command(experience, guided_source, lesson, tmp_path),
+        db,
+    )
+    contextual = start_direct_english_construction_attempt(
+        _v3_start_command(experience, "direct-v3-completion-contextual"),
+        db,
+    )
+    contextual_source = db.get(
+        DirectEnglishConstructionAttempt,
+        contextual.attempt_id,
+    )
+    finalize_direct_english_construction_attempt(
+        _v3_finalize_command(
+            experience,
+            contextual_source,
+            lesson,
+            tmp_path,
+        ),
+        db,
+    )
+    assert set(evidence_statuses(db, experience.attempt_id).values()) == {
+        "satisfied",
+        "needs_review",
+    }
+    assert db.get(ExperienceAttempt, experience.attempt_id).status == "in_progress"
+
+    save_and_accredit_direct_english_construction_qualitative_reviews(
+        _qualitative_review_batch(
+            experience,
+            contextual_source,
+            [
+                (
+                    "completion-relevance",
+                    "guided",
+                    "relevance",
+                    "positive",
+                ),
+                (
+                    "completion-intelligibility",
+                    "guided",
+                    "intelligibility",
+                    "positive",
+                ),
+            ],
+        ),
+        db,
+    )
+
+    assert set(evidence_statuses(db, experience.attempt_id).values()) == {
+        "satisfied"
+    }
+    completed = db.get(ExperienceAttempt, experience.attempt_id)
+    assert completed.status == "completed"
+    assert completed.completed_at is not None
 
 
 def test_bound_direct_english_finalization_satisfies_and_completes(
