@@ -1,0 +1,79 @@
+{
+  "unit_id": "a1-u1",
+  "level": "A1",
+  "title": "Expressing an immediate need",
+  "learner_outcome": "Given a clear visual and auditory situation, the learner orally produces a minimal I need + noun construction to express an immediate need, then reuses the same pattern for a different nearby need with strictly less support.",
+  "prerequisites": [],
+  "skills": [
+    {
+      "id": "a1_express_immediate_need_orally",
+      "description": "Express an immediate need orally with a relevant and intelligible I need + noun construction, then reuse the pattern for a different nearby need with less support.",
+      "required_stages": [
+        "introduce",
+        "practice",
+        "apply",
+        "evaluate",
+        "consolidate"
+      ]
+    }
+  ],
+  "required_evidence": [
+    "A separate comprehension check confirms the immediate communicative intention before production; it is preparation evidence only and does not establish independent receptive mastery.",
+    "The learner produces an own oral I need + noun construction that is relevant to a clear visual and auditory situation and sufficiently intelligible, without Spanish, transcript or a complete sentence model in the final evidence.",
+    "The learner transfers I need + noun to a different nearby need using one of the approved nouns and strictly less support than in the preceding supported production."
+  ],
+  "lesson_scope": [
+    "One minimal unit for a learner with very low or no English in Phase 1 — Mental unblocking.",
+    "One communicative intention only: expressing an immediate need.",
+    "Direct construction through intention → Person → Action → oral production.",
+    "Conceptual coverage of exposure, instruction, practice, own production, evidence and transfer without prescribing candidate activities or stages.",
+    "Transfer to a different nearby immediate need with strictly less support."
+  ],
+  "language_scope": [
+    "The only productive pattern is I need + noun.",
+    "The complete approved productive vocabulary is water, help and food."
+  ],
+  "pronunciation_scope": [
+    "Functional pronunciation of the complete I need + noun phrase, prioritizing intelligibility rather than phonetic perfection.",
+    "Comprehensible production of I and need.",
+    "Fluent delivery of the short phrase with natural linking into the noun.",
+    "No phoneme, including /iː/, may become an independent Skill or pronunciation objective."
+  ],
+  "content_constraints": [
+    "Use exactly one integrated Skill and do not create separate Skills for comprehension, vocabulary, grammar or pronunciation.",
+    "Use no more than the three approved productive nouns: water, help and food; do not add other required productive vocabulary.",
+    "Do not introduce plurals, adjectives or articles as productive objectives.",
+    "Do not introduce I want, Can I have..., Please give me... or any alternative productive structure.",
+    "Use Person + Action only as a direct-construction scaffold and never as a complete sentence for the learner to copy.",
+    "Require the learner's own oral production, remove the complete sentence model before evidence and reduce support progressively.",
+    "Require transfer to a different nearby need with strictly less support than the preceding supported production.",
+    "Use Spanish only as optional rescue and a transcript only as later support under Strict Support Timing; neither may form part of final evidence.",
+    "Treat comprehension as preparation and checking, not as independent receptive mastery.",
+    "Do not reuse the historical mission, pedagogical stages, conversations, exercises, evidence or LessonExperience content."
+  ],
+  "content_limits": {
+    "min_lessons": 1,
+    "max_lessons": 1
+  },
+  "technical_constraints": [
+    "Keep the future candidate isolated from content/content_tree.json and from active curriculum.",
+    "Use exactly the approved curricular lesson identity a1-u1-l1 in the future candidate.",
+    "Use LessonExperience contract_version 3.0 in the future candidate.",
+    "Leave candidate_revision undecided until the candidate phase.",
+    "Use relevance and intelligibility as the future qualitative production review dimensions through human or external review; automatic evaluation must not accredit them.",
+    "Keep comprehension, own production and transfer evidence structurally separable in the future candidate.",
+    "Experience completion must not imply Skill mastery, retention or curricular progress.",
+    "Do not create or activate a candidate, loader, admission, publication, membership, frontend or B181 work from this specification."
+  ],
+  "acceptance_criteria": [
+    "The specification contains exactly one Skill, a1_express_immediate_need_orally, and that Skill represents only the approved observable oral capability.",
+    "The learner outcome requires an own oral I need + noun production for a clear visual and auditory situation and transfer to a different nearby need with strictly less support.",
+    "The productive language is limited to I need + noun with water, help and food.",
+    "Functional pronunciation prioritizes intelligibility, short-block fluency, comprehensible I and need, and natural linking without requiring phonetic perfection or an independent phoneme Skill.",
+    "The future experience provides exposure, instruction, practice, own production, evidence and transfer while keeping comprehension as preparation rather than mastery.",
+    "Comprehension, own production and transfer remain separable, and final evidence contains no Spanish, transcript or complete sentence model.",
+    "Own production and transfer are reviewable for relevance and intelligibility by a human or external reviewer; automatic evaluation does not accredit either dimension.",
+    "The future candidate replaces all historical pedagogical content while reusing only unit_id a1-u1 and lesson_id a1-u1-l1 as curricular identities.",
+    "The specification passes PedagogicalUnitSpecification parsing and remains pending human approval before any candidate is generated."
+  ]
+}
