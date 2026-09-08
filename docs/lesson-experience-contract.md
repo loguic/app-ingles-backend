@@ -137,10 +137,19 @@ la experiencia, un `resource_id` lógico incluido en
 `PedagogicalUnitCandidate.required_resource_ids`, un `accessibility_label` no
 vacío y `stage_ids` únicos que existen en la misma `LessonExperience`.
 
+La metadata visual es opcional y atómica para compatibilidad legacy. Si
+`resource_type`, `autoplay_once` y `replay_allowed` están los tres ausentes, el
+tipo queda sin declarar y no se infiere una imagen estática. `static_image`
+declara un visual inmóvil y no admite propiedades de reproducción. `microvideo`
+declara una secuencia visual breve con movimiento, incluida una animación
+equivalente, y exige ambos booleanos: `autoplay_once` permite una sola
+reproducción automática en la primera presentación del contexto del intento;
+`replay_allowed` permite que la persona estudiante la reinicie explícitamente.
+
 El campo solo puede poblarse con `contract_version == "3.0"`; su ausencia
 conserva intacto el comportamiento de v2 y v3. `resource_id` no es una URL,
-path, bytes ni binding físico: el contrato no incorpora assets, MIME,
-dimensiones, variantes, coordenadas, animación, descarga ni telemetría.
+path, bytes ni binding físico: el contrato no incorpora assets, MIME, codec,
+dimensiones, duración, player UI, preload, buffering, descarga ni telemetría.
 
 #### `evidence`
 

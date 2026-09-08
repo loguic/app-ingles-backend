@@ -338,6 +338,120 @@ def test_v3_accepts_valid_visual_context():
     assert lesson.experience.visual_contexts[0].resource_id == (
         "visual/a1_u1_l1_meeting.svg"
     )
+    assert lesson.experience.visual_contexts[0].resource_type is None
+    assert lesson.experience.visual_contexts[0].autoplay_once is None
+    assert lesson.experience.visual_contexts[0].replay_allowed is None
+
+
+def build_visual_context_lesson(**metadata: object) -> Lesson:
+    payload = build_experience_payload()
+    payload["contract_version"] = "3.0"
+    context = {
+        "id": "a1-u1-l1-vc1",
+        "resource_id": "visual/a1_u1_l1_meeting.svg",
+        "accessibility_label": "Two people meeting at work.",
+        "stage_ids": ["a1-u1-l1-s1"],
+    }
+    context.update(metadata)
+    payload["visual_contexts"] = [context]
+
+    return Lesson.model_validate({
+        "id": "a1-u1-l1",
+        "title": "Visual context",
+        "experience": payload,
+        "exercises": [
+            {
+                "id": "a1-u1-l1-q1",
+                "type": "mcq",
+                "prompt": "Complete the introduction.",
+                "options": ["Hello.", "Goodbye."],
+                "answer_index": 0,
+                "skill_ids": ["a1_introduce_yourself"],
+            }
+        ],
+    })
+
+
+def test_visual_context_accepts_explicit_static_image():
+    lesson = build_visual_context_lesson(resource_type="static_image")
+
+    assert lesson.experience is not None
+    context = lesson.experience.visual_contexts[0]
+    assert context.resource_type == "static_image"
+    assert context.autoplay_once is None
+    assert context.replay_allowed is None
+
+
+def test_visual_context_preserves_explicit_microvideo_playback():
+    lesson = build_visual_context_lesson(
+        resource_type="microvideo",
+        autoplay_once=True,
+        replay_allowed=True,
+    )
+
+    assert lesson.experience is not None
+    context = lesson.experience.visual_contexts[0]
+    assert context.model_dump(mode="json") == {
+        "id": "a1-u1-l1-vc1",
+        "resource_id": "visual/a1_u1_l1_meeting.svg",
+        "accessibility_label": "Two people meeting at work.",
+        "resource_type": "microvideo",
+        "autoplay_once": True,
+        "replay_allowed": True,
+        "stage_ids": ["a1-u1-l1-s1"],
+    }
+
+
+def test_visual_context_rejects_unknown_resource_type():
+    with pytest.raises(ValidationError, match="resource_type"):
+        build_visual_context_lesson(resource_type="animation")
+
+
+def test_visual_context_rejects_partial_microvideo_metadata():
+    with pytest.raises(
+        ValidationError,
+        match="requires autoplay_once and replay_allowed",
+    ):
+        build_visual_context_lesson(
+            resource_type="microvideo",
+            autoplay_once=True,
+        )
+
+
+def test_visual_context_rejects_playback_without_resource_type():
+    with pytest.raises(
+        ValidationError,
+        match="playback requires resource_type",
+    ):
+        build_visual_context_lesson(autoplay_once=True, replay_allowed=True)
+
+
+def test_visual_context_rejects_playback_for_static_image():
+    with pytest.raises(
+        ValidationError,
+        match="Static image visual context cannot declare playback",
+    ):
+        build_visual_context_lesson(
+            resource_type="static_image",
+            autoplay_once=True,
+            replay_allowed=True,
+        )
+
+
+@pytest.mark.parametrize("missing_field", ["autoplay_once", "replay_allowed"])
+def test_microvideo_rejects_each_missing_playback_field(missing_field):
+    metadata = {
+        "resource_type": "microvideo",
+        "autoplay_once": True,
+        "replay_allowed": True,
+    }
+    metadata.pop(missing_field)
+
+    with pytest.raises(
+        ValidationError,
+        match="requires autoplay_once and replay_allowed",
+    ):
+        build_visual_context_lesson(**metadata)
 
 
 def test_visual_context_rejects_empty_stage_ids():

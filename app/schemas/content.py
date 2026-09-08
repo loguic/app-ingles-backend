@@ -486,6 +486,11 @@ class VisualContext(BaseModel):
     id: str
     resource_id: str
     accessibility_label: str
+    resource_type: Optional[
+        Literal["static_image", "microvideo"]
+    ] = None
+    autoplay_once: Optional[bool] = None
+    replay_allowed: Optional[bool] = None
     stage_ids: List[str] = Field(min_length=1)
 
     @model_validator(mode="after")
@@ -507,6 +512,27 @@ class VisualContext(BaseModel):
             )
         if len(self.stage_ids) != len(set(self.stage_ids)):
             raise ValueError("Visual context stage_ids must be unique")
+
+        playback_values = (self.autoplay_once, self.replay_allowed)
+        if self.resource_type is None:
+            if any(value is not None for value in playback_values):
+                raise ValueError(
+                    "Visual context playback requires resource_type"
+                )
+            return self
+
+        if self.resource_type == "static_image":
+            if any(value is not None for value in playback_values):
+                raise ValueError(
+                    "Static image visual context cannot declare playback"
+                )
+            return self
+
+        if any(value is None for value in playback_values):
+            raise ValueError(
+                "Microvideo visual context requires autoplay_once and "
+                "replay_allowed"
+            )
         return self
 
 

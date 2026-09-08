@@ -473,6 +473,31 @@ def test_visual_context_resource_in_inventory_passes_validation():
     assert report.findings == []
 
 
+def test_microvideo_visual_context_resource_stays_in_inventory():
+    """Keep visual media metadata separate from the logical resource ID.
+
+    Mantiene la metadata visual separada del ID lógico del recurso.
+    """
+    payload = build_visual_context_candidate_payload()
+    context = payload["candidate_unit"]["lessons"][0]["experience"][
+        "visual_contexts"
+    ][0]
+    context.update({
+        "resource_type": "microvideo",
+        "autoplay_once": True,
+        "replay_allowed": True,
+    })
+    payload["required_resource_ids"].append(
+        "visual/a1_u1_l1_meeting.svg"
+    )
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    report = validate_pedagogical_candidate(candidate)
+
+    assert report.status == "passed"
+    assert report.findings == []
+
+
 def test_duplicate_required_resource_id_fails_validation():
     """Reject duplicated identifiers in the logical resource inventory.
 

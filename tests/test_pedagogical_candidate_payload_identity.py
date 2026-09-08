@@ -17,6 +17,9 @@ from app.services.pedagogical_candidate_payload_identity import (
     CandidatePayloadIdentity,
     derive_candidate_payload_identity,
 )
+from tests.test_pedagogical_validation_service import (
+    build_visual_context_candidate_payload,
+)
 
 
 def candidate_payload() -> dict:
@@ -321,6 +324,55 @@ def test_defaults_unset_and_none_converge_after_validation() -> None:
     explicit = PedagogicalUnitCandidate.model_validate(explicit_payload)
 
     assert identity(omitted).content_digest == identity(explicit).content_digest
+
+
+def visual_context_candidate(**metadata: object) -> PedagogicalUnitCandidate:
+    payload = build_visual_context_candidate_payload()
+    payload["required_resource_ids"].append(
+        "visual/a1_u1_l1_meeting.svg"
+    )
+    payload["candidate_unit"]["lessons"][0]["experience"][
+        "visual_contexts"
+    ][0].update(metadata)
+    return PedagogicalUnitCandidate.model_validate(payload)
+
+
+def test_visual_context_legacy_defaults_and_none_have_one_digest() -> None:
+    legacy = visual_context_candidate()
+    explicit_none = visual_context_candidate(
+        resource_type=None,
+        autoplay_once=None,
+        replay_allowed=None,
+    )
+
+    assert identity(legacy).content_digest == identity(explicit_none).content_digest
+
+
+def test_visual_context_type_and_playback_change_the_digest() -> None:
+    legacy = visual_context_candidate()
+    static_image = visual_context_candidate(resource_type="static_image")
+    microvideo = visual_context_candidate(
+        resource_type="microvideo",
+        autoplay_once=True,
+        replay_allowed=True,
+    )
+    microvideo_without_replay = visual_context_candidate(
+        resource_type="microvideo",
+        autoplay_once=True,
+        replay_allowed=False,
+    )
+
+    digests = {
+        identity(candidate).content_digest
+        for candidate in (
+            legacy,
+            static_image,
+            microvideo,
+            microvideo_without_replay,
+        )
+    }
+
+    assert len(digests) == 4
 
 
 def test_unicode_is_deterministic_but_not_normalized() -> None:
