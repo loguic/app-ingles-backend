@@ -2,101 +2,123 @@
 
 ## Estado
 
-`PENDING HUMAN REVIEW`
+`HUMAN APPROVED`
 
-- `candidate_revision`: `a1-u1-candidate-v3`
-- artefacto: `pedagogical-unit-candidate-v3.json`
-- estado determinista de entrada: `READY_FOR_HUMAN_REVIEW`
-- Skill única: `a1_express_immediate_need_orally`
-- este documento no registra aprobación, admission, publication, membership ni activación;
-- todas las decisiones siguientes permanecen abiertas y corresponden a una persona revisora.
+- `candidate_revision`: `a1-u1-candidate-v3`;
+- artefacto: `pedagogical-unit-candidate-v3.json`;
+- estado determinista de entrada: `READY_FOR_HUMAN_REVIEW`;
+- Skill única: `a1_express_immediate_need_orally`;
+- este documento registra únicamente la aprobación humana; no registra admission,
+  publication, membership ni activación.
 
-## Resumen de la candidata corregida
+## Decisiones implementadas para revisar
 
-La candidata contiene una única lección para una persona con inglés muy bajo o nulo. El lenguaje productivo obligatorio sigue limitado a `I need water.`, `I need help.` e `I need food.`. Las instrucciones que recibe el alumno se han reducido a mensajes breves como `Look. Listen.`, `Speak.` y `The picture changes.`.
+La candidata mantiene una única lección para una persona con inglés muy bajo o
+nulo. La producción se limita a `I need water.`, `I need help.` e `I need
+food.`. El lenguaje visible de instrucción se ha reducido a `Listen.`,
+`Choose.`, `Say it.` y `Say it again.`; no presenta `I want` ni explicaciones
+metalingüísticas al alumno.
 
-La comprensión sigue audio-first: el alumno oye `I need water.` antes de responder `What does the person want?`. El transcript y el español siguen bloqueados hasta la primera respuesta. La comprobación prepara la producción; no acredita mastery receptivo.
+La secuencia pedagógica esperada es visual → observación breve → audio →
+práctica → producción. El contrato actual no describe velocidad de audio ni
+una secuencia de replay progresiva: el consumidor futuro deberá presentar el
+primer modelo en-GB de forma clara y ligeramente lenta-natural, y los replays
+algo más cerca de velocidad natural. Esta nota no es metadata inventada.
 
-La experiencia mantiene seis etapas, cuatro conversaciones, una comprobación de comprensión, dos actividades Direct English y seis capturas obligatorias. La secuencia corregida es:
+Antes de pedir producción para cada necesidad, el consumidor futuro deberá
+presentar la palabra aislada y después el bloque completo correspondiente:
+`water` → `I need water.`, `food` → `I need food.` y `help` → `I need help.`.
+Los arrays de pronunciación sitúan en-GB primero; en-US no es el modelo inicial
+equivalente de esta experiencia. Los modelos completos de `help` y `food` son
+recursos lógicos en-GB independientes.
 
-1. primera actividad: `I need water.` con anclajes;
-2. primera actividad: `I need water.` con `I` visible;
-3. primera actividad: `I need food.` sin apoyo;
-4. segunda actividad, nueva estación y nueva necesidad: `I need help.` con anclajes;
-5. segunda actividad: `I need help.` con `I` visible;
-6. segunda actividad, nueva imagen de comida: `I need food.` sin apoyo.
+## Comprensión visual
 
-Cada actividad conserva `guided → expanded → transfer`. El reinicio de apoyo introduce `help` en una situación nueva y no vuelve a dar anclajes para la misma respuesta `food` acabada de producir sin apoyo. La configuración cualitativa propuesta sigue siendo `relevance` + `intelligibility` para `expanded` de la primera actividad y para `transfer` de la segunda; `guided` sigue siendo práctica.
+Después de oír `I need water.`, la comprobación usa el MCQ visual homogéneo
+`a1-u1-l1-q1`, con prompt visible mínimo `Choose.`. Sus tres recursos
+independientes representan una necesidad, un saludo y una despedida; el
+`answer_index` selecciona la escena de necesidad. No hay captions visibles ni
+opciones textuales `water`, `food` o `help`, y no se introduce `want`.
 
-Existe un modelo completo y shadowing de `I need water.`, modelos léxicos de `water`, `help` y `food`, y audio lógico para el cierre `Okay.`. Ninguno supone Skill fonética, threshold fonético ni requisito de acento nativo.
+El transcript de la conversación inicial queda oculto y el español de apoyo se
+habilita solo después de la primera respuesta a ese MCQ. La comprensión prepara
+la producción; no acredita mastery receptivo.
 
-## Checklist pedagógico y lingüístico
+## Visuales y recursos
 
-- [ ] Confirmar que las instrucciones breves son comprensibles para una persona principiante absoluta sin asumir inglés previo.
-- [ ] Confirmar la utilidad inmediata de expresar una necesidad con este único patrón.
-- [ ] Confirmar que `water`, `help` y `food` son naturales, suficientes y adecuados en las situaciones propuestas.
-- [ ] Confirmar que no se exige como producción ninguna palabra, frase o estructura fuera de las tres respuestas aprobadas.
-- [ ] Confirmar que `What does the person want?` comprueba la intención comunicativa del audio y permanece como preparación, no como mastery receptivo independiente.
-- [ ] Confirmar que `I` + `need` + elemento funciona como construcción y no como una frase completa ofrecida para copiar.
-- [ ] Confirmar que la producción `expanded` de la primera actividad es propia y no recupera un modelo completo visible.
-- [ ] Confirmar que la producción `transfer` de la segunda actividad es propia y no recupera un modelo completo visible.
-- [ ] Valorar si las seis capturas Direct English tienen una carga total apropiada para esta entrada A1.
-- [ ] Valorar si la secuencia `water → water → food → help → help → food` ofrece variación suficiente y evita una sensación mecánica.
-- [ ] Confirmar que práctica, evidencia y revisión cualitativa conservan responsabilidades distintas.
+- `water`: `static_image`, una escena de botella vacía junto a un punto de
+  recarga;
+- `food`: `static_image`, una escena de bandeja de comida sin abrir;
+- `help`: `microvideo`, donde la máquina funciona, se detiene, una persona
+  intenta usarla y mira a un asistente; no contiene texto ni voz, tiene
+  `autoplay_once=true` y `replay_allowed=true`.
 
-## Visual, audio y accesibilidad
+Cada escena mantiene un foco comunicativo principal. Los tres recursos de
+opción del MCQ visual son distintos de los `VisualContext` de etapa y todos
+están en `required_resource_ids`. Sus `accessibility_label` son nombres
+accesibles, no captions visibles; deben describir señales útiles sin revelar
+la palabra objetivo ni una respuesta inglesa completa.
 
-- [ ] Revisar el contexto lógico inicial: botella cerrada, comida envuelta y campana deben mantener varias necesidades plausibles antes de escuchar.
-- [ ] Confirmar que el visual inicial ayuda a interpretar la situación sin regalar la respuesta inglesa.
-- [ ] Revisar el contexto lógico de variación: máquina detenida, trabajador cercano, punto de recarga y mostrador de comida deben distinguirse del contexto inicial.
-- [ ] Confirmar que las dos `accessibility_label` describen señales útiles sin contener `water`, `help`, `food` ni una respuesta inglesa completa.
-- [ ] Confirmar neutralidad cultural, ausencia de estereotipos y legibilidad para personas con distintas experiencias vitales.
-- [ ] Confirmar que los recursos lógicos de visual, modelos léxicos, modelo completo y `Okay.` están inventariados, sin URLs, paths ni bindings físicos.
-- [ ] Escuchar o encargar la revisión de los futuros bindings de `I need water.`, `water`, `help`, `food` y `Okay.` para comprobar claridad, naturalidad y velocidad apropiada.
-- [ ] Confirmar que el modelo completo, el shadowing breve, los modelos léxicos y las grabaciones forman una preparación funcional suficiente para las tres respuestas.
-- [ ] Confirmar que inteligibilidad del bloque completo, y no acento nativo ni perfección fonética, es la expectativa.
-- [ ] Confirmar que `Okay.` tiene audio real antes de presentar el cierre como escucha.
+## Producción, ayudas y feedback
 
-## Ayudas y Strict Support Timing
+Las seis capturas quedan exactamente así:
 
-- [ ] Confirmar que el primer contacto es audio-first y permite repetición del audio.
-- [ ] Confirmar que el transcript está inicialmente oculto y solo puede revelarse después de la primera respuesta a `a1-u1-l1-q1`.
-- [ ] Confirmar que el español es rescate opcional y solo queda disponible después de esa primera respuesta.
-- [ ] Confirmar que transcript y español no aparecen ni forman parte de la evidencia productiva final.
-- [ ] Confirmar la progresión global: mapa de construcción → `water` con anclajes → `water` con `I` → `food` sin apoyo → `help` con anclajes en una situación nueva → `help` con `I` → `food` sin apoyo en una nueva imagen.
-- [ ] Confirmar que `support_level="none"` se usa solo en las dos transferencias exigidas y que ambas tienen `visible_support=[]`.
-- [ ] Confirmar que las transferencias sin apoyo no muestran frase completa, transcript ni español.
+1. `water` con `anchors`;
+2. `water` con `initial_word`;
+3. `food` con `none`;
+4. `help` con `anchors`;
+5. `help` con `initial_word`;
+6. `food` con `none`.
 
-## Evidencia y puertas cualitativas propuestas
+Ambas transferencias conservan `support_level="none"` y `visible_support=[]`.
+El español es rescate léxico breve y posterior al primer intento; el transcript
+posterior es únicamente la frase objetivo completa. Ninguno está disponible en
+la evidencia final.
 
-- [ ] Confirmar la separación entre `comprehension_result`, `guided_production`, `contextual_response` y `conversation_completion`.
-- [ ] Confirmar que la fuente de producción primaria es la primera actividad Direct English y que su puerta propuesta revisa solo `expanded`.
-- [ ] Confirmar que la fuente contextual/de transferencia es la segunda actividad Direct English y que su puerta propuesta revisa solo `transfer`.
-- [ ] Confirmar explícitamente que `guided` permanece práctica y no se convierte en evaluación cualitativa.
-- [ ] Aprobar, modificar o rechazar la propuesta `expanded → relevance + intelligibility` para la primera actividad.
-- [ ] Aprobar, modificar o rechazar la propuesta `transfer → relevance + intelligibility` para la segunda actividad.
-- [ ] Confirmar que relevance juzga la necesidad pertinente para cada situación concreta y que intelligibility juzga comprensibilidad funcional sin exigir acento nativo.
-- [ ] Confirmar que una evaluación automática, semántica o fonética no puede satisfacer estas puertas cualitativas.
-- [ ] Confirmar que `conversation_completion` solo registra el cierre estructural `Okay.` y no demuestra producción, aprendizaje o fluidez.
+Ante un error, el comportamiento esperado del futuro consumidor es: ajuste
+breve → repetir el modelo cuando corresponda → reintento guiado. No debe usar
+score punitivo ni regalar inmediatamente una respuesta completa para copiar.
+El contrato actual solo representa `reinforcement_on_failure`, `allow_retry` y
+prioridades de corrección; esta secuencia no se finge como metadata adicional.
 
-## Transferencia y límites de interpretación
+## Evidencia y cierre
 
-- [ ] Confirmar que la transferencia final cambia el contexto visual, la necesidad relevante, el prompt/intervención y la respuesta esperada respecto de la producción primaria.
-- [ ] Confirmar que conserva la misma intención, el mismo patrón y la misma Skill.
-- [ ] Confirmar que la producción cualitativamente revisada pasa de `initial_word` en `expanded` a `none` en `transfer`, con apoyo estrictamente menor.
-- [ ] Confirmar que la repetición de `food` como transferencia final se siente como reutilización en una nueva situación y no como una copia mecánica.
-- [ ] Confirmar que los claims están en el orden `EXPOSURE_AVAILABLE → INSTRUCTION_AVAILABLE → PRACTICE_AVAILABLE → EVIDENCE_GATE_AVAILABLE` y apuntan a artefactos reales.
-- [ ] Confirmar que `prerequisites=[]` sigue siendo correcto para esta entrada canónica A1.
-- [ ] Confirmar que `SkillCoverage` cubre introducción, práctica, aplicación, evaluación y consolidación, pero permanece `pending_approval`.
-- [ ] Confirmar que completion no equivale a mastery, retention, progreso curricular, aprendizaje demostrado ni fluidez.
+`guided` permanece práctica sin revisión cualitativa. La primera fuente directa
+revisa `expanded` por `relevance` e `intelligibility`; la segunda fuente revisa
+`transfer` por las mismas dos dimensiones. La automática no acredita esas
+puertas.
+
+El cierre usa `Okay.` solo con el recurso lógico en-GB declarado. Antes de un
+binding físico o de presentar el cierre al alumnado, la revisión humana debe
+confirmar que el audio real sea coherente, claro y natural.
+
+## Checklist de revisión humana
+
+- [ ] Confirmar que el MCQ visual mide intención comunicativa y que las tres
+  alternativas accesibles no revelan léxico ni respuesta.
+- [ ] Confirmar que los tres visuales de escena tienen un único foco y que el
+  microvideo de `help` expresa la secuencia aprobada sin texto ni voz.
+- [ ] Confirmar la secuencia visual → observación → audio → palabra → bloque →
+  práctica → producción para `water`, `food` y `help`.
+- [ ] Escuchar o encargar la revisión de los futuros bindings en-GB de las tres
+  palabras, los tres bloques y `Okay.`.
+- [ ] Confirmar que transcript y español se habilitan solo después del primer
+  intento y no aparecen en evidencia final.
+- [ ] Confirmar que los seis captures, los dos niveles `none` y la reducción de
+  apoyo son adecuados para una persona principiante absoluta.
+- [ ] Confirmar que la revisión cualitativa es `expanded` primero y `transfer`
+  después, ambas con `relevance` e `intelligibility`, sin revisión de `guided`.
+- [ ] Confirmar que completion no se interpreta como mastery, retención,
+  aprendizaje demostrado, progreso curricular ni fluidez.
 
 ## Decisión humana
 
-- Decisión: pendiente.
-- Findings BLOCKING: pendientes de revisión humana.
-- Findings NONBLOCKING: pendientes de revisión humana.
-- Cambios solicitados: pendientes.
-- Identidad de reviewer: pendiente.
-- Fecha de decisión: pendiente.
+- Decisión: `HUMAN APPROVED` (opción 1).
+- Findings BLOCKING: 0.
+- Findings NONBLOCKING: 0.
+- Cambios solicitados: ninguno.
+- Identidad de reviewer: usuario.
+- Fecha de decisión: 2026-09-09.
 
-No completar este documento mediante validación automática. Una futura decisión humana sobre esta revisión deberá permanecer separada de cualquier admission o publicación posterior.
+Esta aprobación humana permanece separada de admission, publicación,
+membership y activación.

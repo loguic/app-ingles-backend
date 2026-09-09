@@ -108,7 +108,7 @@
             {
               "id": "a1-u1-l1-s1",
               "type": "encounter",
-              "instruction": "Look. Listen.",
+              "instruction": "Listen.",
               "activity_ids": [
                 "a1-u1-l1-c1"
               ],
@@ -118,7 +118,7 @@
             {
               "id": "a1-u1-l1-s2",
               "type": "comprehension",
-              "instruction": "Listen. Choose what the person wants.",
+              "instruction": "Choose.",
               "activity_ids": [
                 "a1-u1-l1-c1",
                 "a1-u1-l1-q1"
@@ -129,7 +129,7 @@
             {
               "id": "a1-u1-l1-s3",
               "type": "language_support",
-              "instruction": "Put the words together. Listen. Say it with the audio.",
+              "instruction": "Listen.",
               "activity_ids": [],
               "mode": "required",
               "completion_condition": "acknowledged"
@@ -137,7 +137,7 @@
             {
               "id": "a1-u1-l1-s4",
               "type": "guided_production",
-              "instruction": "Speak. The words on screen get smaller.",
+              "instruction": "Say it.",
               "activity_ids": [
                 "a1-u1-l1-c2"
               ],
@@ -147,7 +147,7 @@
             {
               "id": "a1-u1-l1-s5",
               "type": "evidence",
-              "instruction": "Look at the new picture. Speak. Then listen.",
+              "instruction": "Say it again.",
               "activity_ids": [
                 "a1-u1-l1-c3",
                 "a1-u1-l1-c4"
@@ -158,7 +158,7 @@
             {
               "id": "a1-u1-l1-s6",
               "type": "closure",
-              "instruction": "You finished this try. Keep practicing.",
+              "instruction": "Okay.",
               "activity_ids": [],
               "mode": "required",
               "completion_condition": "acknowledged"
@@ -168,10 +168,21 @@
             {
               "id": "a1-u1-l1-ls1",
               "type": "word",
-              "en": "I",
-              "es": "yo",
-              "pronunciations": [],
-              "usage_note": "Start with I.",
+              "en": "water",
+              "es": "agua",
+              "pronunciations": [
+                {
+                  "locale": "en-GB",
+                  "ipa": "/ˈwɔːtə/",
+                  "audio_asset": "audio.a1-u1-l1.water.en-gb.v1"
+                },
+                {
+                  "locale": "en-US",
+                  "ipa": "/ˈwɔːtɚ/",
+                  "audio_asset": "audio.a1-u1-l1.water.en-us.v1"
+                }
+              ],
+              "usage_note": "Listen.",
               "stage_ids": [
                 "a1-u1-l1-s3"
               ],
@@ -179,11 +190,22 @@
             },
             {
               "id": "a1-u1-l1-ls2",
-              "type": "word",
-              "en": "need",
-              "es": "necesito",
-              "pronunciations": [],
-              "usage_note": "Put need after I.",
+              "type": "reference_expression",
+              "en": "I need water.",
+              "es": null,
+              "pronunciations": [
+                {
+                  "locale": "en-GB",
+                  "ipa": "/aɪ niːd ˈwɔːtə/",
+                  "audio_asset": "audio.a1-u1-l1.i-need-water.en-gb.v1"
+                },
+                {
+                  "locale": "en-US",
+                  "ipa": "/aɪ niːd ˈwɔːtɚ/",
+                  "audio_asset": "audio.a1-u1-l1.i-need-water.en-us.v1"
+                }
+              ],
+              "usage_note": "Say it.",
               "stage_ids": [
                 "a1-u1-l1-s3"
               ],
@@ -192,102 +214,117 @@
             {
               "id": "a1-u1-l1-ls3",
               "type": "word",
-              "en": "water",
-              "es": "agua",
+              "en": "food",
+              "es": "comida",
               "pronunciations": [
                 {
-                  "locale": "en-US",
-                  "ipa": "/ˈwɔːtɚ/",
-                  "audio_asset": "audio.a1-u1-l1.water.en-us.v1"
+                  "locale": "en-GB",
+                  "ipa": "/fuːd/",
+                  "audio_asset": "audio.a1-u1-l1.food.en-gb.v1"
                 },
                 {
-                  "locale": "en-GB",
-                  "ipa": "/ˈwɔːtə/",
-                  "audio_asset": "audio.a1-u1-l1.water.en-gb.v1"
+                  "locale": "en-US",
+                  "ipa": "/fuːd/",
+                  "audio_asset": "audio.a1-u1-l1.food.en-us.v1"
                 }
               ],
-              "usage_note": "Listen: water.",
+              "usage_note": "Listen.",
               "stage_ids": [
-                "a1-u1-l1-s3"
+                "a1-u1-l1-s4"
               ],
               "spanish_reveal_after_first_response_to_exercise_id": "a1-u1-l1-q1"
             },
             {
               "id": "a1-u1-l1-ls4",
-              "type": "word",
-              "en": "help",
-              "es": "ayuda",
+              "type": "reference_expression",
+              "en": "I need food.",
+              "es": null,
               "pronunciations": [
                 {
-                  "locale": "en-US",
-                  "ipa": "/hɛlp/",
-                  "audio_asset": "audio.a1-u1-l1.help.en-us.v1"
-                },
-                {
                   "locale": "en-GB",
-                  "ipa": "/hɛlp/",
-                  "audio_asset": "audio.a1-u1-l1.help.en-gb.v1"
+                  "ipa": "/aɪ niːd fuːd/",
+                  "audio_asset": "audio.a1-u1-l1.i-need-food.en-gb.v1"
                 }
               ],
-              "usage_note": "Listen: help.",
+              "usage_note": "Say it.",
               "stage_ids": [
-                "a1-u1-l1-s3"
+                "a1-u1-l1-s4"
               ],
               "spanish_reveal_after_first_response_to_exercise_id": "a1-u1-l1-q1"
             },
             {
               "id": "a1-u1-l1-ls5",
               "type": "word",
-              "en": "food",
-              "es": "comida",
+              "en": "help",
+              "es": "ayuda",
               "pronunciations": [
                 {
-                  "locale": "en-US",
-                  "ipa": "/fuːd/",
-                  "audio_asset": "audio.a1-u1-l1.food.en-us.v1"
+                  "locale": "en-GB",
+                  "ipa": "/hɛlp/",
+                  "audio_asset": "audio.a1-u1-l1.help.en-gb.v1"
                 },
                 {
-                  "locale": "en-GB",
-                  "ipa": "/fuːd/",
-                  "audio_asset": "audio.a1-u1-l1.food.en-gb.v1"
+                  "locale": "en-US",
+                  "ipa": "/hɛlp/",
+                  "audio_asset": "audio.a1-u1-l1.help.en-us.v1"
                 }
               ],
-              "usage_note": "Listen: food.",
+              "usage_note": "Listen.",
               "stage_ids": [
-                "a1-u1-l1-s3"
+                "a1-u1-l1-s4"
               ],
               "spanish_reveal_after_first_response_to_exercise_id": "a1-u1-l1-q1"
             },
             {
               "id": "a1-u1-l1-ls6",
-              "type": "pattern",
-              "en": "I + need + [water / help / food]",
-              "es": "Persona + Acción + elemento",
-              "pronunciations": [],
-              "usage_note": "Use the three parts. This map goes away before the last try.",
+              "type": "reference_expression",
+              "en": "I need help.",
+              "es": null,
+              "pronunciations": [
+                {
+                  "locale": "en-GB",
+                  "ipa": "/aɪ niːd help/",
+                  "audio_asset": "audio.a1-u1-l1.i-need-help.en-gb.v1"
+                }
+              ],
+              "usage_note": "Say it.",
               "stage_ids": [
-                "a1-u1-l1-s3"
+                "a1-u1-l1-s4"
               ],
               "spanish_reveal_after_first_response_to_exercise_id": "a1-u1-l1-q1"
             }
           ],
           "visual_contexts": [
             {
-              "id": "a1-u1-l1-vc1",
-              "resource_id": "visual.a1-u1-l1.immediate-need.initial.v1",
-              "accessibility_label": "A person is at a counter. There is a closed bottle, a wrapped snack, and a bell. No written English appears.",
+              "id": "a1-u1-l1-vc-water",
+              "resource_id": "visual.a1-u1-l1.scene.water.v1",
+              "accessibility_label": "A person holds an empty bottle beside a refill tap. No written English appears.",
+              "resource_type": "static_image",
               "stage_ids": [
                 "a1-u1-l1-s1",
                 "a1-u1-l1-s2",
-                "a1-u1-l1-s3",
-                "a1-u1-l1-s4"
+                "a1-u1-l1-s3"
               ]
             },
             {
-              "id": "a1-u1-l1-vc2",
-              "resource_id": "visual.a1-u1-l1.immediate-need.variation.v1",
-              "accessibility_label": "At a station, a person is by a stopped machine. A worker is nearby. There is also a refill point and a meal counter. No written English appears.",
+              "id": "a1-u1-l1-vc-food",
+              "resource_id": "visual.a1-u1-l1.scene.food.v1",
+              "accessibility_label": "A person looks at an unopened meal tray on a table. No written English appears.",
+              "resource_type": "static_image",
               "stage_ids": [
+                "a1-u1-l1-s4",
+                "a1-u1-l1-s5"
+              ]
+            },
+            {
+              "id": "a1-u1-l1-vc-help",
+              "resource_id": "visual.a1-u1-l1.scene.help.v1",
+              "accessibility_label": "A machine works, stops, a person tries to use it, then looks toward an assistant. No written English or voice appears.",
+              "resource_type": "microvideo",
+              "autoplay_once": true,
+              "replay_allowed": true,
+              "stage_ids": [
+                "a1-u1-l1-s4",
                 "a1-u1-l1-s5"
               ]
             }
@@ -429,18 +466,18 @@
           "pronunciation_reinforcement": {
             "stage_id": "a1-u1-l1-s3",
             "reference_text": "I need water.",
-            "listening_objective": "Hear and shadow the complete short block smoothly enough to keep I and need comprehensible and link need into the noun.",
+              "listening_objective": "Hear and shadow the complete short block with the en-GB reference model.",
             "shadowing": true,
             "pronunciations": [
-              {
-                "locale": "en-US",
-                "ipa": "/aɪ niːd ˈwɔːtɚ/",
-                "audio_asset": "audio.a1-u1-l1.i-need-water.en-us.v1"
-              },
-              {
-                "locale": "en-GB",
-                "ipa": "/aɪ niːd ˈwɔːtə/",
-                "audio_asset": "audio.a1-u1-l1.i-need-water.en-gb.v1"
+                {
+                  "locale": "en-GB",
+                  "ipa": "/aɪ niːd ˈwɔːtə/",
+                  "audio_asset": "audio.a1-u1-l1.i-need-water.en-gb.v1"
+                },
+                {
+                  "locale": "en-US",
+                  "ipa": "/aɪ niːd ˈwɔːtɚ/",
+                  "audio_asset": "audio.a1-u1-l1.i-need-water.en-us.v1"
               }
             ],
             "phonetic_targets": []
@@ -452,8 +489,8 @@
         "conversations": [
           {
             "id": "a1-u1-l1-c1",
-            "title": "Listen",
-            "context": "Look at the picture. Listen.",
+            "title": "Listen.",
+            "context": "Listen.",
             "mode": "guided",
             "start_turn_id": "a1-u1-l1-c1-t1",
             "turns": [
@@ -462,15 +499,15 @@
                 "speaker": "partner",
                 "en": "I need water.",
                 "pronunciations": [
-                  {
-                    "locale": "en-US",
-                    "ipa": "/aɪ niːd ˈwɔːtɚ/",
-                    "audio_asset": "audio.a1-u1-l1.i-need-water.en-us.v1"
-                  },
-                  {
-                    "locale": "en-GB",
-                    "ipa": "/aɪ niːd ˈwɔːtə/",
-                    "audio_asset": "audio.a1-u1-l1.i-need-water.en-gb.v1"
+                {
+                  "locale": "en-GB",
+                  "ipa": "/aɪ niːd ˈwɔːtə/",
+                  "audio_asset": "audio.a1-u1-l1.i-need-water.en-gb.v1"
+                },
+                {
+                  "locale": "en-US",
+                  "ipa": "/aɪ niːd ˈwɔːtɚ/",
+                  "audio_asset": "audio.a1-u1-l1.i-need-water.en-us.v1"
                   }
                 ],
                 "production_prompt": null,
@@ -491,15 +528,15 @@
           },
           {
             "id": "a1-u1-l1-c2",
-            "title": "Say it",
-            "context": "Look. Speak. Then the picture changes.",
+            "title": "Say it.",
+            "context": "Say it.",
             "mode": "free",
             "start_turn_id": "a1-u1-l1-c2-t1",
             "turns": [
               {
                 "id": "a1-u1-l1-c2-t1",
                 "speaker": "learner",
-                "en": "Say it with the words on screen.",
+                "en": "Say it.",
                 "pronunciations": [],
                 "production_prompt": {
                   "id": "a1-u1-l1-c2-p1",
@@ -530,7 +567,7 @@
               {
                 "id": "a1-u1-l1-c2-t2",
                 "speaker": "learner",
-                "en": "Say it again. You can see: I.",
+                "en": "Say it again.",
                 "pronunciations": [],
                 "production_prompt": {
                   "id": "a1-u1-l1-c2-p2",
@@ -559,7 +596,7 @@
               {
                 "id": "a1-u1-l1-c2-t3",
                 "speaker": "learner",
-                "en": "The picture changes. Speak.",
+                "en": "Say it.",
                 "pronunciations": [],
                 "production_prompt": {
                   "id": "a1-u1-l1-c2-p3",
@@ -579,7 +616,7 @@
                   "transfer_variants": [
                     {
                       "id": "a1-u1-l1-c2-transfer-food",
-                      "prompt": "Look at the new picture. Speak."
+                      "prompt": "Say it."
                     }
                   ],
                   "visible_support": []
@@ -593,15 +630,15 @@
           },
           {
             "id": "a1-u1-l1-c3",
-            "title": "Say it in a new place",
-            "context": "At the station, the machine stops. Then the picture changes.",
+            "title": "Say it again.",
+            "context": "Say it again.",
             "mode": "free",
             "start_turn_id": "a1-u1-l1-c3-t1",
             "turns": [
               {
                 "id": "a1-u1-l1-c3-t1",
                 "speaker": "learner",
-                "en": "Say it with the words on screen.",
+                "en": "Say it.",
                 "pronunciations": [],
                 "production_prompt": {
                   "id": "a1-u1-l1-c3-p1",
@@ -632,7 +669,7 @@
               {
                 "id": "a1-u1-l1-c3-t2",
                 "speaker": "learner",
-                "en": "Say it again. You can see: I.",
+                "en": "Say it again.",
                 "pronunciations": [],
                 "production_prompt": {
                   "id": "a1-u1-l1-c3-p2",
@@ -661,7 +698,7 @@
               {
                 "id": "a1-u1-l1-c3-t3",
                 "speaker": "learner",
-                "en": "The picture changes. Speak.",
+                "en": "Say it.",
                 "pronunciations": [],
                 "production_prompt": {
                   "id": "a1-u1-l1-c3-p3",
@@ -681,7 +718,7 @@
                   "transfer_variants": [
                     {
                       "id": "a1-u1-l1-c3-transfer-food",
-                      "prompt": "Look at the new picture. Speak."
+                      "prompt": "Say it."
                     }
                   ],
                   "visible_support": []
@@ -695,8 +732,8 @@
           },
           {
             "id": "a1-u1-l1-c4",
-            "title": "Listen: Okay.",
-            "context": "A person says Okay.",
+            "title": "Okay.",
+            "context": "Okay.",
             "mode": "guided",
             "start_turn_id": "a1-u1-l1-c4-t1",
             "turns": [
@@ -706,14 +743,14 @@
                 "en": "Okay.",
                 "pronunciations": [
                   {
-                    "locale": "en-US",
-                    "ipa": "/oʊˈkeɪ/",
-                    "audio_asset": "audio.a1-u1-l1.okay.en-us.v1"
-                  },
-                  {
                     "locale": "en-GB",
                     "ipa": "/əʊˈkeɪ/",
                     "audio_asset": "audio.a1-u1-l1.okay.en-gb.v1"
+                  },
+                  {
+                    "locale": "en-US",
+                    "ipa": "/oʊˈkeɪ/",
+                    "audio_asset": "audio.a1-u1-l1.okay.en-us.v1"
                   }
                 ],
                 "production_prompt": null,
@@ -729,11 +766,20 @@
           {
             "id": "a1-u1-l1-q1",
             "type": "mcq",
-            "prompt": "What does the person want?",
+            "prompt": "Choose.",
             "options": [
-              "water",
-              "food",
-              "help"
+              {
+                "resource_id": "visual.a1-u1-l1.comprehension-option.need.v1",
+                "accessibility_label": "A person reaches toward a service counter with an empty bottle. No written English appears."
+              },
+              {
+                "resource_id": "visual.a1-u1-l1.comprehension-option.greeting.v1",
+                "accessibility_label": "Two people meet and wave to each other. No written English appears."
+              },
+              {
+                "resource_id": "visual.a1-u1-l1.comprehension-option.farewell.v1",
+                "accessibility_label": "Two people wave as they leave in different directions. No written English appears."
+              }
             ],
             "answer_index": 0,
             "skill_ids": [
@@ -761,12 +807,11 @@
         {
           "skill_id": "a1_express_immediate_need_orally",
           "preparation_state": "INSTRUCTION_AVAILABLE",
-          "artifact_ids": [
-            "a1-u1-l1-s3",
-            "a1-u1-l1-ls1",
-            "a1-u1-l1-ls2",
-            "a1-u1-l1-ls6"
-          ]
+            "artifact_ids": [
+              "a1-u1-l1-s3",
+              "a1-u1-l1-ls1",
+              "a1-u1-l1-ls2"
+            ]
         },
         {
           "skill_id": "a1_express_immediate_need_orally",
@@ -819,6 +864,8 @@
   "required_resource_ids": [
     "audio.a1-u1-l1.i-need-water.en-us.v1",
     "audio.a1-u1-l1.i-need-water.en-gb.v1",
+    "audio.a1-u1-l1.i-need-help.en-gb.v1",
+    "audio.a1-u1-l1.i-need-food.en-gb.v1",
     "audio.a1-u1-l1.water.en-us.v1",
     "audio.a1-u1-l1.water.en-gb.v1",
     "audio.a1-u1-l1.help.en-us.v1",
@@ -827,8 +874,12 @@
     "audio.a1-u1-l1.food.en-gb.v1",
     "audio.a1-u1-l1.okay.en-us.v1",
     "audio.a1-u1-l1.okay.en-gb.v1",
-    "visual.a1-u1-l1.immediate-need.initial.v1",
-    "visual.a1-u1-l1.immediate-need.variation.v1"
+    "visual.a1-u1-l1.scene.water.v1",
+    "visual.a1-u1-l1.scene.food.v1",
+    "visual.a1-u1-l1.scene.help.v1",
+    "visual.a1-u1-l1.comprehension-option.need.v1",
+    "visual.a1-u1-l1.comprehension-option.greeting.v1",
+    "visual.a1-u1-l1.comprehension-option.farewell.v1"
   ],
   "validation_report": {
     "status": "pending",
@@ -844,13 +895,14 @@
     ]
   },
   "pending_human_decisions": [
-    "Confirm that an absolute beginner can understand the simplified instructions and the full six-capture Direct English workload without avoidable cognitive overload.",
-    "Review the naturalness and immediate usefulness of water, help and food in both logical visual situations.",
-    "Confirm that both accessibility labels describe usable situational signals without revealing an English answer.",
-    "Review the clarity and suitability of the complete water model, the lexical water/help/food models and the Okay closing audio before any physical resource binding.",
-    "Confirm that Person + Action works as construction scaffolding and not as a complete answer to copy.",
+    "Confirm that a visual need-versus-greeting-versus-farewell check after I need water. measures communicative intention without captions or lexical matching.",
+    "Review the naturalness and immediate usefulness of water, help and food in their separate visual scenes, including the help microvideo sequence.",
+    "Confirm that all scene and MCQ accessibility labels describe usable signals without revealing water, help, food or a complete English answer.",
+    "Review the clarity and suitability of the en-GB-first isolated water/help/food models, the three complete phrase models and the Okay closing audio before any physical resource binding.",
+    "Confirm that the future consumer presents each scene visual-first, then a brief observation, then the isolated word, complete block, practice and production; first playback is clear slow-natural and replays are nearer natural speed without claiming nonexistent playback metadata.",
+    "Confirm that Spanish is only brief post-response rescue, transcript is only the complete target phrase after the first response, and neither appears in final evidence.",
+    "Confirm that error feedback stays brief, replays a model when needed and guides a retry without punitive scoring or immediately giving a complete answer to copy.",
     "Approve, revise or reject the proposed qualitative gates: expanded in the first direct activity and transfer in the second, each with relevance and intelligibility; guided remains practice and is not reviewed.",
-    "Confirm that the second activity begins with the new help situation and that the final food transfer is a real nearby change of visual context, relevant need, intervention, expected response and support level.",
     "Confirm that support_level none is appropriate only for the two contract-required transfer captures and that final evidence exposes no transcript, Spanish or complete sentence model.",
     "Confirm cultural neutrality, functional pronunciation expectations and the explicit separation between completion, mastery, retention and curricular progress."
   ],
@@ -858,7 +910,8 @@
     "Identify this isolated proposal externally as candidate_revision a1-u1-candidate-v3; candidate_revision is not a PedagogicalUnitCandidate payload field.",
     "Add one isolated LessonExperience 3.0 lesson for the single Skill a1_express_immediate_need_orally without changing active content.",
     "Use six purposeful stages and four conversations to keep comprehension, two Direct English evidence sources and conversation completion structurally distinct.",
-    "Provide one audio-first comprehension check about what the person wants, simple I + need + noun construction support, complete water shadowing, lexical water/help/food models and six voice-primary captures with text only as fallback.",
+    "Provide one audio-first visual comprehension check after I need water., isolated water/help/food models, complete I need water./I need help./I need food. models and six voice-primary captures with text only as fallback.",
+    "Use static water and food scenes, a replayable autoplay-once help microvideo and three separate visual MCQ options; the future consumer owns playback-speed progression and bounded corrective replay because those behaviors have no candidate metadata.",
     "Propose human or external relevance and intelligibility review for the first activity's expanded capture and the second activity's transfer capture; automatic evaluation does not accredit either.",
     "Keep Skill coverage pending_approval and require human review before admission, publication, membership or activation.",
     "Treat experience completion as completion of the declared evidence workflow only, never as mastery, retention or curricular progress."
