@@ -858,7 +858,7 @@
         "speaking",
         "pronunciation"
       ],
-      "status": "pending_approval"
+      "status": "complete"
     }
   ],
   "required_resource_ids": [
@@ -882,30 +882,10 @@
     "visual.a1-u1-l1.comprehension-option.farewell.v1"
   ],
   "validation_report": {
-    "status": "pending",
-    "findings": [
-      {
-        "validator_id": "skill_coverage_status",
-        "severity": "warning",
-        "message": "Skill a1_express_immediate_need_orally coverage status is pending_approval.",
-        "reference_ids": [
-          "a1_express_immediate_need_orally"
-        ]
-      }
-    ]
+    "status": "passed",
+    "findings": []
   },
-  "pending_human_decisions": [
-    "Confirm that a visual need-versus-greeting-versus-farewell check after I need water. measures communicative intention without captions or lexical matching.",
-    "Review the naturalness and immediate usefulness of water, help and food in their separate visual scenes, including the help microvideo sequence.",
-    "Confirm that all scene and MCQ accessibility labels describe usable signals without revealing water, help, food or a complete English answer.",
-    "Review the clarity and suitability of the en-GB-first isolated water/help/food models, the three complete phrase models and the Okay closing audio before any physical resource binding.",
-    "Confirm that the future consumer presents each scene visual-first, then a brief observation, then the isolated word, complete block, practice and production; first playback is clear slow-natural and replays are nearer natural speed without claiming nonexistent playback metadata.",
-    "Confirm that Spanish is only brief post-response rescue, transcript is only the complete target phrase after the first response, and neither appears in final evidence.",
-    "Confirm that error feedback stays brief, replays a model when needed and guides a retry without punitive scoring or immediately giving a complete answer to copy.",
-    "Approve, revise or reject the proposed qualitative gates: expanded in the first direct activity and transfer in the second, each with relevance and intelligibility; guided remains practice and is not reviewed.",
-    "Confirm that support_level none is appropriate only for the two contract-required transfer captures and that final evidence exposes no transcript, Spanish or complete sentence model.",
-    "Confirm cultural neutrality, functional pronunciation expectations and the explicit separation between completion, mastery, retention and curricular progress."
-  ],
+  "pending_human_decisions": [],
   "proposed_change_summary": [
     "Identify this isolated proposal externally as candidate_revision a1-u1-candidate-v3; candidate_revision is not a PedagogicalUnitCandidate payload field.",
     "Add one isolated LessonExperience 3.0 lesson for the single Skill a1_express_immediate_need_orally without changing active content.",
@@ -913,7 +893,7 @@
     "Provide one audio-first visual comprehension check after I need water., isolated water/help/food models, complete I need water./I need help./I need food. models and six voice-primary captures with text only as fallback.",
     "Use static water and food scenes, a replayable autoplay-once help microvideo and three separate visual MCQ options; the future consumer owns playback-speed progression and bounded corrective replay because those behaviors have no candidate metadata.",
     "Propose human or external relevance and intelligibility review for the first activity's expanded capture and the second activity's transfer capture; automatic evaluation does not accredit either.",
-    "Keep Skill coverage pending_approval and require human review before admission, publication, membership or activation.",
+    "Record the HUMAN APPROVED closure by marking Skill coverage complete and clearing the resolved human-decision gate; this prepares, but does not perform, a separate admission decision.",
     "Treat experience completion as completion of the declared evidence workflow only, never as mastery, retention or curricular progress."
   ]
 }

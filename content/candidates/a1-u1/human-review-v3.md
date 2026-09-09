@@ -5,11 +5,13 @@
 `HUMAN APPROVED`
 
 - `candidate_revision`: `a1-u1-candidate-v3`;
+- identidad final preparada: `a1-u1` / `a1-u1-candidate-v3` /
+  `1.0` / `sha256:23e0d0e1eba8fb7c6b1c73097f01350abe06c84af30fab49f9e646fd9f095018`;
 - artefacto: `pedagogical-unit-candidate-v3.json`;
-- estado determinista de entrada: `READY_FOR_HUMAN_REVIEW`;
+- estado determinista de entrada: `READY FOR ADMISSION DECISION`;
 - Skill única: `a1_express_immediate_need_orally`;
-- este documento registra únicamente la aprobación humana; no registra admission,
-  publication, membership ni activación.
+- este documento registra únicamente la aprobación humana y la preparación de
+  sus gates; no registra admission, publication, membership ni activación.
 
 ## Decisiones implementadas para revisar
 
@@ -119,6 +121,10 @@ confirmar que el audio real sea coherente, claro y natural.
 - Cambios solicitados: ninguno.
 - Identidad de reviewer: usuario.
 - Fecha de decisión: 2026-09-09.
+- Gates resueltos: `skill_coverage.status="complete"`, decisiones pendientes
+  vacías y validación local recalculada `passed`.
+- Admission: no existe `AdmissionRecord` ni decisión `admitted` registrada.
 
-Esta aprobación humana permanece separada de admission, publicación,
-membership y activación.
+La candidata queda HUMAN APPROVED y READY FOR ADMISSION DECISION. Esta
+preparación permanece separada de admission, publicación, membership y
+activación.
