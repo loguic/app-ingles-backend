@@ -86,6 +86,52 @@ def test_multiple_equivalent_options_generate_one_group_finding():
     assert "indexes: 0, 1, 2" in findings[0].message
 
 
+def test_duplicate_visual_option_resource_id_generates_finding():
+    payload = build_candidate_payload()
+    exercise = payload["candidate_unit"]["lessons"][0]["exercises"][0]
+    exercise["options"] = [
+        {
+            "resource_id": "visual/a1-u1-l1-need.svg",
+            "accessibility_label": "A person seeking assistance.",
+        },
+        {
+            "resource_id": "visual/a1-u1-l1-need.svg",
+            "accessibility_label": "Two people meeting.",
+        },
+    ]
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    findings = validate_duplicate_exercise_options(candidate)
+
+    assert len(findings) == 1
+    assert findings[0].validator_id == "duplicate_exercise_options"
+    assert "duplicate visual resource_ids" in findings[0].message
+    assert "indexes: 0, 1" in findings[0].message
+
+
+def test_equivalent_visual_accessibility_labels_generate_finding():
+    payload = build_candidate_payload()
+    exercise = payload["candidate_unit"]["lessons"][0]["exercises"][0]
+    exercise["options"] = [
+        {
+            "resource_id": "visual/a1-u1-l1-need.svg",
+            "accessibility_label": " A Person Seeking Assistance. ",
+        },
+        {
+            "resource_id": "visual/a1-u1-l1-greeting.svg",
+            "accessibility_label": "a person seeking assistance.",
+        },
+    ]
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    findings = validate_duplicate_exercise_options(candidate)
+
+    assert len(findings) == 1
+    assert findings[0].validator_id == "duplicate_exercise_options"
+    assert "equivalent visual accessibility labels" in findings[0].message
+    assert "indexes: 0, 1" in findings[0].message
+
+
 def test_equivalent_options_in_different_exercises_are_not_duplicates():
     payload = build_candidate_payload()
     first_exercise = payload["candidate_unit"]["lessons"][0]["exercises"][0]
@@ -124,4 +170,3 @@ def test_main_validator_rejects_duplicate_exercise_options():
     assert report.findings[0].validator_id == (
         "duplicate_exercise_options"
     )
-

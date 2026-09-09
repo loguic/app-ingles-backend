@@ -5,6 +5,7 @@ import unicodedata
 import pytest
 
 from app.schemas.evaluation import ProductionEvaluationCriterion
+from app.schemas.content import ExerciseVisualOption
 from app.schemas.pedagogical_feedback import ProductionFeedbackRule
 from app.schemas.pedagogical_unit import (
     LessonCapabilityClaim,
@@ -18,6 +19,7 @@ from app.services.pedagogical_candidate_payload_identity import (
     derive_candidate_payload_identity,
 )
 from tests.test_pedagogical_validation_service import (
+    build_candidate_payload,
     build_visual_context_candidate_payload,
 )
 
@@ -373,6 +375,82 @@ def test_visual_context_type_and_playback_change_the_digest() -> None:
     }
 
     assert len(digests) == 4
+
+
+def visual_mcq_candidate(**changes: object) -> PedagogicalUnitCandidate:
+    payload = build_candidate_payload()
+    exercise = payload["candidate_unit"]["lessons"][0]["exercises"][0]
+    options = [
+        {
+            "resource_id": "visual/a1-u1-l1-need.svg",
+            "accessibility_label": "A person seeking assistance.",
+        },
+        {
+            "resource_id": "visual/a1-u1-l1-greeting.svg",
+            "accessibility_label": "Two people meeting.",
+        },
+        {
+            "resource_id": "visual/a1-u1-l1-farewell.svg",
+            "accessibility_label": "Two people leaving.",
+        },
+    ]
+    exercise.update({"options": options, **changes})
+    payload["required_resource_ids"].extend(
+        option["resource_id"] for option in options
+    )
+    return PedagogicalUnitCandidate.model_validate(payload)
+
+
+def test_textual_mcq_legacy_dump_and_digest_are_unchanged() -> None:
+    payload = build_candidate_payload()
+    value = PedagogicalUnitCandidate.model_validate(payload)
+    exercise_payload = payload["candidate_unit"]["lessons"][0]["exercises"][0]
+
+    assert value.candidate_unit.lessons[0].exercises[0].model_dump(
+        mode="json"
+    ) == {"type": "mcq", **exercise_payload}
+    assert identity(value, "legacy-text-mcq").content_digest == (
+        "sha256:8fbf2eef13753134acafe5352abd212f1edac7297abf495f6219757014acfdd0"
+    )
+
+
+def test_visual_mcq_fields_change_the_digest_deterministically() -> None:
+    original = visual_mcq_candidate()
+    changed_resource = visual_mcq_candidate()
+    changed_resource_option = (
+        changed_resource.candidate_unit.lessons[0].exercises[0].options[0]
+    )
+    assert isinstance(changed_resource_option, ExerciseVisualOption)
+    changed_resource_option.resource_id = "visual/a1-u1-l1-need-alternate.svg"
+    changed_resource.required_resource_ids[2] = changed_resource_option.resource_id
+    changed_label = visual_mcq_candidate()
+    changed_label_option = (
+        changed_label.candidate_unit.lessons[0].exercises[0].options[0]
+    )
+    assert isinstance(changed_label_option, ExerciseVisualOption)
+    changed_label_option.accessibility_label = (
+        "A person asking a worker for assistance."
+    )
+    changed_order = visual_mcq_candidate()
+    changed_order.candidate_unit.lessons[0].exercises[0].options.reverse()
+    changed_answer_index = visual_mcq_candidate(answer_index=1)
+
+    digests = {
+        identity(value, "visual-mcq").content_digest
+        for value in (
+            original,
+            changed_resource,
+            changed_label,
+            changed_order,
+            changed_answer_index,
+        )
+    }
+
+    assert len(digests) == 5
+    assert (
+        identity(original, "visual-mcq").content_digest
+        == identity(original, "visual-mcq").content_digest
+    )
 
 
 def test_unicode_is_deterministic_but_not_normalized() -> None:

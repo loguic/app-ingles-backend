@@ -25,6 +25,7 @@ from app.schemas.pedagogical_unit import (
     ValidationFinding,
     ValidationReport,
 )
+from app.schemas.content import ExerciseVisualOption
 from app.services.pedagogical_duplicate_validation import (
     validate_duplicate_exercise_options,
 )
@@ -367,6 +368,22 @@ def _collect_referenced_visual_context_resource_ids(
     }
 
 
+def _collect_referenced_visual_exercise_option_resource_ids(
+    candidate: PedagogicalUnitCandidate,
+) -> set[str]:
+    """Collect logical resources referenced by visual MCQ options.
+
+    Recopila recursos lógicos referenciados por opciones visuales de MCQ.
+    """
+    return {
+        option.resource_id
+        for lesson in candidate.candidate_unit.lessons
+        for exercise in lesson.exercises
+        for option in exercise.options
+        if isinstance(option, ExerciseVisualOption)
+    }
+
+
 def validate_required_resource_inventory(
     candidate: PedagogicalUnitCandidate,
 ) -> list[ValidationFinding]:
@@ -415,6 +432,23 @@ def validate_required_resource_inventory(
                 message=(
                     "Referenced visual context resource is missing from "
                     f"the inventory: {resource_id}."
+                ),
+                reference_ids=[resource_id],
+            )
+        )
+
+    missing_visual_exercise_option_resource_ids = sorted(
+        _collect_referenced_visual_exercise_option_resource_ids(candidate)
+        - set(inventory)
+    )
+    for resource_id in missing_visual_exercise_option_resource_ids:
+        findings.append(
+            ValidationFinding(
+                validator_id="resource_inventory_complete",
+                severity="error",
+                message=(
+                    "Referenced visual exercise option resource is missing "
+                    f"from the inventory: {resource_id}."
                 ),
                 reference_ids=[resource_id],
             )

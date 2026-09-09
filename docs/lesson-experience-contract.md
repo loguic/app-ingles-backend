@@ -129,6 +129,23 @@ Contendrá recursos subordinados a la misión:
 - pronunciación;
 - frases de referencia cuando aporten valor.
 
+#### Opciones de `ExerciseMCQ`
+
+`ExerciseMCQ.options` puede contener una lista homogénea de texto o una lista
+homogénea de opciones visuales estáticas. La forma textual legacy se conserva
+como `list[str]`. Una opción visual contiene únicamente un `resource_id`
+lógico, que debe estar incluido en
+`PedagogicalUnitCandidate.required_resource_ids`, y un `accessibility_label`
+no vacío. No se permiten listas que mezclen texto y opciones visuales.
+
+`accessibility_label` es el nombre accesible de la opción visual; no es un
+caption visible ni texto ordinario de respuesta. `answer_index` mantiene su
+semántica: identifica por posición la opción correcta de la lista ordenada.
+
+La opción visual no incorpora `option_id`, modo de opción, respuesta por
+recurso, MIME, URL, path, bytes, vídeo, microvídeo, reproducción, scoring,
+metadata de frontend ni un sistema multimedia genérico.
+
 #### `visual_contexts` (v3 opcional)
 
 Puede declarar contexto visual accesible para una o más etapas mediante una

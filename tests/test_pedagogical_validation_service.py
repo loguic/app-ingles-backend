@@ -382,6 +382,65 @@ def test_missing_referenced_audio_fails_validation(
     )
 
 
+def visual_mcq_options() -> list[dict[str, str]]:
+    return [
+        {
+            "resource_id": "visual/a1-u1-l1-need.svg",
+            "accessibility_label": "A person seeking assistance.",
+        },
+        {
+            "resource_id": "visual/a1-u1-l1-greeting.svg",
+            "accessibility_label": "Two people meeting.",
+        },
+        {
+            "resource_id": "visual/a1-u1-l1-farewell.svg",
+            "accessibility_label": "Two people leaving.",
+        },
+    ]
+
+
+def test_missing_visual_exercise_option_resource_fails_validation():
+    payload = deepcopy(build_candidate_payload())
+    exercise = payload["candidate_unit"]["lessons"][0]["exercises"][0]
+    exercise["options"] = visual_mcq_options()
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    report = validate_pedagogical_candidate(candidate)
+
+    assert report.status == "failed"
+    assert len(report.findings) == 3
+    assert [finding.reference_ids for finding in report.findings] == [
+        ["visual/a1-u1-l1-farewell.svg"],
+        ["visual/a1-u1-l1-greeting.svg"],
+        ["visual/a1-u1-l1-need.svg"],
+    ]
+    assert all(
+        finding.validator_id == "resource_inventory_complete"
+        for finding in report.findings
+    )
+    assert all(
+        "Referenced visual exercise option resource is missing"
+        in finding.message
+        for finding in report.findings
+    )
+
+
+def test_visual_exercise_option_resources_in_inventory_pass_validation():
+    payload = deepcopy(build_candidate_payload())
+    exercise = payload["candidate_unit"]["lessons"][0]["exercises"][0]
+    options = visual_mcq_options()
+    exercise["options"] = options
+    payload["required_resource_ids"].extend(
+        option["resource_id"] for option in options
+    )
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    report = validate_pedagogical_candidate(candidate)
+
+    assert report.status == "passed"
+    assert report.findings == []
+
+
 def build_visual_context_candidate_payload() -> dict:
     """Return a valid candidate payload with one v3 visual context.
 

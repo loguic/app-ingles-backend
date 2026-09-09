@@ -1025,14 +1025,56 @@ class LessonExperience(BaseModel):
         return self
 
 
+class ExerciseVisualOption(BaseModel):
+    """Reference one static visual answer option for an MCQ.
+
+    Referencia una opción de respuesta visual estática para un MCQ.
+    """
+
+    resource_id: str
+    accessibility_label: str
+
+    @model_validator(mode="after")
+    def validate_internal_integrity(self) -> "ExerciseVisualOption":
+        blank_values = [
+            field_name
+            for field_name, value in {
+                "resource_id": self.resource_id,
+                "accessibility_label": self.accessibility_label,
+            }.items()
+            if not value.strip()
+        ]
+        if blank_values:
+            raise ValueError(
+                "Exercise visual option values cannot be blank: "
+                + ", ".join(blank_values)
+            )
+        return self
+
+
 class ExerciseMCQ(BaseModel):
     id: str
     # Multiple Choice Question / Pregunta de opción múltiple
     type: Literal["mcq"] = "mcq"
     prompt: str
-    options: List[str]
+    options: List[str | ExerciseVisualOption]
     answer_index: int
     skill_ids: List[str] = []
+
+    @model_validator(mode="after")
+    def validate_option_representation(self) -> "ExerciseMCQ":
+        has_text_options = any(
+            isinstance(option, str) for option in self.options
+        )
+        has_visual_options = any(
+            isinstance(option, ExerciseVisualOption)
+            for option in self.options
+        )
+        if has_text_options and has_visual_options:
+            raise ValueError(
+                "Exercise options must be all text or all visual options"
+            )
+        return self
 
 
 class Lesson(BaseModel):

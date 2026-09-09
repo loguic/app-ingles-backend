@@ -69,6 +69,25 @@ def test_fewer_than_two_options_generates_finding():
     assert "at least 2 options" in findings[0].message.lower()
 
 
+def test_fewer_than_two_visual_options_generates_finding():
+    payload = build_candidate_payload()
+    exercise = payload["candidate_unit"]["lessons"][0]["exercises"][0]
+    exercise["options"] = [
+        {
+            "resource_id": "visual/a1-u1-l1-need.svg",
+            "accessibility_label": "A person seeking assistance.",
+        }
+    ]
+    exercise["answer_index"] = 0
+    candidate = PedagogicalUnitCandidate.model_validate(payload)
+
+    findings = validate_exercise_integrity(candidate)
+
+    assert len(findings) == 1
+    assert findings[0].validator_id == "exercise_integrity"
+    assert "at least 2 options" in findings[0].message.lower()
+
+
 def test_blank_option_generates_finding():
     payload = build_candidate_payload()
     exercise = payload["candidate_unit"]["lessons"][0]["exercises"][0]
@@ -179,4 +198,3 @@ def test_main_validator_rejects_blank_exercise_prompt():
     assert report.status == "failed"
     assert len(exercise_findings) == 1
     assert exercise_findings[0].reference_ids == ["a1-u1-l1-q1"]
-

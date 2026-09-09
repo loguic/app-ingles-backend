@@ -1,3 +1,4 @@
+from app.schemas.content import ExerciseVisualOption
 from app.schemas.pedagogical_unit import (
     PedagogicalUnitCandidate,
     ValidationFinding,
@@ -44,6 +45,8 @@ def validate_exercise_integrity(
                 )
 
             for index, option in enumerate(exercise.options):
+                if isinstance(option, ExerciseVisualOption):
+                    continue
                 if option.strip():
                     continue
 

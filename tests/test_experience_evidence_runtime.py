@@ -483,6 +483,47 @@ def test_comprehension_is_backend_graded_and_later_correct_supersedes_pending(
     ]
 
 
+def test_visual_mcq_comprehension_remains_graded_by_selected_index(
+    db, synthetic_content, monkeypatch
+):
+    payload = synthetic_content.model_dump(mode="json")
+    payload["exercises"][0]["options"] = [
+        {
+            "resource_id": "visual/runtime-need.svg",
+            "accessibility_label": "A person seeking assistance.",
+        },
+        {
+            "resource_id": "visual/runtime-greeting.svg",
+            "accessibility_label": "Two people meeting.",
+        },
+    ]
+    visual_lesson = Lesson.model_validate(payload)
+
+    monkeypatch.setattr(
+        "app.services.experience_evidence_service.get_lesson_context_by_id",
+        lambda lesson_id: (
+            "A1", "runtime-unit", visual_lesson
+        ) if lesson_id == visual_lesson.id else None,
+    )
+    monkeypatch.setattr(
+        "app.services.experience_attempt_service.get_lesson_context_by_id",
+        lambda lesson_id: (
+            "A1", "runtime-unit", visual_lesson
+        ) if lesson_id == visual_lesson.id else None,
+    )
+
+    attempt = add_attempt(db)
+    incorrect = save_experience_comprehension_response(
+        attempt.attempt_id, "runtime-question", 1, db
+    )
+    correct = save_experience_comprehension_response(
+        attempt.attempt_id, "runtime-question", 0, db
+    )
+
+    assert incorrect.is_correct is False
+    assert correct.is_correct is True
+
+
 def test_submitted_comprehension_history_is_attempt_scoped_and_deterministic(
     db, synthetic_content
 ):

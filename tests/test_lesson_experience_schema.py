@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from app.schemas.content import Lesson
+from app.schemas.content import ExerciseVisualOption, Lesson
 
 
 def build_experience_payload() -> dict:
@@ -186,6 +186,117 @@ def test_legacy_lesson_remains_compatible_without_experience():
     assert lesson.experience is None
     assert lesson.examples == []
     assert lesson.conversations == []
+
+
+def test_textual_mcq_legacy_model_dump_is_unchanged():
+    exercise_payload = {
+        "id": "a1-u1-l1-q1",
+        "type": "mcq",
+        "prompt": "Choose.",
+        "options": ["Hello.", "Goodbye."],
+        "answer_index": 0,
+        "skill_ids": ["a1_introduce_yourself"],
+    }
+    lesson = Lesson.model_validate({
+        "id": "a1-u1-l1",
+        "title": "Legacy text MCQ",
+        "exercises": [exercise_payload],
+    })
+
+    assert lesson.exercises[0].model_dump(mode="json") == exercise_payload
+
+
+def test_visual_mcq_options_parse_and_round_trip():
+    options = [
+        {
+            "resource_id": "visual/a1-u1-l1-need.svg",
+            "accessibility_label": "A person seeking assistance.",
+        },
+        {
+            "resource_id": "visual/a1-u1-l1-greeting.svg",
+            "accessibility_label": "Two people meeting.",
+        },
+        {
+            "resource_id": "visual/a1-u1-l1-farewell.svg",
+            "accessibility_label": "Two people leaving.",
+        },
+    ]
+    lesson = Lesson.model_validate({
+        "id": "a1-u1-l1",
+        "title": "Visual MCQ",
+        "exercises": [
+            {
+                "id": "a1-u1-l1-q1",
+                "type": "mcq",
+                "prompt": "Choose.",
+                "options": options,
+                "answer_index": 0,
+                "skill_ids": ["a1_introduce_yourself"],
+            }
+        ],
+    })
+
+    exercise = lesson.exercises[0]
+    assert all(
+        isinstance(option, ExerciseVisualOption)
+        for option in exercise.options
+    )
+    assert exercise.model_dump(mode="json")["options"] == options
+
+    repeated = Lesson.model_validate_json(lesson.model_dump_json())
+    repeated_option = repeated.exercises[0].options[0]
+    assert isinstance(repeated_option, ExerciseVisualOption)
+    assert repeated_option.resource_id == "visual/a1-u1-l1-need.svg"
+    assert repeated_option.accessibility_label == "A person seeking assistance."
+
+
+def test_mcq_rejects_mixed_text_and_visual_options():
+    with pytest.raises(ValidationError, match="all text or all visual"):
+        Lesson.model_validate({
+            "id": "a1-u1-l1",
+            "title": "Mixed MCQ",
+            "exercises": [
+                {
+                    "id": "a1-u1-l1-q1",
+                    "type": "mcq",
+                    "prompt": "Choose.",
+                    "options": [
+                        "Hello.",
+                        {
+                            "resource_id": "visual/a1-u1-l1-greeting.svg",
+                            "accessibility_label": "Two people meeting.",
+                        },
+                    ],
+                    "answer_index": 0,
+                    "skill_ids": ["a1_introduce_yourself"],
+                }
+            ],
+        })
+
+
+@pytest.mark.parametrize("field", ["resource_id", "accessibility_label"])
+def test_visual_mcq_rejects_blank_option_values(field):
+    option = {
+        "resource_id": "visual/a1-u1-l1-greeting.svg",
+        "accessibility_label": "Two people meeting.",
+    }
+    option[field] = "   "
+
+    with pytest.raises(ValidationError, match="cannot be blank"):
+        Lesson.model_validate({
+            "id": "a1-u1-l1",
+            "title": "Invalid visual MCQ",
+            "exercises": [
+                {
+                    "id": "a1-u1-l1-q1",
+                    "type": "mcq",
+                    "prompt": "Choose.",
+                    "options": [option, option.copy()],
+                    "answer_index": 0,
+                    "skill_ids": ["a1_introduce_yourself"],
+                }
+            ],
+        })
 
 
 def test_lesson_parses_professional_experience_v2():
