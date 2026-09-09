@@ -80,7 +80,7 @@ def _load_admission_record() -> AdmissionRecord:
     )
 
 
-def test_a1_membership_preparation_derives_one_unpublished_snapshot() -> None:
+def test_a1_membership_preparation_matches_one_published_snapshot() -> None:
     candidate = _load_candidate()
     admission_record = _load_admission_record()
 
@@ -125,7 +125,7 @@ def test_a1_membership_preparation_derives_one_unpublished_snapshot() -> None:
         ROOT / "content/active-source/active-candidate-source-001.json"
     )
     assert future_manifest_path.is_relative_to(ROOT)
-    assert future_manifest_path.exists() is False
+    assert future_manifest_path.read_bytes() == EXPECTED_MANIFEST_BYTES
 
 
 def test_a1_membership_preparation_rejects_manifest_escape() -> None:

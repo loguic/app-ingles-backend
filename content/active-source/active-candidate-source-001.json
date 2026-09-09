@@ -1,0 +1,1 @@
+{"manifest_schema_version":"1.0","snapshot_revision":"active-candidate-source-001","memberships":[{"identity":{"unit_id":"a1-u1","candidate_revision":"a1-u1-candidate-v3","payload_schema_version":"1.0","content_digest":"sha256:23e0d0e1eba8fb7c6b1c73097f01350abe06c84af30fab49f9e646fd9f095018"},"admission_id":"adm-a1-u1-001"}]}
