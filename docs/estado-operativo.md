@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-10T18:42:47+02:00
+Actualizado: 2026-09-10T19:05:04+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -68,7 +68,7 @@ Estado backend: **CERRADO / VALIDADO / PUBLICADO / SINCRONIZADO** mediante `729e
 - `operational_state.py` valida este checkpoint con `Actualizado:` timezone-aware.
 - `conversation_checkpoint.py prepare|resume` prepara y recupera una vista efímera validada al cambiar de conversación.
 - `block_close.py` realiza validaciones técnicas y staging controlado.
-- `git_close.py` realiza un cierre Git seguro de allowlist explícita, un commit y un push confirmado.
+- `git_close.py` realiza un cierre Git seguro de allowlist explícita, un commit y un push confirmado; `a1_resource_asset_close.py` lo invoca para un único asset A1-U1 ya aprobado humanamente tras validar mapa, Downloads, SHA-256 y scope, sin revisión semántica ni B51/B52.
 - `block_workflow.py` conserva una deuda de interrupción y no es fiable para cierres desatendidos.
 
 ## Método operativo vigente
@@ -137,4 +137,4 @@ Producir únicamente los 14 assets A1-U1 restantes una vez aprobados humanamente
 - `tests/test_pedagogical_expected_resource_identity_collection.py`;
 - `tests/test_pedagogical_active_candidate_source_required_resource_inventory.py`;
 - `tests/test_pedagogical_active_candidate_source_expected_resource_coverage_verification.py`;
-- `app/db/models.py`, `app/schemas/content.py`, `app/schemas/direct_english_construction_review.py`, `app/services/direct_english_construction_content_validation.py`, `app/services/direct_english_construction_execution_service.py`, `app/services/direct_english_construction_review_persistence_service.py`, `app/services/direct_english_construction_review_execution_service.py`, `app/services/pedagogical_duplicate_validation.py`, `app/services/pedagogical_exercise_integrity_validation.py`, `app/services/pedagogical_validation_service.py`, `alembic/versions/d1842b7f3a91_add_direct_english_qualitative_reviews.py`, `docs/lesson-experience-contract.md`, `tests/test_direct_english_construction_review_schema.py`, `tests/test_direct_english_construction_review_persistence.py`, `tests/test_direct_english_construction_review_migration.py`, `tests/test_direct_english_construction_content_validation.py`, `tests/test_experience_evidence_runtime.py`, `tests/test_lesson_experience_schema.py`, `tests/test_pedagogical_duplicate_validation.py`, `tests/test_pedagogical_exercise_integrity_validation.py`, `tests/test_pedagogical_validation_service.py`, `tests/test_pedagogical_candidate_payload_identity.py` y `tests/test_experience_contract_versioning.py`.
+- `app/db/models.py`, `app/schemas/content.py`, `app/schemas/direct_english_construction_review.py`, `app/services/direct_english_construction_content_validation.py`, `app/services/direct_english_construction_execution_service.py`, `app/services/direct_english_construction_review_persistence_service.py`, `app/services/direct_english_construction_review_execution_service.py`, `app/services/pedagogical_duplicate_validation.py`, `app/services/pedagogical_exercise_integrity_validation.py`, `app/services/pedagogical_validation_service.py`, `alembic/versions/d1842b7f3a91_add_direct_english_qualitative_reviews.py`, `docs/lesson-experience-contract.md`, `tests/test_direct_english_construction_review_schema.py`, `tests/test_direct_english_construction_review_persistence.py`, `tests/test_direct_english_construction_review_migration.py`, `tests/test_direct_english_construction_content_validation.py`, `tests/test_experience_evidence_runtime.py`, `tests/test_lesson_experience_schema.py`, `tests/test_pedagogical_duplicate_validation.py`, `tests/test_pedagogical_exercise_integrity_validation.py`, `tests/test_pedagogical_validation_service.py`, `tests/test_pedagogical_candidate_payload_identity.py`, `tests/test_experience_contract_versioning.py`, `scripts/engineering/a1_resource_asset_close.py` y `tests/test_a1_resource_asset_close.py`.
