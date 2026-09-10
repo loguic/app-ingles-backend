@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import shutil
 import subprocess
@@ -43,6 +44,12 @@ def _downloads(tmp_path: Path, filename: str, content: bytes) -> Path:
     downloads.mkdir()
     (downloads / filename).write_bytes(content)
     return downloads
+
+
+def _batch_manifest(tmp_path: Path, payload: object) -> Path:
+    manifest = tmp_path / "a1-u1-approved-assets.json"
+    manifest.write_text(json.dumps(payload), encoding="utf-8")
+    return manifest
 
 
 def _git(root: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
@@ -211,6 +218,232 @@ def test_default_download_filename_copies_byte_identically_and_updates_4_to_5(
         "files": ["content/resources/a1-u1/visual/scene-help.mp4", "docs/estado-operativo.md"],
         "root": prepared_root,
     }]
+
+
+def test_batch_manifest_closes_two_assets_with_one_docs_update_and_one_close(
+    prepared_root: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    help_content = b"approved help video bytes"
+    farewell_content = b"approved farewell bytes"
+    downloads = _downloads(tmp_path, "scene-help.mp4", help_content)
+    (downloads / "option-farewell.png").write_bytes(farewell_content)
+    manifest = _batch_manifest(tmp_path, [
+        {
+            "resource_id": "visual.a1-u1-l1.scene.help.v1",
+            "sha256": _digest(help_content),
+            "human_approved": True,
+        },
+        {
+            "resource_id": "visual.a1-u1-l1.comprehension-option.farewell.v1",
+            "sha256": _digest(farewell_content),
+            "human_approved": True,
+        },
+    ])
+    calls = _close_without_git(monkeypatch)
+    updates = 0
+    original_update = asset_close.update_operational_state
+
+    def count_update(**kwargs: object) -> bytes:
+        nonlocal updates
+        updates += 1
+        return original_update(**kwargs)
+
+    monkeypatch.setattr(asset_close, "update_operational_state", count_update)
+    result = asset_close.close_approved_asset_batch(
+        manifest_path=manifest,
+        root=prepared_root,
+        downloads_dir=downloads,
+        now=datetime(2026, 9, 10, 19, 0, tzinfo=timezone.utc),
+        close_function=asset_close.close_git_changes,
+    )
+
+    assert result == "published-commit"
+    assert updates == 1
+    assert (prepared_root / "content/resources/a1-u1/visual/scene-help.mp4").read_bytes() == help_content
+    assert (prepared_root / "content/resources/a1-u1/visual/option-farewell.png").read_bytes() == farewell_content
+    assert asset_close._sha256(prepared_root / "content/resources/a1-u1/visual/scene-help.mp4") == _digest(help_content)
+    assert asset_close._sha256(prepared_root / "content/resources/a1-u1/visual/option-farewell.png") == _digest(farewell_content)
+    state = (prepared_root / asset_close.STATE_RELATIVE_PATH).read_text(encoding="utf-8")
+    assert "PHYSICAL ASSETS = **6/18 APPROVED**" in state
+    assert "los otros 12 assets siguen pendientes" in state
+    assert calls == [{
+        "branch": "master",
+        "upstream": "origin/master",
+        "message": "feat close approved A1 resource asset batch (2)",
+        "files": [
+            "content/resources/a1-u1/visual/scene-help.mp4",
+            "content/resources/a1-u1/visual/option-farewell.png",
+            "docs/estado-operativo.md",
+        ],
+        "root": prepared_root,
+    }]
+
+
+@pytest.mark.parametrize(
+    "payload,error",
+    [
+        ([], "non-empty JSON list"),
+        ([{"resource_id": "x", "sha256": "0" * 64, "human_approved": True, "extra": 1}], "invalid keys"),
+        ([{"resource_id": "x", "sha256": "0" * 64, "human_approved": False}], "human_approved=true"),
+        ([{"resource_id": "x", "sha256": "not-a-sha", "human_approved": True}], "64 lowercase"),
+        ([
+            {"resource_id": "x", "sha256": "0" * 64, "human_approved": True},
+            {"resource_id": "x", "sha256": "1" * 64, "human_approved": True},
+        ], "resource_id values must be unique"),
+    ],
+)
+def test_batch_manifest_is_strict(tmp_path: Path, payload: object, error: str) -> None:
+    manifest = _batch_manifest(tmp_path, payload)
+
+    with pytest.raises(asset_close.AssetCloseError, match=error):
+        asset_close.load_batch_manifest(manifest)
+
+
+def test_batch_manifest_inside_repository_or_symlink_is_rejected(
+    prepared_root: Path, tmp_path: Path
+) -> None:
+    inside = prepared_root / "inside.json"
+    inside.write_text("[]", encoding="utf-8")
+    with pytest.raises(asset_close.AssetCloseError, match="outside the repository"):
+        asset_close.load_batch_manifest(inside, root=prepared_root)
+
+    manifest = _batch_manifest(tmp_path, [])
+    symlink = tmp_path / "manifest-link.json"
+    os.symlink(manifest, symlink)
+    with pytest.raises(asset_close.AssetCloseError, match="must not be a symlink"):
+        asset_close.load_batch_manifest(symlink, root=prepared_root)
+
+
+def test_batch_preflight_mismatch_creates_no_destinations_or_docs_change(
+    prepared_root: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    help_content = b"approved help video bytes"
+    farewell_content = b"wrong farewell bytes"
+    downloads = _downloads(tmp_path, "scene-help.mp4", help_content)
+    (downloads / "option-farewell.png").write_bytes(farewell_content)
+    manifest = _batch_manifest(tmp_path, [
+        {
+            "resource_id": "visual.a1-u1-l1.scene.help.v1",
+            "sha256": _digest(help_content),
+            "human_approved": True,
+        },
+        {
+            "resource_id": "visual.a1-u1-l1.comprehension-option.farewell.v1",
+            "sha256": "0" * 64,
+            "human_approved": True,
+        },
+    ])
+    _close_without_git(monkeypatch)
+    original_state = (prepared_root / asset_close.STATE_RELATIVE_PATH).read_bytes()
+
+    with pytest.raises(asset_close.AssetCloseError, match="does not match"):
+        asset_close.close_approved_asset_batch(
+            manifest_path=manifest,
+            root=prepared_root,
+            downloads_dir=downloads,
+            close_function=asset_close.close_git_changes,
+        )
+
+    assert not (prepared_root / "content/resources/a1-u1/visual/scene-help.mp4").exists()
+    assert not (prepared_root / "content/resources/a1-u1/visual/option-farewell.png").exists()
+    assert (prepared_root / asset_close.STATE_RELATIVE_PATH).read_bytes() == original_state
+
+
+def test_batch_rejects_duplicate_destinations(
+    prepared_root: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    downloads = _downloads(tmp_path, "same.png", b"approved")
+    duplicate_bindings = (
+        asset_close.ResourceBinding("first", asset_close.PurePosixPath("visual/same.png")),
+        asset_close.ResourceBinding("second", asset_close.PurePosixPath("visual/same.png")),
+    )
+    monkeypatch.setattr(asset_close, "load_binding_map", lambda root: duplicate_bindings)
+    monkeypatch.setattr(asset_close, "validate_binding_inventory", lambda root, bindings: None)
+    monkeypatch.setattr(asset_close, "_assert_no_unmapped_assets", lambda root, bindings: None)
+
+    with pytest.raises(asset_close.AssetCloseError, match="destinations must be unique"):
+        asset_close._prepare_assets(
+            root=prepared_root,
+            requests=(
+                asset_close.AssetRequest("first", _digest(b"approved"), "same.png"),
+                asset_close.AssetRequest("second", _digest(b"approved"), "same.png"),
+            ),
+            downloads_dir=downloads,
+        )
+
+
+def test_batch_copy_failure_rolls_back_all_new_destinations(
+    prepared_root: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    help_content = b"approved help video bytes"
+    farewell_content = b"approved farewell bytes"
+    downloads = _downloads(tmp_path, "scene-help.mp4", help_content)
+    (downloads / "option-farewell.png").write_bytes(farewell_content)
+    manifest = _batch_manifest(tmp_path, [
+        {"resource_id": "visual.a1-u1-l1.scene.help.v1", "sha256": _digest(help_content), "human_approved": True},
+        {"resource_id": "visual.a1-u1-l1.comprehension-option.farewell.v1", "sha256": _digest(farewell_content), "human_approved": True},
+    ])
+    original_state = (prepared_root / asset_close.STATE_RELATIVE_PATH).read_bytes()
+    _close_without_git(monkeypatch)
+    original_copy = asset_close._copy_new_asset
+    calls = 0
+
+    def fail_second_copy(source: Path, destination: Path, sha256: str) -> None:
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            raise asset_close.AssetCloseError("forced second-copy failure")
+        original_copy(source, destination, sha256)
+
+    monkeypatch.setattr(asset_close, "_copy_new_asset", fail_second_copy)
+    with pytest.raises(asset_close.AssetCloseError, match="forced second-copy"):
+        asset_close.close_approved_asset_batch(
+            manifest_path=manifest,
+            root=prepared_root,
+            downloads_dir=downloads,
+            close_function=asset_close.close_git_changes,
+        )
+
+    assert not (prepared_root / "content/resources/a1-u1/visual/scene-help.mp4").exists()
+    assert not (prepared_root / "content/resources/a1-u1/visual/option-farewell.png").exists()
+    assert (prepared_root / asset_close.STATE_RELATIVE_PATH).read_bytes() == original_state
+    assert (prepared_root / "content/resources/a1-u1/visual/scene-water.png").read_bytes() == WATER.read_bytes()
+
+
+def test_batch_staged_precommit_failure_restores_batch_allowlist_only(
+    prepared_root: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _initialize_git_repository(prepared_root)
+    help_content = b"approved help video bytes"
+    farewell_content = b"approved farewell bytes"
+    downloads = _downloads(tmp_path, "scene-help.mp4", help_content)
+    (downloads / "option-farewell.png").write_bytes(farewell_content)
+    manifest = _batch_manifest(tmp_path, [
+        {"resource_id": "visual.a1-u1-l1.scene.help.v1", "sha256": _digest(help_content), "human_approved": True},
+        {"resource_id": "visual.a1-u1-l1.comprehension-option.farewell.v1", "sha256": _digest(farewell_content), "human_approved": True},
+    ])
+    original_state = (prepared_root / asset_close.STATE_RELATIVE_PATH).read_bytes()
+    previous_water = (prepared_root / "content/resources/a1-u1/visual/scene-water.png").read_bytes()
+    monkeypatch.setattr(asset_close, "_run_validation_commands", lambda root, allowlist: None)
+
+    def stage_then_fail(*, files: list[str], root: Path, **_kwargs: object) -> str:
+        _git(root, "add", "--", *files)
+        raise asset_close.AssetCloseError("forced staged batch failure")
+
+    with pytest.raises(asset_close.AssetCloseError, match="forced staged batch"):
+        asset_close.close_approved_asset_batch(
+            manifest_path=manifest,
+            root=prepared_root,
+            downloads_dir=downloads,
+            close_function=stage_then_fail,
+        )
+
+    assert not (prepared_root / "content/resources/a1-u1/visual/scene-help.mp4").exists()
+    assert not (prepared_root / "content/resources/a1-u1/visual/option-farewell.png").exists()
+    assert (prepared_root / asset_close.STATE_RELATIVE_PATH).read_bytes() == original_state
+    assert (prepared_root / "content/resources/a1-u1/visual/scene-water.png").read_bytes() == previous_water
+    assert _git(prepared_root, "status", "--porcelain").stdout == ""
+    assert _git(prepared_root, "diff", "--cached", "--name-only").stdout == ""
 
 
 def test_download_override_is_one_safe_basename(

@@ -49,6 +49,21 @@ class ResourceBinding:
     relative_path: PurePosixPath
 
 
+@dataclass(frozen=True)
+class AssetRequest:
+    resource_id: str
+    expected_sha256: str
+    downloads_file: str | None = None
+
+
+@dataclass(frozen=True)
+class PreparedAsset:
+    request: AssetRequest
+    binding: ResourceBinding
+    source: Path
+    destination: Path
+
+
 class AssetCloseError(RuntimeError):
     """Describe one fail-closed asset-installation error."""
 
@@ -184,6 +199,62 @@ def resolve_download_source(
     return resolved
 
 
+def load_batch_manifest(manifest_path: Path, *, root: Path = ROOT) -> tuple[AssetRequest, ...]:
+    """Read one strict, external manifest of prior human approvals."""
+    root = root.resolve(strict=True)
+    if manifest_path.is_symlink():
+        raise AssetCloseError("batch manifest must not be a symlink")
+    try:
+        resolved = manifest_path.resolve(strict=True)
+        resolved.relative_to(root)
+    except ValueError:
+        pass
+    except OSError as exc:
+        raise AssetCloseError("batch manifest is unavailable") from exc
+    else:
+        raise AssetCloseError("batch manifest must stay outside the repository")
+    try:
+        if not stat.S_ISREG(resolved.stat().st_mode):
+            raise AssetCloseError("batch manifest must be a regular file")
+        payload = json.loads(resolved.read_text(encoding="utf-8"))
+    except (OSError, ValueError, UnicodeDecodeError) as exc:
+        raise AssetCloseError("batch manifest is invalid JSON") from exc
+    if not isinstance(payload, list) or not payload:
+        raise AssetCloseError("batch manifest must be a non-empty JSON list")
+
+    requests: list[AssetRequest] = []
+    expected_keys = {"resource_id", "sha256", "human_approved"}
+    allowed_keys = expected_keys | {"downloads_file"}
+    for entry in payload:
+        if not isinstance(entry, dict) or set(entry) - allowed_keys or set(entry) < expected_keys:
+            raise AssetCloseError("batch manifest entry has invalid keys")
+        resource_id = entry["resource_id"]
+        sha256 = entry["sha256"]
+        downloads_file = entry.get("downloads_file")
+        if not isinstance(resource_id, str) or not resource_id:
+            raise AssetCloseError("batch manifest resource_id is invalid")
+        if not isinstance(sha256, str):
+            raise AssetCloseError("batch manifest SHA-256 is invalid")
+        if entry["human_approved"] is not True:
+            raise AssetCloseError("batch manifest requires human_approved=true")
+        if downloads_file is not None and not isinstance(downloads_file, str):
+            raise AssetCloseError("batch manifest downloads_file is invalid")
+        requests.append(
+            AssetRequest(
+                resource_id=resource_id,
+                expected_sha256=_validate_sha256(sha256),
+                downloads_file=(
+                    _validate_basename(downloads_file)
+                    if downloads_file is not None
+                    else None
+                ),
+            )
+        )
+    if len({request.resource_id for request in requests}) != len(requests):
+        raise AssetCloseError("batch manifest resource_id values must be unique")
+    return tuple(requests)
+
+
 def _assert_no_unmapped_assets(root: Path, bindings: tuple[ResourceBinding, ...]) -> None:
     resource_root = _repository_path(root, RESOURCE_ROOT)
     allowed = {
@@ -295,7 +366,7 @@ def _git_head(root: Path) -> str | None:
     return result.stdout.strip() if result.returncode == 0 else None
 
 
-def _unstage_allowlist(root: Path, allowlist: tuple[str, str]) -> None:
+def _unstage_allowlist(root: Path, allowlist: tuple[str, ...]) -> None:
     """Restore only this helper's initial-clean index entries from HEAD."""
     staged = subprocess.run(
         ["git", "diff", "--cached", "--name-only", "-z", "--", *allowlist],
@@ -329,7 +400,7 @@ def assert_clean_worktree(root: Path) -> None:
         raise AssetCloseError("working tree must be clean before asset installation")
 
 
-def _run_validation_commands(root: Path, allowlist: tuple[str, str]) -> None:
+def _run_validation_commands(root: Path, allowlist: tuple[str, ...]) -> None:
     for command in (
         ["git", "diff", "--check"],
         [sys.executable, "scripts/engineering/operational_state.py", "validate"],
@@ -373,48 +444,93 @@ def _commit_message(resource_id: str, destination: Path) -> str:
     return f"feat add approved A1 asset {resource_id} ({destination.name})"
 
 
-def close_approved_asset(
+def _batch_commit_message(requests: tuple[AssetRequest, ...]) -> str:
+    return f"feat close approved A1 resource asset batch ({len(requests)})"
+
+
+def _prepare_assets(
     *,
-    resource_id: str,
-    expected_sha256: str,
-    downloads_file: str | None,
-    human_approved: bool,
+    root: Path,
+    requests: tuple[AssetRequest, ...],
+    downloads_dir: Path,
+) -> tuple[PreparedAsset, ...]:
+    if not requests:
+        raise AssetCloseError("at least one approved asset request is required")
+    if len({request.resource_id for request in requests}) != len(requests):
+        raise AssetCloseError("asset request resource_id values must be unique")
+    bindings = load_binding_map(root)
+    validate_binding_inventory(root, bindings)
+    _assert_no_unmapped_assets(root, bindings)
+    binding_by_id = {binding.resource_id: binding for binding in bindings}
+    prepared: list[PreparedAsset] = []
+    destinations: set[Path] = set()
+    resource_root = _repository_path(root, RESOURCE_ROOT)
+    for request in requests:
+        expected_sha256 = _validate_sha256(request.expected_sha256)
+        binding = binding_by_id.get(request.resource_id)
+        if binding is None:
+            raise AssetCloseError("resource_id is not an A1-U1 binding")
+        destination = resource_root / binding.relative_path
+        try:
+            destination.resolve(strict=False).relative_to(resource_root.resolve(strict=False))
+        except ValueError as exc:
+            raise AssetCloseError("mapped destination escapes A1-U1 resource root") from exc
+        if destination in destinations:
+            raise AssetCloseError("batch manifest destinations must be unique")
+        destinations.add(destination)
+        if destination.exists() or destination.is_symlink():
+            raise AssetCloseError("mapped destination already exists")
+        source = resolve_download_source(
+            downloads_dir=downloads_dir,
+            filename=request.downloads_file or destination.name,
+        )
+        if _sha256(source) != expected_sha256:
+            raise AssetCloseError("download source SHA-256 does not match --sha256")
+        prepared.append(
+            PreparedAsset(
+                request=request,
+                binding=binding,
+                source=source,
+                destination=destination,
+            )
+        )
+    return tuple(prepared)
+
+
+def close_approved_assets(
+    *,
+    requests: tuple[AssetRequest, ...],
+    commit_message: str,
     root: Path = ROOT,
     downloads_dir: Path | None = None,
     now: datetime | None = None,
     close_function: Callable[..., str] | None = None,
 ) -> str:
-    """Install, validate, document, commit, and publish one approved asset."""
+    """Install, validate, document, commit, and publish one approved asset collection."""
     root = root.resolve(strict=True)
-    if not human_approved:
-        raise AssetCloseError("--human-approved is required before installation")
-    expected_sha256 = _validate_sha256(expected_sha256)
     assert_clean_worktree(root)
-    bindings = load_binding_map(root)
-    validate_binding_inventory(root, bindings)
-    _assert_no_unmapped_assets(root, bindings)
-    binding = next((item for item in bindings if item.resource_id == resource_id), None)
-    if binding is None:
-        raise AssetCloseError("resource_id is not an A1-U1 binding")
-    destination = _repository_path(root, RESOURCE_ROOT) / binding.relative_path
-    if destination.exists() or destination.is_symlink():
-        raise AssetCloseError("mapped destination already exists")
-    source = resolve_download_source(
+    prepared = _prepare_assets(
+        root=root,
+        requests=requests,
         downloads_dir=downloads_dir or Path.home() / "Downloads",
-        filename=downloads_file or destination.name,
     )
-    if _sha256(source) != expected_sha256:
-        raise AssetCloseError("download source SHA-256 does not match --sha256")
+    bindings = load_binding_map(root)
 
     original_state: bytes | None = None
-    copied = False
+    copied_destinations: list[Path] = []
     close_started = False
     head_before_close: str | None = None
+    allowlist = tuple(
+        item.destination.relative_to(root).as_posix() for item in prepared
+    ) + (STATE_RELATIVE_PATH.as_posix(),)
     try:
-        _copy_new_asset(source, destination, expected_sha256)
-        copied = True
+        for item in prepared:
+            _copy_new_asset(item.source, item.destination, item.request.expected_sha256)
+            copied_destinations.append(item.destination)
+        for item in prepared:
+            if _sha256(item.destination) != item.request.expected_sha256:
+                raise AssetCloseError("copied destination SHA-256 does not match")
         original_state = update_operational_state(root=root, bindings=bindings, now=now)
-        allowlist = (destination.relative_to(root).as_posix(), STATE_RELATIVE_PATH.as_posix())
         _run_validation_commands(root, allowlist)
         if close_function is None:
             close_function = close_git_changes
@@ -423,7 +539,7 @@ def close_approved_asset(
         commit = close_function(
             branch="master",
             upstream="origin/master",
-            message=_commit_message(resource_id, destination),
+            message=commit_message,
             files=list(allowlist),
             root=root,
         )
@@ -438,11 +554,72 @@ def close_approved_asset(
                     unstage_error = exc
             if original_state is not None:
                 _repository_path(root, STATE_RELATIVE_PATH).write_bytes(original_state)
-            if copied and destination.exists() and not destination.is_symlink():
-                destination.unlink()
+            for destination in reversed(copied_destinations):
+                if destination.exists() and not destination.is_symlink():
+                    destination.unlink()
             if unstage_error is not None:
                 raise unstage_error
         raise
+
+
+def close_approved_asset(
+    *,
+    resource_id: str,
+    expected_sha256: str,
+    downloads_file: str | None,
+    human_approved: bool,
+    root: Path = ROOT,
+    downloads_dir: Path | None = None,
+    now: datetime | None = None,
+    close_function: Callable[..., str] | None = None,
+) -> str:
+    """Preserve the single-asset interface as a one-element collection."""
+    if not human_approved:
+        raise AssetCloseError("--human-approved is required before installation")
+    request = AssetRequest(
+        resource_id=resource_id,
+        expected_sha256=_validate_sha256(expected_sha256),
+        downloads_file=(
+            _validate_basename(downloads_file)
+            if downloads_file is not None
+            else None
+        ),
+    )
+    destination = _repository_path(root.resolve(strict=True), RESOURCE_ROOT)
+    binding = next(
+        (item for item in load_binding_map(root) if item.resource_id == resource_id),
+        None,
+    )
+    if binding is None:
+        raise AssetCloseError("resource_id is not an A1-U1 binding")
+    return close_approved_assets(
+        requests=(request,),
+        commit_message=_commit_message(resource_id, destination / binding.relative_path),
+        root=root,
+        downloads_dir=downloads_dir,
+        now=now,
+        close_function=close_function,
+    )
+
+
+def close_approved_asset_batch(
+    *,
+    manifest_path: Path,
+    root: Path = ROOT,
+    downloads_dir: Path | None = None,
+    now: datetime | None = None,
+    close_function: Callable[..., str] | None = None,
+) -> str:
+    """Close one external manifest of previously human-approved assets."""
+    requests = load_batch_manifest(manifest_path, root=root)
+    return close_approved_assets(
+        requests=requests,
+        commit_message=_batch_commit_message(requests),
+        root=root,
+        downloads_dir=downloads_dir,
+        now=now,
+        close_function=close_function,
+    )
 
 
 def _parse_arguments(argv: list[str] | None = None) -> argparse.Namespace:
@@ -452,9 +629,11 @@ def _parse_arguments(argv: list[str] | None = None) -> argparse.Namespace:
             "does not perform semantic media review."
         )
     )
-    parser.add_argument("--resource-id", required=True)
-    parser.add_argument("--sha256", required=True)
-    parser.add_argument("--human-approved", action="store_true", required=True)
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--resource-id")
+    mode.add_argument("--batch-manifest", type=Path)
+    parser.add_argument("--sha256")
+    parser.add_argument("--human-approved", action="store_true")
     parser.add_argument("--downloads-file")
     return parser.parse_args(argv)
 
@@ -462,12 +641,19 @@ def _parse_arguments(argv: list[str] | None = None) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     arguments = _parse_arguments(argv)
     try:
-        commit = close_approved_asset(
-            resource_id=arguments.resource_id,
-            expected_sha256=arguments.sha256,
-            downloads_file=arguments.downloads_file,
-            human_approved=arguments.human_approved,
-        )
+        if arguments.batch_manifest is not None:
+            if arguments.sha256 is not None or arguments.human_approved or arguments.downloads_file is not None:
+                raise AssetCloseError("--batch-manifest cannot use individual asset arguments")
+            commit = close_approved_asset_batch(manifest_path=arguments.batch_manifest)
+        else:
+            if arguments.sha256 is None or not arguments.human_approved:
+                raise AssetCloseError("individual mode requires --sha256 and --human-approved")
+            commit = close_approved_asset(
+                resource_id=arguments.resource_id,
+                expected_sha256=arguments.sha256,
+                downloads_file=arguments.downloads_file,
+                human_approved=arguments.human_approved,
+            )
     except AssetCloseError as exc:
         print(f"ASSET_CLOSE_FAILED: {exc}", file=sys.stderr)
         return 1

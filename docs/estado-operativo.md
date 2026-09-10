@@ -1,6 +1,6 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-10T19:05:04+02:00
+Actualizado: 2026-09-10T21:10:19+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -68,7 +68,7 @@ Estado backend: **CERRADO / VALIDADO / PUBLICADO / SINCRONIZADO** mediante `729e
 - `operational_state.py` valida este checkpoint con `Actualizado:` timezone-aware.
 - `conversation_checkpoint.py prepare|resume` prepara y recupera una vista efímera validada al cambiar de conversación.
 - `block_close.py` realiza validaciones técnicas y staging controlado.
-- `git_close.py` realiza un cierre Git seguro de allowlist explícita, un commit y un push confirmado; `a1_resource_asset_close.py` lo invoca para un único asset A1-U1 ya aprobado humanamente tras validar mapa, Downloads, SHA-256 y scope, sin revisión semántica ni B51/B52.
+- `git_close.py` realiza un cierre Git seguro de allowlist explícita, un commit y un push confirmado; `a1_resource_asset_close.py` lo invoca para uno o un lote A1-U1 ya aprobado humanamente tras validar mapa, Downloads, SHA-256 y scope. El batch consume un manifest externo estricto y no hace revisión semántica ni B51/B52.
 - `block_workflow.py` conserva una deuda de interrupción y no es fiable para cierres desatendidos.
 
 ## Método operativo vigente
