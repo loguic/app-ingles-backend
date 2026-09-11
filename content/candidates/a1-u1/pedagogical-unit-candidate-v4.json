@@ -1,0 +1,899 @@
+{
+  "specification": {
+    "unit_id": "a1-u1",
+    "level": "A1",
+    "title": "Expressing an immediate need",
+    "learner_outcome": "Given a clear visual and auditory situation, the learner orally produces a minimal I need + noun construction to express an immediate need, then reuses the same pattern for a different nearby need with strictly less support.",
+    "prerequisites": [],
+    "skills": [
+      {
+        "id": "a1_express_immediate_need_orally",
+        "description": "Express an immediate need orally with a relevant and intelligible I need + noun construction, then reuse the pattern for a different nearby need with less support.",
+        "required_stages": [
+          "introduce",
+          "practice",
+          "apply",
+          "evaluate",
+          "consolidate"
+        ]
+      }
+    ],
+    "required_evidence": [
+      "A separate comprehension check confirms the immediate communicative intention before production; it is preparation evidence only and does not establish independent receptive mastery.",
+      "The learner produces an own oral I need + noun construction that is relevant to a clear visual and auditory situation and sufficiently intelligible, without Spanish, transcript or a complete sentence model in the final evidence.",
+      "The learner transfers I need + noun to a different nearby need using one of the approved nouns and strictly less support than in the preceding supported production."
+    ],
+    "lesson_scope": [
+      "One minimal unit for a learner with very low or no English in Phase 1 — Mental unblocking.",
+      "One communicative intention only: expressing an immediate need.",
+      "Direct construction through intention → Person → Action → oral production.",
+      "Conceptual coverage of exposure, instruction, practice, own production, evidence and transfer without prescribing candidate activities or stages.",
+      "Transfer to a different nearby immediate need with strictly less support."
+    ],
+    "language_scope": [
+      "The only productive pattern is I need + noun.",
+      "The complete approved productive vocabulary is water, help and food."
+    ],
+    "pronunciation_scope": [
+      "Functional pronunciation of the complete I need + noun phrase, prioritizing intelligibility rather than phonetic perfection.",
+      "Comprehensible production of I and need.",
+      "Fluent delivery of the short phrase with natural linking into the noun.",
+      "No phoneme, including /iː/, may become an independent Skill or pronunciation objective."
+    ],
+    "content_constraints": [
+      "Use exactly one integrated Skill and do not create separate Skills for comprehension, vocabulary, grammar or pronunciation.",
+      "Use no more than the three approved productive nouns: water, help and food; do not add other required productive vocabulary.",
+      "Do not introduce plurals, adjectives or articles as productive objectives.",
+      "Do not introduce I want, Can I have..., Please give me... or any alternative productive structure.",
+      "Use Person + Action only as a direct-construction scaffold and never as a complete sentence for the learner to copy.",
+      "Require the learner's own oral production, remove the complete sentence model before evidence and reduce support progressively.",
+      "Require transfer to a different nearby need with strictly less support than the preceding supported production.",
+      "Use Spanish only as optional rescue and a transcript only as later support under Strict Support Timing; neither may form part of final evidence.",
+      "Treat comprehension as preparation and checking, not as independent receptive mastery.",
+      "Do not reuse the historical mission, pedagogical stages, conversations, exercises, evidence or LessonExperience content."
+    ],
+    "content_limits": {
+      "min_lessons": 1,
+      "max_lessons": 1
+    },
+    "technical_constraints": [
+      "Keep the future candidate isolated from content/content_tree.json and from active curriculum.",
+      "Use exactly the approved curricular lesson identity a1-u1-l1 in the future candidate.",
+      "Use LessonExperience contract_version 3.0 in the future candidate.",
+      "Leave candidate_revision undecided until the candidate phase.",
+      "Use relevance and intelligibility as the future qualitative production review dimensions through human or external review; automatic evaluation must not accredit them.",
+      "Keep comprehension, own production and transfer evidence structurally separable in the future candidate.",
+      "Experience completion must not imply Skill mastery, retention or curricular progress.",
+      "Do not create or activate a candidate, loader, admission, publication, membership, frontend or B181 work from this specification."
+    ],
+    "acceptance_criteria": [
+      "The specification contains exactly one Skill, a1_express_immediate_need_orally, and that Skill represents only the approved observable oral capability.",
+      "The learner outcome requires an own oral I need + noun production for a clear visual and auditory situation and transfer to a different nearby need with strictly less support.",
+      "The productive language is limited to I need + noun with water, help and food.",
+      "Functional pronunciation prioritizes intelligibility, short-block fluency, comprehensible I and need, and natural linking without requiring phonetic perfection or an independent phoneme Skill.",
+      "The future experience provides exposure, instruction, practice, own production, evidence and transfer while keeping comprehension as preparation rather than mastery.",
+      "Comprehension, own production and transfer remain separable, and final evidence contains no Spanish, transcript or complete sentence model.",
+      "Own production and transfer are reviewable for relevance and intelligibility by a human or external reviewer; automatic evaluation does not accredit either dimension.",
+      "The future candidate replaces all historical pedagogical content while reusing only unit_id a1-u1 and lesson_id a1-u1-l1 as curricular identities.",
+      "The specification passes PedagogicalUnitSpecification parsing and remains pending human approval before any candidate is generated."
+    ]
+  },
+  "candidate_unit": {
+    "id": "a1-u1",
+    "title": "Expressing an immediate need",
+    "lessons": [
+      {
+        "id": "a1-u1-l1",
+        "title": "Say what you need",
+        "objective": "Say I need + one word for something you need now. Say it again for a new picture.",
+        "experience": {
+          "contract_version": "3.0",
+          "pedagogical_method": "direct_english_construction",
+          "mission": {
+            "id": "a1-u1-l1-m1",
+            "title": "Say what you need",
+            "situation": "You need something now. A person near you can help.",
+            "observable_outcome": "Say I need + one word. Then say it for a new need.",
+            "success_criteria": [
+              "Say I, then need.",
+              "Say water, help or food for the picture.",
+              "Say the short phrase clearly enough to understand.",
+              "Say it for a new picture with no words on screen."
+            ]
+          },
+          "skill_ids": [
+            "a1_express_immediate_need_orally"
+          ],
+          "stages": [
+            {
+              "id": "a1-u1-l1-s1",
+              "type": "encounter",
+              "instruction": "Listen.",
+              "activity_ids": [
+                "a1-u1-l1-c1"
+              ],
+              "mode": "required",
+              "completion_condition": "any_activity_completed"
+            },
+            {
+              "id": "a1-u1-l1-s2",
+              "type": "comprehension",
+              "instruction": "Choose.",
+              "activity_ids": [
+                "a1-u1-l1-c1",
+                "a1-u1-l1-q1"
+              ],
+              "mode": "required",
+              "completion_condition": "all_activities_completed"
+            },
+            {
+              "id": "a1-u1-l1-s3",
+              "type": "language_support",
+              "instruction": "Listen.",
+              "activity_ids": [],
+              "mode": "required",
+              "completion_condition": "acknowledged"
+            },
+            {
+              "id": "a1-u1-l1-s4",
+              "type": "guided_production",
+              "instruction": "Say it.",
+              "activity_ids": [
+                "a1-u1-l1-c2"
+              ],
+              "mode": "required",
+              "completion_condition": "all_activities_completed"
+            },
+            {
+              "id": "a1-u1-l1-s5",
+              "type": "evidence",
+              "instruction": "Say it again.",
+              "activity_ids": [
+                "a1-u1-l1-c3",
+                "a1-u1-l1-c4"
+              ],
+              "mode": "required",
+              "completion_condition": "evidence_recorded"
+            },
+            {
+              "id": "a1-u1-l1-s6",
+              "type": "closure",
+              "instruction": "Okay.",
+              "activity_ids": [],
+              "mode": "required",
+              "completion_condition": "acknowledged"
+            }
+          ],
+          "language_support": [
+            {
+              "id": "a1-u1-l1-ls1",
+              "type": "word",
+              "en": "water",
+              "es": "agua",
+              "pronunciations": [
+                {
+                  "locale": "en-GB",
+                  "ipa": "/ˈwɔːtə/",
+                  "audio_asset": "audio.a1-u1-l1.water.en-gb.v1"
+                },
+                {
+                  "locale": "en-US",
+                  "ipa": "/ˈwɔːtɚ/",
+                  "audio_asset": "audio.a1-u1-l1.water.en-us.v1"
+                }
+              ],
+              "usage_note": "Listen.",
+              "stage_ids": [
+                "a1-u1-l1-s3"
+              ],
+              "spanish_reveal_after_first_response_to_exercise_id": "a1-u1-l1-q1"
+            },
+            {
+              "id": "a1-u1-l1-ls2",
+              "type": "reference_expression",
+              "en": "I need water.",
+              "es": null,
+              "pronunciations": [
+                {
+                  "locale": "en-GB",
+                  "ipa": "/aɪ niːd ˈwɔːtə/",
+                  "audio_asset": "audio.a1-u1-l1.i-need-water.en-gb.v1"
+                },
+                {
+                  "locale": "en-US",
+                  "ipa": "/aɪ niːd ˈwɔːtɚ/",
+                  "audio_asset": "audio.a1-u1-l1.i-need-water.en-us.v1"
+                }
+              ],
+              "usage_note": "Say it.",
+              "stage_ids": [
+                "a1-u1-l1-s3"
+              ],
+              "spanish_reveal_after_first_response_to_exercise_id": "a1-u1-l1-q1"
+            },
+            {
+              "id": "a1-u1-l1-ls3",
+              "type": "word",
+              "en": "food",
+              "es": "comida",
+              "pronunciations": [
+                {
+                  "locale": "en-GB",
+                  "ipa": "/fuːd/",
+                  "audio_asset": "audio.a1-u1-l1.food.en-gb.v1"
+                },
+                {
+                  "locale": "en-US",
+                  "ipa": "/fuːd/",
+                  "audio_asset": "audio.a1-u1-l1.food.en-us.v1"
+                }
+              ],
+              "usage_note": "Listen.",
+              "stage_ids": [
+                "a1-u1-l1-s4"
+              ],
+              "spanish_reveal_after_first_response_to_exercise_id": "a1-u1-l1-q1"
+            },
+            {
+              "id": "a1-u1-l1-ls4",
+              "type": "reference_expression",
+              "en": "I need food.",
+              "es": null,
+              "pronunciations": [
+                {
+                  "locale": "en-GB",
+                  "ipa": "/aɪ niːd fuːd/",
+                  "audio_asset": "audio.a1-u1-l1.i-need-food.en-gb.v1"
+                }
+              ],
+              "usage_note": "Say it.",
+              "stage_ids": [
+                "a1-u1-l1-s4"
+              ],
+              "spanish_reveal_after_first_response_to_exercise_id": "a1-u1-l1-q1"
+            },
+            {
+              "id": "a1-u1-l1-ls5",
+              "type": "word",
+              "en": "help",
+              "es": "ayuda",
+              "pronunciations": [
+                {
+                  "locale": "en-GB",
+                  "ipa": "/help/",
+                  "audio_asset": "audio.a1-u1-l1.help.en-gb.v1"
+                },
+                {
+                  "locale": "en-US",
+                  "ipa": "/hɛlp/",
+                  "audio_asset": "audio.a1-u1-l1.help.en-us.v1"
+                }
+              ],
+              "usage_note": "Listen.",
+              "stage_ids": [
+                "a1-u1-l1-s4"
+              ],
+              "spanish_reveal_after_first_response_to_exercise_id": "a1-u1-l1-q1"
+            },
+            {
+              "id": "a1-u1-l1-ls6",
+              "type": "reference_expression",
+              "en": "I need help.",
+              "es": null,
+              "pronunciations": [
+                {
+                  "locale": "en-GB",
+                  "ipa": "/aɪ niːd help/",
+                  "audio_asset": "audio.a1-u1-l1.i-need-help.en-gb.v1"
+                }
+              ],
+              "usage_note": "Say it.",
+              "stage_ids": [
+                "a1-u1-l1-s4"
+              ],
+              "spanish_reveal_after_first_response_to_exercise_id": "a1-u1-l1-q1"
+            }
+          ],
+          "visual_contexts": [
+            {
+              "id": "a1-u1-l1-vc-water",
+              "resource_id": "visual.a1-u1-l1.scene.water.v1",
+              "accessibility_label": "A person holds an empty bottle beside a refill tap. No written English appears.",
+              "resource_type": "static_image",
+              "stage_ids": [
+                "a1-u1-l1-s1",
+                "a1-u1-l1-s2",
+                "a1-u1-l1-s3"
+              ]
+            },
+            {
+              "id": "a1-u1-l1-vc-food",
+              "resource_id": "visual.a1-u1-l1.scene.food.v1",
+              "accessibility_label": "A person looks at an unopened meal tray on a table. No written English appears.",
+              "resource_type": "static_image",
+              "stage_ids": [
+                "a1-u1-l1-s4",
+                "a1-u1-l1-s5"
+              ]
+            },
+            {
+              "id": "a1-u1-l1-vc-help",
+              "resource_id": "visual.a1-u1-l1.scene.help.v1",
+              "accessibility_label": "A machine works, stops, a person tries to use it, then looks toward an assistant. No written English or voice appears.",
+              "resource_type": "microvideo",
+              "autoplay_once": true,
+              "replay_allowed": true,
+              "stage_ids": [
+                "a1-u1-l1-s4",
+                "a1-u1-l1-s5"
+              ]
+            }
+          ],
+          "evidence_definitions": [
+            {
+              "id": "a1-u1-l1-ev1",
+              "skill_ids": [
+                "a1_express_immediate_need_orally"
+              ],
+              "stage_id": "a1-u1-l1-s2",
+              "activity_id": "a1-u1-l1-c1",
+              "evidence_type": "comprehension_result",
+              "measurement_mode": "binary",
+              "success_threshold": null,
+              "required": true,
+              "production_prompt_id": null,
+              "comprehension_exercise_id": "a1-u1-l1-q1",
+              "external_review_requirements": []
+            },
+            {
+              "id": "a1-u1-l1-ev2",
+              "skill_ids": [
+                "a1_express_immediate_need_orally"
+              ],
+              "stage_id": "a1-u1-l1-s4",
+              "activity_id": "a1-u1-l1-c2",
+              "evidence_type": "guided_production",
+              "measurement_mode": "completion",
+              "success_threshold": null,
+              "required": true,
+              "production_prompt_id": "a1-u1-l1-c2-p2",
+              "comprehension_exercise_id": null,
+              "external_review_requirements": [
+                {
+                  "dimension": "relevance",
+                  "production_function": "expanded",
+                  "allowed_results": [
+                    "positive",
+                    "negative",
+                    "pending"
+                  ],
+                  "question": "¿La producción expanded expresa la necesidad inmediata pertinente para la situación presentada?",
+                  "positive_required_for_completion": true
+                },
+                {
+                  "dimension": "intelligibility",
+                  "production_function": "expanded",
+                  "allowed_results": [
+                    "positive",
+                    "negative",
+                    "pending"
+                  ],
+                  "question": "¿La producción expanded completa se entiende con suficiente claridad, sin exigir acento nativo ni perfección fonética?",
+                  "positive_required_for_completion": true
+                }
+              ]
+            },
+            {
+              "id": "a1-u1-l1-ev3",
+              "skill_ids": [
+                "a1_express_immediate_need_orally"
+              ],
+              "stage_id": "a1-u1-l1-s5",
+              "activity_id": "a1-u1-l1-c3",
+              "evidence_type": "contextual_response",
+              "measurement_mode": "completion",
+              "success_threshold": null,
+              "required": true,
+              "production_prompt_id": "a1-u1-l1-c3-p3",
+              "comprehension_exercise_id": null,
+              "external_review_requirements": [
+                {
+                  "dimension": "relevance",
+                  "production_function": "transfer",
+                  "allowed_results": [
+                    "positive",
+                    "negative",
+                    "pending"
+                  ],
+                  "question": "¿La producción transfer expresa la nueva necesidad inmediata pertinente en el contexto visual de variación?",
+                  "positive_required_for_completion": true
+                },
+                {
+                  "dimension": "intelligibility",
+                  "production_function": "transfer",
+                  "allowed_results": [
+                    "positive",
+                    "negative",
+                    "pending"
+                  ],
+                  "question": "¿La producción transfer completa se entiende con suficiente claridad, sin exigir acento nativo ni perfección fonética?",
+                  "positive_required_for_completion": true
+                }
+              ]
+            },
+            {
+              "id": "a1-u1-l1-ev4",
+              "skill_ids": [
+                "a1_express_immediate_need_orally"
+              ],
+              "stage_id": "a1-u1-l1-s5",
+              "activity_id": "a1-u1-l1-c4",
+              "evidence_type": "conversation_completion",
+              "measurement_mode": "completion",
+              "success_threshold": null,
+              "required": true,
+              "production_prompt_id": null,
+              "comprehension_exercise_id": null,
+              "external_review_requirements": []
+            }
+          ],
+          "completion_policy": {
+            "practiced_stage_ids": [
+              "a1-u1-l1-s1",
+              "a1-u1-l1-s2",
+              "a1-u1-l1-s3",
+              "a1-u1-l1-s4",
+              "a1-u1-l1-s5"
+            ],
+            "required_evidence_ids": [
+              "a1-u1-l1-ev1",
+              "a1-u1-l1-ev2",
+              "a1-u1-l1-ev3",
+              "a1-u1-l1-ev4"
+            ],
+            "reinforcement_on_failure": true,
+            "allow_retry": true
+          },
+          "correction_policy": {
+            "max_guidance_items": 1,
+            "priorities": [
+              "relevance",
+              "direct_english_construction",
+              "intelligibility",
+              "secondary_accuracy"
+            ]
+          },
+          "pronunciation_reinforcement": {
+            "stage_id": "a1-u1-l1-s3",
+            "reference_text": "I need water.",
+              "listening_objective": "Hear and shadow the complete short block with the en-GB reference model.",
+            "shadowing": true,
+            "pronunciations": [
+                {
+                  "locale": "en-GB",
+                  "ipa": "/aɪ niːd ˈwɔːtə/",
+                  "audio_asset": "audio.a1-u1-l1.i-need-water.en-gb.v1"
+                },
+                {
+                  "locale": "en-US",
+                  "ipa": "/aɪ niːd ˈwɔːtɚ/",
+                  "audio_asset": "audio.a1-u1-l1.i-need-water.en-us.v1"
+              }
+            ],
+            "phonetic_targets": []
+          }
+        },
+        "vocabulary": [],
+        "grammar": [],
+        "examples": [],
+        "conversations": [
+          {
+            "id": "a1-u1-l1-c1",
+            "title": "Listen.",
+            "context": "Listen.",
+            "mode": "guided",
+            "start_turn_id": "a1-u1-l1-c1-t1",
+            "turns": [
+              {
+                "id": "a1-u1-l1-c1-t1",
+                "speaker": "partner",
+                "en": "I need water.",
+                "pronunciations": [
+                {
+                  "locale": "en-GB",
+                  "ipa": "/aɪ niːd ˈwɔːtə/",
+                  "audio_asset": "audio.a1-u1-l1.i-need-water.en-gb.v1"
+                },
+                {
+                  "locale": "en-US",
+                  "ipa": "/aɪ niːd ˈwɔːtɚ/",
+                  "audio_asset": "audio.a1-u1-l1.i-need-water.en-us.v1"
+                  }
+                ],
+                "production_prompt": null,
+                "next_turn_id": null,
+                "choices": [],
+                "interaction_function": null
+              }
+            ],
+            "audio_first_policy": {
+              "primary_presentation": "audio",
+              "audio_replay_allowed": true,
+              "transcript_initially_hidden": true,
+              "transcript_access": "contingency_accessibility",
+              "transcript_use_interpretation": "assisted_not_exclusively_auditory",
+              "transcript_is_answer_model": false,
+              "transcript_reveal_after_first_response_to_exercise_id": "a1-u1-l1-q1"
+            }
+          },
+          {
+            "id": "a1-u1-l1-c2",
+            "title": "Say it.",
+            "context": "Say it.",
+            "mode": "free",
+            "start_turn_id": "a1-u1-l1-c2-t1",
+            "turns": [
+              {
+                "id": "a1-u1-l1-c2-t1",
+                "speaker": "learner",
+                "en": "Say it.",
+                "pronunciations": [],
+                "production_prompt": {
+                  "id": "a1-u1-l1-c2-p1",
+                  "accepted_modalities": [
+                    "voice",
+                    "text"
+                  ],
+                  "required": true,
+                  "production_function": "guided",
+                  "primary_modality": "voice",
+                  "fallback_modalities": [
+                    "text"
+                  ],
+                  "support_level": "anchors",
+                  "allow_full_answer_model": false,
+                  "transfer_bank_id": null,
+                  "transfer_variants": [],
+                  "visible_support": [
+                    "I",
+                    "need",
+                    "water"
+                  ]
+                },
+                "next_turn_id": "a1-u1-l1-c2-t2",
+                "choices": [],
+                "interaction_function": null
+              },
+              {
+                "id": "a1-u1-l1-c2-t2",
+                "speaker": "learner",
+                "en": "Say it again.",
+                "pronunciations": [],
+                "production_prompt": {
+                  "id": "a1-u1-l1-c2-p2",
+                  "accepted_modalities": [
+                    "voice",
+                    "text"
+                  ],
+                  "required": true,
+                  "production_function": "expanded",
+                  "primary_modality": "voice",
+                  "fallback_modalities": [
+                    "text"
+                  ],
+                  "support_level": "initial_word",
+                  "allow_full_answer_model": false,
+                  "transfer_bank_id": null,
+                  "transfer_variants": [],
+                  "visible_support": [
+                    "I"
+                  ]
+                },
+                "next_turn_id": "a1-u1-l1-c2-t3",
+                "choices": [],
+                "interaction_function": null
+              },
+              {
+                "id": "a1-u1-l1-c2-t3",
+                "speaker": "learner",
+                "en": "Say it.",
+                "pronunciations": [],
+                "production_prompt": {
+                  "id": "a1-u1-l1-c2-p3",
+                  "accepted_modalities": [
+                    "voice",
+                    "text"
+                  ],
+                  "required": true,
+                  "production_function": "transfer",
+                  "primary_modality": "voice",
+                  "fallback_modalities": [
+                    "text"
+                  ],
+                  "support_level": "none",
+                  "allow_full_answer_model": false,
+                  "transfer_bank_id": "a1-u1-l1-c2-nearby-needs",
+                  "transfer_variants": [
+                    {
+                      "id": "a1-u1-l1-c2-transfer-food",
+                      "prompt": "Say it."
+                    }
+                  ],
+                  "visible_support": []
+                },
+                "next_turn_id": null,
+                "choices": [],
+                "interaction_function": null
+              }
+            ],
+            "audio_first_policy": null
+          },
+          {
+            "id": "a1-u1-l1-c3",
+            "title": "Say it again.",
+            "context": "Say it again.",
+            "mode": "free",
+            "start_turn_id": "a1-u1-l1-c3-t1",
+            "turns": [
+              {
+                "id": "a1-u1-l1-c3-t1",
+                "speaker": "learner",
+                "en": "Say it.",
+                "pronunciations": [],
+                "production_prompt": {
+                  "id": "a1-u1-l1-c3-p1",
+                  "accepted_modalities": [
+                    "voice",
+                    "text"
+                  ],
+                  "required": true,
+                  "production_function": "guided",
+                  "primary_modality": "voice",
+                  "fallback_modalities": [
+                    "text"
+                  ],
+                  "support_level": "anchors",
+                  "allow_full_answer_model": false,
+                  "transfer_bank_id": null,
+                  "transfer_variants": [],
+                  "visible_support": [
+                    "I",
+                    "need",
+                    "help"
+                  ]
+                },
+                "next_turn_id": "a1-u1-l1-c3-t2",
+                "choices": [],
+                "interaction_function": null
+              },
+              {
+                "id": "a1-u1-l1-c3-t2",
+                "speaker": "learner",
+                "en": "Say it again.",
+                "pronunciations": [],
+                "production_prompt": {
+                  "id": "a1-u1-l1-c3-p2",
+                  "accepted_modalities": [
+                    "voice",
+                    "text"
+                  ],
+                  "required": true,
+                  "production_function": "expanded",
+                  "primary_modality": "voice",
+                  "fallback_modalities": [
+                    "text"
+                  ],
+                  "support_level": "initial_word",
+                  "allow_full_answer_model": false,
+                  "transfer_bank_id": null,
+                  "transfer_variants": [],
+                  "visible_support": [
+                    "I"
+                  ]
+                },
+                "next_turn_id": "a1-u1-l1-c3-t3",
+                "choices": [],
+                "interaction_function": null
+              },
+              {
+                "id": "a1-u1-l1-c3-t3",
+                "speaker": "learner",
+                "en": "Say it.",
+                "pronunciations": [],
+                "production_prompt": {
+                  "id": "a1-u1-l1-c3-p3",
+                  "accepted_modalities": [
+                    "voice",
+                    "text"
+                  ],
+                  "required": true,
+                  "production_function": "transfer",
+                  "primary_modality": "voice",
+                  "fallback_modalities": [
+                    "text"
+                  ],
+                  "support_level": "none",
+                  "allow_full_answer_model": false,
+                  "transfer_bank_id": "a1-u1-l1-c3-station-needs",
+                  "transfer_variants": [
+                    {
+                      "id": "a1-u1-l1-c3-transfer-food",
+                      "prompt": "Say it."
+                    }
+                  ],
+                  "visible_support": []
+                },
+                "next_turn_id": null,
+                "choices": [],
+                "interaction_function": null
+              }
+            ],
+            "audio_first_policy": null
+          },
+          {
+            "id": "a1-u1-l1-c4",
+            "title": "Okay.",
+            "context": "Okay.",
+            "mode": "guided",
+            "start_turn_id": "a1-u1-l1-c4-t1",
+            "turns": [
+              {
+                "id": "a1-u1-l1-c4-t1",
+                "speaker": "partner",
+                "en": "Okay.",
+                "pronunciations": [
+                  {
+                    "locale": "en-GB",
+                    "ipa": "/əʊˈkeɪ/",
+                    "audio_asset": "audio.a1-u1-l1.okay.en-gb.v1"
+                  },
+                  {
+                    "locale": "en-US",
+                    "ipa": "/oʊˈkeɪ/",
+                    "audio_asset": "audio.a1-u1-l1.okay.en-us.v1"
+                  }
+                ],
+                "production_prompt": null,
+                "next_turn_id": null,
+                "choices": [],
+                "interaction_function": "reaction_closure"
+              }
+            ],
+            "audio_first_policy": null
+          }
+        ],
+        "exercises": [
+          {
+            "id": "a1-u1-l1-q1",
+            "type": "mcq",
+            "prompt": "Choose.",
+            "options": [
+              {
+                "resource_id": "visual.a1-u1-l1.comprehension-option.need.v1",
+                "accessibility_label": "A person reaches toward a service counter with an empty bottle. No written English appears."
+              },
+              {
+                "resource_id": "visual.a1-u1-l1.comprehension-option.greeting.v1",
+                "accessibility_label": "Two people meet and wave to each other. No written English appears."
+              },
+              {
+                "resource_id": "visual.a1-u1-l1.comprehension-option.farewell.v1",
+                "accessibility_label": "Two people wave as they leave in different directions. No written English appears."
+              }
+            ],
+            "answer_index": 0,
+            "skill_ids": [
+              "a1_express_immediate_need_orally"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "evaluation_plans": [],
+  "feedback_plans": [],
+  "lesson_capability_plans": [
+    {
+      "lesson_id": "a1-u1-l1",
+      "claims": [
+        {
+          "skill_id": "a1_express_immediate_need_orally",
+          "preparation_state": "EXPOSURE_AVAILABLE",
+          "artifact_ids": [
+            "a1-u1-l1-s1",
+            "a1-u1-l1-c1"
+          ]
+        },
+        {
+          "skill_id": "a1_express_immediate_need_orally",
+          "preparation_state": "INSTRUCTION_AVAILABLE",
+            "artifact_ids": [
+              "a1-u1-l1-s3",
+              "a1-u1-l1-ls1",
+              "a1-u1-l1-ls2"
+            ]
+        },
+        {
+          "skill_id": "a1_express_immediate_need_orally",
+          "preparation_state": "PRACTICE_AVAILABLE",
+          "artifact_ids": [
+            "a1-u1-l1-s4",
+            "a1-u1-l1-c2",
+            "a1-u1-l1-c2-p1"
+          ]
+        },
+        {
+          "skill_id": "a1_express_immediate_need_orally",
+          "preparation_state": "EVIDENCE_GATE_AVAILABLE",
+          "artifact_ids": [
+            "a1-u1-l1-s5",
+            "a1-u1-l1-ev3",
+            "a1-u1-l1-c3",
+            "a1-u1-l1-c3-p3"
+          ]
+        }
+      ],
+      "prerequisites": []
+    }
+  ],
+  "skill_coverage": [
+    {
+      "skill_id": "a1_express_immediate_need_orally",
+      "introduced_in_lesson_id": "a1-u1-l1",
+      "practice_activity_ids": [
+        "a1-u1-l1-c2"
+      ],
+      "application_activity_ids": [
+        "a1-u1-l1-c3"
+      ],
+      "evaluation_evidence_ids": [
+        "a1-u1-l1-ev2",
+        "a1-u1-l1-ev3"
+      ],
+      "consolidation_activity_ids": [
+        "a1-u1-l1-c3"
+      ],
+      "modalities": [
+        "listening",
+        "speaking",
+        "pronunciation"
+      ],
+      "status": "complete"
+    }
+  ],
+  "required_resource_ids": [
+    "audio.a1-u1-l1.i-need-water.en-us.v1",
+    "audio.a1-u1-l1.i-need-water.en-gb.v1",
+    "audio.a1-u1-l1.i-need-help.en-gb.v1",
+    "audio.a1-u1-l1.i-need-food.en-gb.v1",
+    "audio.a1-u1-l1.water.en-us.v1",
+    "audio.a1-u1-l1.water.en-gb.v1",
+    "audio.a1-u1-l1.help.en-us.v1",
+    "audio.a1-u1-l1.help.en-gb.v1",
+    "audio.a1-u1-l1.food.en-us.v1",
+    "audio.a1-u1-l1.food.en-gb.v1",
+    "audio.a1-u1-l1.okay.en-us.v1",
+    "audio.a1-u1-l1.okay.en-gb.v1",
+    "visual.a1-u1-l1.scene.water.v1",
+    "visual.a1-u1-l1.scene.food.v1",
+    "visual.a1-u1-l1.scene.help.v1",
+    "visual.a1-u1-l1.comprehension-option.need.v1",
+    "visual.a1-u1-l1.comprehension-option.greeting.v1",
+    "visual.a1-u1-l1.comprehension-option.farewell.v1"
+  ],
+  "validation_report": {
+    "status": "passed",
+    "findings": []
+  },
+  "pending_human_decisions": [],
+  "proposed_change_summary": [
+    "Identify this isolated proposal externally as candidate_revision a1-u1-candidate-v4; candidate_revision is not a PedagogicalUnitCandidate payload field.",
+    "Add one isolated LessonExperience 3.0 lesson for the single Skill a1_express_immediate_need_orally without changing active content.",
+    "Use six purposeful stages and four conversations to keep comprehension, two Direct English evidence sources and conversation completion structurally distinct.",
+    "Provide one audio-first visual comprehension check after I need water., isolated water/help/food models, complete I need water./I need help./I need food. models and six voice-primary captures with text only as fallback.",
+    "Use static water and food scenes, a replayable autoplay-once help microvideo and three separate visual MCQ options; the future consumer owns playback-speed progression and bounded corrective replay because those behaviors have no candidate metadata.",
+    "Propose human or external relevance and intelligibility review for the first activity's expanded capture and the second activity's transfer capture; automatic evaluation does not accredit either.",
+    "Record the HUMAN APPROVED closure by marking Skill coverage complete and clearing the resolved human-decision gate; this prepares, but does not perform, a separate admission decision.",
+    "Treat experience completion as completion of the declared evidence workflow only, never as mastery, retention or curricular progress."
+  ]
+}
