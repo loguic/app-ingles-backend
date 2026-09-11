@@ -30,7 +30,7 @@ from scripts.engineering.git_close import close_git_changes
 README_RELATIVE_PATH = Path("content/resources/a1-u1/README.md")
 RESOURCE_ROOT = Path("content/resources/a1-u1")
 CANDIDATE_RELATIVE_PATH = Path(
-    "content/candidates/a1-u1/pedagogical-unit-candidate-v3.json"
+    "content/candidates/a1-u1/pedagogical-unit-candidate-v4.json"
 )
 STATE_RELATIVE_PATH = Path("docs/estado-operativo.md")
 SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")

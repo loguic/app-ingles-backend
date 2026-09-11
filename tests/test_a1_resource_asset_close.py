@@ -117,7 +117,20 @@ def test_readme_map_matches_candidate_and_allows_existing_approved_assets() -> N
 
     asset_close.validate_binding_inventory(ROOT, bindings)
 
+    assert asset_close.CANDIDATE_RELATIVE_PATH == Path(
+        "content/candidates/a1-u1/pedagogical-unit-candidate-v4.json"
+    )
     assert len(bindings) == 18
+    v3_resource_ids = json.loads(
+        (ROOT / "content/candidates/a1-u1/pedagogical-unit-candidate-v3.json").read_text(
+            encoding="utf-8"
+        )
+    )["required_resource_ids"]
+    v4_resource_ids = json.loads(
+        (ROOT / asset_close.CANDIDATE_RELATIVE_PATH).read_text(encoding="utf-8")
+    )["required_resource_ids"]
+    assert v3_resource_ids == v4_resource_ids
+    assert len(v4_resource_ids) == 18
     assert {binding.resource_id for binding in bindings} >= {
         "visual.a1-u1-l1.scene.water.v1",
         "visual.a1-u1-l1.scene.food.v1",
@@ -128,6 +141,7 @@ def test_readme_map_matches_candidate_and_allows_existing_approved_assets() -> N
         not (ROOT / asset_close.RESOURCE_ROOT / binding.relative_path).is_symlink()
         for binding in bindings
     )
+    assert all(path.is_file() for path in (WATER, FOOD, NEED, GREETING))
 
 
 def test_unknown_resource_is_rejected_without_changes(
