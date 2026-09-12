@@ -488,10 +488,61 @@ def test_valid_deterministic_sample_and_manifest() -> None:
     assert manifest.samples == (sample,)
 
 
+def test_valid_sample_for_different_target_with_matching_probe_scope() -> None:
+    probe_case = _case(target_index=1)
+    sample_case = _case(target_index=2)
+    probe = _probe(
+        probe_case,
+        hashes=("a", "b", "c"),
+        classification="replicated_for_benchmark",
+        replication_count=3,
+    )
+    samples = tuple(
+        _sample(sample_case, probe, index, raw=raw, normalized=normalized)
+        for index, (raw, normalized) in enumerate(
+            (("d", "7"), ("e", "8"), ("f", "9")), start=1
+        )
+    )
+
+    manifest = SampleManifest(determinism_probe=probe, samples=samples)
+
+    assert probe_case.generation_case_id != sample_case.generation_case_id
+    assert probe_case.resource_id != sample_case.resource_id
+    assert probe_case.reference_text != sample_case.reference_text
+    assert probe_case.ipa != sample_case.ipa
+    assert {sample.replication_index for sample in manifest.samples} == {1, 2, 3}
+
+
 def test_valid_three_replication_sample_manifest() -> None:
     manifest = _replicated_manifest()
     assert tuple(sample.replication_index for sample in manifest.samples) == (1, 2, 3)
     assert len({sample.sample_id for sample in manifest.samples}) == 3
+
+
+@pytest.mark.parametrize(
+    "target_indexes",
+    ((1, 2, 2), (1, 1, 2), (1, 2, 3)),
+    ids=("first-target-differs", "last-target-differs", "three-targets-differ"),
+)
+def test_reject_replicated_manifest_with_mixed_target_generation_cases(
+    target_indexes: tuple[int, int, int],
+) -> None:
+    probe_case = _case(target_index=1)
+    probe = _probe(
+        probe_case,
+        hashes=("a", "b", "c"),
+        classification="replicated_for_benchmark",
+        replication_count=3,
+    )
+    samples = tuple(
+        _sample(_case(target_index=target_index), probe, index, raw=raw, normalized=normalized)
+        for index, (target_index, raw, normalized) in enumerate(
+            zip(target_indexes, ("d", "e", "f"), ("7", "8", "9")), start=1
+        )
+    )
+
+    with pytest.raises(ValidationError, match="one complete target-specific generation case"):
+        SampleManifest(determinism_probe=probe, samples=samples)
 
 
 def test_reject_multiple_samples_for_deterministic_probe() -> None:
@@ -503,11 +554,84 @@ def test_reject_multiple_samples_for_deterministic_probe() -> None:
         SampleManifest(determinism_probe=probe, samples=(first, second))
 
 
-def test_reject_sample_that_contradicts_probe_generation_case() -> None:
+@pytest.mark.parametrize(
+    ("updates", "error_pattern"),
+    (
+        (
+            {
+                "engine": "piper",
+                "engine_version": "1.8.0",
+                "voice_id": "en_GB-cori-medium",
+                "model_pin": ModelPin(
+                    model_id="piper-model",
+                    revision="1.8.0",
+                    sha256=None,
+                    status="pending_local_artifact",
+                ),
+                "runtime_environment_pin": RuntimeEnvironmentPin(
+                    runtime_package="piper",
+                    runtime_version="1.8.0",
+                    python_version="3.12.3",
+                    environment_fingerprint_sha256=None,
+                    status="pending_local_artifact",
+                ),
+            },
+            "configuration must match determinism probe scope",
+        ),
+        ({"engine_version": "0.9.5"}, "engine/version/voice/locale is not approved"),
+        ({"voice_id": "bf_isabella"}, "configuration must match determinism probe scope"),
+        (
+            {
+                "model_pin": ModelPin(
+                    model_id="kokoro-model",
+                    revision="alternate",
+                    sha256=None,
+                    status="pending_local_artifact",
+                )
+            },
+            "configuration must match determinism probe scope",
+        ),
+        ({"generation_parameters": (("speed", "0.9"),)}, "configuration must match determinism probe scope"),
+        (
+            {
+                "runtime_environment_pin": RuntimeEnvironmentPin(
+                    runtime_package="kokoro",
+                    runtime_version="0.9.4",
+                    python_version="3.11.9",
+                    environment_fingerprint_sha256=None,
+                    status="pending_local_artifact",
+                )
+            },
+            "configuration must match determinism probe scope",
+        ),
+        ({"target_locale": "en-US"}, "text/IPA/locale does not match Candidate v4"),
+        (
+            {
+                "protocol_identity": _protocol().model_copy(
+                    update={"candidate_content_digest": "sha256:" + "0" * 64}
+                )
+            },
+            "configuration must match determinism probe scope",
+        ),
+    ),
+    ids=(
+        "engine",
+        "engine_version",
+        "voice_id",
+        "model_pin",
+        "generation_parameters",
+        "runtime_environment_pin",
+        "target_locale",
+        "protocol_identity",
+    ),
+)
+def test_reject_sample_that_contradicts_probe_applicability_scope(
+    updates: dict[str, Any], error_pattern: str,
+) -> None:
     case = _case()
     probe = _probe(case)
-    different_case = _case(generation_parameters=(("speed", "0.9"),))
-    with pytest.raises(ValidationError, match="must match determinism probe"):
+    different_case = case.model_copy(update=updates)
+    with pytest.raises(ValidationError, match=error_pattern):
         _sample(different_case, probe, 1)
 
 

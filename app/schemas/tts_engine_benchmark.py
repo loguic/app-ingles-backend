@@ -241,6 +241,23 @@ class GenerationCase(_StrictFrozenModel):
         return self
 
 
+def _determinism_applicability_scope(
+    generation_case: GenerationCase,
+) -> tuple[Any, ...]:
+    """Return the target-independent configuration authorized by a probe."""
+
+    return (
+        generation_case.protocol_identity,
+        generation_case.engine,
+        generation_case.engine_version,
+        generation_case.model_pin,
+        generation_case.voice_id,
+        generation_case.target_locale,
+        generation_case.generation_parameters,
+        generation_case.runtime_environment_pin,
+    )
+
+
 class DeterminismExecution(_StrictFrozenModel):
     """Identify one of three distinct executions of one generation case."""
 
@@ -306,8 +323,10 @@ class SampleIdentity(_StrictFrozenModel):
 
     @model_validator(mode="after")
     def validate_sample(self) -> "SampleIdentity":
-        if self.determinism_probe.generation_case != self.generation_case:
-            raise ValueError("Sample generation case must match determinism probe")
+        if _determinism_applicability_scope(
+            self.determinism_probe.generation_case
+        ) != _determinism_applicability_scope(self.generation_case):
+            raise ValueError("Sample generation configuration must match determinism probe scope")
         if self.normalization_profile_version != self.generation_case.protocol_identity.normalization_profile_version:
             raise ValueError("Sample normalization profile must match generation protocol")
         if self.determinism_probe.classification == "deterministic_for_benchmark" and self.replication_index != 1:
@@ -325,6 +344,9 @@ class SampleManifest(_StrictFrozenModel):
     def validate_samples(self) -> "SampleManifest":
         if any(sample.determinism_probe != self.determinism_probe for sample in self.samples):
             raise ValueError("All samples must share the manifest determinism probe")
+        generation_case = self.samples[0].generation_case
+        if any(sample.generation_case != generation_case for sample in self.samples[1:]):
+            raise ValueError("All samples must share one complete target-specific generation case")
         expected_indexes = {1} if self.determinism_probe.classification == "deterministic_for_benchmark" else {1, 2, 3}
         if (
             len(self.samples) != len(expected_indexes)
