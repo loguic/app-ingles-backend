@@ -89,6 +89,18 @@ Each result records exactly:
 - the actual normalization argv;
 - `normalized_at_utc` for audit only.
 
+`sample_id` is an opaque caller-owned correlation key known before
+normalization; it is not required to be the final benchmark
+`SampleIdentity.sample_id`, whose identity can depend on the normalized
+SHA-256 produced by this operation. For TTS Engine Benchmark v1 it is exactly
+the already-existing `run_execution_id`. The benchmark runner later binds that
+record to the final `SampleIdentity` by requiring equality of the correlation
+key, raw SHA-256, normalized SHA-256 and profile version. The record is never
+rewritten after publication.
+
+The normalized WAV and its normalization record must share exactly one parent
+directory. Both are new immutable outputs of the same normalization operation.
+
 Raw and normalized bytes are separate immutable artifacts. The timestamp is
 not an identity input. The initial approved toolchain is `ffmpeg 6.1.1-3ubuntu5`
 and `ffprobe 6.1.1-3ubuntu5`; a different toolchain is rejected by v1. The

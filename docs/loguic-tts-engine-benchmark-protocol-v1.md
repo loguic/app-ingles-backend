@@ -51,7 +51,18 @@ El `DeterminismProbe` conserva el `GenerationCase` exacto de su medición; esa i
 
 ## Cegado, review y adjudicación
 
-Cada `SampleIdentity` conserva hashes SHA-256 RAW y normalizado. El mapping privado `blind_review_id -> sample_id` usa IDs opacos `br_` más 32 hexadecimales, tiene orden específico por reviewer y no se entrega al reviewer. Los reviewers no ven engine, modelo ni voz. El mapping no se revela hasta bloquear ambos reviews originales.
+Cada `SampleIdentity` conserva hashes SHA-256 RAW y normalizado. La secuencia
+causal de cada réplica es `GenerationCase` + `replication_index` →
+`run_execution_id` → RAW → normalization record → normalized SHA-256 → final
+`SampleIdentity` → `SampleManifest`. El `sample_id` del normalization record
+es el `run_execution_id` preexistente, no un `SampleIdentity.sample_id`
+provisional. El runner solo crea el `SampleIdentity` final después de validar
+el record y el WAV normalizado; exige el mapping unívoco
+`run_execution_id -> normalization record -> final sample_id`, con igualdad
+de hashes RAW/normalizado y profile version. WAV normalizado y record comparten
+el mismo directorio padre y ninguno se modifica después de publicarse.
+
+El mapping privado `blind_review_id -> sample_id` usa IDs opacos `br_` más 32 hexadecimales, tiene orden específico por reviewer y no se entrega al reviewer. Los reviewers no ven engine, modelo ni voz. El mapping no se revela hasta bloquear ambos reviews originales.
 
 Reviewer A y reviewer B trabajan de forma independiente. Primero escuchan sin transcript y registran transcripción percibida e `intelligibility`; solo después se revela `reference_text`, IPA y `target_locale`, y se evalúan las demás dimensiones. La rúbrica exacta es `intelligibility`, `pronunciation_correctness`, `locale_accent_conformance`, `naturalness`, `prosody_rhythm` y `a1_pedagogical_suitability`. La escala exacta es `meets`, `minor_issue`, `major_issue` y `not_assessable`.
 
