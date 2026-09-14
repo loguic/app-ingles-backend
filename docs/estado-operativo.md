@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-14T20:13:59+02:00
-Baseline Git previa a este checkpoint: 93cef0e770dd1e2a2566c2f4192f58bb7a6fb268
+Actualizado: 2026-09-14T20:51:45+02:00
+Baseline Git previa a este checkpoint: 265f18dd324d66862009fb15c572b9bb71c2249b
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -69,7 +69,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-Completar únicamente el cierre documental de este checkpoint actualizado mediante el mecanismo Git canónico; verificar Git limpio/sincronizado y ejecutar `conversation_checkpoint.py prepare` post-cierre. Después, cualquier trabajo sobre reviewer package/workflow o persistencia append-only/runtime requiere scope y autorización separados; human reviews reales y winner permanecen fuera de alcance.
+No existe un bloque técnico funcional activo autorizado: la recuperación documental, el review-lock y el METHOD_GAP están cerrados. La siguiente fase requiere una nueva decisión y scope explícitos. Las fronteras candidatas separadas son public reviewer package/workflow y persistencia append-only/runtime de human reviews; las human reviews reales no empiezan hasta satisfacer sus prerrequisitos contractuales y operativos. Adjudicación y selección de winner permanecen fuera de alcance; no reactivar automáticamente B52, loader, B181 ni A1.
 
 ## Archivos clave
 
