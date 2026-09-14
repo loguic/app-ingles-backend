@@ -135,7 +135,7 @@ def inspect_git(root: Path) -> GitSnapshot:
 
     Inspecciona el estado local del repositorio sin descargar ni escribir.
     """
-    head = _run_git(root, "rev-parse", "--short", "HEAD").stdout.strip()
+    head = _run_git(root, "rev-parse", "HEAD").stdout.strip()
     subject = _run_git(root, "log", "-1", "--format=%s").stdout.strip()
     branch = _optional_git(root, "symbolic-ref", "--short", "HEAD")
     upstream = _optional_git(
@@ -259,6 +259,7 @@ def render_checkpoint(
     command: str,
     state_path: Path,
     snapshot: GitSnapshot,
+    git_baseline: str,
 ) -> str:
     """Render a deterministic ephemeral Markdown checkpoint.
 
@@ -284,7 +285,9 @@ def render_checkpoint(
         "# Checkpoint de cambio de conversación",
         "",
         f"- Command: `{command}`.",
-        "- Canonical source: `docs/estado-operativo.md` (the only source of truth).",
+        "- Autoridad semántica: `docs/estado-operativo.md`.",
+        "- Autoridad Git viva: inspección read-only de Git.",
+        f"- Baseline Git semántica: `{git_baseline}`.",
         "- This output is an ephemeral read-only view; it is not a persisted checkpoint.",
         "- Documented validations are reproduced as historical evidence and were not rerun.",
         "",
@@ -344,7 +347,12 @@ def build_checkpoint(
     report = validate_operational_state(canonical_path)
     validate_against_git(report, root)
     snapshot = inspect_git(root)
-    return render_checkpoint(command, canonical_path, snapshot)
+    return render_checkpoint(
+        command,
+        canonical_path,
+        snapshot,
+        report.git_baseline,
+    )
 
 
 def main() -> None:

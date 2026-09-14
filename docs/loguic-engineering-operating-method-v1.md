@@ -6,11 +6,14 @@ Este documento es el método operativo canónico para continuar LOGUIC English d
 
 Las autoridades se separan así:
 
-- `docs/estado-operativo.md` es la fuente canónica del checkpoint operativo vigente;
+- `docs/estado-operativo.md` es la autoridad durable exclusiva del estado semántico: bloques cerrados o activos, fronteras, garantías, validaciones históricas, dirty paths reconocidos y siguiente objetivo;
+- la inspección read-only directa de Git es la autoridad exclusiva para HEAD actual, branch, upstream, ahead/behind, staged, unstaged, untracked y working tree actual;
 - `docs/loguic-ai-model-routing-policy-v1.md` es la política detallada de routing de modelos;
 - este documento es la autoridad del método de trabajo;
 - la bitácora conserva historia, pero no sustituye el checkpoint actual;
-- `conversation_checkpoint.py prepare|resume` genera vistas efímeras validadas y no crea otra fuente de verdad.
+- `conversation_checkpoint.py prepare|resume` compone ambas autoridades en vistas efímeras validadas y no crea otra fuente de verdad.
+
+`docs/estado-operativo.md` no declara como estado vivo HEAD actual/publicado, branch, upstream, ahead/behind ni working tree. Puede conservar hashes históricos asociados a bloques cerrados. Su único anclaje Git estructural es `Baseline Git previa a este checkpoint: <OID completo>`: antes del cierre, con el documento modificado, coincide con HEAD; después del cierre limpio que incorpora el documento, coincide con `HEAD^`. La diferencia entre HEAD actual y baseline no es por sí sola contradicción. En un root commit sin padre se usa exclusivamente el sentinel `0000000000000000000000000000000000000000`; fuera de ese caso está prohibido.
 
 ## 2. Roles
 
@@ -79,6 +82,7 @@ definición / preflight
 → postflight independiente
 → documentación
 → cierre Git seguro
+→ `conversation_checkpoint.py prepare` post-cierre
 → checkpoint estable
 ```
 
@@ -107,20 +111,20 @@ Evidencia documentada significa evidencia reutilizable, no autorización para at
 La frase humana **“Cambiar conversación”** significa:
 
 1. cerrar o registrar con precisión el estado actual;
-2. actualizar `docs/estado-operativo.md` con timestamp local timezone-aware;
-3. registrar último bloque estable, bloque activo o local, validaciones, fronteras, siguiente objetivo y archivos clave;
+2. actualizar `docs/estado-operativo.md` con timestamp local timezone-aware y baseline igual al HEAD previo al cierre, sin copiar hechos Git vivos;
+3. registrar último bloque estable, bloque activo o local, validaciones, fronteras, siguiente objetivo posterior al cierre y archivos clave;
 4. validar mediante `python3 scripts/engineering/operational_state.py validate` con el path correspondiente cuando sea necesario;
 5. ejecutar `python3 scripts/engineering/conversation_checkpoint.py prepare`;
 6. cambiar de conversación solo con checkpoint válido.
 
-`prepare` no crea una segunda fuente de verdad. Produce una vista efímera validada; `docs/estado-operativo.md` continúa siendo la fuente operativa canónica.
+`prepare` no crea una segunda fuente de verdad. Produce una vista efímera validada que combina la autoridad semántica durable con Git vivo inspeccionado directamente.
 
 ## 7. Reanudación
 
 Las frases humanas **“Reanudar App Inglés”** y **“Recuperar el método consolidado”** activan el mismo protocolo:
 
 1. ejecutar primero `python3 scripts/engineering/conversation_checkpoint.py resume`;
-2. usar su salida y `docs/estado-operativo.md` como autoridad del estado vigente;
+2. usar `docs/estado-operativo.md` como autoridad semántica y el bloque Git de su salida como autoridad Git viva;
 3. recuperar este método operativo canónico;
 4. continuar directamente desde el último bloque o frontera confirmados.
 
@@ -140,7 +144,7 @@ Estas reglas son obligatorias tras cambio de conversación, agotamiento de conte
 8. Ante interrupción, tokens o cuota, no se continúa mediante parches improvisados: se congela la última frontera estable, se recupera el checkpoint, se reconcilia documentación stale y se reanuda el bloque exacto inacabado.
 9. Antes de tocar código por un fallo nuevo, se clasifica como regresión del slice actual, deuda preexistente, problema de entorno/harness o fallo no relacionado. Una causa ajena no se corrige modificando la feature vigente.
 10. Preflight, tests focalizados, regresión, postflight y suite completa ya válidos siguen siendo autoridad mientras no cambie el código cubierto ni aparezca una contradicción concreta.
-11. La disciplina de cierre es: cambio técnico → validación focalizada → regresión/suite cuando aplique → postflight independiente → documentación → cierre Git seguro → checkpoint canónico. Sin documentación y Git limpio/sincronizado no hay bloque cerrado.
+11. La disciplina de cierre es: cambio técnico → validación focalizada → regresión/suite cuando aplique → postflight independiente → documentación semántica con baseline previa → cierre Git seguro → `prepare` post-cierre → checkpoint canónico. Tras el cierre, la baseline debe coincidir con `HEAD^`, Git debe estar limpio/sincronizado y el HEAD actual procede solo de Git; no se crea un commit adicional para copiarlo al documento.
 12. Si ChatGPT detecta degradación del método, detiene de inmediato el avance técnico, identifica la desviación, vuelve al último estado estable, restaura este flujo y reanuda con un paso pequeño.
 13. No se añaden abstracciones, herramientas, migraciones, capas, inspecciones ni validaciones repetidas salvo que resuelvan un problema confirmado.
 14. `docs/estado-operativo.md` es la fuente compacta de continuidad; `docs/bitacora.md` aporta trazabilidad histórica; este documento define cómo se trabaja. Sus funciones no se confunden.
@@ -188,6 +192,8 @@ Un bloque no está cerrado hasta disponer, cuando aplique, de:
 - revisión independiente;
 - documentación;
 - validación final;
-- Git limpio y sincronizado.
+- cierre mediante el helper Git canónico;
+- Git limpio y sincronizado;
+- `conversation_checkpoint.py prepare` post-cierre PASS sin cambios posteriores.
 
 Un contrato publicado no equivale a implementación publicada. Tests positivos no equivalen por sí solos a cierre documental o Git. Active source integrity no equivale a loader readiness. El checkpoint debe reflejar siempre el estado real, incluidos cambios locales aún no publicados.

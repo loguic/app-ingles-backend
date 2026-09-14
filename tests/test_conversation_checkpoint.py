@@ -7,6 +7,8 @@ from pathlib import Path
 import pytest
 
 from scripts.engineering import conversation_checkpoint
+from scripts.engineering.git_close import close_git_changes
+from scripts.engineering.operational_state import ROOT_GIT_BASELINE
 
 
 def run_git(root: Path, *args: str) -> str:
@@ -25,12 +27,14 @@ def run_git(root: Path, *args: str) -> str:
 
 def state_document(
     updated_at: str,
+    git_baseline: str = ROOT_GIT_BASELINE,
     recognized_paths: tuple[str, ...] = (
         "tracked.txt",
         "new file.txt",
         "renamed file.txt",
         "staged.txt",
         "untracked.txt",
+        "docs/estado-operativo.md",
     ),
 ) -> str:
     """Build the smallest valid canonical operational state.
@@ -51,6 +55,7 @@ def state_document(
         "# Estado operativo — LOGUIC English",
         "",
         f"Actualizado: {updated_at}",
+        f"Baseline Git previa a este checkpoint: {git_baseline}",
         "",
     ]
     for section in sections:
@@ -76,6 +81,7 @@ def create_repository(tmp_path: Path) -> tuple[Path, Path]:
         encoding="utf-8",
     )
     (root / "tracked.txt").write_text("original\n", encoding="utf-8")
+    (root / "staged.txt").write_text("base\n", encoding="utf-8")
     run_git(root.parent, "init", "-q", str(root))
     run_git(root, "config", "user.name", "Checkpoint Test")
     run_git(root, "config", "user.email", "checkpoint@example.invalid")
@@ -108,8 +114,93 @@ def test_prepare_clean_repository_without_upstream(tmp_path: Path) -> None:
     assert "- Working tree: clean" in output
     assert "- Upstream: none" in output
     assert "- Local relation: unavailable without upstream" in output
-    assert "the only source of truth" in output
+    assert "- Autoridad semántica: `docs/estado-operativo.md`." in output
+    assert "- Autoridad Git viva: inspección read-only de Git." in output
+    assert f"- Baseline Git semántica: `{ROOT_GIT_BASELINE}`." in output
+    assert "the only source of truth" not in output
     assert "were not rerun" in output
+    assert f"- HEAD: `{run_git(root, 'rev-parse', 'HEAD')}`" in output
+
+
+def test_prepare_accepts_dirty_state_with_baseline_equal_to_head(
+    tmp_path: Path,
+) -> None:
+    root, state_path = create_repository(tmp_path)
+    head = run_git(root, "rev-parse", "HEAD")
+    state_path.write_text(
+        state_document(
+            datetime.now().astimezone().isoformat(timespec="seconds"),
+            head,
+        ),
+        encoding="utf-8",
+    )
+
+    output = build(root, state_path)
+
+    assert f"- HEAD: `{head}`" in output
+    assert f"- Baseline Git semántica: `{head}`." in output
+    assert "- Working tree: 1 Git status record(s)" in output
+
+
+def test_prepare_accepts_clean_checkpoint_with_parent_baseline(
+    tmp_path: Path,
+) -> None:
+    root, state_path = create_repository(tmp_path)
+    prior_head = run_git(root, "rev-parse", "HEAD")
+    state_path.write_text(
+        state_document(
+            datetime.now().astimezone().isoformat(timespec="seconds"),
+            prior_head,
+        ),
+        encoding="utf-8",
+    )
+    run_git(root, "add", "docs/estado-operativo.md")
+    run_git(root, "commit", "-q", "-m", "close checkpoint")
+    current_head = run_git(root, "rev-parse", "HEAD")
+
+    output = build(root, state_path, command="resume")
+
+    assert current_head != prior_head
+    assert f"- HEAD: `{current_head}`" in output
+    assert f"- Baseline Git semántica: `{prior_head}`." in output
+    assert "- Working tree: clean" in output
+
+
+def test_git_close_then_prepare_accepts_non_circular_checkpoint(
+    tmp_path: Path,
+) -> None:
+    root, state_path = create_repository(tmp_path)
+    remote = tmp_path / "remote.git"
+    run_git(tmp_path, "init", "--bare", "-q", str(remote))
+    run_git(root, "remote", "add", "origin", str(remote))
+    run_git(root, "push", "-q", "-u", "origin", "master")
+    prior_head = run_git(root, "rev-parse", "HEAD")
+    state_path.write_text(
+        state_document(
+            datetime.now().astimezone().isoformat(timespec="seconds"),
+            prior_head,
+        ),
+        encoding="utf-8",
+    )
+    (root / "tracked.txt").write_text("closed\n", encoding="utf-8")
+
+    preclose = build(root, state_path)
+    assert f"- Baseline Git semántica: `{prior_head}`." in preclose
+    commit = close_git_changes(
+        branch="master",
+        upstream="origin/master",
+        message="close checkpoint fixture",
+        files=["docs/estado-operativo.md", "tracked.txt"],
+        root=root,
+    )
+
+    postclose = build(root, state_path)
+
+    assert commit != prior_head
+    assert f"- HEAD: `{commit}`" in postclose
+    assert f"- Baseline Git semántica: `{prior_head}`." in postclose
+    assert "- Working tree: clean" in postclose
+    assert "- Local relation: ahead 0, behind 0" in postclose
 
 
 def test_reports_staged_change(tmp_path: Path) -> None:
@@ -160,10 +251,6 @@ def test_reports_combined_states_and_rename(tmp_path: Path) -> None:
     Informa conjuntamente rutas staged, unstaged, untracked y renombradas.
     """
     root, state_path = create_repository(tmp_path)
-    (root / "staged.txt").write_text("base\n", encoding="utf-8")
-    run_git(root, "add", "staged.txt")
-    run_git(root, "commit", "-q", "-m", "add staged fixture")
-
     run_git(root, "mv", "staged.txt", "renamed file.txt")
     (root / "tracked.txt").write_text("unstaged\n", encoding="utf-8")
     (root / "untracked.txt").write_text("new\n", encoding="utf-8")
@@ -214,6 +301,7 @@ def test_rejects_undocumented_dirty_or_untracked_path(
                 datetime.now().astimezone().isoformat(
                     timespec="seconds"
                 ),
+                run_git(root, "rev-parse", "HEAD"),
                 (),
             ),
             encoding="utf-8",
@@ -371,7 +459,10 @@ def test_fail_closed_for_state_older_than_latest_commit(
     run_git(root, "add", "tracked.txt")
     run_git(root, "commit", "-q", "-m", "newer than state")
     state_path.write_text(
-        state_document(report_at.isoformat()),
+        state_document(
+            report_at.isoformat(),
+            run_git(root, "rev-parse", "HEAD"),
+        ),
         encoding="utf-8",
     )
     validate_state = conversation_checkpoint.validate_operational_state
