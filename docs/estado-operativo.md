@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-14T17:57:36+02:00
-Baseline Git previa a este checkpoint: 7e62908809087f6314d6e17058bbee90d0c967c9
+Actualizado: 2026-09-14T20:13:59+02:00
+Baseline Git previa a este checkpoint: 93cef0e770dd1e2a2566c2f4192f58bb7a6fb268
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -20,6 +20,14 @@ Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `7e6290880
 
 La recuperación documental anterior quedó completada. `HumanReviewRecord` representa una review final/locked, exige `locked_at` timezone-aware canonicalizado a UTC y deriva `review_id` causal. Persistencia append-only/runtime y public reviewer package/workflow siguen siendo gaps separados. Este cierre no inició human reviews, adjudicación ni selección de winner.
 
+### Microbloque tooling — METHOD_GAP checkpoint/closure
+
+Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `93cef0e770dd1e2a2566c2f4192f58bb7a6fb268`.
+
+El microbloque separó autoridad semántica durable y Git vivo, introdujo la baseline Git previa no circular y mantuvo `conversation_checkpoint.py prepare|resume` como composición efímera read-only. Implementación y postflight independiente: **PASS**; BLOCKING: **0**; NONBLOCKING: **0**. La evidencia vigente incluyó 60 tests focales PASS, `tests/test_block_workflow.py` 3 PASS, integración temporal `prepare → close_git_changes() → prepare` PASS, `operational_state.py validate` PASS y `git diff --check` PASS.
+
+El `prepare` post-cierre histórico confirmó HEAD vivo `93cef0e770dd1e2a2566c2f4192f58bb7a6fb268`, baseline previa `7e62908809087f6314d6e17058bbee90d0c967c9 == HEAD^`, árbol limpio y ahead 0 / behind 0. No hubo circularidad ni fue necesaria modificación posterior para satisfacer ese contrato. Quedan confirmados baseline única/completa/no circular, pre-cierre `baseline == HEAD`, post-cierre limpio `baseline == HEAD^`, sentinel root exclusivo `0000000000000000000000000000000000000000`, checkpoint stale fail-closed, dirty-path coverage, timestamps timezone-aware y `prepare|resume` read-only.
+
 ### Benchmark externo TTS v1
 
 Estado semántico: **TÉCNICAMENTE FINALIZADO** en `/home/guiller/projects/loguic_tts_benchmark`, ejecución `063e6d8d-72dc-4f46-83df-ce533ddf938f`, anclada a `backend_canonical_commit=3e10e97a932f6be27cc05081ba02c555d4611565`.
@@ -34,25 +42,6 @@ Estado semántico: **TÉCNICAMENTE FINALIZADO** en `/home/guiller/projects/logui
 A1 v4 permanece **MEMBER DURABLE / NOT ACTIVE**. Los únicos assets físicos A1 aprobados son cuatro visuales: `water`, `food`, `need` y `greeting`; los WAV del benchmark no son assets A1 aprobados.
 
 ## Bloque activo
-
-### Microbloque tooling — METHOD_GAP checkpoint/closure
-
-Estado semántico: **READY_FOR_CLOSURE / NOT FUNCTIONAL DEVELOPMENT**.
-
-El METHOD_GAP confirmado provenía de declarar un HEAD vivo dentro del documento que debía ser contenido por ese mismo commit. Este microbloque separa la autoridad semántica durable de Git vivo, introduce la baseline previa no circular y hace que `conversation_checkpoint.py prepare|resume` componga ambas capas sin persistir otra fuente de verdad.
-
-Implementación: **PASS**. Postflight independiente: **PASS**; BLOCKING: **0**; NONBLOCKING: **0**. Evidencia vigente: 60 tests focales PASS, `tests/test_block_workflow.py` 3 PASS, integración temporal `prepare → close_git_changes() → prepare` PASS, `operational_state.py validate` PASS, `conversation_checkpoint.py prepare` PASS y `git diff --check` PASS. Se confirmaron baseline única/completa/no circular, pre-cierre `baseline == HEAD`, post-cierre limpio `baseline == HEAD^`, sentinel root exclusivo `0000000000000000000000000000000000000000`, checkpoint stale fail-closed, dirty-path coverage, timestamps timezone-aware y `prepare|resume` read-only.
-
-Scope local exacto reconocido:
-
-- `docs/loguic-engineering-operating-method-v1.md`;
-- `docs/estado-operativo.md`;
-- `scripts/engineering/operational_state.py`;
-- `scripts/engineering/conversation_checkpoint.py`;
-- `tests/test_operational_state.py`;
-- `tests/test_conversation_checkpoint.py`.
-
-No se modifica `scripts/engineering/git_close.py`, `scripts/engineering/block_close.py` ni código funcional del producto.
 
 ### Fronteras A1, B52 y B181
 
@@ -80,7 +69,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-Ejecutar únicamente las validaciones deterministas de cierre aplicables; cerrar/publicar este microbloque mediante el mecanismo Git canónico; verificar Git limpio/sincronizado; y ejecutar `conversation_checkpoint.py prepare` post-cierre. Después del Closure Gate, cualquier trabajo sobre reviewer package/workflow o persistencia append-only/runtime requiere scope y autorización separados; human reviews reales y winner permanecen fuera de alcance.
+Completar únicamente el cierre documental de este checkpoint actualizado mediante el mecanismo Git canónico; verificar Git limpio/sincronizado y ejecutar `conversation_checkpoint.py prepare` post-cierre. Después, cualquier trabajo sobre reviewer package/workflow o persistencia append-only/runtime requiere scope y autorización separados; human reviews reales y winner permanecen fuera de alcance.
 
 ## Archivos clave
 
