@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta, timezone
 import json
 from pathlib import Path
 from typing import Any, get_args
@@ -37,6 +38,7 @@ CANDIDATE_V4_PATH = (
     Path(__file__).resolve().parents[1]
     / "content/candidates/a1-u1/pedagogical-unit-candidate-v4.json"
 )
+LOCKED_AT = datetime(2026, 9, 14, 12, 0, tzinfo=UTC)
 
 
 def _derive_candidate_v4_targets() -> tuple[tuple[str, str, str, str], ...]:
@@ -178,6 +180,7 @@ def _review(
     payload: dict[str, Any] = {
         "blind_review_id": blind_review_id,
         "reviewer_id": reviewer_id,
+        "locked_at": LOCKED_AT,
         "perceived_transcription": "I need water.",
         "first_listen_without_transcript": True,
         "reference_text_revealed_after_first_listen": True,
@@ -192,6 +195,45 @@ def _review(
     }
     payload.update(updates)
     return HumanReviewRecord.model_validate(payload)
+
+
+def test_human_review_requires_a_final_utc_lock_and_canonical_review_id() -> None:
+    review = _review("reviewer_a")
+    equivalent_offset_review = _review(
+        "reviewer_a",
+        locked_at=datetime(2026, 9, 14, 13, 0, tzinfo=timezone(timedelta(hours=1))),
+    )
+
+    assert review.locked_at == LOCKED_AT
+    assert review.locked_at.tzinfo is UTC
+    assert equivalent_offset_review.locked_at == LOCKED_AT
+    assert equivalent_offset_review.review_id == review.review_id
+
+
+def test_reject_human_review_without_lock_or_with_naive_lock() -> None:
+    review_payload = _review("reviewer_a").model_dump()
+    review_payload.pop("locked_at")
+    with pytest.raises(ValidationError, match="locked_at"):
+        HumanReviewRecord.model_validate(review_payload)
+
+    with pytest.raises(ValidationError, match="timezone-aware"):
+        _review("reviewer_a", locked_at=datetime(2026, 9, 14, 12, 0))
+
+
+def test_reject_stale_review_id_after_changing_locked_payload() -> None:
+    review = _review("reviewer_a")
+    changed_lock = review.model_dump()
+    changed_lock["locked_at"] = LOCKED_AT + timedelta(seconds=1)
+    with pytest.raises(ValidationError, match="canonical causal identity"):
+        HumanReviewRecord.model_validate(changed_lock)
+
+    changed_label = review.model_dump()
+    changed_label["naturalness"] = "minor_issue"
+    with pytest.raises(ValidationError, match="canonical causal identity"):
+        HumanReviewRecord.model_validate(changed_label)
+
+    with pytest.raises(ValidationError):
+        review.locked_at = LOCKED_AT + timedelta(seconds=1)
 
 
 def _replicated_manifest() -> SampleManifest:
@@ -757,6 +799,22 @@ def test_valid_adjudication_for_factual_disagreement() -> None:
     assert "blind_review_id" not in AdjudicationRecord.model_fields
     assert review_a.blind_review_id != review_b.blind_review_id
     validate_private_adjudication_reconciliation(adjudication, blind_manifest)
+
+
+def test_adjudication_rejects_a_review_without_the_required_lock() -> None:
+    review_a_payload = _review("reviewer_a").model_dump()
+    review_a_payload.pop("locked_at")
+    review_b = _review("reviewer_b", naturalness="minor_issue")
+    with pytest.raises(ValidationError, match="locked_at"):
+        AdjudicationRecord.model_validate(
+            {
+                "review_a": review_a_payload,
+                "review_b": review_b.model_dump(),
+                "adjudicator_id": "human",
+                "relevant_disagreement_dimensions": ("naturalness",),
+                "adjudicated_labels": {"naturalness": "minor_issue"},
+            }
+        )
 
 
 def test_reject_reconciliation_for_reviews_resolving_to_different_samples() -> None:

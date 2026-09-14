@@ -1,140 +1,88 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-12T15:16:38+02:00
+Actualizado: 2026-09-14T13:07:23+02:00
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
 
 - Producto: entrenador de fluidez conversacional funcional.
-- Documento rector: `docs/modelo-pedagogico-maestro.md`.
-- Contrato curricular autoritativo: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Método operativo canónico: `docs/loguic-engineering-operating-method-v1.md`.
-- Política operativa transversal de routing: `docs/loguic-ai-model-routing-policy-v1.md` (v1.1 Astra vigente; default `Terra / medium`, por tarea y sin escalamiento automático).
-- Git final requerido: limpio y sincronizado con `origin/master`.
-- Todo trabajo curricular parte de una capacidad observable del estudiante; `Skill` significa exclusivamente habilidad pedagógica medible.
+- Documento rector: `docs/modelo-pedagogico-maestro.md`; contrato curricular: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
+- Método operativo: `docs/loguic-engineering-operating-method-v1.md`; routing: `docs/loguic-ai-model-routing-policy-v1.md` (default `Terra / medium`).
+- Repositorio: `app-ingles-backend`; branch: `master`.
+- HEAD publicado: `4d26cf2f3557266b30c26328dbe6f7f76a5e61d9` (`fix reconcile blind reviews by private sample identity`). Al inicio de esta reconciliación, `origin/master` apuntaba al mismo commit.
+- El estado final requerido para un bloque cerrado sigue siendo Git limpio y sincronizado; este checkpoint registra explícitamente el trabajo local no publicado.
 
 ## Último bloque cerrado
 
-### B184 — Runtime autoritativo de experiencia y enmiendas v3
+### Reconciliación privada A/B del benchmark TTS v1
 
-Estado: **CERRADO / PUBLICADO / SINCRONIZADO** en el backend hasta `729e58e725dd7683405ab59e7aa8cb213507df77` (`feat strict support timing with devsecops head correction`). Cabeza Alembic: `c1844e9f2a31`.
+Estado: **CLOSED / PUBLISHED / SYNCED** en `4d26cf2f3557266b30c26328dbe6f7f76a5e61d9`.
 
-- `d54a47e`: lifecycle autoritativo de `ExperienceAttempt`.
-- `18bb755`: runtime autoritativo de evidencia y finalización.
-- `e4dbe04`: runtime/adaptador HTTP público de Direct English.
-- `9619243`: compatibilidad de versiones de contrato de experiencia.
-- `6b044e5`: mapeo de evidencia Direct English v3.
-- `105b431`: bancos de transferencia v3 de una a cuatro variantes, preservando v2.
-- `729e58e`: Strict Support Timing backend cerrado y corrección test-only del gate DevSecOps para la cabeza Alembic vigente; el slice Flutter cross-repo está cerrado en `1b1835405c324d0189d46bcb0a6a4e869da193f1`.
+Cada reviewer conserva su propio `blind_review_id`. La frontera privada resuelve `blind_review_id → BlindReviewMapping → sample_id`; solo pueden reconciliarse reviews A/B cuyos mappings resuelven al mismo `sample_id`. No hay `blind_review_id` compartido, no se expone identidad técnica a reviewers y este cierre no inicia review humana ni selecciona winner.
 
-Las enmiendas B184.4 preservan la lectura histórica 2.0, mantienen start/resume sobre contenido activo y no activan contenido curricular canónico v3. Strict Support Timing valida metadata v3 opcional y deriva historial de respuestas por intento; no cambia correctness, evidence, completion, mastery, retention ni progress. El backend sigue sin una lección canónica A1 L1 v3 activa.
+### TTS WAV normalization profile y protocolo de benchmark v1
 
-### B52 — Active source integrity v1
+Estado: **PUBLISHED**. `c2897ba9e17b2f0477f6d2ba304a3831e8bdfc3c` publicó TTS WAV normalization profile v1. `a3b8b754a0cbb556fc80afaa2b22379953997561` publicó TTS Engine Benchmark Protocol v1. `4a6ce2f6b18e4f8bab4f8dee991a0c040f36278a` corrigió el scope de `DeterminismProbe`; `3e10e97a932f6be27cc05081ba02c555d4611565` aclaró la identidad de normalización y es la frontera canónica del benchmark externo.
 
-Estado: **CERRADO / DOCUMENTADO / PUBLICADO / SINCRONIZADO**. Contrato publicado: `5d318c125acdc7128b0af73abafae0bee8c7b454`. Implementación técnica publicada: `605564ecbeb9079fef248d348ad26f52f042ca30`.
+### A1 v3/v4 publicada
 
-`ActiveCandidateSourceIntegrityVerification` frozen contiene exactamente B43 `current_admission_gate_reevaluation` y B51 `resource_integrity_verification`. `verify_active_candidate_source_integrity(...)` consume únicamente ambos aggregates y exige que sus rutas transitivas conserven exactamente el mismo B39 por identidad Python; no recibe B39 como tercer input ni alinea entries de dominios distintos.
-
-B52 es positive-only, frozen y all-or-nothing. Un mismo B39 produce verification conservando B43+B51 por identidad; B39 distintos producen `ValueError("active source integrity causal source mismatch")` fail-closed, sin resultado parcial, status, findings ni pairs. Una source vacía común es positiva.
-
-La garantía se limita a la conjunción causal sobre una misma source B39: candidate payload integrity B39, current admission gates B43 y expected-vs-observed resource integrity B51. B52 no reejecuta upstream, no usa filesystem, parsing, bytes, hashing o I/O y no acredita authenticity, provenance, chronology, corrección semántica/pedagógica, curriculum compatibility ni loader readiness.
-
-Validación: 7 tests específicos PASS; regresión seleccionada B43+B51+B52, 29 PASS; postflight técnico independiente PASS; findings BLOCKING: 0; findings NONBLOCKING: 0; suite backend completa ejecutada directamente en Bash, 2118 passed en 17.49 s; `git diff --check` técnico PASS. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
-### B43 — Current admission gate reevaluation v1
-
-Garantía histórica cerrada; no sustituye integridad de source activa ni loader readiness.
-
-### B42.1 — Timestamp preciso del estado operativo
-
-El timestamp ISO 8601 con offset y la comparación contra baseline Git siguen siendo obligatorios.
-
-### B183 — Checkpoint Visual Flutter: recorrido demo A1
-
-Checkpoint visual frontend histórico y aislado; no activa currículo A1 ni modifica el estado B181.
+A1 v3 publicó specification, candidate, admission, membership y bindings. A1 v4 publicó la corrección IPA en-GB de `help` (`/hɛlp/` → `/help/`), su admission y membership durable. A1 v4 es **MEMBER DURABLE / NOT ACTIVE**. Los únicos assets físicos A1 aprobados son cuatro visuales: `water`, `food`, `need` y `greeting`; los WAV del benchmark no son assets A1 aprobados.
 
 ## Bloque activo
 
-Entrada A1 canónica — **HUMAN GATE 1 y HUMAN GATE 2 = APPROVED**. Para alumnado con inglés muy bajo o nulo se aprueba una unidad mínima completa centrada en una Skill integrada: ante una intención inmediata con contexto visual y audio, producir una respuesta oral mínima, pertinente e inteligible mediante Persona + Acción y reutilizarla en una variación cercana con apoyo estrictamente menor. Comprensión, producción y transferencia conservan evidencias separables; comprensión es preparación/comprobación, no mastery receptivo. Construcción propia se operacionaliza mediante producción personal, ausencia de modelo completo, apoyo decreciente y variación. Transcript y español son práctica/rescate; la evidencia final deberá producirse sin ellos. La evaluación inicial de pertinencia e inteligibilidad podrá ser humana/externa; automatización solo de apoyo. Incremento 1 — contexto visual v3: **CERRADO / PUBLICADO / SINCRONIZADO** mediante `f40abca7abcb36b742404fbfd5e2c7575f3db2f8`; `VisualContext` opcional/accesible vincula una o más etapas a un recurso lógico inventariado y preserva v2/v3 sin contexto; 64 tests y repostflight PASS. Incremento 2 — puente de evaluación oral cualitativa: **CERRADO / PUBLICADO / SINCRONIZADO** mediante `1485309a80c63c1786b831703c89920e68c9b70d`; contratos, validación Direct English, DB y runtime postflight PASS, cabeza Alembic `d1842b7f3a91`, 206 tests focales/regresión y migración PostgreSQL aislada PASS. En v3, captura elegible con pareja cualitativa requerida pasa a `needs_review`; cobertura positiva completa de una misma identidad y fuente efectiva promueve a `satisfied` mediante el acreditador autoritativo, sin degradar `satisfied` ni promover captura estructural `pending`. Compatibilidad v2/v3/B181 preservada; `ExperienceEvidenceState` y completion no se rediseñaron; automática no acredita. `content/candidates/a1-u1/pedagogical-unit-specification-v3.json` está **HUMAN-APPROVED / PUBLISHED / SYNCED** y define la Skill integrada `a1_express_immediate_need_orally` con las identidades curriculares aprobadas `a1-u1` y `a1-u1-l1`. La extensión local mínima de `VisualContext` ya declara `static_image` o `microvideo` y, solo para microvídeo, `autoplay_once` y `replay_allowed`; preserva los contextos v3 legacy sin inferir tipo, el inventario lógico y v2. No introduce MIME, codec, URL, path, bytes, duración, player UI, preload, buffering, analytics, descriptor global, frontend, loader, DB ni B181. La candidata A1 v3 permanece **NOT APPROVED / BLOCKED** hasta una corrección pedagógica posterior y una nueva revisión humana; no se ha modificado la candidata ni la revisión humana. No existe admission, publication, membership, activación, cambio de `content/content_tree.json` o trabajo B181. Incremento 3 — opciones visuales de `ExerciseMCQ`: extensión local mínima en postflight. Mantiene MCQ textuales y su identidad canónica; añade opciones visuales homogéneas por `resource_id` lógico y nombre accesible, inventariadas y evaluadas por `answer_index`. No modifica Candidate A1 v3, `VisualContext`, frontend, loader, DB, `content_tree` ni B181.
-Corrección y preparación A1 v3 local: `content/candidates/a1-u1/pedagogical-unit-candidate-v3.json` conserva comprensión MCQ visual, tres contextos visuales tipados, modelos en-GB-first y decisiones de ayuda/feedback documentadas. `content/candidates/a1-u1/human-review-v3.md` queda **HUMAN APPROVED**; esta actualización sustituye la indicación histórica anterior de bloqueo. HUMAN DECISION = **ADMIT**. Formal `AdmissionRecord` = **ADMITTED** mediante `content/admissions/a1-u1/adm-a1-u1-001.json`, con `admission_id=adm-a1-u1-001`, `reviewer_id=reviewer-human-001` e identidad `a1-u1` / `a1-u1-candidate-v3` / `1.0` / `sha256:23e0d0e1eba8fb7c6b1c73097f01350abe06c84af30fab49f9e646fd9f095018`. La convención está en `content/admissions/README.md` y la verificación focal en `tests/test_a1_candidate_admission_record.py`. MEMBERSHIP PREPARATION = **READY** y MANIFEST = **PUBLISHED** en `content/active-source/active-candidate-source-001.json`, cuya convención local está en `content/active-source/README.md`: contiene exclusivamente la membership durable `a1-u1` / `a1-u1-candidate-v3` / `1.0` / `sha256:23e0d0e1eba8fb7c6b1c73097f01350abe06c84af30fab49f9e646fd9f095018` / `adm-a1-u1-001`, con snapshot `active-candidate-source-001` y bytes v1 canónicos fijados en `tests/test_a1_candidate_membership_preparation.py`. RESOURCE BINDING PREPARATION = **READY**: `content/resources/a1-u1/README.md` y `tests/test_a1_resource_binding_preparation.py` fijan exactamente los 18 bindings relativos (12 WAV, 5 PNG, 1 MP4). PHYSICAL ASSETS = **4/18 APPROVED**: `visual.a1-u1-l1.scene.water.v1` está producido y aprobado en `content/resources/a1-u1/visual/scene-water.png`, con SHA-256 `7f923e4d276863ad60dbf8d7ffbb476e3c4921e3b32da4c9991e8779f419e7db`; `visual.a1-u1-l1.scene.food.v1` está producido y aprobado en `content/resources/a1-u1/visual/scene-food.png`, con SHA-256 `cfcc09e29879e65944b8f9ba8d313189fdfe0b228c80b065587998fafa231d5b`; `visual.a1-u1-l1.comprehension-option.need.v1` está producido y aprobado en `content/resources/a1-u1/visual/option-need.png`, con SHA-256 `b0da034d57e4057b11d131c3243b0d16442597d127e954318fd5f54e209b48d6`; `visual.a1-u1-l1.comprehension-option.greeting.v1` está producido y aprobado en `content/resources/a1-u1/visual/option-greeting.png`, con SHA-256 `2177ad99b9bbefe10da61633dae619cfe81e9829260e3848f65c62856984f700`; los otros 14 assets siguen pendientes. Todavía no existe catálogo ni manifest de expected `ResourcePhysicalIdentity`; no se inventarán identities adicionales y estas se derivarán solo de bytes finales semánticamente/humanamente aprobados. A1 v3 queda **MEMBER DURABLE / NOT ACTIVE**; B52 = **NOT VERIFIED**, `LOADER = BLOCKED` y B181 sigue PAUSED. No hay B52, activación, frontend, loader, DB ni cambio de `content/content_tree.json`.
-Revisión focal A1-U1 Candidate v4 = **HUMAN REVIEW APPROVED / ADMISSION ADMITTED Y VERIFIED / MEMBERSHIP MEMBER DURABLE** en `content/candidates/a1-u1/pedagogical-unit-candidate-v4.json`, con `candidate_revision=a1-u1-candidate-v4`, único delta canónico `help` en-GB `/hɛlp/` → `/help/` y digest confirmado `sha256:e75a5c9864adb86a3152e67ab9c97951372e11ed5400b70406f033e6f70b9a8d`. El AdmissionRecord físico `content/admissions/a1-u1/adm-a1-u1-002.json` registra `admission_id=adm-a1-u1-002`, `reviewer_id=reviewer-human-001` y decisión `admitted`; `verify_candidate_admission(...)` es positivo. El snapshot durable `content/active-source/active-candidate-source-002.json` declara exclusivamente la membership v4 con `snapshot_revision=active-candidate-source-002`. V4 sigue **NOT ACTIVE**. Candidate v3, `adm-a1-u1-001` y `active-candidate-source-001` permanecen byte-identical como historia. Los cuatro assets visuales ya aprobados siguen reutilizables byte-identical; PHYSICAL ASSETS = **4/18 APPROVED**, WAV = **0**. `a1_resource_asset_close.py` apunta explícitamente a v4 como fuente canónica y conserva los mismos 18 bindings físicos. TTS WAV PROFILE v1 = **IMPLEMENTED / PENDING POSTFLIGHT**: su sample rate normalizado canónico aprobado es **24000 Hz**. TTS ENGINE BENCHMARK PROTOCOL v1 = **CLOSED / PUBLISHED / SYNCED** para Kokoro `0.9.4` y Piper `1.8.0`, con 8 voces aprobadas, policy de replicación **ADAPTIVE 1-or-3**, corpus Candidate v4 fail-closed, identidades causales SHA-256, manifests 1-or-3/blind y adjudicación factual separada; `ModelPin.revision` acepta sólo tokens portables o refs Git explícitos `refs/tags/`/`refs/heads/`, nunca rutas locales. Benchmark **NOT STARTED**, engines **NOT INSTALLED** y TTS samples = **0**. A1 v4 permanece **MEMBER DURABLE / NOT ACTIVE**; B52 = **NOT VERIFIED** y B181 = **PAUSED**.
-### B181 — Comprensión contingente y continuidad conversacional breve
+### Recuperación documental fail-closed
 
-Estado: **PAUSADO EN PUERTA PEDAGÓGICA — NO CERRADO INTEGRALMENTE**. I1–I4 y correcciones frontend están publicados; la reanudación depende de construcción pedagógica canónica A1 y una nueva validación humana.
-### Strict Support Timing
+La bitácora y el roadmap ya fueron reconciliados después de detectar documentación stale frente a Git y a la evidencia física del benchmark. Este archivo completa esa recuperación. No autoriza desarrollo, activación, loader, B52, B181, human review ni selección de winner.
 
-Estado backend: **CERRADO / VALIDADO / PUBLICADO / SINCRONIZADO** mediante `729e58e725dd7683405ab59e7aa8cb213507df77`. Estado B184.4 Flutter: **CERRADO / PUBLICADO / SINCRONIZADO** mediante `1b1835405c324d0189d46bcb0a6a4e869da193f1` (`feat enforce strict support timing B184.4`), con 98 tests y `flutter analyze` sin issues. No existe activación de contenido canónico A1 L1 v3.
+### Benchmark externo TTS v1
+
+Estado: **TÉCNICAMENTE FINALIZADO** en `/home/guiller/projects/loguic_tts_benchmark`, ejecución `063e6d8d-72dc-4f46-83df-ce533ddf938f`, anclada a `backend_canonical_commit=3e10e97a932f6be27cc05081ba02c555d4611565`.
+
+- 8 voice attempts completados: cuatro Kokoro `0.9.4` y cuatro Piper `1.8.0`.
+- 144 runs, 144 generaciones RAW, 144 WAV normalizados, 48 `SampleManifest` y 144 `SampleIdentity` únicos.
+- El event log contiene 1170 eventos; existe exactamente un `FINALIZED`, es el último evento y tiene timestamp `2026-09-13T20:13:43.519741Z`.
+- `finalize()` revalida cobertura, IDs, layout, RAW/normalizados, hashes, metadata, tamaños, records de normalización, `GenerationCase`, `SampleIdentity`, lifecycle, manifests e inventario antes de finalizar.
+
+Esta finalización no equivale a assets A1 aprobados, B51/B52, loader ready, activación A1, human review, adjudicación, winner ni voz de producto. Las human blind reviews reales están **NOT STARTED** y el winner **NOT SELECTED**.
+
+### Review-lock local
+
+Estado: **LOCAL / IMPLEMENTED / TECHNICALLY REVIEWED / NOT CLOSED / NOT PUBLISHED**.
+
+Los únicos cambios técnicos locales de este contrato son `app/schemas/tts_engine_benchmark.py`, `docs/loguic-tts-engine-benchmark-protocol-v1.md` y `tests/test_tts_engine_benchmark_schema.py`. Representan `HumanReviewRecord` final/locked, `locked_at` timezone-aware canonicalizado a UTC y `review_id` causal. El commit local anterior `962afec` fue descartado mediante `git reset --mixed 4d26cf2`; no es HEAD ni está publicado. Persistencia append-only/runtime y public reviewer package/workflow son gaps futuros separados.
+
+### Fronteras A1 y B181
+
+B52 para la source vigente está **NOT VERIFIED**; `LOADER = BLOCKED`. `content/content_tree.json` no se modifica. B181 permanece **PAUSED** en puerta pedagógica; no se reactiva mediante A1 v4, el benchmark ni esta reconciliación.
+
 ## Automatización disponible
 
-- `operational_state.py` valida este checkpoint con `Actualizado:` timezone-aware.
-- `conversation_checkpoint.py prepare|resume` prepara y recupera una vista efímera validada al cambiar de conversación.
-- `block_close.py` realiza validaciones técnicas y staging controlado.
-- `git_close.py` realiza un cierre Git seguro de allowlist explícita, un commit y un push confirmado; `a1_resource_asset_close.py` lo invoca para uno o un lote A1-U1 ya aprobado humanamente tras validar mapa, Downloads, SHA-256 y scope. El batch consume un manifest externo estricto y no hace revisión semántica ni B51/B52.
-- `block_workflow.py` conserva una deuda de interrupción y no es fiable para cierres desatendidos.
+- `operational_state.py` valida título, secciones, timestamp timezone-aware, antigüedad y baseline Git.
+- `conversation_checkpoint.py prepare|resume` produce vistas efímeras; `docs/estado-operativo.md` sigue siendo la autoridad canónica.
+- `block_close.py` y `git_close.py` realizan cierres controlados cuando un bloque esté autorizado y validado.
+- `a1_resource_asset_close.py` solo opera sobre assets A1 humanamente aprobados; no convierte outputs del benchmark en assets A1.
 
 ## Método operativo vigente
 
-El método completo y canónico, incluido su guard de continuidad y anti-degradación, está en `docs/loguic-engineering-operating-method-v1.md`. Este documento conserva únicamente el checkpoint operativo compacto.
-
-La configuración operativa Codex esperada es `Permissions: Workspace (Approve for me)`; `approvals_reviewer = "auto_review"` está confirmado.
-
-La selección de herramienta es `Codex-first` para trabajo agentic y `Bash-first` para operaciones deterministas; la regla detallada permanece en el método canónico.
-
-Al reanudar, ejecutar primero `python3 scripts/engineering/conversation_checkpoint.py resume` y continuar desde su salida más este checkpoint, sin repetir evidencia vigente. Antes de cambiar de conversación, actualizar y validar este estado y ejecutar `conversation_checkpoint.py prepare`.
+Seguir `docs/loguic-engineering-operating-method-v1.md`: reutilizar evidencia vigente, separar contrato, implementación, postflight, documentación y cierre Git, y no avanzar desde trabajo local no cerrado. Bash es la autoridad preferida para operaciones deterministas; el routing default sigue siendo `Terra / medium`.
 
 ## Fronteras obligatorias
 
-- preparación curricular ≠ ejecución del estudiante ≠ evidencia real ≠ evaluación ≠ aprendizaje ≠ mastery;
-- admission verificada ≠ publication ≠ active membership ≠ membership collection ≠ active source snapshot ≠ representación física ≠ compatibilidad curricular autoritativa;
-- physical AdmissionRecord document ≠ admission record acquired / unverified ≠ AdmissionRecord correspondence ≠ current admission gate reevaluation ≠ historical gate execution proof ≠ admission provenance ≠ active membership proof ≠ candidate payload integrity ≠ resource physical identity ≠ expected resource identity ≠ resource integrity ≠ active source integrity ≠ loader readiness;
-- `required_stages` y `SkillCoverage` heredados no producen `CurriculumPreparationState`;
-- no rediseñar `PedagogicalUnitSpecification.prerequisites`, `SkillCoverage`, `required_stages`, `ExperienceEvidenceState`, completion, progreso, mastery, fonética, feedback ni B181; Incremento 2 está cerrado y preserva exclusivamente los estados existentes;
-- membership/source state no define orden curricular; hierarchy authority no certifica admission.
-- no activar `a1-u1-l1` v3, no modificar `content/content_tree.json` ni sustituir el contenido histórico 2.0 sin autorización explícita;
-- Strict Support Timing backend y B184.4 Flutter están cerrados; este cierre cross-repo no autoriza activación de contenido ni cambios adicionales de completion.
+- benchmark técnicamente finalizado ≠ human review ≠ adjudicación ≠ winner ≠ voz de producto;
+- WAV del benchmark ≠ assets A1 aprobados ≠ B51/B52 ≠ loader readiness;
+- A1 v4 `MEMBER DURABLE` ≠ `ACTIVE`; no activar A1 ni modificar `content/content_tree.json`;
+- reconciliación privada A/B ≠ exposición de `sample_id` a reviewer;
+- review-lock local técnicamente revisado ≠ contrato cerrado/publicado ≠ persistencia append-only/runtime;
+- no iniciar human review, adjudicación, reviewer package, B52, loader o B181 sin autorización y evidencia específicas.
 
 ## Próximo objetivo
 
-TTS ENGINE BENCHMARK PROTOCOL v1 = **CLOSED / PUBLISHED / SYNCED**; benchmark = **NOT STARTED**, engines = **NOT INSTALLED** y TTS samples = **0**. A1 v4 permanece **MEMBER DURABLE / NOT ACTIVE**, PHYSICAL ASSETS = **4/18 APPROVED**, B52 = **NOT VERIFIED** y B181 = **PAUSED**. Permanece pendiente no bloqueante: semántica asimétrica de `full_scale_sample_count` para PCM s16.
+Completar únicamente el cierre documental fail-closed de esta recuperación; no hay desarrollo técnico autorizado. Después de una aprobación humana separada, las fronteras siguen siendo: cerrar/publicar el contrato local de review-lock, resolver por separado el reviewer package/workflow y la persistencia append-only/runtime, y solo entonces preparar human reviews reales. Ninguna de esas fronteras autoriza actualmente adjudicación o selección de winner.
 
 ## Archivos clave
 
 - `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`, `docs/loguic-engineering-operating-method-v1.md` y `docs/loguic-ai-model-routing-policy-v1.md`;
-- `docs/curriculum-preparation-prerequisites-contract-v1.md`;
-- `scripts/engineering/operational_state.py`;
-- `scripts/engineering/conversation_checkpoint.py`;
-- `scripts/engineering/block_close.py`;
-- `scripts/engineering/git_close.py`;
-- `tests/test_git_close.py`;
-- `app/services/pedagogical_candidate_payload_identity.py`;
-- `app/services/pedagogical_candidate_admission.py`;
-- `app/services/pedagogical_candidate_admission_verification.py`;
-- `app/services/pedagogical_candidate_admission_record_document.py`;
-- `app/services/pedagogical_active_candidate_admission_record_acquisition.py`;
-- `app/services/pedagogical_active_candidate_admission_record_correspondence.py`;
-- `app/services/pedagogical_active_candidate_current_admission_gate_reevaluation.py`;
-- `app/services/pedagogical_resource_physical_identity.py`;
-- `app/services/pedagogical_active_candidate_source_resource_acquisition.py`;
-- `app/services/pedagogical_active_candidate_source_observed_resource_identity_collection.py`;
-- `app/services/pedagogical_active_candidate_source_resource_integrity_verification.py`;
-- `app/services/pedagogical_active_candidate_source_integrity_verification.py`;
-- `app/services/pedagogical_expected_resource_identity_collection.py`;
-- `app/services/pedagogical_active_candidate_source_required_resource_inventory.py`;
-- `app/services/pedagogical_active_candidate_source_expected_resource_coverage_verification.py`;
-- `app/services/pedagogical_active_candidate_membership.py`;
-- `app/services/pedagogical_active_candidate_membership_collection.py`;
-- `app/services/pedagogical_active_candidate_source_snapshot.py`;
-- `app/services/pedagogical_active_candidate_source_acquisition.py`;
-- `app/services/pedagogical_active_candidate_integrity_verification.py`;
-- `tests/test_pedagogical_candidate_admission_record_document.py`;
-- `tests/test_pedagogical_active_candidate_admission_record_acquisition.py`;
-- `tests/test_pedagogical_active_candidate_admission_record_correspondence.py`;
-- `tests/test_pedagogical_active_candidate_current_admission_gate_reevaluation.py`;
-- `tests/test_pedagogical_resource_physical_identity.py`;
-- `tests/test_pedagogical_active_candidate_source_resource_acquisition.py`;
-- `tests/test_pedagogical_active_candidate_source_observed_resource_identity_collection.py`;
-- `tests/test_pedagogical_active_candidate_source_resource_integrity_verification.py`;
-- `tests/test_pedagogical_active_candidate_source_integrity_verification.py`;
-- `tests/test_pedagogical_expected_resource_identity_collection.py`;
-- `tests/test_pedagogical_active_candidate_source_required_resource_inventory.py`;
-- `tests/test_pedagogical_active_candidate_source_expected_resource_coverage_verification.py`;
-- `app/db/models.py`, `app/schemas/content.py`, `app/schemas/direct_english_construction_review.py`, `app/schemas/tts_wav_normalization.py`, `app/schemas/tts_engine_benchmark.py`, `app/services/direct_english_construction_content_validation.py`, `app/services/direct_english_construction_execution_service.py`, `app/services/direct_english_construction_review_persistence_service.py`, `app/services/direct_english_construction_review_execution_service.py`, `app/services/pedagogical_content_text_integrity_validation.py`, `app/services/pedagogical_duplicate_validation.py`, `app/services/pedagogical_exercise_integrity_validation.py`, `app/services/pedagogical_validation_service.py`, `alembic/versions/d1842b7f3a91_add_direct_english_qualitative_reviews.py`, `docs/lesson-experience-contract.md`, `docs/loguic-tts-wav-normalization-profile-v1.md`, `docs/loguic-tts-engine-benchmark-protocol-v1.md`, `content/admissions/a1-u1/adm-a1-u1-002.json`, `content/active-source/active-candidate-source-002.json`, `content/candidates/a1-u1/human-review-v4.md`, `tests/test_a1_candidate_ipa_revision.py`, `tests/test_a1_candidate_v4_admission_record.py`, `tests/test_a1_candidate_v4_membership_snapshot.py`, `tests/test_direct_english_construction_review_schema.py`, `tests/test_direct_english_construction_review_persistence.py`, `tests/test_direct_english_construction_review_migration.py`, `tests/test_direct_english_construction_content_validation.py`, `tests/test_experience_evidence_runtime.py`, `tests/test_lesson_experience_schema.py`, `tests/test_pedagogical_duplicate_validation.py`, `tests/test_pedagogical_exercise_integrity_validation.py`, `tests/test_pedagogical_validation_service.py`, `tests/test_pedagogical_candidate_payload_identity.py`, `tests/test_experience_contract_versioning.py`, `tests/test_tts_engine_benchmark_schema.py`, `scripts/engineering/a1_resource_asset_close.py`, `scripts/engineering/tts_wav_normalize.py`, `tests/test_a1_resource_asset_close.py` y `tests/test_tts_wav_normalize.py`.
+- `docs/loguic-tts-wav-normalization-profile-v1.md` y `docs/loguic-tts-engine-benchmark-protocol-v1.md`;
+- `app/schemas/tts_engine_benchmark.py` y `tests/test_tts_engine_benchmark_schema.py` (cambios locales de review-lock, no publicados);
+- `scripts/engineering/operational_state.py`, `scripts/engineering/conversation_checkpoint.py`, `scripts/engineering/block_close.py` y `scripts/engineering/git_close.py`;
+- `content/candidates/a1-u1/pedagogical-unit-candidate-v4.json`, `content/admissions/a1-u1/adm-a1-u1-002.json` y `content/active-source/active-candidate-source-002.json`.

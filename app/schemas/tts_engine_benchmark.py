@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 import hashlib
 import json
 import re
@@ -65,6 +66,10 @@ _FROZEN_CORPUS_RESOURCE_IDS = tuple(
 def _json_value(value: Any) -> Any:
     if isinstance(value, BaseModel):
         return value.model_dump(mode="json")
+    if isinstance(value, datetime):
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("Causal datetime values must be timezone-aware")
+        return value.astimezone(UTC).isoformat().replace("+00:00", "Z")
     if isinstance(value, Mapping):
         return {str(key): _json_value(item) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
@@ -99,6 +104,21 @@ def _derive_or_validate_id(
         raise ValueError(f"{field_name} does not match canonical causal identity")
     data[field_name] = expected
     return data
+
+
+def _canonicalize_locked_at(value: Any) -> datetime:
+    """Normalize one lock instant to UTC before causal review-ID derivation."""
+
+    if isinstance(value, str):
+        try:
+            value = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        except ValueError as error:
+            raise ValueError("locked_at must be an ISO 8601 datetime") from error
+    if not isinstance(value, datetime):
+        raise ValueError("locked_at must be a datetime")
+    if value.tzinfo is None or value.utcoffset() is None:
+        raise ValueError("locked_at must be timezone-aware")
+    return value.astimezone(UTC)
 
 
 class _StrictFrozenModel(BaseModel):
@@ -402,11 +422,12 @@ class BlindReviewManifest(_StrictFrozenModel):
 
 
 class HumanReviewRecord(_StrictFrozenModel):
-    """Preserve one independent original human review without automatic judgment."""
+    """Preserve one independent final locked human review without automatic judgment."""
 
     review_id: str = Field(pattern=r"^review_[0-9a-f]{64}$")
     blind_review_id: str = Field(pattern=r"^br_[0-9a-f]{32}$")
     reviewer_id: Literal["reviewer_a", "reviewer_b"]
+    locked_at: datetime
     perceived_transcription: str = Field(min_length=1)
     first_listen_without_transcript: Literal[True]
     reference_text_revealed_after_first_listen: Literal[True]
@@ -422,7 +443,13 @@ class HumanReviewRecord(_StrictFrozenModel):
     @model_validator(mode="before")
     @classmethod
     def bind_causal_id(cls, values: Any) -> Any:
-        return _derive_or_validate_id(values, field_name="review_id", prefix="review_")
+        if not isinstance(values, Mapping):
+            return values
+        data = dict(values)
+        if "locked_at" not in data:
+            return data
+        data["locked_at"] = _canonicalize_locked_at(data["locked_at"])
+        return _derive_or_validate_id(data, field_name="review_id", prefix="review_")
 
 
 class AdjudicationRecord(_StrictFrozenModel):
@@ -449,6 +476,8 @@ class AdjudicationRecord(_StrictFrozenModel):
     def validate_adjudication(self) -> "AdjudicationRecord":
         if self.review_a.reviewer_id != "reviewer_a" or self.review_b.reviewer_id != "reviewer_b":
             raise ValueError("Adjudication requires original reviewer A and reviewer B records")
+        if self.review_a.locked_at is None or self.review_b.locked_at is None:
+            raise ValueError("Adjudication requires locked reviewer A and reviewer B records")
         dimensions = self.relevant_disagreement_dimensions
         if len(set(dimensions)) != len(dimensions):
             raise ValueError("Relevant disagreement dimensions must be unique")
@@ -477,8 +506,8 @@ def validate_private_adjudication_reconciliation(
 ) -> None:
     """Validate private post-review reconciliation without persisting sample identity.
 
-    This helper deliberately does not model or assert the separate review-lock
-    gate. Callers may use it only after that workflow gate has been satisfied.
+    ``AdjudicationRecord`` accepts only final locked reviews, so callers reach
+    this private boundary only after the two-review lock gate has been met.
     """
 
     reviews = (

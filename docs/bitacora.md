@@ -4860,3 +4860,31 @@ En runtime, captura Direct English inelegible permanece `pending`, elegible sin 
 Validación: 206 pruebas focales/runtime/contractuales/Direct English/B181 PASS; migración PostgreSQL aislada PASS; postflight independiente PASS; findings BLOCKING: 0; findings NONBLOCKING: 0; `git diff --check`, `operational_state.py validate`, `conversation_checkpoint.py prepare`, scope y EOF PASS; cabeza Alembic única `d1842b7f3a91`. Producción automática, pipelines semantic/phonetic, B181, Direct English histórico v2/v3, progreso, mastery y retención permanecen desacoplados o intactos. No se añadieron endpoint público, frontend, candidata A1, loader ni activación de `content/content_tree.json`; B181 sigue pausado, A1 L1 v3 inactiva, A1-U1 `pending / non-member` y `LOADER = BLOCKED`.
 
 El preflight read-only posterior de candidata A1 quedó **BLOCKED** únicamente por falta de una `PedagogicalUnitSpecification` concreta, versionada y aprobada antes de generar candidata. `a1-u1` queda reutilizable; la Skill histórica y el contenido histórico de `LessonExperience`, etapas, conversaciones y evidencias deberán reemplazarse; lesson ID y `candidate_revision` quedan por decidir, y `contract_version="3.0"` está confirmado. El siguiente objetivo se limita a preparar esa specification aislada para aprobación humana, sin candidata, admission, publication, membership, activación, loader ni reanudación de B181.
+
+## Reconciliación fail-closed de documentación, A1 y benchmark TTS v1
+
+La última frontera documental previa de esta bitácora fue `54f64cec43a3f7bb09eab527062b929be399328c` (`docs close post-increment 2 reconciliation preflight A1`). Una recuperación fail-closed detectó que la bitácora, el roadmap y el checkpoint operativo ya no cubrían los commits publicados posteriores ni la evidencia física del benchmark. Esta entrada reconstruye hechos verificables; no cierra cambios locales ni autoriza desarrollo adicional.
+
+### Evolución A1 publicada después de la frontera previa
+
+`30796c6` publicó la `PedagogicalUnitSpecification` A1 v3. `daa2221` extendió el contrato de `VisualContext` y `552a8bb` añadió las opciones visuales de `ExerciseMCQ`. `65418ac` aprobó humanamente la Candidate A1 v3; `19eb96c` publicó su `AdmissionRecord`; `3cc40a3` publicó su membership durable; y `468eee6` preparó los bindings físicos. Los commits `84ff03f`, `7d55bd5`, `ecc1f47` y `a6ab70e` añadieron, respectivamente, los cuatro únicos assets físicos A1 aprobados: escenas `water` y `food`, y opciones `need` y `greeting`. `e908a0a` y `ab8b4f2` publicaron la automatización y el cierre por lote de `a1_resource_asset_close.py`.
+
+`8358144` aprobó la corrección IPA de Candidate A1 v4: `help` en-GB pasa de `/hɛlp/` a `/help/`. `cc2a8bc` publicó el `AdmissionRecord` v4, `6e9270f` su membership durable y `a0a2bcc` apuntó el helper de assets a v4. A1 v4 permanece **MEMBER DURABLE / NOT ACTIVE**. Los cuatro visuales siguen siendo los únicos assets A1 aprobados; los WAV del benchmark no son assets A1 aprobados. B52 permanece **NOT VERIFIED**, `LOADER = BLOCKED`, B181 permanece **PAUSED** y `content/content_tree.json` no se modificó.
+
+### Contratos TTS publicados y reconciliación privada A/B
+
+`c2897ba` publicó el perfil de normalización WAV TTS v1. `a3b8b75` publicó el protocolo TTS Engine Benchmark v1 para Kokoro `0.9.4` y Piper `1.8.0`, con corpus Candidate v4, replicación adaptativa y contratos de identidad, manifests y review ciego. `4a6ce2f` corrigió el scope de aplicabilidad de `DeterminismProbe`. `3e10e97a932f6be27cc05081ba02c555d4611565` aclaró la identidad de normalización y es el `backend_canonical_commit` del benchmark externo.
+
+`4d26cf2f3557266b30c26328dbe6f7f76a5e61d9` cerró, publicó y sincronizó la reconciliación privada A/B: cada reviewer conserva su propio `blind_review_id`; la frontera privada resuelve `blind_review_id → BlindReviewMapping → sample_id`; y solo se emparejan para adjudicación dos reviews cuyos mappings resuelven al mismo `sample_id`. Esta corrección no inicia reviews humanas, no selecciona winner ni expone identidad técnica al reviewer.
+
+### Ejecución externa del benchmark TTS v1
+
+El workspace externo `/home/guiller/projects/loguic_tts_benchmark` contiene la ejecución `benchmark_execution_id=063e6d8d-72dc-4f46-83df-ce533ddf938f`, anclada a `backend_canonical_commit=3e10e97a932f6be27cc05081ba02c555d4611565`. Sus ocho voice attempts están `completed`: cuatro Kokoro `0.9.4` y cuatro Piper `1.8.0`. El estado y manifiesto final registran 144 runs, 144 generaciones RAW, 144 WAV normalizados, 48 `SampleManifest` y 144 `SampleIdentity` únicos.
+
+El event log contiene 1170 eventos. Existe exactamente un `FINALIZED`, que es el último evento, con timestamp `2026-09-13T20:13:43.519741Z`. Antes de emitir el manifiesto final, `finalize()` revalida cobertura, IDs de runs y attempts, layout autoritativo, existencia, tamaños, metadata y SHA-256 de RAW/normalizados, records de normalización, `GenerationCase` congelados, `SampleIdentity`, lifecycle, 144 runs, 48 manifests e inventario de outputs. Por esa evidencia, el benchmark está **TÉCNICAMENTE FINALIZADO**.
+
+Esta finalización técnica no equivale a review humana, adjudicación, selección de winner, elección de voz de producto, aprobación de WAV A1, ejecución B51/B52, loader ready, activación A1 ni reanudación B181. Las human reviews reales están **NOT STARTED** y el winner está **NOT SELECTED**.
+
+### Estado local no publicado de review-lock
+
+El commit local `962afec` no es un commit vigente ni publicado: fue descartado mediante `git reset --mixed 4d26cf2`, preservando sus tres cambios en el working tree. Esos cambios locales representan `HumanReviewRecord` final/locked, `locked_at` timezone-aware canonicalizado a UTC y `review_id` causal; han sido técnicamente revisados, pero permanecen **LOCAL / IMPLEMENTED / TECHNICALLY REVIEWED / NOT CLOSED / NOT PUBLISHED**. La persistencia append-only/runtime de human reviews y el public reviewer package/workflow siguen siendo gaps futuros separados.
