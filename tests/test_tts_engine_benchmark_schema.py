@@ -25,6 +25,7 @@ from app.schemas.tts_engine_benchmark import (
     RuntimeEnvironmentPin,
     SampleIdentity,
     SampleManifest,
+    validate_private_adjudication_reconciliation,
 )
 from app.schemas.tts_wav_normalization import TTS_WAV_NORMALIZATION_PROFILE_VERSION
 from app.services.pedagogical_candidate_payload_identity import (
@@ -208,11 +209,12 @@ def _replicated_manifest() -> SampleManifest:
     return SampleManifest(determinism_probe=probe, samples=samples)
 
 
-def _blind_mappings(manifest: SampleManifest) -> tuple[BlindReviewMapping, ...]:
+def _blind_mappings(*manifests: SampleManifest) -> tuple[BlindReviewMapping, ...]:
     mappings = []
     opaque_index = 1
     for reviewer_id in ("reviewer_a", "reviewer_b"):
-        for order_position, sample in enumerate(manifest.samples, start=1):
+        samples = tuple(sample for manifest in manifests for sample in manifest.samples)
+        for order_position, sample in enumerate(samples, start=1):
             mappings.append(
                 BlindReviewMapping(
                     blind_review_id=f"br_{opaque_index:032x}",
@@ -668,6 +670,43 @@ def test_valid_blind_manifest_for_independent_reviewers() -> None:
     assert "voice_id" not in BlindReviewMapping.model_fields
 
 
+def test_blind_manifest_preserves_288_unique_reviewer_specific_ids() -> None:
+    source_manifest = _replicated_manifest()
+    sample_manifests = tuple(
+        SampleManifest(
+            determinism_probe=source_manifest.determinism_probe,
+            samples=tuple(
+                sample.model_copy(
+                    update={"sample_id": f"sample_{sample_index:064x}"}
+                )
+                for sample_index, sample in enumerate(
+                    source_manifest.samples,
+                    start=manifest_index * len(source_manifest.samples) + 1,
+                )
+            ),
+        )
+        for manifest_index in range(48)
+    )
+    blind_manifest = BlindReviewManifest(
+        sample_manifests=sample_manifests,
+        mappings=_blind_mappings(*sample_manifests),
+    )
+
+    assert len(blind_manifest.mappings) == 288
+    assert len({mapping.blind_review_id for mapping in blind_manifest.mappings}) == 288
+    mappings_by_reviewer_and_sample = {
+        (mapping.reviewer_id, mapping.sample_id): mapping.blind_review_id
+        for mapping in blind_manifest.mappings
+    }
+    assert len(mappings_by_reviewer_and_sample) == 288
+    assert all(
+        mappings_by_reviewer_and_sample[("reviewer_a", sample.sample_id)]
+        != mappings_by_reviewer_and_sample[("reviewer_b", sample.sample_id)]
+        for manifest in sample_manifests
+        for sample in manifest.samples
+    )
+
+
 def test_reject_blind_id_reused_for_different_sample() -> None:
     sample_manifest = _replicated_manifest()
     mappings = [mapping.model_dump() for mapping in _blind_mappings(sample_manifest)]
@@ -694,10 +733,19 @@ def test_reject_duplicate_reviewer_order_position() -> None:
 
 
 def test_valid_adjudication_for_factual_disagreement() -> None:
-    review_a = _review("reviewer_a")
-    review_b = _review("reviewer_b", naturalness="minor_issue")
+    sample_manifest = _replicated_manifest()
+    blind_manifest = BlindReviewManifest(
+        sample_manifests=(sample_manifest,),
+        mappings=_blind_mappings(sample_manifest),
+    )
+    mapping_a, mapping_b = blind_manifest.mappings[0], blind_manifest.mappings[3]
+    review_a = _review("reviewer_a", blind_review_id=mapping_a.blind_review_id)
+    review_b = _review(
+        "reviewer_b",
+        blind_review_id=mapping_b.blind_review_id,
+        naturalness="minor_issue",
+    )
     adjudication = AdjudicationRecord(
-        blind_review_id=review_a.blind_review_id,
         review_a=review_a,
         review_b=review_b,
         adjudicator_id="adjudicator-human-001",
@@ -706,22 +754,72 @@ def test_valid_adjudication_for_factual_disagreement() -> None:
     )
     assert adjudication.review_a is review_a
     assert adjudication.review_b is review_b
+    assert "blind_review_id" not in AdjudicationRecord.model_fields
+    assert review_a.blind_review_id != review_b.blind_review_id
+    validate_private_adjudication_reconciliation(adjudication, blind_manifest)
 
 
-def test_reject_adjudication_with_different_blind_ids() -> None:
-    with pytest.raises(ValidationError, match="must share blind_review_id"):
-        AdjudicationRecord(
-            blind_review_id="br_0123456789abcdef0123456789abcdef",
-            review_a=_review("reviewer_a"),
-            review_b=_review(
-                "reviewer_b",
-                blind_review_id="br_ffffffffffffffffffffffffffffffff",
-                naturalness="minor_issue",
-            ),
-            adjudicator_id="human",
-            relevant_disagreement_dimensions=("naturalness",),
-            adjudicated_labels={"naturalness": "minor_issue"},
-        )
+def test_reject_reconciliation_for_reviews_resolving_to_different_samples() -> None:
+    sample_manifest = _replicated_manifest()
+    blind_manifest = BlindReviewManifest(
+        sample_manifests=(sample_manifest,),
+        mappings=_blind_mappings(sample_manifest),
+    )
+    adjudication = AdjudicationRecord(
+        review_a=_review("reviewer_a", blind_review_id=blind_manifest.mappings[0].blind_review_id),
+        review_b=_review(
+            "reviewer_b",
+            blind_review_id=blind_manifest.mappings[4].blind_review_id,
+            naturalness="minor_issue",
+        ),
+        adjudicator_id="human",
+        relevant_disagreement_dimensions=("naturalness",),
+        adjudicated_labels={"naturalness": "minor_issue"},
+    )
+    with pytest.raises(ValueError, match="resolve to the same sample_id"):
+        validate_private_adjudication_reconciliation(adjudication, blind_manifest)
+
+
+def test_reject_reconciliation_for_missing_blind_mapping() -> None:
+    sample_manifest = _replicated_manifest()
+    blind_manifest = BlindReviewManifest(
+        sample_manifests=(sample_manifest,),
+        mappings=_blind_mappings(sample_manifest),
+    )
+    adjudication = AdjudicationRecord(
+        review_a=_review("reviewer_a", blind_review_id="br_ffffffffffffffffffffffffffffffff"),
+        review_b=_review(
+            "reviewer_b",
+            blind_review_id=blind_manifest.mappings[3].blind_review_id,
+            naturalness="minor_issue",
+        ),
+        adjudicator_id="human",
+        relevant_disagreement_dimensions=("naturalness",),
+        adjudicated_labels={"naturalness": "minor_issue"},
+    )
+    with pytest.raises(ValueError, match="must resolve exactly once"):
+        validate_private_adjudication_reconciliation(adjudication, blind_manifest)
+
+
+def test_reject_reconciliation_for_reviewer_mapping_mismatch() -> None:
+    sample_manifest = _replicated_manifest()
+    blind_manifest = BlindReviewManifest(
+        sample_manifests=(sample_manifest,),
+        mappings=_blind_mappings(sample_manifest),
+    )
+    adjudication = AdjudicationRecord(
+        review_a=_review("reviewer_a", blind_review_id=blind_manifest.mappings[3].blind_review_id),
+        review_b=_review(
+            "reviewer_b",
+            blind_review_id=blind_manifest.mappings[3].blind_review_id,
+            naturalness="minor_issue",
+        ),
+        adjudicator_id="human",
+        relevant_disagreement_dimensions=("naturalness",),
+        adjudicated_labels={"naturalness": "minor_issue"},
+    )
+    with pytest.raises(ValueError, match="must belong to its reviewer"):
+        validate_private_adjudication_reconciliation(adjudication, blind_manifest)
 
 
 def test_reject_adjudication_with_identical_labels() -> None:
@@ -729,7 +827,6 @@ def test_reject_adjudication_with_identical_labels() -> None:
     review_b = _review("reviewer_b")
     with pytest.raises(ValidationError, match="factual label disagreement"):
         AdjudicationRecord(
-            blind_review_id=review_a.blind_review_id,
             review_a=review_a,
             review_b=review_b,
             adjudicator_id="human",
@@ -743,7 +840,6 @@ def test_reject_adjudication_for_dimension_without_disagreement() -> None:
     review_b = _review("reviewer_b", naturalness="minor_issue")
     with pytest.raises(ValidationError, match="factual label disagreement"):
         AdjudicationRecord(
-            blind_review_id=review_a.blind_review_id,
             review_a=review_a,
             review_b=review_b,
             adjudicator_id="human",
@@ -757,7 +853,6 @@ def test_reject_adjudication_with_same_reviewer_twice() -> None:
     second_a = _review("reviewer_a", naturalness="minor_issue")
     with pytest.raises(ValidationError, match="reviewer A and reviewer B"):
         AdjudicationRecord(
-            blind_review_id=review_a.blind_review_id,
             review_a=review_a,
             review_b=second_a,
             adjudicator_id="human",
@@ -778,6 +873,15 @@ def test_exact_review_scale_and_automatic_acceptance_fields_are_forbidden() -> N
         HumanReviewRecord.model_validate(
             review.model_dump() | {"automatic_acceptance_threshold": 0.9}
         )
+    assert not {
+        "sample_id",
+        "engine",
+        "model",
+        "model_id",
+        "voice",
+        "voice_id",
+        "private_mapping",
+    }.intersection(HumanReviewRecord.model_fields)
     for model in (
         GenerationCase,
         DeterminismProbe,

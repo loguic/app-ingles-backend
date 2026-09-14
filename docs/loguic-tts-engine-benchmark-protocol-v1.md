@@ -62,11 +62,11 @@ el record y el WAV normalizado; exige el mapping unívoco
 de hashes RAW/normalizado y profile version. WAV normalizado y record comparten
 el mismo directorio padre y ninguno se modifica después de publicarse.
 
-El mapping privado `blind_review_id -> sample_id` usa IDs opacos `br_` más 32 hexadecimales, tiene orden específico por reviewer y no se entrega al reviewer. Los reviewers no ven engine, modelo ni voz. El mapping no se revela hasta bloquear ambos reviews originales.
+El mapping privado `blind_review_id -> sample_id` usa IDs opacos `br_` más 32 hexadecimales, tiene orden específico por reviewer y no se entrega al reviewer. `blind_review_id` es una identidad de entrega cegada específica de reviewer: para una misma muestra, reviewer A y reviewer B reciben IDs distintos. Por tanto, con 144 muestras hay 288 IDs globalmente únicos, 144 por reviewer. Durante la review, cada `HumanReviewRecord` conserva únicamente su propio `blind_review_id`; los reviewers no ven engine, modelo, voz, `sample_id` ni el mapping privado. El mapping no se revela hasta cerrar ambas reviews originales.
 
 Reviewer A y reviewer B trabajan de forma independiente. Primero escuchan sin transcript y registran transcripción percibida e `intelligibility`; solo después se revela `reference_text`, IPA y `target_locale`, y se evalúan las demás dimensiones. La rúbrica exacta es `intelligibility`, `pronunciation_correctness`, `locale_accent_conformance`, `naturalness`, `prosody_rhythm` y `a1_pedagogical_suitability`. La escala exacta es `meets`, `minor_issue`, `major_issue` y `not_assessable`.
 
-Se conservan ambos labels originales. Solo un desacuerdo relevante recibe un `AdjudicationRecord` separado, que referencia los dos reviews y cubre únicamente sus dimensiones relevantes; nunca sustituye los originales. La comparación informa por target, locale, voz/configuración, dimensión, acuerdos/desacuerdos y adjudicaciones, y debe permitir `NO WINNER`.
+Se conservan ambos labels originales. Después de cerrar ambas reviews, una frontera privada resuelve cada `blind_review_id -> sample_id`. Solo puede emparejarse para adjudicación un review A y un review B cuyos mappings resuelvan al mismo `sample_id`. `AdjudicationRecord` separado referencia ambos reviews y cubre únicamente sus dimensiones relevantes; no depende de un `blind_review_id` compartido ni persiste el `sample_id` resuelto, y nunca sustituye los originales. La comparación informa por target, locale, voz/configuración, dimensión, acuerdos/desacuerdos y adjudicaciones, y debe permitir `NO WINNER`. El estado/evidencia verificable de lock sigue siendo un gap contractual separado: este contrato aún no lo representa ni lo valida.
 
 ## Licencias y salida permitida
 

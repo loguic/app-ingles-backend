@@ -426,10 +426,14 @@ class HumanReviewRecord(_StrictFrozenModel):
 
 
 class AdjudicationRecord(_StrictFrozenModel):
-    """Keep factual disagreement adjudication separate from original reviews."""
+    """Keep factual disagreement adjudication separate from original reviews.
+
+    The two embedded reviews retain their reviewer-specific blind identities.
+    Their common canonical sample is established only by private reconciliation
+    against a ``BlindReviewManifest`` after review closure.
+    """
 
     adjudication_id: str = Field(pattern=r"^adjudication_[0-9a-f]{64}$")
-    blind_review_id: str = Field(pattern=r"^br_[0-9a-f]{32}$")
     review_a: HumanReviewRecord
     review_b: HumanReviewRecord
     adjudicator_id: str = Field(min_length=1)
@@ -445,10 +449,6 @@ class AdjudicationRecord(_StrictFrozenModel):
     def validate_adjudication(self) -> "AdjudicationRecord":
         if self.review_a.reviewer_id != "reviewer_a" or self.review_b.reviewer_id != "reviewer_b":
             raise ValueError("Adjudication requires original reviewer A and reviewer B records")
-        if self.review_a.blind_review_id != self.review_b.blind_review_id:
-            raise ValueError("Adjudication reviews must share blind_review_id")
-        if self.blind_review_id != self.review_a.blind_review_id:
-            raise ValueError("Adjudication must share the original reviews blind_review_id")
         dimensions = self.relevant_disagreement_dimensions
         if len(set(dimensions)) != len(dimensions):
             raise ValueError("Relevant disagreement dimensions must be unique")
@@ -469,3 +469,37 @@ class AdjudicationRecord(_StrictFrozenModel):
         if set(self.adjudicated_labels) != set(dimensions):
             raise ValueError("Adjudicated labels must cover only relevant disagreements")
         return self
+
+
+def validate_private_adjudication_reconciliation(
+    adjudication: AdjudicationRecord,
+    blind_review_manifest: BlindReviewManifest,
+) -> None:
+    """Validate private post-review reconciliation without persisting sample identity.
+
+    This helper deliberately does not model or assert the separate review-lock
+    gate. Callers may use it only after that workflow gate has been satisfied.
+    """
+
+    reviews = (
+        ("reviewer_a", adjudication.review_a),
+        ("reviewer_b", adjudication.review_b),
+    )
+    resolved_mappings: list[BlindReviewMapping] = []
+    for expected_reviewer_id, review in reviews:
+        if review.reviewer_id != expected_reviewer_id:
+            raise ValueError("Adjudication requires original reviewer A and reviewer B records")
+        mappings = tuple(
+            mapping
+            for mapping in blind_review_manifest.mappings
+            if mapping.blind_review_id == review.blind_review_id
+        )
+        if len(mappings) != 1:
+            raise ValueError("Each adjudication review blind_review_id must resolve exactly once")
+        mapping = mappings[0]
+        if mapping.reviewer_id != review.reviewer_id:
+            raise ValueError("Adjudication review blind_review_id must belong to its reviewer")
+        resolved_mappings.append(mapping)
+
+    if resolved_mappings[0].sample_id != resolved_mappings[1].sample_id:
+        raise ValueError("Adjudication reviews must resolve to the same sample_id")
