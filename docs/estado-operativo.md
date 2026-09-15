@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-15T22:19:38+02:00
-Baseline Git previa a este checkpoint: e4fb910b2731ad8323a23ff700b27ee5fc2fdbe4
+Actualizado: 2026-09-15T22:37:11+02:00
+Baseline Git previa a este checkpoint: 96641759d1aec8d95ed47f9ffccc7d9c59510318
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -65,11 +65,9 @@ Scope técnico cerrado:
 - `docs/loguic-tts-engine-benchmark-protocol-v1.md`
 - `tests/test_tts_engine_benchmark_schema.py`
 
-## Bloque activo
-
 ### Microbloque tooling — orquestador fiable del Closure Gate
 
-Estado semántico: **IMPLEMENTED LOCALLY / VALIDATED / RE-POSTFLIGHT PASS / READY_FOR_CLOSURE**.
+Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `96641759d1aec8d95ed47f9ffccc7d9c59510318`.
 
 `block_workflow.py` orquesta explícitamente el tramo determinista ya aprobado `block_close.py → git_close.py → conversation_checkpoint.py prepare`, en orden estricto y con fallo cerrado. Su CLI separa los argumentos técnicos posteriores a `--block-close-args` de `--branch`, `--upstream`, `--message`, la allowlist repetida `--file` y el timeout por fase. No reconstruye validaciones técnicas, lógica Git ni composición del checkpoint.
 
@@ -77,7 +75,7 @@ Cada helper se ejecuta sin shell, con `stdin=DEVNULL`, stdout/stderr capturados 
 
 El primer postflight independiente fue **FAIL**: detectó falso PASS con un descendiente vivo, cobertura adversarial insuficiente y documentación incompleta del cierre parcial posterior a Git. Los tres findings fueron corregidos localmente. La validación vigente registra `tests/test_block_workflow.py` **18 PASS**, incluida prueba real de líder status 0 con descendiente residual terminado y fase rechazada, y regresión directamente relacionada de `block_close.py`, `git_close.py` y `conversation_checkpoint.py` **86 PASS**. El re-postflight independiente final fue **PASS**, con BLOCKING **0** y NONBLOCKING **0**: revalidó que el líder status 0 con descendiente vivo produce FAIL, no reporta PASS, termina el descendiente, elimina el process group residual y no deja hijos recolectables; un proceso externo al grupo permanece intacto. Confirmó además orden estricto, fallo cerrado, propagación exacta de argumentos, ausencia de lógica Git duplicada y de `shell=True`, `stdin=DEVNULL`, y que timeout, interrupción, señal y launcher failure no pueden producir PASS.
 
-El orquestador no se declara todavía canónico durable: lo será únicamente después de cerrar y publicar este microbloque y de que su `conversation_checkpoint.py prepare` post-cierre confirme el checkpoint. El cierre de este propio microbloque sigue usando la secuencia directa `block_close.py → git_close.py → conversation_checkpoint.py prepare`; los Closure Gates posteriores podrán usar `block_workflow.py` una vez completada esa frontera.
+El cierre fue publicado y su `conversation_checkpoint.py prepare` post-cierre terminó correctamente: la baseline histórica pre-cierre `e4fb910b2731ad8323a23ff700b27ee5fc2fdbe4` quedó como `HEAD^`, con árbol limpio y sincronizado. Por tanto, `scripts/engineering/block_workflow.py` es el orquestador canónico para Closure Gates futuros, únicamente después de que postflight independiente haya pasado, la documentación semántica esté preparada y scope/allowlist y mensaje estén aprobados. Su tramo determinista canónico es `checkpoint validation → block_close.py → git_close.py → conversation_checkpoint.py prepare`.
 
 Si `git_close.py` completa commit/push y el `prepare` posterior falla, existe **PARTIAL CLOSURE / PUBLISHED BUT CHECKPOINT-INCOMPLETE**: el cierre Git ya está publicado y el workflow devuelve FAIL global. No intenta rollback ni repite automáticamente commit/push. Se debe reconciliar mediante inspección read-only de Git y estado semántico, corregir la causa y continuar desde el estado publicado real hasta completar el checkpoint correspondiente; no se clasifica como fallo Git.
 
@@ -90,6 +88,14 @@ Scope local reconocido:
 
 B permanece **NOT IMPLEMENTED** y no se abre mediante este microbloque.
 
+## Bloque activo
+
+### LOGUIC Operational Automation / Token Reduction
+
+Estado semántico: **NOT STARTED / DECISION AND SCOPE REQUIRED**.
+
+Objetivo inicial: identificar y sistematizar procesos repetitivos que puedan trasladarse de ChatGPT/Codex a scripts locales deterministas para reducir consumo de tokens, contexto, comandos manuales y errores, sin automatizar decisiones que requieran razonamiento.
+
 ### Fronteras A1, B52 y B181
 
 B52 para la source vigente está **NOT VERIFIED**; `LOADER = BLOCKED`. `content/content_tree.json` permanece intacto. B181 permanece **PAUSED** en puerta pedagógica; no se reactiva mediante A1 v4, el benchmark, el review-lock ni este microbloque.
@@ -98,8 +104,8 @@ B52 para la source vigente está **NOT VERIFIED**; `LOADER = BLOCKED`. `content/
 
 - `operational_state.py` valida estructura, timestamp timezone-aware, baseline Git previa y ausencia de campos Git vivos.
 - `conversation_checkpoint.py prepare|resume` compone estado semántico y Git vivo en una vista efímera read-only.
-- El cierre de este microbloque sigue la secuencia directa `block_close.py → git_close.py → conversation_checkpoint.py prepare`; ChatGPT orquesta postflight independiente, documentación semántica, scope/allowlist, mensaje de commit e interpretación del checkpoint post-cierre.
-- `block_workflow.py` está **IMPLEMENTED LOCALLY / VALIDATED / RE-POSTFLIGHT PASS / READY_FOR_CLOSURE**. Será canónico para Closure Gates posteriores solo tras publicar este microbloque y confirmar su checkpoint post-cierre.
+- `block_workflow.py` es el orquestador canónico del tramo determinista de Closure Gates futuros: `checkpoint validation → block_close.py → git_close.py → conversation_checkpoint.py prepare`.
+- ChatGPT conserva readiness, postflight independiente, decisiones semánticas, scope/allowlist, mensaje e interpretación del checkpoint post-cierre; también realiza la reconciliación read-only si existe partial closure.
 - `a1_resource_asset_close.py` solo opera sobre assets A1 humanamente aprobados; no convierte outputs del benchmark en assets A1.
 
 ## Método operativo vigente
@@ -117,7 +123,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-Ejecutar el Closure Gate de este microbloque mediante la secuencia directa `block_close.py → git_close.py → conversation_checkpoint.py prepare`; no usar `block_workflow.py` para cerrarse a sí mismo. Tras publicación y checkpoint post-cierre PASS, el orquestador podrá ser canónico para Closure Gates posteriores. Las human reviews reales permanecen `NOT STARTED`; adjudicación y winner siguen fuera de alcance, y B52, loader, B181 y A1 no se reactivan automáticamente.
+`LOGUIC Operational Automation / Token Reduction`: identificar y sistematizar procesos repetitivos transferibles a scripts locales deterministas para reducir tokens, contexto, comandos manuales y errores, sin automatizar decisiones que requieran razonamiento. B permanece `NOT IMPLEMENTED`; las human reviews reales permanecen `NOT STARTED`; adjudicación y winner siguen fuera de alcance, y A1, B52, loader y B181 no se reactivan automáticamente.
 
 ## Archivos clave
 
