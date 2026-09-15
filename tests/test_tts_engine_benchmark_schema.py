@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta, timezone
+import hashlib
+import hmac
 import json
 from pathlib import Path
 from typing import Any, get_args
@@ -12,7 +14,12 @@ from app.schemas.pedagogical_unit import PedagogicalUnitCandidate
 from app.schemas.tts_engine_benchmark import (
     CANDIDATE_V4_CONTENT_DIGEST,
     CANDIDATE_V4_FROZEN_TARGETS,
+    PUBLIC_REVIEW_ROOT_EVENT_ID,
+    PUBLIC_REVIEW_ROOT_EVENT_MAC,
     TTS_ENGINE_BENCHMARK_PROTOCOL_VERSION,
+    TTS_PUBLIC_REVIEWER_PACKAGE_VERSION,
+    TTS_PUBLIC_REVIEW_SLOT_VERSION,
+    TTS_PUBLIC_REVIEW_WORKFLOW_AUTH_VERSION,
     AdjudicationRecord,
     BenchmarkProtocolIdentity,
     BlindReviewManifest,
@@ -21,7 +28,12 @@ from app.schemas.tts_engine_benchmark import (
     DeterminismProbe,
     GenerationCase,
     HumanReviewRecord,
+    LockClaim,
+    LockedReviewHandoff,
     ModelPin,
+    PublicReviewerPackage,
+    PublicReviewWorkflowEvent,
+    PublicReviewWorkflowState,
     ReviewLabel,
     RuntimeEnvironmentPin,
     SampleIdentity,
@@ -32,6 +44,19 @@ from app.schemas.tts_wav_normalization import TTS_WAV_NORMALIZATION_PROFILE_VERS
 from app.services.pedagogical_candidate_payload_identity import (
     derive_candidate_payload_identity,
 )
+from app.services.tts_public_reviewer_workflow import (
+    build_private_reviewer_package_binding,
+    build_public_reviewer_package,
+    capture_initial_review,
+    complete_review_rubric,
+    deliver_public_review,
+    disclose_review_context,
+    lock_public_review,
+    register_first_listen,
+    serialize_locked_review_handoff,
+    validate_locked_review_handoff,
+    validate_nonconflicting_review_locks,
+)
 
 
 CANDIDATE_V4_PATH = (
@@ -39,6 +64,7 @@ CANDIDATE_V4_PATH = (
     / "content/candidates/a1-u1/pedagogical-unit-candidate-v4.json"
 )
 LOCKED_AT = datetime(2026, 9, 14, 12, 0, tzinfo=UTC)
+PRIVATE_COMMITMENT_KEY = b"loguic-review-package-test-key-v1"
 
 
 def _derive_candidate_v4_targets() -> tuple[tuple[str, str, str, str], ...]:
@@ -772,6 +798,930 @@ def test_reject_duplicate_reviewer_order_position() -> None:
     mappings[1]["order_position"] = mappings[0]["order_position"]
     with pytest.raises(ValidationError, match="order positions must be unique"):
         BlindReviewManifest(sample_manifests=(sample_manifest,), mappings=tuple(mappings))
+
+
+def _public_review_setup(
+    *,
+    reviewer_id: str = "reviewer_a",
+    item_index: int = 0,
+    private_commitment_key: bytes = PRIVATE_COMMITMENT_KEY,
+) -> tuple[
+    BlindReviewManifest,
+    PublicReviewerPackage,
+    PublicReviewWorkflowState,
+]:
+    sample_manifest = _replicated_manifest()
+    private_manifest = BlindReviewManifest(
+        sample_manifests=(sample_manifest,),
+        mappings=_blind_mappings(sample_manifest),
+    )
+    package = build_public_reviewer_package(
+        private_manifest,
+        reviewer_id=reviewer_id,
+        private_commitment_key=private_commitment_key,
+    )
+    delivered = deliver_public_review(
+        package,
+        private_manifest,
+        blind_review_id=package.items[item_index].blind_review_id,
+        private_commitment_key=private_commitment_key,
+    )
+    return private_manifest, package, delivered
+
+
+def _complete_public_review(
+    *,
+    reviewer_id: str = "reviewer_a",
+    item_index: int = 0,
+    naturalness: ReviewLabel = "meets",
+    private_commitment_key: bytes = PRIVATE_COMMITMENT_KEY,
+) -> tuple[
+    BlindReviewManifest,
+    PublicReviewerPackage,
+    PublicReviewWorkflowState,
+]:
+    private_manifest, package, state = _public_review_setup(
+        reviewer_id=reviewer_id,
+        item_index=item_index,
+        private_commitment_key=private_commitment_key,
+    )
+    state = register_first_listen(
+        state,
+        package,
+        private_manifest,
+        private_commitment_key=private_commitment_key,
+    )
+    state = capture_initial_review(
+        state,
+        package,
+        private_manifest,
+        perceived_transcription="I need water.",
+        intelligibility="meets",
+        private_commitment_key=private_commitment_key,
+    )
+    state = disclose_review_context(
+        state,
+        package,
+        private_manifest,
+        private_commitment_key=private_commitment_key,
+    )
+    state = complete_review_rubric(
+        state,
+        package,
+        private_manifest,
+        pronunciation_correctness="meets",
+        locale_accent_conformance="meets",
+        naturalness=naturalness,
+        prosody_rhythm="meets",
+        a1_pedagogical_suitability="meets",
+        private_commitment_key=private_commitment_key,
+    )
+    return private_manifest, package, state
+
+
+def _public_causal_id(prefix: str, payload: dict[str, Any]) -> str:
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return prefix + hashlib.sha256(encoded).hexdigest()
+
+
+def _recalculate_public_state_ids(raw_state: dict[str, Any]) -> dict[str, Any]:
+    events = raw_state["events"]
+    for index, event in enumerate(events):
+        event["predecessor_event_id"] = (
+            PUBLIC_REVIEW_ROOT_EVENT_ID
+            if index == 0
+            else events[index - 1]["event_id"]
+        )
+        event["predecessor_event_mac"] = (
+            PUBLIC_REVIEW_ROOT_EVENT_MAC
+            if index == 0
+            else events[index - 1]["event_mac"]
+        )
+        if event["stage"] == "locked":
+            event["lock_transition_id"] = _public_causal_id(
+                "review_lock_",
+                {
+                    "package_id": event["package_id"],
+                    "reviewer_id": event["reviewer_id"],
+                    "blind_review_id": event["blind_review_id"],
+                    "rubric_complete_event_id": event["predecessor_event_id"],
+                },
+            )
+        event_identity = {
+            key: value
+            for key, value in event.items()
+            if key not in {"event_id", "event_mac"}
+        }
+        event["event_id"] = _public_causal_id("review_event_", event_identity)
+    state_identity = {
+        key: value for key, value in raw_state.items() if key != "workflow_state_id"
+    }
+    raw_state["workflow_state_id"] = _public_causal_id(
+        "review_state_",
+        state_identity,
+    )
+    return raw_state
+
+
+def _authenticate_public_state_for_test(
+    raw_state: dict[str, Any],
+    package: PublicReviewerPackage,
+) -> dict[str, Any]:
+    key_context = {
+        "domain": "loguic-tts-public-review-workflow-key-derivation/1.0",
+        "authentication_version": TTS_PUBLIC_REVIEW_WORKFLOW_AUTH_VERSION,
+        "package_version": package.package_version,
+        "protocol_version": package.protocol_version,
+        "package_id": package.package_id,
+        "delivery_set_commitment": package.delivery_set_commitment,
+    }
+    workflow_key = hmac.new(
+        PRIVATE_COMMITMENT_KEY,
+        json.dumps(
+            key_context,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8"),
+        hashlib.sha256,
+    ).digest()
+    events = raw_state["events"]
+    for index, event in enumerate(events):
+        event["predecessor_event_id"] = (
+            PUBLIC_REVIEW_ROOT_EVENT_ID
+            if index == 0
+            else events[index - 1]["event_id"]
+        )
+        event["predecessor_event_mac"] = (
+            PUBLIC_REVIEW_ROOT_EVENT_MAC
+            if index == 0
+            else events[index - 1]["event_mac"]
+        )
+        event_identity = {
+            key: value
+            for key, value in event.items()
+            if key not in {"event_id", "event_mac"}
+        }
+        event["event_id"] = _public_causal_id("review_event_", event_identity)
+        mac_content = {
+            "domain": "loguic-tts-public-review-workflow-event-mac/1.0",
+            "event": {key: value for key, value in event.items() if key != "event_mac"},
+        }
+        event["event_mac"] = "review_event_mac_" + hmac.new(
+            workflow_key,
+            json.dumps(
+                mac_content,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+                allow_nan=False,
+            ).encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest()
+    return _recalculate_public_state_ids(raw_state)
+
+
+def _recalculate_public_handoff_ids(raw_handoff: dict[str, Any]) -> dict[str, Any]:
+    _recalculate_public_state_ids(raw_handoff["workflow_state"])
+    locked = raw_handoff["workflow_state"]["events"][-1]
+    raw_handoff["lock_transition_id"] = locked["lock_transition_id"]
+    handoff_identity = {
+        key: value for key, value in raw_handoff.items() if key != "handoff_id"
+    }
+    raw_handoff["handoff_id"] = _public_causal_id(
+        "review_handoff_",
+        handoff_identity,
+    )
+    return raw_handoff
+
+
+def _canonical_payload(raw_handoff: dict[str, Any]) -> bytes:
+    return json.dumps(
+        raw_handoff,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+
+
+def test_public_package_is_deterministic_frozen_assigned_and_ordered() -> None:
+    private_manifest, package, _ = _public_review_setup()
+    repeated = build_public_reviewer_package(
+        private_manifest,
+        reviewer_id="reviewer_a",
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    reviewer_b = build_public_reviewer_package(
+        private_manifest,
+        reviewer_id="reviewer_b",
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    different_private_key = build_public_reviewer_package(
+        private_manifest,
+        reviewer_id="reviewer_a",
+        private_commitment_key=b"different-private-commitment-key-v1",
+    )
+
+    assert package == repeated
+    assert package.package_id == repeated.package_id
+    assert package.package_version == TTS_PUBLIC_REVIEWER_PACKAGE_VERSION
+    assert package.reviewer_id == "reviewer_a"
+    assert package.package_id != reviewer_b.package_id
+    assert package.package_id != different_private_key.package_id
+    assert tuple(item.order_position for item in package.items) == (1, 2, 3)
+    assert tuple(item.blind_review_id for item in package.items) == tuple(
+        mapping.blind_review_id
+        for mapping in private_manifest.mappings
+        if mapping.reviewer_id == "reviewer_a"
+    )
+    with pytest.raises(ValidationError):
+        package.reviewer_id = "reviewer_b"
+    with pytest.raises(ValueError, match="at least 32 bytes"):
+        build_public_reviewer_package(
+            private_manifest,
+            reviewer_id="reviewer_a",
+            private_commitment_key=b"too-short",
+        )
+    incompatible_version = package.model_dump(mode="json")
+    incompatible_version["package_version"] = "loguic-tts-public-reviewer-package/2.0"
+    incompatible_version.pop("package_id")
+    with pytest.raises(ValidationError, match="package_version"):
+        PublicReviewerPackage.model_validate(incompatible_version)
+
+
+def test_private_remapping_changes_package_and_every_audio_delivery_identity() -> None:
+    private_manifest, package, _ = _public_review_setup()
+    remapped = [mapping.model_dump() for mapping in private_manifest.mappings]
+    remapped[0]["sample_id"], remapped[1]["sample_id"] = (
+        remapped[1]["sample_id"],
+        remapped[0]["sample_id"],
+    )
+    remapped[3]["sample_id"], remapped[4]["sample_id"] = (
+        remapped[4]["sample_id"],
+        remapped[3]["sample_id"],
+    )
+    altered_manifest = BlindReviewManifest(
+        sample_manifests=private_manifest.sample_manifests,
+        mappings=tuple(remapped),
+    )
+    altered = build_public_reviewer_package(
+        altered_manifest,
+        reviewer_id="reviewer_a",
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+
+    assert altered.delivery_set_commitment != package.delivery_set_commitment
+    assert altered.package_id != package.package_id
+    assert tuple(item.audio_delivery_id for item in altered.items) != tuple(
+        item.audio_delivery_id for item in package.items
+    )
+
+
+def test_normalized_audio_change_changes_private_binding_and_delivery_identity() -> None:
+    private_manifest, package, _ = _public_review_setup()
+    sample_manifest = private_manifest.sample_manifests[0]
+    changed_payload = sample_manifest.samples[0].model_dump()
+    changed_payload.pop("sample_id")
+    changed_payload["normalized_sha256"] = "9" * 64
+    changed_sample = SampleIdentity.model_validate(changed_payload)
+    changed_sample_manifest = SampleManifest(
+        determinism_probe=sample_manifest.determinism_probe,
+        samples=(changed_sample, *sample_manifest.samples[1:]),
+    )
+    changed_manifest = BlindReviewManifest(
+        sample_manifests=(changed_sample_manifest,),
+        mappings=_blind_mappings(changed_sample_manifest),
+    )
+    changed_package = build_public_reviewer_package(
+        changed_manifest,
+        reviewer_id="reviewer_a",
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+
+    assert build_private_reviewer_package_binding(
+        changed_manifest,
+        reviewer_id="reviewer_a",
+    ).binding_id != build_private_reviewer_package_binding(
+        private_manifest,
+        reviewer_id="reviewer_a",
+    ).binding_id
+    assert changed_package.package_id != package.package_id
+    assert changed_package.items[0].audio_delivery_id != package.items[0].audio_delivery_id
+
+
+def test_public_package_and_disclosure_never_expose_private_technical_identity() -> None:
+    private_manifest, package, state = _public_review_setup()
+    serialized_package = package.model_dump_json()
+    sample = private_manifest.sample_manifests[0].samples[0]
+
+    assert not {
+        "sample_id",
+        "engine",
+        "engine_version",
+        "model_pin",
+        "voice_id",
+        "private_mapping",
+    }.intersection(PublicReviewerPackage.model_fields)
+    assert all(
+        not {
+            "sample_id",
+            "engine",
+            "engine_version",
+            "model_pin",
+            "voice_id",
+            "private_mapping",
+        }.intersection(type(item).model_fields)
+        for item in package.items
+    )
+    assert sample.sample_id not in serialized_package
+    assert sample.normalized_sha256 not in serialized_package
+    assert sample.generation_case.engine not in serialized_package
+    assert sample.generation_case.voice_id not in serialized_package
+
+    state = register_first_listen(
+        state,
+        package,
+        private_manifest,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    state = capture_initial_review(
+        state,
+        package,
+        private_manifest,
+        perceived_transcription="I need water.",
+        intelligibility="meets",
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    disclosed = disclose_review_context(
+        state,
+        package,
+        private_manifest,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    disclosure = disclosed.event_for("disclosed").disclosure
+    assert disclosure is not None
+    assert set(type(disclosure).model_fields) == {
+        "package_id",
+        "blind_review_id",
+        "reference_text",
+        "ipa",
+        "target_locale",
+    }
+    assert sample.sample_id not in disclosure.model_dump_json()
+
+
+def test_public_workflow_rejects_premature_disclosure_and_rubric() -> None:
+    private_manifest, package, delivered = _public_review_setup()
+    with pytest.raises(ValueError, match="requires initial_capture"):
+        disclose_review_context(
+            delivered,
+            package,
+            private_manifest,
+            private_commitment_key=PRIVATE_COMMITMENT_KEY,
+        )
+
+    first_listen = register_first_listen(
+        delivered,
+        package,
+        private_manifest,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    with pytest.raises(ValueError, match="requires initial_capture"):
+        disclose_review_context(
+            first_listen,
+            package,
+            private_manifest,
+            private_commitment_key=PRIVATE_COMMITMENT_KEY,
+        )
+    initial_capture = capture_initial_review(
+        first_listen,
+        package,
+        private_manifest,
+        perceived_transcription="I need water.",
+        intelligibility="meets",
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    with pytest.raises(ValueError, match="requires disclosed"):
+        complete_review_rubric(
+            initial_capture,
+            package,
+            private_manifest,
+            pronunciation_correctness="meets",
+            locale_accent_conformance="meets",
+            naturalness="meets",
+            prosody_rhythm="meets",
+            a1_pedagogical_suitability="meets",
+            private_commitment_key=PRIVATE_COMMITMENT_KEY,
+        )
+
+
+def test_public_workflow_rejects_lock_before_complete_rubric() -> None:
+    private_manifest, package, state = _public_review_setup()
+    state = register_first_listen(
+        state,
+        package,
+        private_manifest,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    state = capture_initial_review(
+        state,
+        package,
+        private_manifest,
+        perceived_transcription="I need water.",
+        intelligibility="meets",
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    disclosed = disclose_review_context(
+        state,
+        package,
+        private_manifest,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+
+    with pytest.raises(ValueError, match="requires rubric_complete"):
+        lock_public_review(
+            disclosed,
+            package,
+            private_manifest,
+            locked_at=LOCKED_AT,
+            private_commitment_key=PRIVATE_COMMITMENT_KEY,
+        )
+
+
+def test_event_mac_is_mandatory_and_model_validation_never_repairs_it() -> None:
+    private_manifest, package, delivered = _public_review_setup()
+    missing = delivered.events[0].model_dump(mode="json")
+    missing.pop("event_mac")
+    with pytest.raises(ValidationError, match="event_mac"):
+        PublicReviewWorkflowEvent.model_validate(missing)
+
+    invented = delivered.model_dump(mode="json")
+    invented["events"][0]["event_mac"] = "review_event_mac_" + "0" * 64
+    invented = _recalculate_public_state_ids(invented)
+    structurally_valid = PublicReviewWorkflowState.model_validate(invented)
+    with pytest.raises(ValueError, match="MAC authentication failed"):
+        register_first_listen(
+            structurally_valid,
+            package,
+            private_manifest,
+            private_commitment_key=PRIVATE_COMMITMENT_KEY,
+        )
+
+    with pytest.raises(ValueError, match="private delivery binding"):
+        register_first_listen(
+            delivered,
+            package,
+            private_manifest,
+            private_commitment_key=b"different-private-commitment-key-v1",
+        )
+
+
+def test_workflow_rejects_missing_altered_and_wrong_predecessor_lineage() -> None:
+    private_manifest, package, complete = _complete_public_review()
+    missing = complete.model_dump()
+    missing.pop("workflow_state_id")
+    missing["events"] = list(missing["events"])
+    missing["events"].pop(1)
+    with pytest.raises(ValidationError, match="complete ordered stage prefix"):
+        PublicReviewWorkflowState.model_validate(missing)
+
+    altered = complete.model_dump(mode="json")
+    altered["events"][2]["perceived_transcription"] = "altered"
+    altered = _recalculate_public_state_ids(altered)
+    altered_state = PublicReviewWorkflowState.model_validate(altered)
+    with pytest.raises(ValueError, match="MAC authentication failed"):
+        lock_public_review(
+            altered_state,
+            package,
+            private_manifest,
+            locked_at=LOCKED_AT,
+            private_commitment_key=PRIVATE_COMMITMENT_KEY,
+        )
+
+    wrong_predecessor = complete.model_dump()
+    wrong_predecessor.pop("workflow_state_id")
+    wrong_predecessor["events"][1].pop("event_id")
+    wrong_predecessor["events"][1]["predecessor_event_id"] = (
+        "review_event_" + "f" * 64
+    )
+    with pytest.raises(ValidationError, match="predecessor does not match"):
+        PublicReviewWorkflowState.model_validate(wrong_predecessor)
+
+    changed_stage = complete.model_dump(mode="json")
+    changed_stage["events"][1]["stage"] = "initial_capture"
+    changed_stage["events"][1].pop("event_id")
+    changed_stage.pop("workflow_state_id")
+    with pytest.raises(ValidationError):
+        PublicReviewWorkflowState.model_validate(changed_stage)
+
+    changed_context = complete.model_dump(mode="json")
+    changed_context["events"][2]["reviewer_id"] = "reviewer_b"
+    changed_context["events"][2].pop("event_id")
+    changed_context.pop("workflow_state_id")
+    with pytest.raises(ValidationError, match="different package or item"):
+        PublicReviewWorkflowState.model_validate(changed_context)
+
+
+def test_complete_chain_with_all_public_hashes_recalculated_is_rejected() -> None:
+    private_manifest, package, complete = _complete_public_review()
+    handoff = lock_public_review(
+        complete,
+        package,
+        private_manifest,
+        locked_at=LOCKED_AT,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    fabricated = handoff.model_dump(mode="json")
+    for index, event in enumerate(fabricated["workflow_state"]["events"]):
+        event["event_mac"] = "review_event_mac_" + hashlib.sha256(
+            f"fabricated-{index}".encode("ascii")
+        ).hexdigest()
+    fabricated = _recalculate_public_handoff_ids(fabricated)
+    LockedReviewHandoff.model_validate(fabricated)
+
+    with pytest.raises(ValueError, match="MAC authentication failed"):
+        validate_locked_review_handoff(
+            package,
+            private_manifest,
+            _canonical_payload(fabricated),
+            private_commitment_key=PRIVATE_COMMITMENT_KEY,
+        )
+
+
+def test_valid_public_sequence_produces_exact_locked_review_and_canonical_handoff() -> None:
+    private_manifest, package, complete = _complete_public_review()
+    assert not isinstance(complete, HumanReviewRecord)
+    assert complete.stage == "rubric_complete"
+
+    handoff = lock_public_review(
+        complete,
+        package,
+        private_manifest,
+        locked_at=LOCKED_AT,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    expected = _review(
+        "reviewer_a",
+        blind_review_id=package.items[0].blind_review_id,
+    )
+    assert isinstance(handoff, LockedReviewHandoff)
+    assert handoff.workflow_state.stage == "locked"
+    assert handoff.review == expected
+
+    payload = serialize_locked_review_handoff(
+        handoff,
+        package,
+        private_manifest,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    serialized = json.loads(payload)
+    assert serialized["review"] == expected.model_dump(mode="json")
+    assert set(serialized["review"]) == set(HumanReviewRecord.model_fields)
+    claim = validate_locked_review_handoff(
+        package,
+        private_manifest,
+        payload,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    assert isinstance(claim, LockClaim)
+    assert claim.review_slot_version == TTS_PUBLIC_REVIEW_SLOT_VERSION
+    assert claim.package_id == package.package_id
+    assert claim.lock_transition_id == handoff.lock_transition_id
+    assert claim.handoff_id == handoff.handoff_id
+    assert claim.review == expected
+    with pytest.raises(ValueError, match="not canonical JSON"):
+        validate_locked_review_handoff(
+            package,
+            private_manifest,
+            payload + b"\n",
+            private_commitment_key=PRIVATE_COMMITMENT_KEY,
+        )
+
+    serialized_text = payload.decode("utf-8")
+    for forbidden_field in (
+        "sample_id",
+        "engine",
+        "engine_version",
+        "model_pin",
+        "voice_id",
+        "private_mapping",
+    ):
+        assert f'"{forbidden_field}"' not in serialized_text
+    for sample_manifest in private_manifest.sample_manifests:
+        for sample in sample_manifest.samples:
+            assert sample.sample_id not in serialized_text
+            assert sample.normalized_sha256 not in serialized_text
+            assert sample.generation_case.engine not in serialized_text
+            assert sample.generation_case.model_pin.model_id not in serialized_text
+            assert sample.generation_case.voice_id not in serialized_text
+    assert PRIVATE_COMMITMENT_KEY.decode("ascii") not in serialized_text
+    reviewer_b_package = build_public_reviewer_package(
+        private_manifest,
+        reviewer_id="reviewer_b",
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    with pytest.raises(ValueError, match="different package"):
+        validate_locked_review_handoff(
+            reviewer_b_package,
+            private_manifest,
+            payload,
+            private_commitment_key=PRIVATE_COMMITMENT_KEY,
+        )
+
+
+def test_handoff_rejects_bare_or_incomplete_fabricated_provenance() -> None:
+    private_manifest, package, complete = _complete_public_review()
+    direct_review = _review(
+        "reviewer_a",
+        blind_review_id=package.items[0].blind_review_id,
+    )
+    bare_payload = json.dumps(
+        direct_review.model_dump(mode="json"),
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode()
+    with pytest.raises(ValidationError):
+        validate_locked_review_handoff(
+            package,
+            private_manifest,
+            bare_payload,
+            private_commitment_key=PRIVATE_COMMITMENT_KEY,
+        )
+
+    handoff = lock_public_review(
+        complete,
+        package,
+        private_manifest,
+        locked_at=LOCKED_AT,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    fabricated = handoff.model_dump(mode="json")
+    fabricated.pop("handoff_id")
+    fabricated["workflow_state"].pop("workflow_state_id")
+    fabricated["workflow_state"]["events"] = list(
+        fabricated["workflow_state"]["events"]
+    )
+    fabricated["workflow_state"]["events"].pop(1)
+    fabricated_payload = json.dumps(
+        fabricated,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode()
+    with pytest.raises(ValidationError, match="complete ordered stage prefix"):
+        validate_locked_review_handoff(
+            package,
+            private_manifest,
+            fabricated_payload,
+            private_commitment_key=PRIVATE_COMMITMENT_KEY,
+        )
+
+
+def test_events_from_other_packages_reviewers_and_items_cannot_be_mixed() -> None:
+    _, package, complete = _complete_public_review()
+    _, _, other_item = _complete_public_review(item_index=1)
+    _, _, reviewer_b = _complete_public_review(reviewer_id="reviewer_b")
+    other_key = b"different-private-commitment-key-v1"
+    _, _, other_package = _complete_public_review(private_commitment_key=other_key)
+
+    for foreign_state in (other_item, reviewer_b, other_package):
+        mixed = complete.model_dump(mode="json")
+        mixed["events"][2] = foreign_state.events[2].model_dump(mode="json")
+        mixed.pop("workflow_state_id")
+        with pytest.raises(ValidationError):
+            PublicReviewWorkflowState.model_validate(mixed)
+
+
+def test_fabricated_root_and_lock_are_rejected() -> None:
+    private_manifest, package, delivered = _public_review_setup()
+    false_root = delivered.model_dump(mode="json")
+    false_root["events"][0]["predecessor_event_mac"] = (
+        "review_event_mac_" + "0" * 64
+    )
+    false_root["events"][0].pop("event_id")
+    false_root.pop("workflow_state_id")
+    with pytest.raises(ValidationError, match="explicit workflow root"):
+        PublicReviewWorkflowState.model_validate(false_root)
+
+    _, _, complete = _complete_public_review()
+    handoff = lock_public_review(
+        complete,
+        package,
+        private_manifest,
+        locked_at=LOCKED_AT,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    false_lock = handoff.model_dump(mode="json")
+    false_lock["workflow_state"]["events"][-1]["event_mac"] = (
+        "review_event_mac_" + "f" * 64
+    )
+    false_lock = _recalculate_public_handoff_ids(false_lock)
+    with pytest.raises(ValueError, match="MAC authentication failed"):
+        validate_locked_review_handoff(
+            package,
+            private_manifest,
+            _canonical_payload(false_lock),
+            private_commitment_key=PRIVATE_COMMITMENT_KEY,
+        )
+
+
+def test_disclosure_must_match_the_private_assignment() -> None:
+    private_manifest, package, complete = _complete_public_review()
+    wrong_disclosure = complete.model_dump(mode="json")
+    wrong_disclosure["events"][3]["disclosure"]["reference_text"] = "wrong"
+    wrong_disclosure = _authenticate_public_state_for_test(
+        wrong_disclosure,
+        package,
+    )
+    wrong_state = PublicReviewWorkflowState.model_validate(wrong_disclosure)
+    with pytest.raises(ValueError, match="not authorized by the private assignment"):
+        lock_public_review(
+            wrong_state,
+            package,
+            private_manifest,
+            locked_at=LOCKED_AT,
+            private_commitment_key=PRIVATE_COMMITMENT_KEY,
+        )
+
+
+def test_locked_public_workflow_rejects_mutation_reopen_and_stale_id() -> None:
+    private_manifest, package, complete = _complete_public_review()
+    handoff = lock_public_review(
+        complete,
+        package,
+        private_manifest,
+        locked_at=LOCKED_AT,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+
+    with pytest.raises(ValidationError):
+        handoff.workflow_state.events = complete.events
+    with pytest.raises(ValidationError):
+        handoff.review.naturalness = "minor_issue"
+    with pytest.raises(ValueError, match="requires delivered"):
+        register_first_listen(
+            handoff.workflow_state,
+            package,
+            private_manifest,
+            private_commitment_key=PRIVATE_COMMITMENT_KEY,
+        )
+
+    stale_package = package.model_dump()
+    stale_package["items"][0]["order_position"] = 2
+    with pytest.raises(ValidationError, match="canonical causal identity"):
+        PublicReviewerPackage.model_validate(stale_package)
+
+    stale_state = handoff.workflow_state.model_dump()
+    stale_state["events"][4]["naturalness"] = "minor_issue"
+    with pytest.raises(ValidationError, match="canonical causal identity"):
+        PublicReviewWorkflowState.model_validate(stale_state)
+
+
+def test_retry_and_timestamp_branch_produce_stable_slot_and_distinct_handoffs() -> None:
+    private_manifest, package, complete = _complete_public_review()
+    first = lock_public_review(
+        complete,
+        package,
+        private_manifest,
+        locked_at=LOCKED_AT,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    identical = lock_public_review(
+        complete,
+        package,
+        private_manifest,
+        locked_at=LOCKED_AT,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    conflicting = lock_public_review(
+        complete,
+        package,
+        private_manifest,
+        locked_at=LOCKED_AT + timedelta(seconds=1),
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+
+    first_payload = serialize_locked_review_handoff(
+        first,
+        package,
+        private_manifest,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    identical_payload = serialize_locked_review_handoff(
+        identical,
+        package,
+        private_manifest,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    conflicting_payload = serialize_locked_review_handoff(
+        conflicting,
+        package,
+        private_manifest,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    first_claim = validate_locked_review_handoff(
+        package,
+        private_manifest,
+        first_payload,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    identical_claim = validate_locked_review_handoff(
+        package,
+        private_manifest,
+        identical_payload,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    conflicting_claim = validate_locked_review_handoff(
+        package,
+        private_manifest,
+        conflicting_payload,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+
+    assert identical == first
+    assert identical_claim == first_claim
+    assert conflicting.lock_transition_id == first.lock_transition_id
+    assert conflicting_claim.review_slot_id == first_claim.review_slot_id
+    assert conflicting_claim.handoff_id != first_claim.handoff_id
+    validate_nonconflicting_review_locks((first_claim, identical_claim))
+    with pytest.raises(ValueError, match="Conflicting handoffs"):
+        validate_nonconflicting_review_locks((first_claim, conflicting_claim))
+
+
+def test_authenticated_divergent_branches_are_individually_valid_conflicts() -> None:
+    private_manifest, package, disclosed = _public_review_setup()
+    disclosed = register_first_listen(
+        disclosed,
+        package,
+        private_manifest,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    disclosed = capture_initial_review(
+        disclosed,
+        package,
+        private_manifest,
+        perceived_transcription="I need water.",
+        intelligibility="meets",
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+    disclosed = disclose_review_context(
+        disclosed,
+        package,
+        private_manifest,
+        private_commitment_key=PRIVATE_COMMITMENT_KEY,
+    )
+
+    claims = []
+    for naturalness in ("meets", "minor_issue"):
+        completed = complete_review_rubric(
+            disclosed,
+            package,
+            private_manifest,
+            pronunciation_correctness="meets",
+            locale_accent_conformance="meets",
+            naturalness=naturalness,
+            prosody_rhythm="meets",
+            a1_pedagogical_suitability="meets",
+            private_commitment_key=PRIVATE_COMMITMENT_KEY,
+        )
+        handoff = lock_public_review(
+            completed,
+            package,
+            private_manifest,
+            locked_at=LOCKED_AT,
+            private_commitment_key=PRIVATE_COMMITMENT_KEY,
+        )
+        payload = serialize_locked_review_handoff(
+            handoff,
+            package,
+            private_manifest,
+            private_commitment_key=PRIVATE_COMMITMENT_KEY,
+        )
+        claims.append(
+            validate_locked_review_handoff(
+                package,
+                private_manifest,
+                payload,
+                private_commitment_key=PRIVATE_COMMITMENT_KEY,
+            )
+        )
+
+    assert claims[0].review_slot_id == claims[1].review_slot_id
+    assert claims[0].lock_transition_id != claims[1].lock_transition_id
+    assert claims[0].handoff_id != claims[1].handoff_id
+    assert not {
+        "accepted",
+        "acceptance_id",
+        "consumed",
+        "append_only_position",
+    }.intersection(LockClaim.model_fields)
+    with pytest.raises(ValueError, match="Conflicting handoffs"):
+        validate_nonconflicting_review_locks(claims)
 
 
 def test_valid_adjudication_for_factual_disagreement() -> None:

@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-14T20:51:45+02:00
-Baseline Git previa a este checkpoint: 265f18dd324d66862009fb15c572b9bb71c2249b
+Actualizado: 2026-09-15T21:14:23+02:00
+Baseline Git previa a este checkpoint: b0aaee1973be57ae0098f0c0aceac2691df1c8ca
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -18,7 +18,7 @@ Formato: checkpoint operativo compacto
 
 Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `7e62908809087f6314d6e17058bbee90d0c967c9`.
 
-La recuperación documental anterior quedó completada. `HumanReviewRecord` representa una review final/locked, exige `locked_at` timezone-aware canonicalizado a UTC y deriva `review_id` causal. Persistencia append-only/runtime y public reviewer package/workflow siguen siendo gaps separados. Este cierre no inició human reviews, adjudicación ni selección de winner.
+La recuperación documental anterior quedó completada. `HumanReviewRecord` representa una review final/locked, exige `locked_at` timezone-aware canonicalizado a UTC y deriva `review_id` causal. La persistencia append-only/runtime sigue siendo un gap separado; el public reviewer package/workflow es el microbloque local activo. Este cierre no inició human reviews, adjudicación ni selección de winner.
 
 ### Microbloque tooling — METHOD_GAP checkpoint/closure
 
@@ -43,6 +43,28 @@ A1 v4 permanece **MEMBER DURABLE / NOT ACTIVE**. Los únicos assets físicos A1 
 
 ## Bloque activo
 
+### TTS Public Reviewer Package / Workflow v1
+
+Estado semántico: **THIRD ATTEMPT IMPLEMENTED LOCALLY / VALIDATED / POSTFLIGHT PASS / READY_FOR_CLOSURE**.
+
+Scope: paquete público determinista por reviewer ligado mediante HMAC-SHA-256 y clave privada a un commitment del mapping y SHA-256 normalizado, identidad/versión inmutables, orden congelado, handles opacos de audio, workflow event-sourced `delivered → first_listen → initial_capture → disclosed → rubric_complete → locked`, disclosure derivado de la asignación privada y handoff JSON canónico con provenance replayable más el `HumanReviewRecord` final existente. La frontera pública no contiene clave, `sample_id`, hash del audio, engine, model, voice ni mapping privado. Los drafts son estados efímeros sin autoridad de review final; únicamente el linaje completo autenticado puede producir `HumanReviewRecord`.
+
+Corrección final de A del tercer intento: cada evento lleva MAC obligatorio/versionado bajo una subclave HMAC-SHA-256 derivada con separación explícita de dominio y contexto de package. El MAC cubre versiones, package, commitment, item/delivery, reviewer, ID ciego, stage, payload completo, `event_id`, predecessor ID y predecessor MAC; `delivered` tiene raíces explícitas. Todos los helpers revalidan binding privado, package, prefijo completo, MAC, stage y contexto antes de emitir. `model_validate()` no emite ni repara MAC. Disclosure se obtiene exclusivamente del manifiesto/asignación privados. El lock autenticado compromete predecessor, transición, review final exacta y timestamp, preservando sin cambios semánticos `HumanReviewRecord`.
+
+`LockedReviewHandoff` permanece como envelope canónico. Su validación privada completa devuelve un `LockClaim` frozen con `review_slot_id`, `lock_transition_id`, `handoff_id` y el `HumanReviewRecord` exacto. El slot usa dominio versionado más package, reviewer e ID ciego y no depende del resultado o timestamp. A garantiza autenticidad/integridad de evidencia, secuencia causal autenticada, validez individual del lock e identidades para detectar conflictos conocidos. A no garantiza stateless consumo único, ausencia global de ramas, aceptación única durable, carreras/concurrencia ni append-only. B sigue **NOT IMPLEMENTED** y será responsable de aceptar atómicamente el primer claim por slot, tratar el mismo handoff como retry y rechazar otro handoff para ese slot.
+
+Validación técnica vigente del tercer intento: tests focales del package/workflow **17 PASS**; regresión restante de benchmark, blind review y adjudicación **85 PASS**; `git diff --check` **PASS**; `operational_state.py validate` **PASS**. El primer y el segundo postflight independientes fueron **FAIL** históricos y el preflight Astra posterior fue **PASS**; sus findings motivaron las correcciones locales sucesivas. El postflight independiente final del tercer intento fue **PASS** con BLOCKING **0** y NONBLOCKING **0**: confirmó autenticidad completa `delivered → locked`, rechazo de cadenas con hashes públicos fabricados, MAC de otra clave y payload/predecessor/stage/context alterados, disclosure y binding privado incompatibles; `LockClaim` frozen, slot estable ante rúbrica/timestamp, retry idéntico estable y ramas auténticas divergentes detectables como conflicto. Confirmó también que `HumanReviewRecord` no cambia semánticamente y que A no promete unicidad global ni durable. Las human reviews reales siguen **NOT STARTED**.
+
+Exclusiones: implementación de B, DB, migraciones, repositorios, API, filesystem persistence, runtime append-only, frontend/UX, ejecución real, reconciliación A/B, adjudicación, winner, selección de voz, B51/B52, loader, B181, activación A1 y `content/content_tree.json`. La aceptación durable/atómica y la persistencia append-only/runtime permanecen como el siguiente gap separado después del cierre de este microbloque.
+
+Dirty paths semánticamente reconocidos:
+
+- `app/schemas/tts_engine_benchmark.py`
+- `app/services/tts_public_reviewer_workflow.py`
+- `docs/estado-operativo.md`
+- `docs/loguic-tts-engine-benchmark-protocol-v1.md`
+- `tests/test_tts_engine_benchmark_schema.py`
+
 ### Fronteras A1, B52 y B181
 
 B52 para la source vigente está **NOT VERIFIED**; `LOADER = BLOCKED`. `content/content_tree.json` permanece intacto. B181 permanece **PAUSED** en puerta pedagógica; no se reactiva mediante A1 v4, el benchmark, el review-lock ni este microbloque.
@@ -64,16 +86,16 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 - benchmark técnicamente finalizado ≠ human review ≠ adjudicación ≠ winner ≠ voz de producto;
 - WAV del benchmark ≠ assets A1 aprobados ≠ B51/B52 ≠ loader readiness;
 - A1 v4 `MEMBER DURABLE` ≠ `ACTIVE`; no activar A1 ni modificar `content/content_tree.json`;
-- review-lock cerrado ≠ persistencia append-only/runtime ≠ public reviewer package/workflow;
+- review-lock cerrado ≠ public reviewer package/workflow local ≠ persistencia append-only/runtime;
 - no iniciar human review, adjudicación, reviewer package, B52, loader o B181 sin autorización y evidencia específicas.
 
 ## Próximo objetivo
 
-No existe un bloque técnico funcional activo autorizado: la recuperación documental, el review-lock y el METHOD_GAP están cerrados. La siguiente fase requiere una nueva decisión y scope explícitos. Las fronteras candidatas separadas son public reviewer package/workflow y persistencia append-only/runtime de human reviews; las human reviews reales no empiezan hasta satisfacer sus prerrequisitos contractuales y operativos. Adjudicación y selección de winner permanecen fuera de alcance; no reactivar automáticamente B52, loader, B181 ni A1.
+Completar exclusivamente el Closure Gate canónico de `TTS Public Reviewer Package / Workflow v1`. Solo después de su cierre podrá abrirse mediante decisión y scope explícitos B para aceptación durable/atómica y persistencia append-only/runtime. Las human reviews reales permanecen `NOT STARTED`; adjudicación y winner siguen fuera de alcance, y B52, loader, B181 y A1 no se reactivan automáticamente.
 
 ## Archivos clave
 
 - `docs/loguic-engineering-operating-method-v1.md`, `docs/estado-operativo.md`, `scripts/engineering/operational_state.py`, `scripts/engineering/conversation_checkpoint.py`, `tests/test_operational_state.py` y `tests/test_conversation_checkpoint.py`;
 - `scripts/engineering/block_close.py` y `scripts/engineering/git_close.py` permanecen sin cambios;
-- `app/schemas/tts_engine_benchmark.py`, `docs/loguic-tts-engine-benchmark-protocol-v1.md` y `tests/test_tts_engine_benchmark_schema.py` contienen el review-lock ya publicado;
+- `app/schemas/tts_engine_benchmark.py`, `app/services/tts_public_reviewer_workflow.py`, `docs/loguic-tts-engine-benchmark-protocol-v1.md` y `tests/test_tts_engine_benchmark_schema.py` contienen el review-lock publicado y el public reviewer workflow local;
 - `content/candidates/a1-u1/pedagogical-unit-candidate-v4.json`, `content/admissions/a1-u1/adm-a1-u1-002.json` y `content/active-source/active-candidate-source-002.json`.

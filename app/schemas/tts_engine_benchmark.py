@@ -14,6 +14,13 @@ from app.schemas.tts_wav_normalization import TTS_WAV_NORMALIZATION_PROFILE_VERS
 
 
 TTS_ENGINE_BENCHMARK_PROTOCOL_VERSION = "loguic-tts-engine-benchmark/1.0"
+TTS_PUBLIC_REVIEWER_PACKAGE_VERSION = "loguic-tts-public-reviewer-package/1.0"
+TTS_PUBLIC_REVIEW_WORKFLOW_AUTH_VERSION = (
+    "loguic-tts-public-review-workflow-auth/1.0"
+)
+TTS_PUBLIC_REVIEW_SLOT_VERSION = "loguic-tts-public-review-slot/1.0"
+PUBLIC_REVIEW_ROOT_EVENT_ID = "review_event_root_v1"
+PUBLIC_REVIEW_ROOT_EVENT_MAC = "review_event_mac_root_v1"
 CANDIDATE_V4_CONTENT_DIGEST = (
     "sha256:e75a5c9864adb86a3152e67ab9c97951372e11ed5400b70406f033e6f70b9a8d"
 )
@@ -29,6 +36,14 @@ ReviewDimension = Literal[
     "naturalness",
     "prosody_rhythm",
     "a1_pedagogical_suitability",
+]
+PublicReviewWorkflowStage = Literal[
+    "delivered",
+    "first_listen",
+    "initial_capture",
+    "disclosed",
+    "rubric_complete",
+    "locked",
 ]
 DeterminismClassification = Literal[
     "deterministic_for_benchmark",
@@ -421,6 +436,108 @@ class BlindReviewManifest(_StrictFrozenModel):
         return self
 
 
+class PrivateReviewDeliveryBinding(_StrictFrozenModel):
+    """Bind one blind delivery to its private sample and normalized audio."""
+
+    blind_review_id: str = Field(pattern=r"^br_[0-9a-f]{32}$")
+    sample_id: str = Field(pattern=r"^sample_[0-9a-f]{64}$")
+    normalized_audio_sha256: Sha256
+    reviewer_id: Literal["reviewer_a", "reviewer_b"]
+    order_position: int = Field(ge=1)
+
+
+class PrivateReviewerPackageBinding(_StrictFrozenModel):
+    """Commit the complete private assignment without exposing its entries."""
+
+    binding_id: str = Field(pattern=r"^review_binding_[0-9a-f]{64}$")
+    package_version: Literal[TTS_PUBLIC_REVIEWER_PACKAGE_VERSION]
+    protocol_version: Literal[TTS_ENGINE_BENCHMARK_PROTOCOL_VERSION]
+    reviewer_id: Literal["reviewer_a", "reviewer_b"]
+    deliveries: tuple[PrivateReviewDeliveryBinding, ...] = Field(min_length=1)
+
+    @model_validator(mode="before")
+    @classmethod
+    def bind_causal_id(cls, values: Any) -> Any:
+        return _derive_or_validate_id(
+            values,
+            field_name="binding_id",
+            prefix="review_binding_",
+        )
+
+    @model_validator(mode="after")
+    def validate_deliveries(self) -> "PrivateReviewerPackageBinding":
+        if any(delivery.reviewer_id != self.reviewer_id for delivery in self.deliveries):
+            raise ValueError("Private deliveries must belong to the binding reviewer")
+        if len({delivery.blind_review_id for delivery in self.deliveries}) != len(
+            self.deliveries
+        ):
+            raise ValueError("Private delivery blind_review_id values must be unique")
+        expected_positions = tuple(range(1, len(self.deliveries) + 1))
+        if tuple(delivery.order_position for delivery in self.deliveries) != expected_positions:
+            raise ValueError("Private delivery order must be contiguous and ordered")
+        return self
+
+
+class PublicReviewItem(_StrictFrozenModel):
+    """Expose one reviewer-safe audio handle without private sample identity."""
+
+    blind_review_id: str = Field(pattern=r"^br_[0-9a-f]{32}$")
+    order_position: int = Field(ge=1)
+    audio_delivery_id: str = Field(pattern=r"^review_audio_[0-9a-f]{64}$")
+
+
+class PublicReviewerPackage(_StrictFrozenModel):
+    """Freeze one reviewer assignment and its privately committed delivery."""
+
+    package_id: str = Field(pattern=r"^review_package_[0-9a-f]{64}$")
+    package_version: Literal[TTS_PUBLIC_REVIEWER_PACKAGE_VERSION]
+    protocol_version: Literal[TTS_ENGINE_BENCHMARK_PROTOCOL_VERSION]
+    reviewer_id: Literal["reviewer_a", "reviewer_b"]
+    delivery_set_commitment: str = Field(pattern=r"^review_binding_[0-9a-f]{64}$")
+    items: tuple[PublicReviewItem, ...] = Field(min_length=1)
+
+    @model_validator(mode="before")
+    @classmethod
+    def bind_causal_id(cls, values: Any) -> Any:
+        return _derive_or_validate_id(
+            values,
+            field_name="package_id",
+            prefix="review_package_",
+        )
+
+    @model_validator(mode="after")
+    def validate_frozen_order(self) -> "PublicReviewerPackage":
+        if len({item.blind_review_id for item in self.items}) != len(self.items):
+            raise ValueError("Public package blind_review_id values must be unique")
+        if len({item.audio_delivery_id for item in self.items}) != len(self.items):
+            raise ValueError("Public package audio delivery identities must be unique")
+        expected_positions = tuple(range(1, len(self.items) + 1))
+        if tuple(item.order_position for item in self.items) != expected_positions:
+            raise ValueError("Public package order must be frozen, contiguous and ordered")
+        for item in self.items:
+            expected_audio_id = _causal_id(
+                "review_audio_",
+                {
+                    "delivery_set_commitment": self.delivery_set_commitment,
+                    "blind_review_id": item.blind_review_id,
+                    "order_position": item.order_position,
+                },
+            )
+            if item.audio_delivery_id != expected_audio_id:
+                raise ValueError("Audio delivery identity does not match package commitment")
+        return self
+
+
+class PublicReviewDisclosure(_StrictFrozenModel):
+    """Expose pedagogical reference fields only after the initial capture gate."""
+
+    package_id: str = Field(pattern=r"^review_package_[0-9a-f]{64}$")
+    blind_review_id: str = Field(pattern=r"^br_[0-9a-f]{32}$")
+    reference_text: str = Field(min_length=1)
+    ipa: str | None
+    target_locale: TargetLocale
+
+
 class HumanReviewRecord(_StrictFrozenModel):
     """Preserve one independent final locked human review without automatic judgment."""
 
@@ -450,6 +567,325 @@ class HumanReviewRecord(_StrictFrozenModel):
             return data
         data["locked_at"] = _canonicalize_locked_at(data["locked_at"])
         return _derive_or_validate_id(data, field_name="review_id", prefix="review_")
+
+
+class PublicReviewWorkflowEvent(_StrictFrozenModel):
+    """Carry one authenticated stage transition and its complete context."""
+
+    event_id: str = Field(pattern=r"^review_event_[0-9a-f]{64}$")
+    authentication_version: Literal[TTS_PUBLIC_REVIEW_WORKFLOW_AUTH_VERSION]
+    package_version: Literal[TTS_PUBLIC_REVIEWER_PACKAGE_VERSION]
+    protocol_version: Literal[TTS_ENGINE_BENCHMARK_PROTOCOL_VERSION]
+    package_id: str = Field(pattern=r"^review_package_[0-9a-f]{64}$")
+    delivery_set_commitment: str = Field(pattern=r"^review_binding_[0-9a-f]{64}$")
+    audio_delivery_id: str = Field(pattern=r"^review_audio_[0-9a-f]{64}$")
+    order_position: int = Field(ge=1)
+    reviewer_id: Literal["reviewer_a", "reviewer_b"]
+    blind_review_id: str = Field(pattern=r"^br_[0-9a-f]{32}$")
+    stage: PublicReviewWorkflowStage
+    predecessor_event_id: str = Field(
+        pattern=r"^(?:review_event_[0-9a-f]{64}|review_event_root_v1)$",
+    )
+    predecessor_event_mac: str = Field(
+        pattern=r"^(?:review_event_mac_[0-9a-f]{64}|review_event_mac_root_v1)$",
+    )
+    perceived_transcription: str | None = None
+    intelligibility: ReviewLabel | None = None
+    disclosure: PublicReviewDisclosure | None = None
+    pronunciation_correctness: ReviewLabel | None = None
+    locale_accent_conformance: ReviewLabel | None = None
+    naturalness: ReviewLabel | None = None
+    prosody_rhythm: ReviewLabel | None = None
+    a1_pedagogical_suitability: ReviewLabel | None = None
+    lock_transition_id: str | None = Field(
+        default=None,
+        pattern=r"^review_lock_[0-9a-f]{64}$",
+    )
+    locked_review_id: str | None = Field(
+        default=None,
+        pattern=r"^review_[0-9a-f]{64}$",
+    )
+    locked_at: datetime | None = None
+    locked_review: HumanReviewRecord | None = None
+    event_mac: str = Field(pattern=r"^review_event_mac_[0-9a-f]{64}$")
+
+    @model_validator(mode="before")
+    @classmethod
+    def bind_causal_id(cls, values: Any) -> Any:
+        if not isinstance(values, Mapping):
+            return values
+        data = dict(values)
+        for field_name in (
+            "predecessor_event_id",
+            "perceived_transcription",
+            "intelligibility",
+            "disclosure",
+            "pronunciation_correctness",
+            "locale_accent_conformance",
+            "naturalness",
+            "prosody_rhythm",
+            "a1_pedagogical_suitability",
+            "lock_transition_id",
+            "locked_review_id",
+            "locked_at",
+            "locked_review",
+        ):
+            data.setdefault(field_name, None)
+        if data.get("disclosure") is not None:
+            data["disclosure"] = PublicReviewDisclosure.model_validate(
+                data["disclosure"]
+            )
+        if data.get("locked_review") is not None:
+            data["locked_review"] = HumanReviewRecord.model_validate(
+                data["locked_review"]
+            )
+        if data.get("locked_at") is not None:
+            data["locked_at"] = _canonicalize_locked_at(data["locked_at"])
+        if data.get("stage") == "locked":
+            expected_lock_id = _causal_id(
+                "review_lock_",
+                {
+                    "package_id": data.get("package_id"),
+                    "reviewer_id": data.get("reviewer_id"),
+                    "blind_review_id": data.get("blind_review_id"),
+                    "rubric_complete_event_id": data["predecessor_event_id"],
+                },
+            )
+            supplied_lock_id = data.get("lock_transition_id")
+            if supplied_lock_id is not None and supplied_lock_id != expected_lock_id:
+                raise ValueError("lock_transition_id does not match rubric predecessor")
+            data["lock_transition_id"] = expected_lock_id
+        identity_data = {
+            key: value for key, value in data.items() if key != "event_mac"
+        }
+        return _derive_or_validate_id(
+            identity_data,
+            field_name="event_id",
+            prefix="review_event_",
+        ) | {"event_mac": data.get("event_mac")}
+
+    @model_validator(mode="after")
+    def validate_stage_payload(self) -> "PublicReviewWorkflowEvent":
+        payload_values = {
+            "perceived_transcription": self.perceived_transcription,
+            "intelligibility": self.intelligibility,
+            "disclosure": self.disclosure,
+            "pronunciation_correctness": self.pronunciation_correctness,
+            "locale_accent_conformance": self.locale_accent_conformance,
+            "naturalness": self.naturalness,
+            "prosody_rhythm": self.prosody_rhythm,
+            "a1_pedagogical_suitability": self.a1_pedagogical_suitability,
+            "lock_transition_id": self.lock_transition_id,
+            "locked_review_id": self.locked_review_id,
+            "locked_at": self.locked_at,
+            "locked_review": self.locked_review,
+        }
+        allowed_by_stage = {
+            "delivered": set(),
+            "first_listen": set(),
+            "initial_capture": {"perceived_transcription", "intelligibility"},
+            "disclosed": {"disclosure"},
+            "rubric_complete": {
+                "pronunciation_correctness",
+                "locale_accent_conformance",
+                "naturalness",
+                "prosody_rhythm",
+                "a1_pedagogical_suitability",
+            },
+            "locked": {
+                "lock_transition_id",
+                "locked_review_id",
+                "locked_at",
+                "locked_review",
+            },
+        }
+        present = {name for name, value in payload_values.items() if value is not None}
+        if present != allowed_by_stage[self.stage]:
+            raise ValueError(f"{self.stage} event has incomplete or forbidden evidence")
+        if self.stage == "initial_capture" and not self.perceived_transcription.strip():
+            raise ValueError("Initial capture transcription cannot be blank")
+        if self.stage == "delivered":
+            if (
+                self.predecessor_event_id != PUBLIC_REVIEW_ROOT_EVENT_ID
+                or self.predecessor_event_mac != PUBLIC_REVIEW_ROOT_EVENT_MAC
+            ):
+                raise ValueError("Delivered event requires the explicit workflow root")
+        elif (
+            self.predecessor_event_id == PUBLIC_REVIEW_ROOT_EVENT_ID
+            or self.predecessor_event_mac == PUBLIC_REVIEW_ROOT_EVENT_MAC
+        ):
+            raise ValueError("Non-root workflow event requires its immediate predecessor")
+        if self.disclosure is not None and (
+            self.disclosure.package_id != self.package_id
+            or self.disclosure.blind_review_id != self.blind_review_id
+        ):
+            raise ValueError("Disclosure must belong to the workflow package and item")
+        if self.locked_review is not None and (
+            self.locked_review.review_id != self.locked_review_id
+            or self.locked_review.locked_at != self.locked_at
+            or self.locked_review.reviewer_id != self.reviewer_id
+            or self.locked_review.blind_review_id != self.blind_review_id
+        ):
+            raise ValueError("Locked event review does not match its final lock evidence")
+        return self
+
+
+class PublicReviewWorkflowState(_StrictFrozenModel):
+    """Carry the complete, replayable causal prefix for one public review."""
+
+    workflow_state_id: str = Field(pattern=r"^review_state_[0-9a-f]{64}$")
+    package_id: str = Field(pattern=r"^review_package_[0-9a-f]{64}$")
+    package_version: Literal[TTS_PUBLIC_REVIEWER_PACKAGE_VERSION]
+    protocol_version: Literal[TTS_ENGINE_BENCHMARK_PROTOCOL_VERSION]
+    delivery_set_commitment: str = Field(pattern=r"^review_binding_[0-9a-f]{64}$")
+    reviewer_id: Literal["reviewer_a", "reviewer_b"]
+    blind_review_id: str = Field(pattern=r"^br_[0-9a-f]{32}$")
+    audio_delivery_id: str = Field(pattern=r"^review_audio_[0-9a-f]{64}$")
+    order_position: int = Field(ge=1)
+    events: tuple[PublicReviewWorkflowEvent, ...] = Field(min_length=1, max_length=6)
+
+    @model_validator(mode="before")
+    @classmethod
+    def bind_causal_id(cls, values: Any) -> Any:
+        return _derive_or_validate_id(
+            values,
+            field_name="workflow_state_id",
+            prefix="review_state_",
+        )
+
+    @model_validator(mode="after")
+    def validate_complete_lineage(self) -> "PublicReviewWorkflowState":
+        stage_order: tuple[PublicReviewWorkflowStage, ...] = (
+            "delivered",
+            "first_listen",
+            "initial_capture",
+            "disclosed",
+            "rubric_complete",
+            "locked",
+        )
+        if tuple(event.stage for event in self.events) != stage_order[: len(self.events)]:
+            raise ValueError("Workflow events must form the complete ordered stage prefix")
+        for index, event in enumerate(self.events):
+            if (
+                event.package_id != self.package_id
+                or event.package_version != self.package_version
+                or event.protocol_version != self.protocol_version
+                or event.delivery_set_commitment != self.delivery_set_commitment
+                or event.reviewer_id != self.reviewer_id
+                or event.blind_review_id != self.blind_review_id
+                or event.audio_delivery_id != self.audio_delivery_id
+                or event.order_position != self.order_position
+            ):
+                raise ValueError("Workflow event belongs to a different package or item")
+            expected_predecessor = (
+                PUBLIC_REVIEW_ROOT_EVENT_ID
+                if index == 0
+                else self.events[index - 1].event_id
+            )
+            expected_predecessor_mac = (
+                PUBLIC_REVIEW_ROOT_EVENT_MAC
+                if index == 0
+                else self.events[index - 1].event_mac
+            )
+            if (
+                event.predecessor_event_id != expected_predecessor
+                or event.predecessor_event_mac != expected_predecessor_mac
+            ):
+                raise ValueError("Workflow event predecessor does not match causal lineage")
+        return self
+
+    @property
+    def stage(self) -> PublicReviewWorkflowStage:
+        return self.events[-1].stage
+
+    def event_for(self, stage: PublicReviewWorkflowStage) -> PublicReviewWorkflowEvent:
+        events = tuple(event for event in self.events if event.stage == stage)
+        if len(events) != 1:
+            raise ValueError(f"Workflow lineage does not contain exactly one {stage} event")
+        return events[0]
+
+
+class LockedReviewHandoff(_StrictFrozenModel):
+    """Carry final review plus replayable provenance for an append-only consumer."""
+
+    handoff_id: str = Field(pattern=r"^review_handoff_[0-9a-f]{64}$")
+    package_id: str = Field(pattern=r"^review_package_[0-9a-f]{64}$")
+    delivery_set_commitment: str = Field(pattern=r"^review_binding_[0-9a-f]{64}$")
+    lock_transition_id: str = Field(pattern=r"^review_lock_[0-9a-f]{64}$")
+    workflow_state: PublicReviewWorkflowState
+    review: HumanReviewRecord
+
+    @model_validator(mode="before")
+    @classmethod
+    def bind_causal_id(cls, values: Any) -> Any:
+        return _derive_or_validate_id(
+            values,
+            field_name="handoff_id",
+            prefix="review_handoff_",
+        )
+
+    @model_validator(mode="after")
+    def validate_provenance(self) -> "LockedReviewHandoff":
+        if self.workflow_state.stage != "locked":
+            raise ValueError("Locked handoff requires a complete locked workflow lineage")
+        locked_event = self.workflow_state.event_for("locked")
+        if (
+            self.package_id != self.workflow_state.package_id
+            or self.lock_transition_id != locked_event.lock_transition_id
+            or self.review.review_id != locked_event.locked_review_id
+            or self.review != locked_event.locked_review
+            or self.review.locked_at != locked_event.locked_at
+        ):
+            raise ValueError("Locked handoff identity does not match workflow provenance")
+        initial = self.workflow_state.event_for("initial_capture")
+        rubric = self.workflow_state.event_for("rubric_complete")
+        expected_review = HumanReviewRecord.model_validate(
+            {
+                "blind_review_id": self.workflow_state.blind_review_id,
+                "reviewer_id": self.workflow_state.reviewer_id,
+                "locked_at": self.review.locked_at,
+                "perceived_transcription": initial.perceived_transcription,
+                "first_listen_without_transcript": True,
+                "reference_text_revealed_after_first_listen": True,
+                "ipa_revealed_after_first_listen": True,
+                "target_locale_revealed_after_first_listen": True,
+                "intelligibility": initial.intelligibility,
+                "pronunciation_correctness": rubric.pronunciation_correctness,
+                "locale_accent_conformance": rubric.locale_accent_conformance,
+                "naturalness": rubric.naturalness,
+                "prosody_rhythm": rubric.prosody_rhythm,
+                "a1_pedagogical_suitability": rubric.a1_pedagogical_suitability,
+            }
+        )
+        if self.review != expected_review:
+            raise ValueError("Locked review does not match its complete workflow lineage")
+        return self
+
+
+class LockClaim(_StrictFrozenModel):
+    """Project one individually valid handoff for B's future atomic acceptance."""
+
+    review_slot_version: Literal[TTS_PUBLIC_REVIEW_SLOT_VERSION]
+    review_slot_id: str = Field(pattern=r"^review_slot_[0-9a-f]{64}$")
+    package_id: str = Field(pattern=r"^review_package_[0-9a-f]{64}$")
+    lock_transition_id: str = Field(pattern=r"^review_lock_[0-9a-f]{64}$")
+    handoff_id: str = Field(pattern=r"^review_handoff_[0-9a-f]{64}$")
+    review: HumanReviewRecord
+
+    @model_validator(mode="after")
+    def validate_review_slot(self) -> "LockClaim":
+        expected = _causal_id(
+            "review_slot_",
+            {
+                "domain": self.review_slot_version,
+                "package_id": self.package_id,
+                "reviewer_id": self.review.reviewer_id,
+                "blind_review_id": self.review.blind_review_id,
+            },
+        )
+        if self.review_slot_id != expected:
+            raise ValueError("review_slot_id does not match its assigned review slot")
+        return self
 
 
 class AdjudicationRecord(_StrictFrozenModel):
