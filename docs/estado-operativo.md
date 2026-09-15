@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-15T21:22:20+02:00
-Baseline Git previa a este checkpoint: fb2652a601019e20e3b2bb2959c66172522b941f
+Actualizado: 2026-09-15T21:42:33+02:00
+Baseline Git previa a este checkpoint: cb626f14e8a3a03ef1cbf234202fb50b7c25ca42
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -77,7 +77,8 @@ B52 para la source vigente está **NOT VERIFIED**; `LOADER = BLOCKED`. `content/
 
 - `operational_state.py` valida estructura, timestamp timezone-aware, baseline Git previa y ausencia de campos Git vivos.
 - `conversation_checkpoint.py prepare|resume` compone estado semántico y Git vivo en una vista efímera read-only.
-- `block_close.py` y `git_close.py` realizan preflight y cierre controlado cuando un bloque esté autorizado y validado.
+- La secuencia canónica de Closure Gate es `block_close.py → git_close.py → conversation_checkpoint.py prepare`; ChatGPT orquesta postflight independiente, documentación semántica, scope/allowlist, mensaje de commit e interpretación del checkpoint post-cierre.
+- `block_workflow.py` está **UNRELIABLE / NOT CANONICAL FOR CLOSURE GATES**: solo valida el checkpoint y delega a `block_close.py`; no ejecuta `git_close.py` ni `prepare` post-cierre y conserva deuda de espera/interrupción por subprocess sin timeout, `stdin=DEVNULL`, gestión de grupo de procesos ni captura controlada. Su corrección es deuda de tooling separada y no abre ahora un microbloque de implementación.
 - `a1_resource_asset_close.py` solo opera sobre assets A1 humanamente aprobados; no convierte outputs del benchmark en assets A1.
 
 ## Método operativo vigente

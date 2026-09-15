@@ -45,6 +45,7 @@ Las autoridades se separan así:
 - el resultado Bash pasa a ser la evidencia canónica para ese intento, sin repetir después la misma validación salvo causa nueva;
 - `prepare` y `resume` son Bash-first: ChatGPT indica su ejecución directa en Bash cuando corresponde y no las envía a Codex sin una razón técnica concreta;
 - `git_close.py` sigue siendo la vía segura de cierre y no se reconstruyen manualmente `add`/`commit`/`push`; Codex puede invocarlo dentro de una tarea agentic autorizada, pero Bash es válido y preferible cuando solo queda ejecutar determinísticamente el cierre ya decidido;
+- mientras conserve su deuda de espera/interrupción, `block_workflow.py` es **UNRELIABLE / NOT CANONICAL FOR CLOSURE GATES** y no se usa para cerrar bloques;
 - auto-review evita aprobaciones rutinarias, pero no cambia esta separación de responsabilidades.
 
 ### Usuario
@@ -93,6 +94,8 @@ No todas las tareas necesitan cada etapa, pero ninguna se omite cuando su garant
 - `scripts/engineering/block_close.py`;
 - `scripts/engineering/git_close.py`;
 - cualquier helper adicional marcado como vigente en `docs/estado-operativo.md`.
+
+El Closure Gate canónico, cuando esté autorizado, ejecuta `block_close.py → git_close.py → conversation_checkpoint.py prepare`. ChatGPT conserva la orquestación del postflight independiente, la documentación semántica, el scope/allowlist, el mensaje de commit y la interpretación del checkpoint post-cierre. La futura corrección de `block_workflow.py` es deuda de tooling separada; no abre por sí misma un bloque de implementación.
 
 ## 5. No repetición
 
