@@ -43,7 +43,7 @@ Las autoridades se separan así:
 - ejecuta directamente los helpers deterministas de cierre o validación cuando corresponda, incluidos `block_close.py` y `git_close.py`;
 - si una regresión o suite ejecutada desde Codex queda `INDETERMINADA`, se ejecuta una sola vez directamente en Bash;
 - el resultado Bash pasa a ser la evidencia canónica para ese intento, sin repetir después la misma validación salvo causa nueva;
-- `prepare` y `resume` son Bash-first: ChatGPT indica su ejecución directa en Bash cuando corresponde y no las envía a Codex sin una razón técnica concreta;
+- `prepare` y `resume` son Bash-first: ChatGPT indica su ejecución directa en Bash cuando corresponde y no las envía a Codex sin una razón técnica concreta. `conversation_checkpoint.py --format compact` se usa para un handoff breve y `--format json` para tooling; Markdown sigue siendo el formato por defecto, los tres formatos ejecutan la misma validación read-only y requieren upstream resoluble con ahead/behind calculables;
 - `git_close.py` sigue siendo la vía segura de cierre y no se reconstruyen manualmente `add`/`commit`/`push`; Codex puede invocarlo dentro de una tarea agentic autorizada, pero Bash es válido y preferible cuando solo queda ejecutar determinísticamente el cierre ya decidido;
 - `block_workflow.py` es el orquestador canónico del tramo determinista del Closure Gate para bloques futuros, siempre después de que postflight independiente, documentación semántica, scope/allowlist y mensaje hayan quedado aprobados;
 - auto-review evita aprobaciones rutinarias, pero no cambia esta separación de responsabilidades.
@@ -124,7 +124,7 @@ La frase humana **“Cambiar conversación”** significa:
 5. ejecutar `python3 scripts/engineering/conversation_checkpoint.py prepare`;
 6. cambiar de conversación solo con checkpoint válido.
 
-`prepare` no crea una segunda fuente de verdad. Produce una vista efímera validada que combina la autoridad semántica durable con Git vivo inspeccionado directamente.
+`prepare` no crea una segunda fuente de verdad. Produce una vista efímera validada que combina la autoridad semántica durable con Git vivo inspeccionado directamente. `--format compact` emite una línea `application/x-www-form-urlencoded` versionada como `compact-v1`, parseable sin ambigüedad mediante `urllib.parse.parse_qsl`; cualquier resumen de `active_block` o `next` declara `*_TRUNCATED` y `*_LENGTH`, y el texto completo permanece en JSON y Markdown. `--format json` entrega hechos estructurados y secciones semánticas completas. `CHECKPOINT_STATUS=PASS` significa checkpoint válido y puede coexistir con `TREE=DIRTY` solo si todos los dirty paths están reconocidos. Ante cualquier fallo no se emite `CHECKPOINT_STATUS=PASS` ni `"checkpoint_status":"PASS"`.
 
 ## 7. Reanudación
 

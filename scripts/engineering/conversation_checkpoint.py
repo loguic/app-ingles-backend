@@ -7,6 +7,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import urlencode
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -30,6 +31,8 @@ CHECKPOINT_SECTIONS = (
 )
 
 LOCAL_PATH_SECTIONS = ("Bloque activo", "Archivos clave")
+OUTPUT_FORMATS = ("markdown", "compact", "json")
+COMPACT_TEXT_LIMIT = 240
 
 
 @dataclass(frozen=True)
@@ -145,20 +148,19 @@ def inspect_git(root: Path) -> GitSnapshot:
         "--symbolic-full-name",
         "@{upstream}",
     )
+    if upstream is None:
+        raise ValueError("Git upstream is missing or cannot be resolved")
 
-    ahead = None
-    behind = None
-    if upstream is not None:
-        counts = _run_git(
-            root,
-            "rev-list",
-            "--left-right",
-            "--count",
-            "HEAD...@{upstream}",
-        ).stdout.split()
-        if len(counts) != 2:
-            raise ValueError("Git ahead/behind output is malformed")
-        ahead, behind = (int(value) for value in counts)
+    counts = _run_git(
+        root,
+        "rev-list",
+        "--left-right",
+        "--count",
+        "HEAD...@{upstream}",
+    ).stdout.split()
+    if len(counts) != 2:
+        raise ValueError("Git ahead/behind output is malformed")
+    ahead, behind = (int(value) for value in counts)
 
     status = _run_git(
         root,
@@ -255,9 +257,97 @@ def _render_change_group(
     return lines
 
 
+def _semantic_text(lines: list[str]) -> str:
+    """Return the complete canonical text of one semantic section.
+
+    Devuelve el texto canónico completo de una sección semántica.
+    """
+    return "\n".join(lines).strip()
+
+
+def _compact_text(value: str) -> tuple[str, bool, int]:
+    """Render complete semantic text as bounded single-line text.
+
+    Renderiza texto semántico completo como texto acotado de una línea.
+    """
+    original_length = len(value)
+    text = re.sub(r"\s+", " ", value).strip()
+    if len(text) <= COMPACT_TEXT_LIMIT:
+        return text, False, original_length
+    return text[: COMPACT_TEXT_LIMIT - 1].rstrip() + "…", True, original_length
+
+
+def checkpoint_facts(
+    command: str,
+    sections: dict[str, list[str]],
+    snapshot: GitSnapshot,
+    git_baseline: str,
+) -> dict[str, object]:
+    """Return the validated facts shared by every checkpoint representation.
+
+    Devuelve los hechos validados compartidos por cada representación.
+    """
+    dirty_count = len(snapshot.changes)
+    return {
+        "checkpoint_status": "PASS",
+        "command": command,
+        "head": snapshot.head,
+        "branch": snapshot.branch,
+        "upstream": snapshot.upstream,
+        "ahead": snapshot.ahead,
+        "behind": snapshot.behind,
+        "tree": "CLEAN" if dirty_count == 0 else "DIRTY",
+        "baseline": git_baseline,
+        "dirty_count": dirty_count,
+        "active_block": _semantic_text(sections["Bloque activo"]),
+        "next": _semantic_text(sections["Próximo objetivo"]),
+    }
+
+
+def render_compact_checkpoint(facts: dict[str, object]) -> str:
+    """Render one stable human-readable line from validated checkpoint facts.
+
+    Renderiza una línea humana estable desde hechos validados del checkpoint.
+    """
+    active_block, active_truncated, active_length = _compact_text(
+        str(facts["active_block"])
+    )
+    next_objective, next_truncated, next_length = _compact_text(
+        str(facts["next"])
+    )
+    fields = (
+        ("CHECKPOINT_FORMAT", "compact-v1"),
+        ("CHECKPOINT_STATUS", facts["checkpoint_status"]),
+        ("COMMAND", facts["command"]),
+        ("HEAD", facts["head"]),
+        ("BRANCH", facts["branch"]),
+        ("UPSTREAM", facts["upstream"]),
+        ("AHEAD", facts["ahead"]),
+        ("BEHIND", facts["behind"]),
+        ("TREE", facts["tree"]),
+        ("BASELINE", facts["baseline"]),
+        ("DIRTY", facts["dirty_count"]),
+        ("ACTIVE_BLOCK", active_block),
+        ("ACTIVE_BLOCK_TRUNCATED", str(active_truncated).lower()),
+        ("ACTIVE_BLOCK_LENGTH", active_length),
+        ("NEXT", next_objective),
+        ("NEXT_TRUNCATED", str(next_truncated).lower()),
+        ("NEXT_LENGTH", next_length),
+    )
+    return urlencode(fields) + "\n"
+
+
+def render_json_checkpoint(facts: dict[str, object]) -> str:
+    """Render validated checkpoint facts as deterministic JSON.
+
+    Renderiza hechos validados del checkpoint como JSON determinista.
+    """
+    return json.dumps(facts, ensure_ascii=True, sort_keys=True) + "\n"
+
+
 def render_checkpoint(
     command: str,
-    state_path: Path,
+    sections: dict[str, list[str]],
     snapshot: GitSnapshot,
     git_baseline: str,
 ) -> str:
@@ -265,8 +355,6 @@ def render_checkpoint(
 
     Renderiza un checkpoint Markdown efímero y determinista.
     """
-    sections = _read_sections(state_path)
-    _validate_local_paths(sections, snapshot.changes)
     staged = [
         change
         for change in snapshot.changes
@@ -338,32 +426,53 @@ def build_checkpoint(
     *,
     root: Path = ROOT,
     state_path: Path | None = None,
+    output_format: str = "markdown",
 ) -> str:
     """Validate canonical state and build an ephemeral checkpoint.
 
     Valida el estado canónico y construye un checkpoint efímero.
     """
+    if output_format not in OUTPUT_FORMATS:
+        raise ValueError(f"Unsupported checkpoint output format: {output_format}")
     canonical_path = state_path or root / "docs" / "estado-operativo.md"
     report = validate_operational_state(canonical_path)
     validate_against_git(report, root)
     snapshot = inspect_git(root)
-    return render_checkpoint(
-        command,
-        canonical_path,
-        snapshot,
-        report.git_baseline,
-    )
+    sections = _read_sections(canonical_path)
+    _validate_local_paths(sections, snapshot.changes)
+    if output_format == "markdown":
+        return render_checkpoint(command, sections, snapshot, report.git_baseline)
+    facts = checkpoint_facts(command, sections, snapshot, report.git_baseline)
+    if output_format == "compact":
+        return render_compact_checkpoint(facts)
+    return render_json_checkpoint(facts)
 
 
-def main() -> None:
+def build_parser() -> argparse.ArgumentParser:
+    """Build the stable read-only checkpoint command-line interface.
+
+    Construye la interfaz estable y read-only del checkpoint.
+    """
     parser = argparse.ArgumentParser(
         description="Prepare or resume an ephemeral conversation checkpoint."
     )
     parser.add_argument("command", choices=("prepare", "resume"))
+    parser.add_argument(
+        "--format",
+        choices=OUTPUT_FORMATS,
+        default="markdown",
+        dest="output_format",
+        help="Representation only; validation and Git inspection are unchanged.",
+    )
+    return parser
+
+
+def main() -> None:
+    parser = build_parser()
     args = parser.parse_args()
 
     try:
-        output = build_checkpoint(args.command)
+        output = build_checkpoint(args.command, output_format=args.output_format)
     except (ValueError, OSError, subprocess.CalledProcessError) as exc:
         parser.error(f"conversation checkpoint unavailable: {exc}")
     print(output, end="")

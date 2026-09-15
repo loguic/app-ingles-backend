@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import json
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import parse_qsl
 
 import pytest
 
@@ -36,6 +38,8 @@ def state_document(
         "untracked.txt",
         "docs/estado-operativo.md",
     ),
+    active_content: str = "Contenido Bloque activo.",
+    next_content: str = "Contenido Próximo objetivo.",
 ) -> str:
     """Build the smallest valid canonical operational state.
 
@@ -59,7 +63,12 @@ def state_document(
         "",
     ]
     for section in sections:
-        lines.extend([f"## {section}", "", f"Contenido {section}."])
+        content = f"Contenido {section}."
+        if section == "Bloque activo":
+            content = active_content
+        elif section == "Próximo objetivo":
+            content = next_content
+        lines.extend([f"## {section}", "", content])
         if section == "Archivos clave":
             lines.extend(f"- `{path}`;" for path in recognized_paths)
         lines.append("")
@@ -87,6 +96,8 @@ def create_repository(tmp_path: Path) -> tuple[Path, Path]:
     run_git(root, "config", "user.email", "checkpoint@example.invalid")
     run_git(root, "add", ".")
     run_git(root, "commit", "-q", "-m", "initial checkpoint")
+    run_git(root, "branch", "upstream-fixture")
+    run_git(root, "branch", "--set-upstream-to=upstream-fixture")
     return root, state_path
 
 
@@ -102,24 +113,330 @@ def build(root: Path, state_path: Path, command: str = "prepare") -> str:
     )
 
 
-def test_prepare_clean_repository_without_upstream(tmp_path: Path) -> None:
-    """Describe a clean repository and absent upstream without inference.
+def build_format(
+    root: Path,
+    state_path: Path,
+    *,
+    command: str = "prepare",
+    output_format: str,
+) -> str:
+    return conversation_checkpoint.build_checkpoint(
+        command,
+        root=root,
+        state_path=state_path,
+        output_format=output_format,
+    )
 
-    Describe un repositorio limpio y sin upstream sin inferencias.
+
+def parse_compact(output: str) -> dict[str, str]:
+    assert output.count("\n") == 1
+    pairs = parse_qsl(
+        output.rstrip("\n"),
+        keep_blank_values=True,
+        strict_parsing=True,
+    )
+    assert len(pairs) == len(dict(pairs))
+    return dict(pairs)
+
+
+def test_prepare_clean_repository_with_valid_upstream(tmp_path: Path) -> None:
+    """Describe a clean repository with a resolvable upstream.
+
+    Describe un repositorio limpio con upstream resoluble.
     """
     root, state_path = create_repository(tmp_path)
 
     output = build(root, state_path)
 
     assert "- Working tree: clean" in output
-    assert "- Upstream: none" in output
-    assert "- Local relation: unavailable without upstream" in output
+    assert "- Upstream: `upstream-fixture`" in output
+    assert "- Local relation: ahead 0, behind 0" in output
     assert "- Autoridad semántica: `docs/estado-operativo.md`." in output
     assert "- Autoridad Git viva: inspección read-only de Git." in output
     assert f"- Baseline Git semántica: `{ROOT_GIT_BASELINE}`." in output
     assert "the only source of truth" not in output
     assert "were not rerun" in output
     assert f"- HEAD: `{run_git(root, 'rev-parse', 'HEAD')}`" in output
+
+
+@pytest.mark.parametrize("command", ["prepare", "resume"])
+def test_compact_checkpoint_reports_validated_facts(
+    tmp_path: Path,
+    command: str,
+) -> None:
+    root, state_path = create_repository(tmp_path)
+    head = run_git(root, "rev-parse", "HEAD")
+
+    output = build_format(
+        root,
+        state_path,
+        command=command,
+        output_format="compact",
+    )
+    fields = parse_compact(output)
+
+    assert fields == {
+        "CHECKPOINT_FORMAT": "compact-v1",
+        "CHECKPOINT_STATUS": "PASS",
+        "COMMAND": command,
+        "HEAD": head,
+        "BRANCH": "master",
+        "UPSTREAM": "upstream-fixture",
+        "AHEAD": "0",
+        "BEHIND": "0",
+        "TREE": "CLEAN",
+        "BASELINE": ROOT_GIT_BASELINE,
+        "DIRTY": "0",
+        "ACTIVE_BLOCK": "Contenido Bloque activo.",
+        "ACTIVE_BLOCK_TRUNCATED": "false",
+        "ACTIVE_BLOCK_LENGTH": str(len("Contenido Bloque activo.")),
+        "NEXT": "Contenido Próximo objetivo.",
+        "NEXT_TRUNCATED": "false",
+        "NEXT_LENGTH": str(len("Contenido Próximo objetivo.")),
+    }
+
+
+@pytest.mark.parametrize("command", ["prepare", "resume"])
+def test_json_checkpoint_reports_same_essential_facts_as_markdown(
+    tmp_path: Path,
+    command: str,
+) -> None:
+    root, state_path = create_repository(tmp_path)
+    head = run_git(root, "rev-parse", "HEAD")
+
+    markdown = build(root, state_path, command=command)
+    payload = json.loads(
+        build_format(root, state_path, command=command, output_format="json")
+    )
+    compact = parse_compact(
+        build_format(root, state_path, command=command, output_format="compact")
+    )
+
+    assert payload == {
+        "active_block": "Contenido Bloque activo.",
+        "ahead": 0,
+        "baseline": ROOT_GIT_BASELINE,
+        "behind": 0,
+        "branch": "master",
+        "checkpoint_status": "PASS",
+        "command": command,
+        "dirty_count": 0,
+        "head": head,
+        "next": "Contenido Próximo objetivo.",
+        "tree": "CLEAN",
+        "upstream": "upstream-fixture",
+    }
+    assert compact["CHECKPOINT_STATUS"] == payload["checkpoint_status"]
+    assert compact["COMMAND"] == payload["command"]
+    assert compact["HEAD"] == payload["head"]
+    assert compact["BRANCH"] == payload["branch"]
+    assert compact["UPSTREAM"] == payload["upstream"]
+    assert int(compact["AHEAD"]) == payload["ahead"]
+    assert int(compact["BEHIND"]) == payload["behind"]
+    assert compact["TREE"] == payload["tree"]
+    assert compact["BASELINE"] == payload["baseline"]
+    assert int(compact["DIRTY"]) == payload["dirty_count"]
+    assert compact["ACTIVE_BLOCK"] == payload["active_block"]
+    assert compact["NEXT"] == payload["next"]
+    assert f"- Command: `{payload['command']}`." in markdown
+    assert f"- HEAD: `{payload['head']}`" in markdown
+    assert f"- Branch: `{payload['branch']}`" in markdown
+    assert f"- Upstream: `{payload['upstream']}`" in markdown
+    assert "- Local relation: ahead 0, behind 0" in markdown
+    assert f"- Baseline Git semántica: `{payload['baseline']}`." in markdown
+    assert payload["active_block"] in markdown
+    assert payload["next"] in markdown
+    assert "- Working tree: clean" in markdown
+
+
+def test_json_preserves_complete_semantic_sections_and_compact_metadata(
+    tmp_path: Path,
+) -> None:
+    root, state_path = create_repository(tmp_path)
+    head = run_git(root, "rev-parse", "HEAD")
+    active = '### Active | "quoted" \\ path\nUnicode: áβ\n' + "a" * 260
+    next_objective = 'Next | "quoted" \\ path\nUnicode: ñλ\n' + "n" * 260
+    state_path.write_text(
+        state_document(
+            datetime.now().astimezone().isoformat(timespec="seconds"),
+            head,
+            active_content=active,
+            next_content=next_objective,
+        ),
+        encoding="utf-8",
+    )
+
+    markdown = build(root, state_path, command="resume")
+    payload = json.loads(
+        build_format(root, state_path, command="resume", output_format="json")
+    )
+    compact = parse_compact(
+        build_format(root, state_path, command="resume", output_format="compact")
+    )
+
+    assert payload["active_block"] == active
+    assert payload["next"] == next_objective
+    assert active in markdown
+    assert next_objective in markdown
+    assert compact["ACTIVE_BLOCK_TRUNCATED"] == "true"
+    assert compact["ACTIVE_BLOCK_LENGTH"] == str(len(active))
+    assert compact["ACTIVE_BLOCK"].endswith("…")
+    assert compact["NEXT_TRUNCATED"] == "true"
+    assert compact["NEXT_LENGTH"] == str(len(next_objective))
+    assert compact["NEXT"].endswith("…")
+
+
+def test_compact_encoding_round_trips_delimiters_and_control_characters() -> None:
+    special = 'value | "quoted" \\ backslash\nUnicode: áβ'
+    facts: dict[str, object] = {
+        "checkpoint_status": "PASS",
+        "command": "resume",
+        "head": "a" * 40,
+        "branch": special,
+        "upstream": special,
+        "ahead": 1,
+        "behind": 2,
+        "tree": "DIRTY",
+        "baseline": "b" * 40,
+        "dirty_count": 3,
+        "active_block": special,
+        "next": special,
+    }
+
+    fields = parse_compact(conversation_checkpoint.render_compact_checkpoint(facts))
+
+    assert fields["BRANCH"] == special
+    assert fields["UPSTREAM"] == special
+    assert fields["ACTIVE_BLOCK"] == "value | \"quoted\" \\ backslash Unicode: áβ"
+    assert fields["NEXT"] == "value | \"quoted\" \\ backslash Unicode: áβ"
+    assert fields["ACTIVE_BLOCK_TRUNCATED"] == "false"
+    assert fields["NEXT_TRUNCATED"] == "false"
+
+
+@pytest.mark.parametrize("output_format", ["markdown", "compact", "json"])
+def test_checkpoint_formats_report_dirty_count_read_only(
+    tmp_path: Path,
+    output_format: str,
+) -> None:
+    root, state_path = create_repository(tmp_path)
+    before_state = state_path.read_text(encoding="utf-8")
+    (root / "tracked.txt").write_text("changed\n", encoding="utf-8")
+    before_status = run_git(root, "status", "--porcelain=v1")
+
+    output = build_format(root, state_path, output_format=output_format)
+
+    if output_format == "compact":
+        fields = parse_compact(output)
+        assert fields["CHECKPOINT_STATUS"] == "PASS"
+        assert fields["TREE"] == "DIRTY"
+        assert fields["DIRTY"] == "1"
+    elif output_format == "json":
+        payload = json.loads(output)
+        assert payload["checkpoint_status"] == "PASS"
+        assert payload["tree"] == "DIRTY"
+        assert payload["dirty_count"] == 1
+    else:
+        assert "- Working tree: 1 Git status record(s)" in output
+    assert state_path.read_text(encoding="utf-8") == before_state
+    assert run_git(root, "status", "--porcelain=v1") == before_status
+
+
+def test_compact_and_json_fail_closed_before_pass_output(tmp_path: Path) -> None:
+    root, state_path = create_repository(tmp_path)
+    state_path.write_text("invalid\n", encoding="utf-8")
+
+    for output_format in ("compact", "json"):
+        with pytest.raises(ValueError, match="title is invalid"):
+            build_format(root, state_path, output_format=output_format)
+
+
+def test_compact_and_json_fail_closed_for_git_validation(
+    tmp_path: Path,
+) -> None:
+    root, state_path = create_repository(tmp_path)
+    state_path.write_text(
+        state_document(
+            datetime.now().astimezone().isoformat(timespec="seconds"),
+            "a" * 40,
+        ),
+        encoding="utf-8",
+    )
+
+    for output_format in ("compact", "json"):
+        with pytest.raises(ValueError, match="prior Git baseline is incompatible"):
+            build_format(root, state_path, output_format=output_format)
+
+
+@pytest.mark.parametrize("output_format", ["markdown", "compact", "json"])
+def test_missing_upstream_fails_closed(
+    tmp_path: Path,
+    output_format: str,
+) -> None:
+    root, state_path = create_repository(tmp_path)
+    run_git(root, "branch", "--unset-upstream")
+
+    with pytest.raises(ValueError, match="upstream is missing or cannot be resolved"):
+        build_format(root, state_path, output_format=output_format)
+
+
+@pytest.mark.parametrize("output_format", ["markdown", "compact", "json"])
+def test_unresolvable_upstream_fails_closed(
+    tmp_path: Path,
+    output_format: str,
+) -> None:
+    root, state_path = create_repository(tmp_path)
+    run_git(root, "config", "branch.master.remote", "origin")
+    run_git(root, "config", "branch.master.merge", "refs/heads/missing")
+
+    with pytest.raises(ValueError, match="upstream is missing or cannot be resolved"):
+        build_format(root, state_path, output_format=output_format)
+
+
+def test_markdown_default_and_explicit_format_are_compatible(
+    tmp_path: Path,
+) -> None:
+    root, state_path = create_repository(tmp_path)
+
+    assert build(root, state_path) == build_format(
+        root,
+        state_path,
+        output_format="markdown",
+    )
+
+
+def test_cli_accepts_explicit_checkpoint_formats() -> None:
+    parser = conversation_checkpoint.build_parser()
+
+    assert parser.parse_args(["resume"]).output_format == "markdown"
+    assert parser.parse_args(["resume", "--format", "compact"]).output_format == "compact"
+    assert parser.parse_args(["prepare", "--format", "json"]).output_format == "json"
+
+
+def test_cli_failure_is_nonzero_without_pass_output(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.setattr(
+        conversation_checkpoint,
+        "build_checkpoint",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            ValueError("Git upstream is missing or cannot be resolved")
+        ),
+    )
+    monkeypatch.setattr(
+        conversation_checkpoint.sys,
+        "argv",
+        ["conversation_checkpoint.py", "resume", "--format", "compact"],
+    )
+
+    with pytest.raises(SystemExit) as captured:
+        conversation_checkpoint.main()
+
+    output = capsys.readouterr()
+    assert captured.value.code == 2
+    assert output.out == ""
+    assert "upstream is missing or cannot be resolved" in output.err
+    assert "CHECKPOINT_STATUS=PASS" not in output.err
 
 
 def test_prepare_accepts_dirty_state_with_baseline_equal_to_head(
@@ -284,10 +601,12 @@ def test_allows_documented_untracked_path(tmp_path: Path) -> None:
     assert '`??` `"untracked.txt"`' in build(root, state_path)
 
 
+@pytest.mark.parametrize("output_format", ["markdown", "compact", "json"])
 @pytest.mark.parametrize("untracked", [False, True])
 def test_rejects_undocumented_dirty_or_untracked_path(
     tmp_path: Path,
     untracked: bool,
+    output_format: str,
 ) -> None:
     """Reject tracked and untracked paths absent from canonical state.
 
@@ -311,7 +630,7 @@ def test_rejects_undocumented_dirty_or_untracked_path(
     path.write_text("changed\n", encoding="utf-8")
 
     with pytest.raises(ValueError, match="Operational state omits local paths"):
-        build(root, state_path)
+        build_format(root, state_path, output_format=output_format)
 
 
 def test_rejects_all_undocumented_paths_in_one_error(tmp_path: Path) -> None:
@@ -410,8 +729,6 @@ def test_reports_local_ahead_and_behind_against_upstream(tmp_path: Path) -> None
     Calcula ahead y behind únicamente desde referencias locales.
     """
     root, state_path = create_repository(tmp_path)
-    run_git(root, "branch", "upstream-fixture")
-    run_git(root, "branch", "--set-upstream-to=upstream-fixture")
 
     output = build(root, state_path)
 
@@ -419,18 +736,51 @@ def test_reports_local_ahead_and_behind_against_upstream(tmp_path: Path) -> None
     assert "- Local relation: ahead 0, behind 0" in output
 
 
-def test_reports_detached_head(tmp_path: Path) -> None:
-    """Represent detached HEAD without inventing a branch.
+def test_json_reports_resolved_ahead_and_behind_counts(tmp_path: Path) -> None:
+    ahead_root, ahead_state = create_repository(tmp_path / "ahead")
+    prior_head = run_git(ahead_root, "rev-parse", "HEAD")
+    ahead_state.write_text(
+        state_document(
+            datetime.now().astimezone().isoformat(timespec="seconds"),
+            prior_head,
+        ),
+        encoding="utf-8",
+    )
+    run_git(ahead_root, "add", "docs/estado-operativo.md")
+    run_git(ahead_root, "commit", "-q", "-m", "ahead checkpoint")
 
-    Representa detached HEAD sin inventar una rama.
+    ahead_payload = json.loads(
+        build_format(ahead_root, ahead_state, output_format="json")
+    )
+
+    assert ahead_payload["ahead"] == 1
+    assert ahead_payload["behind"] == 0
+
+    behind_root, behind_state = create_repository(tmp_path / "behind")
+    run_git(behind_root, "checkout", "-q", "upstream-fixture")
+    (behind_root / "upstream.txt").write_text("upstream\n", encoding="utf-8")
+    run_git(behind_root, "add", "upstream.txt")
+    run_git(behind_root, "commit", "-q", "-m", "advance upstream")
+    run_git(behind_root, "checkout", "-q", "master")
+
+    behind_payload = json.loads(
+        build_format(behind_root, behind_state, output_format="json")
+    )
+
+    assert behind_payload["ahead"] == 0
+    assert behind_payload["behind"] == 1
+
+
+def test_detached_head_without_upstream_fails_closed(tmp_path: Path) -> None:
+    """Reject detached HEAD when no resolvable upstream exists.
+
+    Rechaza detached HEAD cuando no existe un upstream resoluble.
     """
     root, state_path = create_repository(tmp_path)
     run_git(root, "checkout", "-q", "--detach", "HEAD")
 
-    output = build(root, state_path, command="resume")
-
-    assert "- Command: `resume`." in output
-    assert "- Branch: detached HEAD" in output
+    with pytest.raises(ValueError, match="upstream is missing or cannot be resolved"):
+        build(root, state_path, command="resume")
 
 
 def test_fail_closed_for_invalid_operational_state(tmp_path: Path) -> None:

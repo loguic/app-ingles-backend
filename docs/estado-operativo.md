@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-15T22:37:11+02:00
-Baseline Git previa a este checkpoint: 96641759d1aec8d95ed47f9ffccc7d9c59510318
+Actualizado: 2026-09-16T01:16:48+02:00
+Baseline Git previa a este checkpoint: c68e0909d61cc51c0e34ac0aa5c91c3ce6675a6f
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -92,9 +92,13 @@ B permanece **NOT IMPLEMENTED** y no se abre mediante este microbloque.
 
 ### LOGUIC Operational Automation / Token Reduction
 
-Estado semántico: **NOT STARTED / DECISION AND SCOPE REQUIRED**.
+Estado semántico: **CORRECTED LOCALLY / VALIDATED / RE-POSTFLIGHT PASS / READY_FOR_CLOSURE**.
 
-Objetivo inicial: identificar y sistematizar procesos repetitivos que puedan trasladarse de ChatGPT/Codex a scripts locales deterministas para reducir consumo de tokens, contexto, comandos manuales y errores, sin automatizar decisiones que requieran razonamiento.
+Primer incremento local: `conversation_checkpoint.py` conserva `prepare|resume` y su Markdown por defecto, y añade `--format compact` y `--format json`. Las tres representaciones reutilizan una única validación de estado/baseline, inspección Git y validación fail-closed del scope dirty antes de representar el resultado; upstream resoluble y ahead/behind calculables son obligatorios. JSON conserva completos `active_block` y `next`. Compact usa `application/x-www-form-urlencoded` `compact-v1`, se parsea con `urllib.parse.parse_qsl`, y declara para ambos textos `*_TRUNCATED` y `*_LENGTH`; el contenido completo es recuperable mediante JSON o Markdown. `CHECKPOINT_STATUS=PASS` acredita validez del checkpoint y puede coexistir con `TREE=DIRTY` únicamente cuando todos los dirty paths están reconocidos por el checkpoint vigente. Ningún formato infiere readiness, test selection, scope, postflight o decisiones semánticas.
+
+La implementación inicial preservó Markdown default, añadió compact/JSON y logró ~96 % de ahorro; su primer postflight independiente fue **FAIL**: detectó upstream ausente/irresoluble fail-open, truncación semántica de `next`, `STATUS` ambiguo y delimitador compacto no apto para split ingenuo. La corrección exige upstream resoluble y ahead/behind calculables, conserva `active_block` y `next` completos en JSON, hace explícita y recuperable la truncación compacta, usa `CHECKPOINT_STATUS`, `compact-v1`, `application/x-www-form-urlencoded` y parsing canónico `urllib.parse.parse_qsl`. El re-postflight final fue **PASS**, con BLOCKING **0** y NONBLOCKING **0**: focales **51 PASS**, regresión relacionada vigente **34 PASS**, upstream ausente/irresoluble rechazado, ahead real `1/0`, behind real `0/1`, dirty conocido PASS con `TREE=DIRTY`, dirty desconocido rechazado, round-trip compacto de `|`, `=`, `&`, `%`, comillas, backslash, newline y Unicode, parser JSON y read-only PASS. Ahorro final: Markdown **14.400 bytes**, compact **898 bytes** (**93,76 %**) y JSON **3.029 bytes** (**78,97 %**). Este incremento reduce tokens y contexto, pero no sustituye el checkpoint Markdown completo ni automatiza readiness, postflight, selección de tests, scope o una nueva autoridad.
+
+Scope local reconocido: `scripts/engineering/conversation_checkpoint.py`, `tests/test_conversation_checkpoint.py`, `docs/estado-operativo.md` y `docs/loguic-engineering-operating-method-v1.md`.
 
 ### Fronteras A1, B52 y B181
 
@@ -103,7 +107,7 @@ B52 para la source vigente está **NOT VERIFIED**; `LOADER = BLOCKED`. `content/
 ## Automatización disponible
 
 - `operational_state.py` valida estructura, timestamp timezone-aware, baseline Git previa y ausencia de campos Git vivos.
-- `conversation_checkpoint.py prepare|resume` compone estado semántico y Git vivo en una vista efímera read-only.
+- `conversation_checkpoint.py prepare|resume` compone estado semántico y Git vivo en una vista efímera read-only con upstream obligatorio. `--format compact` entrega `compact-v1` parseable mediante `urllib.parse.parse_qsl`; `--format json` conserva las secciones semánticas completas. Ambos reutilizan las validaciones del checkpoint Markdown y no crean una nueva autoridad.
 - `block_workflow.py` es el orquestador canónico del tramo determinista de Closure Gates futuros: `checkpoint validation → block_close.py → git_close.py → conversation_checkpoint.py prepare`.
 - ChatGPT conserva readiness, postflight independiente, decisiones semánticas, scope/allowlist, mensaje e interpretación del checkpoint post-cierre; también realiza la reconciliación read-only si existe partial closure.
 - `a1_resource_asset_close.py` solo opera sobre assets A1 humanamente aprobados; no convierte outputs del benchmark en assets A1.
