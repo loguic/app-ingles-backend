@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-16T01:16:48+02:00
-Baseline Git previa a este checkpoint: c68e0909d61cc51c0e34ac0aa5c91c3ce6675a6f
+Actualizado: 2026-09-16T01:20:04+02:00
+Baseline Git previa a este checkpoint: f2c4ca9e6d1e1f394499a7943c8df98914382316
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -88,18 +88,21 @@ Scope local reconocido:
 
 B permanece **NOT IMPLEMENTED** y no se abre mediante este microbloque.
 
-## Bloque activo
+## Último bloque cerrado
 
-### LOGUIC Operational Automation / Token Reduction
+### Incremento 1 — LOGUIC Operational Automation / Token Reduction — Compact/JSON Checkpoint
 
-Estado semántico: **CORRECTED LOCALLY / VALIDATED / RE-POSTFLIGHT PASS / READY_FOR_CLOSURE**.
+Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `f2c4ca9e6d1e1f394499a7943c8df98914382316`.
 
 Primer incremento local: `conversation_checkpoint.py` conserva `prepare|resume` y su Markdown por defecto, y añade `--format compact` y `--format json`. Las tres representaciones reutilizan una única validación de estado/baseline, inspección Git y validación fail-closed del scope dirty antes de representar el resultado; upstream resoluble y ahead/behind calculables son obligatorios. JSON conserva completos `active_block` y `next`. Compact usa `application/x-www-form-urlencoded` `compact-v1`, se parsea con `urllib.parse.parse_qsl`, y declara para ambos textos `*_TRUNCATED` y `*_LENGTH`; el contenido completo es recuperable mediante JSON o Markdown. `CHECKPOINT_STATUS=PASS` acredita validez del checkpoint y puede coexistir con `TREE=DIRTY` únicamente cuando todos los dirty paths están reconocidos por el checkpoint vigente. Ningún formato infiere readiness, test selection, scope, postflight o decisiones semánticas.
 
-La implementación inicial preservó Markdown default, añadió compact/JSON y logró ~96 % de ahorro; su primer postflight independiente fue **FAIL**: detectó upstream ausente/irresoluble fail-open, truncación semántica de `next`, `STATUS` ambiguo y delimitador compacto no apto para split ingenuo. La corrección exige upstream resoluble y ahead/behind calculables, conserva `active_block` y `next` completos en JSON, hace explícita y recuperable la truncación compacta, usa `CHECKPOINT_STATUS`, `compact-v1`, `application/x-www-form-urlencoded` y parsing canónico `urllib.parse.parse_qsl`. El re-postflight final fue **PASS**, con BLOCKING **0** y NONBLOCKING **0**: focales **51 PASS**, regresión relacionada vigente **34 PASS**, upstream ausente/irresoluble rechazado, ahead real `1/0`, behind real `0/1`, dirty conocido PASS con `TREE=DIRTY`, dirty desconocido rechazado, round-trip compacto de `|`, `=`, `&`, `%`, comillas, backslash, newline y Unicode, parser JSON y read-only PASS. Ahorro final: Markdown **14.400 bytes**, compact **898 bytes** (**93,76 %**) y JSON **3.029 bytes** (**78,97 %**). Este incremento reduce tokens y contexto, pero no sustituye el checkpoint Markdown completo ni automatiza readiness, postflight, selección de tests, scope o una nueva autoridad.
+La implementación inicial preservó Markdown default, añadió compact/JSON y logró ~96 % de ahorro; su primer postflight independiente fue **FAIL**: detectó upstream ausente/irresoluble fail-open, truncación semántica de `next`, `STATUS` ambiguo y delimitador compacto no apto para split ingenuo. La corrección exige upstream resoluble y ahead/behind calculables, conserva `active_block` y `next` completos en JSON, hace explícita y recuperable la truncación compacta, usa `CHECKPOINT_STATUS`, `compact-v1`, `application/x-www-form-urlencoded` y parsing canónico `urllib.parse.parse_qsl`. El re-postflight final fue **PASS**, con BLOCKING **0** y NONBLOCKING **0**: focales **51 PASS**, regresión relacionada vigente **34 PASS**, upstream ausente/irresoluble rechazado, ahead real `1/0`, behind real `0/1`, dirty conocido PASS con `TREE=DIRTY`, dirty desconocido rechazado, round-trip compacto de `|`, `=`, `&`, `%`, comillas, backslash, newline y Unicode, parser JSON y read-only PASS. El Closure Gate confirmó block-close, git-close, prepare y `[closure-gate]` PASS con árbol limpio y sincronizado. Ahorro final: Markdown **14.400 bytes**, compact **898 bytes** (**93,76 %**) y JSON **3.029 bytes** (**78,97 %**). Este incremento reduce tokens y contexto, pero no sustituye el checkpoint Markdown completo ni automatiza readiness, postflight, selección de tests, scope o una nueva autoridad.
 
 Scope local reconocido: `scripts/engineering/conversation_checkpoint.py`, `tests/test_conversation_checkpoint.py`, `docs/estado-operativo.md` y `docs/loguic-engineering-operating-method-v1.md`.
 
+## Bloque activo
+
+`LOGUIC Operational Automation / Token Reduction` permanece como línea activa general; el Incremento 2 está **NOT STARTED / DECISION AND PREFLIGHT REQUIRED**.
 ### Fronteras A1, B52 y B181
 
 B52 para la source vigente está **NOT VERIFIED**; `LOADER = BLOCKED`. `content/content_tree.json` permanece intacto. B181 permanece **PAUSED** en puerta pedagógica; no se reactiva mediante A1 v4, el benchmark, el review-lock ni este microbloque.
@@ -127,7 +130,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-`LOGUIC Operational Automation / Token Reduction`: identificar y sistematizar procesos repetitivos transferibles a scripts locales deterministas para reducir tokens, contexto, comandos manuales y errores, sin automatizar decisiones que requieran razonamiento. B permanece `NOT IMPLEMENTED`; las human reviews reales permanecen `NOT STARTED`; adjudicación y winner siguen fuera de alcance, y A1, B52, loader y B181 no se reactivan automáticamente.
+Frontera candidata para decisión/preflight: evaluar la reducción de salida del propio `block_workflow.py`, especialmente su checkpoint inicial y `checkpoint-prepare` final, aprovechando `compact-v1` donde sea seguro y conservando detalle automático cuando exista FAIL. Esta candidata no está implementada. B permanece `NOT IMPLEMENTED`; las human reviews reales permanecen `NOT STARTED`; adjudicación y winner siguen fuera de alcance, y A1, B52, loader y B181 no se reactivan automáticamente.
 
 ## Archivos clave
 
