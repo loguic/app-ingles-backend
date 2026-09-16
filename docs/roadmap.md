@@ -692,7 +692,7 @@ Entrada A1 canónica — A1 v3 y A1 v4 están publicados. A1 v4 permanece **MEMB
 
 TTS WAV normalization profile v1 y TTS Engine Benchmark Protocol v1 están publicados. La ejecución externa anclada a `3e10e97a932f6be27cc05081ba02c555d4611565` está **TÉCNICAMENTE FINALIZADA**. Sus WAV no son assets A1 aprobados. La reconciliación privada A/B está **CLOSED / PUBLISHED / SYNCED** en `4d26cf2f3557266b30c26328dbe6f7f76a5e61d9`; las human blind reviews siguen **NOT STARTED** y el winner **NOT SELECTED**.
 
-El contrato de review-lock permanece **LOCAL / IMPLEMENTED / TECHNICALLY REVIEWED / NOT CLOSED / NOT PUBLISHED**. El public reviewer package/workflow y la persistencia append-only/runtime para human reviews son gaps futuros separados. La siguiente frontera administrativa es reconciliar `docs/estado-operativo.md` bajo recuperación fail-closed; no autoriza human review, adjudicación, selección de winner, activación de A1, verificación B52, loader ni reanudación de B181.
+El contrato de review-lock quedó **CLOSED / PUBLISHED / SYNCED** históricamente en `7e62908809087f6314d6e17058bbee90d0c967c9`; el public reviewer package/workflow quedó posteriormente **CLOSED / PUBLISHED / SYNCED**. La persistencia append-only/runtime para human reviews y la aceptación durable de B siguen siendo gaps separados. No se autoriza human review, adjudicación, selección de winner, activación de A1, verificación B52, loader ni reanudación de B181.
 ## B177 — Diagnóstico conversacional contextual
 
 Estado: en desarrollo.

@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-16T17:08:04+02:00
-Baseline Git previa a este checkpoint: 742ddb24addc794473fd04d96dd7524097a1dc6b
+Actualizado: 2026-09-16T17:52:21+02:00
+Baseline Git previa a este checkpoint: 9de95823cfb6c4d6f4036228030829c68cb64380
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -134,7 +134,7 @@ La siguiente frontera funcional pendiente vuelve a ser B (aceptación durable/at
 
 ## Archivos clave
 
-- `docs/loguic-engineering-operating-method-v1.md`, `docs/estado-operativo.md`, `scripts/engineering/operational_state.py`, `scripts/engineering/conversation_checkpoint.py`, `tests/test_operational_state.py` y `tests/test_conversation_checkpoint.py`;
+- `docs/loguic-engineering-operating-method-v1.md`, `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`, `scripts/engineering/operational_state.py`, `scripts/engineering/conversation_checkpoint.py`, `tests/test_operational_state.py` y `tests/test_conversation_checkpoint.py`;
 - `scripts/engineering/block_workflow.py`, `tests/test_block_workflow.py`, `scripts/engineering/block_close.py` y `scripts/engineering/git_close.py` definen y cubren el tramo determinista de cierre; los dos últimos permanecen sin cambios;
 - `app/schemas/tts_engine_benchmark.py`, `app/services/tts_public_reviewer_workflow.py`, `docs/loguic-tts-engine-benchmark-protocol-v1.md` y `tests/test_tts_engine_benchmark_schema.py` contienen el review-lock publicado y el public reviewer workflow local;
 - `content/candidates/a1-u1/pedagogical-unit-candidate-v4.json`, `content/admissions/a1-u1/adm-a1-u1-002.json` y `content/active-source/active-candidate-source-002.json`.
