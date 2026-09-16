@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-16T12:28:19+02:00
-Baseline Git previa a este checkpoint: 9b2bd7898c02461e9b376e7ad44abbf4c52c9c2a
+Actualizado: 2026-09-16T16:56:00+02:00
+Baseline Git previa a este checkpoint: 1b902c2f424c5d0bec76654c25f160977e036737
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -102,7 +102,7 @@ Scope local reconocido: `scripts/engineering/conversation_checkpoint.py`, `tests
 Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `9b2bd7898c02461e9b376e7ad44abbf4c52c9c2a` (`feat add compact prepare output to closure gate`). `--checkpoint-prepare-format {markdown,compact}` deja `markdown` como default compatible con una ejecución exacta de `conversation_checkpoint.py prepare`; `compact` modifica exclusivamente el prepare final y ejecuta una vez `conversation_checkpoint.py prepare --format compact`. Checkpoint inicial directo/breve sin invocar `conversation_checkpoint.py`, orden, fail-closed y **PARTIAL CLOSURE / PUBLISHED BUT CHECKPOINT-INCOMPLETE** intactos; no rollback, retry, segundo git-close ni fallback Markdown. stdout/stderr se preservan y `block_workflow.py` no interpreta `compact-v1`; process-group cleanup, timeout, `stdin=DEVNULL`, señales, launcher failure, allowlist, branch/upstream/message, lógica Git y límites externos de readiness/postflight/scope/tests no cambian. Postflight PASS (BLOCKING **0**, NONBLOCKING **0**), `tests/test_block_workflow.py` **23 PASS** y Closure Gate real (block-close, git-close, checkpoint-prepare compact y closure-gate) PASS; prepare compacto emitido correctamente con `TREE=CLEAN`, `ahead 0 / behind 0`, `master`/`origin/master` y baseline no circular `6d70cc6c22205cc42ad6a306aa7b96e965685705 == HEAD^`. Ahorro: Markdown **7.933 bytes**, compact **901 bytes**, reducción **88,64 %**. Scope cerrado: `scripts/engineering/block_workflow.py`, `tests/test_block_workflow.py`, `docs/estado-operativo.md` y `docs/loguic-engineering-operating-method-v1.md`.
 ## Bloque activo
 
-`LOGUIC Operational Automation / Token Reduction` permanece como línea activa general; Incremento 2 deja de estar activo. El siguiente paso queda sujeto a decisión/preflight explícitos y no abre Incremento 3. B permanece **NOT IMPLEMENTED**; las human reviews reales siguen **NOT STARTED**; A1, B52, loader y B181 no se reactivan.
+`LOGUIC Operational Automation / Token Reduction` permanece como línea activa general; Incremento 3 — Validation Recipe approved-v1: **CORRECTED LOCALLY / VALIDATED / RE-POSTFLIGHT PASS / READY_FOR_CLOSURE**. Historial: implementación inicial PASS; primer postflight independiente FAIL por el único BLOCKING histórico, aceptación de abreviaturas CLI como `--foc` y `--verb`; resto de garantías verificadas PASS. Corrección: `ArgumentParser(..., allow_abbrev=False)`. Re-postflight independiente PASS, BLOCKING **0**, NONBLOCKING **0**: `--foc`, `--fo`, `--verb`, `--ver`, `--reg`, `--regr`, `--unknown` y `--anything-else` rechazadas con exit 2; `--focal`, `--regression` y `--verbose` completos preservados; recipe desconocida y ausencia de focal exit 2; frontera CLI sin passthrough genérico, comandos arbitrarios, shell snippets ni argv ocultos. Contrato único `approved-v1`: un pytest con focal + regression literales/explicitamente preseleccionados por ChatGPT/Codex, orden `pytest → git diff --check → operational_state validate → checkpoint compact`, fail-closed, stdout/stderr diagnóstico, PASS compacto URL-encoded con `TEST_PATHS` contando solo rutas y verbose sin cambio semántico. Read-only, `shell=False`, `stdin=DEVNULL`, cwd raíz y helpers existentes preservados; sin selección automática de tests, readiness, postflight o scope; PASS de receta ≠ autorización de cierre. Evidencia final: `tests/test_validation_recipe.py` **22 PASS**, `git diff --check` PASS y `operational_state.py validate` PASS. Ahorro: cuatro pasos manuales **1.153 bytes**, receta PASS **63 bytes**, reducción aproximada **94,54 %**. Scope local reconocido: `scripts/engineering/validation_recipe.py`, `tests/test_validation_recipe.py`, `docs/estado-operativo.md` y `docs/loguic-engineering-operating-method-v1.md`. El bloque no se cierra mediante este registro y no se abre Incremento 4. B permanece **NOT IMPLEMENTED**; human reviews **NOT STARTED**; A1, B52, loader y B181 no se reactivan.
 ### Fronteras A1, B52 y B181
 
 B52 para la source vigente está **NOT VERIFIED**; `LOADER = BLOCKED`. `content/content_tree.json` permanece intacto. B181 permanece **PAUSED** en puerta pedagógica; no se reactiva mediante A1 v4, el benchmark, el review-lock ni este microbloque.
@@ -130,7 +130,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-Decidir y realizar preflight explícito del siguiente paso de la línea `LOGUIC Operational Automation / Token Reduction`; no abrir Incremento 3 automáticamente. B permanece `NOT IMPLEMENTED`; las human reviews reales permanecen `NOT STARTED`; adjudicación y winner siguen fuera de alcance, y A1, B52, loader y B181 no se reactivan automáticamente.
+Con autorización y scope/allowlist y mensaje aprobados, ejecutar el Closure Gate del Incremento 3; no abrir Incremento 4. B permanece `NOT IMPLEMENTED`; las human reviews reales permanecen `NOT STARTED`; adjudicación y winner siguen fuera de alcance, y A1, B52, loader y B181 no se reactivan automáticamente.
 
 ## Archivos clave
 
