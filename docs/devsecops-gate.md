@@ -100,4 +100,4 @@ S2 demuestra backup, restauración y reversibilidad en infraestructura temporal 
 
 Cualquier futura ejecución DevSecOps sobre entornos reales requerirá una puerta adicional y autorización explícita.
 
-La deuda de `block_workflow.py`, cuya interrupción puede perder la salida final o dejar procesos hijos activos, permanece separada y fuera de este hito.
+La deuda histórica de `block_workflow.py` —interrupciones que podían perder la salida final o dejar procesos hijos activos— quedó resuelta y cerrada posteriormente; permanece fuera de este hito como contexto histórico y no describe el estado vigente.

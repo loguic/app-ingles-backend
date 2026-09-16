@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-16T18:26:28+02:00
-Baseline Git previa a este checkpoint: 4682e2fb43151d8644f784a37ed09d4076fa0e91
+Actualizado: 2026-09-16T18:31:53+02:00
+Baseline Git previa a este checkpoint: 0c117e01e0d6109fbebff7f29470283a4d182249
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -68,7 +68,7 @@ Scope técnico cerrado:
 
 Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `96641759d1aec8d95ed47f9ffccc7d9c59510318`.
 
-`block_workflow.py` orquesta explícitamente el tramo determinista ya aprobado `block_close.py → git_close.py → conversation_checkpoint.py prepare`, en orden estricto y con fallo cerrado. Su CLI separa los argumentos técnicos posteriores a `--block-close-args` de `--branch`, `--upstream`, `--message`, la allowlist repetida `--file` y el timeout por fase. No reconstruye validaciones técnicas, lógica Git ni composición del checkpoint.
+`block_workflow.py` orquesta explícitamente el tramo determinista ya aprobado `checkpoint validation → block_close.py → git_close.py → conversation_checkpoint.py prepare`, en orden estricto y con fallo cerrado. Su CLI separa los argumentos técnicos posteriores a `--block-close-args` de `--branch`, `--upstream`, `--message`, la allowlist repetida `--file` y el timeout por fase. No reconstruye validaciones técnicas, lógica Git ni composición del checkpoint.
 
 Cada helper se ejecuta sin shell, con `stdin=DEVNULL`, stdout/stderr capturados y propagados, timeout configurable y sesión/grupo de procesos propio. El orquestador actúa como child subreaper en el entorno Linux canónico: después de recolectar al líder comprueba que el process group haya desaparecido. Si quedan descendientes, la fase falla aunque el líder haya terminado con status 0; aplica SIGTERM, espera acotada, escala a SIGKILL, verifica la desaparición del grupo y recolecta los descendientes reparentados que correspondan. Timeout, interrupción o fallo de comunicación siguen la misma limpieza acotada, devuelven estado no cero y no inician fases posteriores. La implementación no decide readiness: postflight independiente, documentación semántica, scope/allowlist, mensaje y lectura del checkpoint siguen bajo orquestación de ChatGPT antes o después del tramo determinista correspondiente.
 
@@ -134,7 +134,7 @@ La siguiente frontera funcional pendiente vuelve a ser B (aceptación durable/at
 
 ## Archivos clave
 
-- `docs/loguic-engineering-operating-method-v1.md`, `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`, `scripts/engineering/operational_state.py`, `scripts/engineering/conversation_checkpoint.py`, `tests/test_operational_state.py` y `tests/test_conversation_checkpoint.py`;
+- `docs/loguic-engineering-operating-method-v1.md`, `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`, `docs/devsecops-gate.md`, `scripts/engineering/operational_state.py`, `scripts/engineering/conversation_checkpoint.py`, `tests/test_operational_state.py` y `tests/test_conversation_checkpoint.py`;
 - `scripts/engineering/block_workflow.py`, `tests/test_block_workflow.py`, `scripts/engineering/block_close.py` y `scripts/engineering/git_close.py` definen y cubren el tramo determinista de cierre; los dos últimos permanecen sin cambios;
 - `app/schemas/tts_engine_benchmark.py`, `app/services/tts_public_reviewer_workflow.py`, `docs/loguic-tts-engine-benchmark-protocol-v1.md` y `tests/test_tts_engine_benchmark_schema.py` contienen el review-lock publicado y el public reviewer workflow local;
 - `content/candidates/a1-u1/pedagogical-unit-candidate-v4.json`, `content/admissions/a1-u1/adm-a1-u1-002.json` y `content/active-source/active-candidate-source-002.json`.
