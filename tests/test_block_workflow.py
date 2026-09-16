@@ -8,7 +8,7 @@ import subprocess
 
 import pytest
 
-from scripts.engineering import block_workflow
+from scripts.engineering import block_close, block_workflow
 from scripts.engineering.operational_state import OperationalStateReport
 
 
@@ -619,6 +619,26 @@ def test_cli_defaults_prepare_format_to_markdown() -> None:
     )
 
     assert args.checkpoint_prepare_format == "markdown"
+
+
+def test_cli_help_describes_external_decisions_and_prepare_scope() -> None:
+    help_text = block_workflow.build_parser().format_help()
+
+    assert "checkpoint validation -> block_close.py" in help_text
+    assert "git_close.py" in help_text
+    assert "conversation_checkpoint.py prepare" in help_text
+    assert "readiness, postflight," in help_text
+    assert "documentation, scope/allowlist" in help_text
+    assert "scope/allowlist" in help_text
+    assert "default: markdown" in help_text
+    assert "prepare only" in help_text
+
+
+def test_block_close_help_explains_technical_staging() -> None:
+    help_text = block_close.build_parser().format_help()
+
+    assert "Enable staging of previously validated technical" in help_text
+    assert "files." in help_text
 
 
 def test_cli_rejects_invalid_checkpoint_prepare_format() -> None:

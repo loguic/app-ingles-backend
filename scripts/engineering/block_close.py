@@ -157,7 +157,7 @@ def run_full_suite() -> None:
     print("Full backend suite: passed", flush=True)
 
 
-def main() -> None:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("tests", nargs="*")
     parser.add_argument(
@@ -175,7 +175,13 @@ def main() -> None:
     parser.add_argument(
         "--stage-technical",
         action="store_true",
+        help="Enable staging of previously validated technical files.",
     )
+    return parser
+
+
+def main() -> None:
+    parser = build_parser()
     args = parser.parse_args()
 
     validate_repository_root()

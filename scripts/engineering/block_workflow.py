@@ -349,8 +349,10 @@ def _positive_timeout(value: str) -> float:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
-            "Run the approved deterministic Closure Gate: block_close.py, "
-            "git_close.py, then conversation_checkpoint.py prepare."
+            "Run the approved deterministic Closure Gate after readiness, "
+            "postflight, documentation, scope/allowlist, and commit message "
+            "are decided externally: checkpoint validation -> block_close.py "
+            "-> git_close.py -> conversation_checkpoint.py prepare."
         )
     )
     parser.add_argument("--state-path", type=Path)
@@ -368,7 +370,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--checkpoint-prepare-format",
         choices=("markdown", "compact"),
         default="markdown",
-        help="Output format for the final conversation_checkpoint.py prepare.",
+        help=(
+            "Output format for the final conversation_checkpoint.py prepare "
+            "only (default: markdown)."
+        ),
     )
     parser.add_argument(
         "--block-close-args",

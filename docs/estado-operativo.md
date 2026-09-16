@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-16T17:52:21+02:00
-Baseline Git previa a este checkpoint: 9de95823cfb6c4d6f4036228030829c68cb64380
+Actualizado: 2026-09-16T18:26:28+02:00
+Baseline Git previa a este checkpoint: 4682e2fb43151d8644f784a37ed09d4076fa0e91
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -102,7 +102,7 @@ Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `9b2bd7898
 ### Incremento 3 — LOGUIC Operational Automation / Token Reduction — Validation Recipe approved-v1
 Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `8bc469595807926bd1e05cb8916486bfea332c5f` (`feat add validation recipe approved v1`). Implementación inicial PASS; primer postflight independiente FAIL por el único finding BLOCKING, abreviaturas `argparse` como `--foc` y `--verb`; corrección `ArgumentParser(..., allow_abbrev=False)`; re-postflight PASS con BLOCKING **0**, NONBLOCKING **0**, focales **22 PASS** y Closure Gate real PASS (block-close, git-close, checkpoint-prepare compacto y closure-gate), con árbol limpio/sincronizado y baseline histórica pre-cierre `1b902c2f424c5d0bec76654c25f160977e036737 == HEAD^`. Contrato final único `approved-v1`: un pytest con rutas focal/regression explícitas preseleccionadas por ChatGPT/Codex, luego `git diff --check`, `operational_state.py validate` y `conversation_checkpoint.py prepare --format compact`, en orden/fallo cerrado, read-only, `shell=False`, `stdin=DEVNULL` y cwd raíz; sin selección automática de tests, readiness, postflight, scope ni autorización automática de Closure Gate. Solo acepta `--focal`, `--regression` y `--verbose` completos; abreviaturas exit 2, sin passthrough genérico, comandos arbitrarios ni shell snippets. Ahorro final: flujo manual **1.153 bytes**, receta PASS **63 bytes**, reducción aproximada **94,54 %**. Scope cerrado: `scripts/engineering/validation_recipe.py`, `tests/test_validation_recipe.py`, `docs/estado-operativo.md` y `docs/loguic-engineering-operating-method-v1.md`.
 ## Bloque activo
-`LOGUIC Operational Automation / Token Reduction`: **CLOSED FOR NOW / OBJECTIVES ACHIEVED / NO_INCREMENT_4_RECOMMENDED**. Los Incrementos 1–3 permanecen cerrados/published/synced con sus contratos y ahorros históricos; no se crea Incremento 4. B permanece **NOT IMPLEMENTED** y solo es candidata a preflight/decisión explícita; human reviews **NOT STARTED**; A1, B52, loader y B181 no se reactivan.
+`LOGUIC Operational Automation / Token Reduction`: **CLOSED FOR NOW / OBJECTIVES ACHIEVED / NO_INCREMENT_4_RECOMMENDED**. Los Incrementos 1–3 permanecen cerrados/published/synced con sus contratos y ahorros históricos; el bloque posterior `CLI Help Clarification / Closure Gate usability` quedó implementado localmente y postflight PASS, sin cambio runtime ni scope creep; no se crea Incremento 4. B permanece **NOT IMPLEMENTED** y solo es candidata a preflight/decisión explícita; human reviews **NOT STARTED**; A1, B52, loader y B181 no se reactivan.
 ### Fronteras A1, B52 y B181
 
 B52 para la source vigente está **NOT VERIFIED**; `LOADER = BLOCKED`. `content/content_tree.json` permanece intacto. B181 permanece **PAUSED** en puerta pedagógica; no se reactiva mediante A1 v4, el benchmark, el review-lock ni este microbloque.
