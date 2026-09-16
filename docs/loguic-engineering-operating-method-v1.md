@@ -111,6 +111,7 @@ Antes de inspeccionar, ejecutar o validar:
 3. no repetir una validación `PASS` vigente solo para confirmar: ejecutarla de nuevo únicamente si cambia materialmente algún archivo o input cubierto, o si el método de cierre exige evidencia nueva tras un cambio;
 4. no reinspeccionar archivos sin cambio material;
 5. evitar `cat`/`sed` más copiar y pegar código al chat cuando Codex puede trabajar directamente sobre el repositorio.
+6. para tareas Codex recurrentes, usar prompts compactos que declaren objetivo, scope, restricciones y evidencia nueva, y ordenen inspeccionar los documentos canónicos; las plantillas no son autoridad y no duplican contratos extensos.
 
 Evidencia documentada significa evidencia reutilizable, no autorización para atribuir garantías más amplias.
 
