@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-16T01:20:04+02:00
-Baseline Git previa a este checkpoint: f2c4ca9e6d1e1f394499a7943c8df98914382316
+Actualizado: 2026-09-16T12:22:50+02:00
+Baseline Git previa a este checkpoint: 6d70cc6c22205cc42ad6a306aa7b96e965685705
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -102,7 +102,7 @@ Scope local reconocido: `scripts/engineering/conversation_checkpoint.py`, `tests
 
 ## Bloque activo
 
-`LOGUIC Operational Automation / Token Reduction` permanece como línea activa general; el Incremento 2 está **NOT STARTED / DECISION AND PREFLIGHT REQUIRED**.
+`LOGUIC Operational Automation / Token Reduction` permanece como línea activa general. Incremento 2 — Compact prepare en Closure Gate: **IMPLEMENTED LOCALLY / VALIDATED / POSTFLIGHT PASS / READY_FOR_CLOSURE**; postflight independiente BLOCKING **0** y NONBLOCKING **0**. `block_workflow.py` permite `--checkpoint-prepare-format {markdown,compact}` exclusivamente para representación/output del `conversation_checkpoint.py prepare` final: `markdown` default compatible ejecuta exactamente una vez `conversation_checkpoint.py prepare`; `compact` opt-in explícito ejecuta exactamente una vez `conversation_checkpoint.py prepare --format compact`. No cambia autoridad ni semántica del Closure Gate ni abre otro incremento. El checkpoint inicial permanece validación directa breve y no invoca `conversation_checkpoint.py`; orden `checkpoint validation → block-close → git-close → checkpoint-prepare → closure result` y fallo cerrado intactos: checkpoint inicial FAIL no inicia fases posteriores, block-close FAIL no llega a git-close/prepare, git-close FAIL no llega a prepare y prepare FAIL es FAIL global. Tras Git-close PASS, prepare compacto FAIL conserva **PARTIAL CLOSURE / PUBLISHED BUT CHECKPOINT-INCOMPLETE**, sin rollback, retry, segundo git-close ni fallback Markdown. El helper preserva stdout/stderr y no interpreta/reimplementa `compact-v1`; process-group cleanup, timeout, `stdin=DEVNULL`, señales, launcher failure, allowlist, branch/upstream/message y lógica Git no cambian. Readiness, postflight, scope y selección de tests quedan fuera del orquestador. Evidencia: default Markdown/compact una ejecución exacta cada uno; CLI `markdown|compact`, inválido exit 2 y remainder `--block-close-args` preservado; partial closure adversarial, stdout/stderr, cleanup y fail-closed PASS; `tests/test_block_workflow.py` **23 PASS**, `git diff --check` PASS y `operational_state.py validate` PASS. Ahorro prepare: Markdown **7.933 bytes**, compact **901 bytes**, ahorro **7.032 bytes** (**88,64 %**). Scope reconocido: `scripts/engineering/block_workflow.py`, `tests/test_block_workflow.py`, `docs/estado-operativo.md` y `docs/loguic-engineering-operating-method-v1.md`.
 ### Fronteras A1, B52 y B181
 
 B52 para la source vigente está **NOT VERIFIED**; `LOADER = BLOCKED`. `content/content_tree.json` permanece intacto. B181 permanece **PAUSED** en puerta pedagógica; no se reactiva mediante A1 v4, el benchmark, el review-lock ni este microbloque.
@@ -130,7 +130,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-Frontera candidata para decisión/preflight: evaluar la reducción de salida del propio `block_workflow.py`, especialmente su checkpoint inicial y `checkpoint-prepare` final, aprovechando `compact-v1` donde sea seguro y conservando detalle automático cuando exista FAIL. Esta candidata no está implementada. B permanece `NOT IMPLEMENTED`; las human reviews reales permanecen `NOT STARTED`; adjudicación y winner siguen fuera de alcance, y A1, B52, loader y B181 no se reactivan automáticamente.
+Con la autorización correspondiente, ejecutar el cierre Git seguro del Incremento 2 mediante el Closure Gate aprobado; no abrir Incremento 3. B permanece `NOT IMPLEMENTED`; las human reviews reales permanecen `NOT STARTED`; adjudicación y winner siguen fuera de alcance, y A1, B52, loader y B181 no se reactivan automáticamente.
 
 ## Archivos clave
 

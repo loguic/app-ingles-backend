@@ -251,6 +251,7 @@ def run_block_workflow(
     upstream: str,
     message: str,
     files: list[str],
+    checkpoint_prepare_format: str = "markdown",
     timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
     root: Path = ROOT,
     state_path: Path | None = None,
@@ -260,6 +261,10 @@ def run_block_workflow(
         raise ValueError("timeout_seconds must be greater than zero")
     if not files:
         raise ValueError("At least one closure file is required")
+    if checkpoint_prepare_format not in {"markdown", "compact"}:
+        raise ValueError(
+            "checkpoint_prepare_format must be 'markdown' or 'compact'"
+        )
 
     checkpoint = (
         state_path
@@ -303,14 +308,17 @@ def run_block_workflow(
         root=root,
         timeout_seconds=timeout_seconds,
     )
+    checkpoint_prepare_command = [
+        sys.executable,
+        str(scripts / "conversation_checkpoint.py"),
+        "prepare",
+    ]
+    if checkpoint_prepare_format == "compact":
+        checkpoint_prepare_command.extend(("--format", "compact"))
     try:
         _run_phase(
             "checkpoint-prepare",
-            [
-                sys.executable,
-                str(scripts / "conversation_checkpoint.py"),
-                "prepare",
-            ],
+            checkpoint_prepare_command,
             root=root,
             timeout_seconds=timeout_seconds,
         )
@@ -357,6 +365,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Maximum runtime for each helper phase.",
     )
     parser.add_argument(
+        "--checkpoint-prepare-format",
+        choices=("markdown", "compact"),
+        default="markdown",
+        help="Output format for the final conversation_checkpoint.py prepare.",
+    )
+    parser.add_argument(
         "--block-close-args",
         nargs=argparse.REMAINDER,
         required=True,
@@ -374,6 +388,7 @@ def main() -> int:
             upstream=args.upstream,
             message=args.message,
             files=args.files,
+            checkpoint_prepare_format=args.checkpoint_prepare_format,
             timeout_seconds=args.timeout_seconds,
             state_path=args.state_path,
         )

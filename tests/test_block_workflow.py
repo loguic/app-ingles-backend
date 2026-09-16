@@ -165,6 +165,61 @@ def test_happy_path_runs_three_phases_in_order_with_exact_arguments(
     assert all(process.command[0] != "git" for process in processes)
 
 
+def test_compact_prepare_runs_once_with_exact_format_argument(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    kwargs = _workflow_kwargs(tmp_path)
+    kwargs["checkpoint_prepare_format"] = "compact"
+    _valid_checkpoint(monkeypatch, kwargs["state_path"])
+    processes, _ = _install_processes(monkeypatch, [{}, {}, {}])
+
+    block_workflow.run_block_workflow(**kwargs)
+
+    assert [process.command for process in processes[-1:]] == [[
+        block_workflow.sys.executable,
+        str(tmp_path / "scripts" / "engineering" / "conversation_checkpoint.py"),
+        "prepare",
+        "--format",
+        "compact",
+    ]]
+    assert len(processes) == 3
+
+
+def test_compact_prepare_failure_preserves_output_without_markdown_retry(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    kwargs = _workflow_kwargs(tmp_path)
+    kwargs["checkpoint_prepare_format"] = "compact"
+    _valid_checkpoint(monkeypatch, kwargs["state_path"])
+    processes, _ = _install_processes(
+        monkeypatch,
+        [
+            {},
+            {},
+            {
+                "returncode": 7,
+                "stdout": "CHECKPOINT_FORMAT=compact-v1&detail=partial\n",
+                "stderr": "prepare compact diagnostic\n",
+            },
+        ],
+    )
+
+    with pytest.raises(block_workflow.WorkflowPhaseError) as captured:
+        block_workflow.run_block_workflow(**kwargs)
+
+    output = capsys.readouterr()
+    assert captured.value.phase == "checkpoint-prepare"
+    assert "PARTIAL CLOSURE: Git close already completed" in captured.value.detail
+    assert "CHECKPOINT_FORMAT=compact-v1&detail=partial" in output.out
+    assert "prepare compact diagnostic" in output.err
+    assert len(processes) == 3
+    assert processes[-1].command[-2:] == ["--format", "compact"]
+    assert sum("conversation_checkpoint.py" in process.command[1] for process in processes) == 1
+
+
 @pytest.mark.parametrize(
     ("returncodes", "failed_phase", "started_count"),
     [
@@ -537,6 +592,8 @@ def test_cli_separates_workflow_options_from_block_close_arguments() -> None:
             "tests/test_example.py",
             "--timeout-seconds",
             "42",
+            "--checkpoint-prepare-format",
+            "compact",
             "--block-close-args",
             "tests/test_example.py",
             "--full-suite",
@@ -548,7 +605,48 @@ def test_cli_separates_workflow_options_from_block_close_arguments() -> None:
     assert args.message == "close exact scope"
     assert args.files == ["app/example.py", "tests/test_example.py"]
     assert args.timeout_seconds == 42.0
+    assert args.checkpoint_prepare_format == "compact"
     assert args.block_close_args == ["tests/test_example.py", "--full-suite"]
+
+
+def test_cli_defaults_prepare_format_to_markdown() -> None:
+    args = block_workflow.build_parser().parse_args(
+        [
+            "--branch", "master", "--upstream", "origin/master",
+            "--message", "close", "--file", "example.py",
+            "--block-close-args", "tests/test_example.py",
+        ]
+    )
+
+    assert args.checkpoint_prepare_format == "markdown"
+
+
+def test_cli_rejects_invalid_checkpoint_prepare_format() -> None:
+    with pytest.raises(SystemExit) as captured:
+        block_workflow.build_parser().parse_args(
+            [
+                "--branch", "master", "--upstream", "origin/master",
+                "--message", "close", "--file", "example.py",
+                "--checkpoint-prepare-format", "json",
+                "--block-close-args", "tests/test_example.py",
+            ]
+        )
+
+    assert captured.value.code == 2
+
+
+def test_workflow_rejects_unknown_prepare_format_before_any_child(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    kwargs = _workflow_kwargs(tmp_path)
+    kwargs["checkpoint_prepare_format"] = "json"
+    processes, _ = _install_processes(monkeypatch, [])
+
+    with pytest.raises(ValueError, match="checkpoint_prepare_format"):
+        block_workflow.run_block_workflow(**kwargs)
+
+    assert processes == []
 
 
 @pytest.mark.parametrize(
@@ -576,6 +674,7 @@ def test_main_returns_nonzero_for_failure_and_interruption(
                     upstream="origin/master",
                     message="close",
                     files=["example.py"],
+                    checkpoint_prepare_format="markdown",
                     timeout_seconds=10.0,
                     state_path=None,
                 )
