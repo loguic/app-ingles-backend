@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-16T12:22:50+02:00
-Baseline Git previa a este checkpoint: 6d70cc6c22205cc42ad6a306aa7b96e965685705
+Actualizado: 2026-09-16T12:28:19+02:00
+Baseline Git previa a este checkpoint: 9b2bd7898c02461e9b376e7ad44abbf4c52c9c2a
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -13,7 +13,6 @@ Formato: checkpoint operativo compacto
 - La baseline es la frontera Git previa no circular de este checkpoint, no una declaración del HEAD actual.
 
 ## Último bloque cerrado
-
 ### Reconciliación documental fail-closed y human review lock
 
 Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `7e62908809087f6314d6e17058bbee90d0c967c9`.
@@ -87,7 +86,6 @@ Scope local reconocido:
 - `docs/loguic-engineering-operating-method-v1.md`
 
 B permanece **NOT IMPLEMENTED** y no se abre mediante este microbloque.
-
 ## Último bloque cerrado
 
 ### Incremento 1 — LOGUIC Operational Automation / Token Reduction — Compact/JSON Checkpoint
@@ -100,9 +98,11 @@ La implementación inicial preservó Markdown default, añadió compact/JSON y l
 
 Scope local reconocido: `scripts/engineering/conversation_checkpoint.py`, `tests/test_conversation_checkpoint.py`, `docs/estado-operativo.md` y `docs/loguic-engineering-operating-method-v1.md`.
 
+### Incremento 2 — LOGUIC Operational Automation / Token Reduction — Compact prepare en Closure Gate
+Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `9b2bd7898c02461e9b376e7ad44abbf4c52c9c2a` (`feat add compact prepare output to closure gate`). `--checkpoint-prepare-format {markdown,compact}` deja `markdown` como default compatible con una ejecución exacta de `conversation_checkpoint.py prepare`; `compact` modifica exclusivamente el prepare final y ejecuta una vez `conversation_checkpoint.py prepare --format compact`. Checkpoint inicial directo/breve sin invocar `conversation_checkpoint.py`, orden, fail-closed y **PARTIAL CLOSURE / PUBLISHED BUT CHECKPOINT-INCOMPLETE** intactos; no rollback, retry, segundo git-close ni fallback Markdown. stdout/stderr se preservan y `block_workflow.py` no interpreta `compact-v1`; process-group cleanup, timeout, `stdin=DEVNULL`, señales, launcher failure, allowlist, branch/upstream/message, lógica Git y límites externos de readiness/postflight/scope/tests no cambian. Postflight PASS (BLOCKING **0**, NONBLOCKING **0**), `tests/test_block_workflow.py` **23 PASS** y Closure Gate real (block-close, git-close, checkpoint-prepare compact y closure-gate) PASS; prepare compacto emitido correctamente con `TREE=CLEAN`, `ahead 0 / behind 0`, `master`/`origin/master` y baseline no circular `6d70cc6c22205cc42ad6a306aa7b96e965685705 == HEAD^`. Ahorro: Markdown **7.933 bytes**, compact **901 bytes**, reducción **88,64 %**. Scope cerrado: `scripts/engineering/block_workflow.py`, `tests/test_block_workflow.py`, `docs/estado-operativo.md` y `docs/loguic-engineering-operating-method-v1.md`.
 ## Bloque activo
 
-`LOGUIC Operational Automation / Token Reduction` permanece como línea activa general. Incremento 2 — Compact prepare en Closure Gate: **IMPLEMENTED LOCALLY / VALIDATED / POSTFLIGHT PASS / READY_FOR_CLOSURE**; postflight independiente BLOCKING **0** y NONBLOCKING **0**. `block_workflow.py` permite `--checkpoint-prepare-format {markdown,compact}` exclusivamente para representación/output del `conversation_checkpoint.py prepare` final: `markdown` default compatible ejecuta exactamente una vez `conversation_checkpoint.py prepare`; `compact` opt-in explícito ejecuta exactamente una vez `conversation_checkpoint.py prepare --format compact`. No cambia autoridad ni semántica del Closure Gate ni abre otro incremento. El checkpoint inicial permanece validación directa breve y no invoca `conversation_checkpoint.py`; orden `checkpoint validation → block-close → git-close → checkpoint-prepare → closure result` y fallo cerrado intactos: checkpoint inicial FAIL no inicia fases posteriores, block-close FAIL no llega a git-close/prepare, git-close FAIL no llega a prepare y prepare FAIL es FAIL global. Tras Git-close PASS, prepare compacto FAIL conserva **PARTIAL CLOSURE / PUBLISHED BUT CHECKPOINT-INCOMPLETE**, sin rollback, retry, segundo git-close ni fallback Markdown. El helper preserva stdout/stderr y no interpreta/reimplementa `compact-v1`; process-group cleanup, timeout, `stdin=DEVNULL`, señales, launcher failure, allowlist, branch/upstream/message y lógica Git no cambian. Readiness, postflight, scope y selección de tests quedan fuera del orquestador. Evidencia: default Markdown/compact una ejecución exacta cada uno; CLI `markdown|compact`, inválido exit 2 y remainder `--block-close-args` preservado; partial closure adversarial, stdout/stderr, cleanup y fail-closed PASS; `tests/test_block_workflow.py` **23 PASS**, `git diff --check` PASS y `operational_state.py validate` PASS. Ahorro prepare: Markdown **7.933 bytes**, compact **901 bytes**, ahorro **7.032 bytes** (**88,64 %**). Scope reconocido: `scripts/engineering/block_workflow.py`, `tests/test_block_workflow.py`, `docs/estado-operativo.md` y `docs/loguic-engineering-operating-method-v1.md`.
+`LOGUIC Operational Automation / Token Reduction` permanece como línea activa general; Incremento 2 deja de estar activo. El siguiente paso queda sujeto a decisión/preflight explícitos y no abre Incremento 3. B permanece **NOT IMPLEMENTED**; las human reviews reales siguen **NOT STARTED**; A1, B52, loader y B181 no se reactivan.
 ### Fronteras A1, B52 y B181
 
 B52 para la source vigente está **NOT VERIFIED**; `LOADER = BLOCKED`. `content/content_tree.json` permanece intacto. B181 permanece **PAUSED** en puerta pedagógica; no se reactiva mediante A1 v4, el benchmark, el review-lock ni este microbloque.
@@ -130,7 +130,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-Con la autorización correspondiente, ejecutar el cierre Git seguro del Incremento 2 mediante el Closure Gate aprobado; no abrir Incremento 3. B permanece `NOT IMPLEMENTED`; las human reviews reales permanecen `NOT STARTED`; adjudicación y winner siguen fuera de alcance, y A1, B52, loader y B181 no se reactivan automáticamente.
+Decidir y realizar preflight explícito del siguiente paso de la línea `LOGUIC Operational Automation / Token Reduction`; no abrir Incremento 3 automáticamente. B permanece `NOT IMPLEMENTED`; las human reviews reales permanecen `NOT STARTED`; adjudicación y winner siguen fuera de alcance, y A1, B52, loader y B181 no se reactivan automáticamente.
 
 ## Archivos clave
 
