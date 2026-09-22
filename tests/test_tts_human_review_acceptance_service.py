@@ -1,13 +1,16 @@
 """Functional, non-concurrent coverage for durable TTS review acceptance."""
 
 from datetime import UTC, datetime
+from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import os
 from pathlib import Path
 import tempfile
+from threading import Event
+import time
 
 import pytest
-from sqlalchemy import create_engine, func, select
+from sqlalchemy import create_engine, event, func, select, text
 from sqlalchemy.dialects.postgresql import insert as postgresql_insert
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker
@@ -30,6 +33,7 @@ from app.services.tts_human_review_acceptance_service import (
 from app.services.tts_public_reviewer_workflow import (
     lock_public_review,
     serialize_locked_review_handoff,
+    validate_locked_review_handoff,
 )
 from scripts.engineering.postgresql_devsecops_adapter import (
     AdapterConfig,
@@ -222,6 +226,72 @@ def _seed(
             )
         )
         db.commit()
+
+
+def _backend_pid(db) -> int:
+    driver_connection = db.connection().connection.driver_connection
+    return driver_connection.info.backend_pid
+
+
+def _wait_for_postgresql_block(
+    session_factory,
+    *,
+    blocked_pid: int,
+    blocker_pid: int,
+    started: Event,
+) -> None:
+    assert started.wait(timeout=5)
+    engine = session_factory.kw["bind"]
+    deadline = time.monotonic() + 5
+    with engine.connect() as observer:
+        while time.monotonic() < deadline:
+            blockers = observer.execute(
+                text("SELECT pg_blocking_pids(:blocked_pid)"),
+                {"blocked_pid": blocked_pid},
+            ).scalar_one()
+            if blocker_pid in blockers:
+                return
+            Event().wait(0.01)
+    raise AssertionError(
+        "PostgreSQL did not expose the expected transaction blocker"
+    )
+
+
+def _authentic_request(
+    *,
+    naturalness: str,
+    reviewer_id: str = "reviewer_a",
+    item_index: int = 0,
+):
+    private_manifest, package, complete = _complete_public_review(
+        reviewer_id=reviewer_id,
+        item_index=item_index,
+        naturalness=naturalness,
+        private_commitment_key=REAL_PRIVATE_COMMITMENT_KEY,
+    )
+    handoff = lock_public_review(
+        complete,
+        package,
+        private_manifest,
+        locked_at=datetime(2026, 9, 22, 12, 0, tzinfo=UTC),
+        private_commitment_key=REAL_PRIVATE_COMMITMENT_KEY,
+    )
+    payload = serialize_locked_review_handoff(
+        handoff,
+        package,
+        private_manifest,
+        private_commitment_key=REAL_PRIVATE_COMMITMENT_KEY,
+    )
+    return (
+        LockedReviewHandoffAcceptanceRequest(
+            canonical_handoff=payload,
+            package=package,
+            private_manifest=private_manifest,
+            private_commitment_key=REAL_PRIVATE_COMMITMENT_KEY,
+        ),
+        handoff,
+        payload,
+    )
 
 
 def test_invalid_handoff_does_not_open_a_session_or_write(monkeypatch):
@@ -544,3 +614,327 @@ def test_uncertain_commit_is_not_accepted_and_retry_reads_durable_row(
     )
     assert retry.status == "already_accepted"
     assert retry.claim == claim
+
+
+def test_postgresql_concurrent_identical_handoff_is_one_accept_and_one_retry(
+    acceptance_session_factory,
+    monkeypatch,
+):
+    request, handoff, payload = _authentic_request(
+        naturalness="meets",
+        item_index=1,
+    )
+    claim = validate_locked_review_handoff(
+        request.package,
+        request.private_manifest,
+        request.canonical_handoff,
+        private_commitment_key=request.private_commitment_key,
+    )
+    engine = acceptance_session_factory.kw["bind"]
+    first_commit_entered = Event()
+    second_insert_started = Event()
+    release_first = Event()
+    pids = {}
+    statements = []
+
+    def capture_sql(_connection, _cursor, statement, *_args):
+        if "tts_human_review_acceptances" in statement.lower():
+            statements.append(statement)
+
+    event.listen(engine, "before_cursor_execute", capture_sql)
+    original_insert = acceptance_service._insert_acceptance_do_nothing
+
+    def capture_second_insert(db, inserted_claim, canonical_handoff):
+        if db.info.get("race_role") == "second":
+            pids["second"] = _backend_pid(db)
+            second_insert_started.set()
+        return original_insert(db, inserted_claim, canonical_handoff)
+
+    monkeypatch.setattr(
+        acceptance_service,
+        "_insert_acceptance_do_nothing",
+        capture_second_insert,
+    )
+
+    def first_factory():
+        db = acceptance_session_factory()
+        db.info["race_role"] = "first"
+        original_commit = db.commit
+
+        def gated_commit():
+            pids["first"] = _backend_pid(db)
+            first_commit_entered.set()
+            assert release_first.wait(timeout=5)
+            return original_commit()
+
+        db.commit = gated_commit
+        return db
+
+    def second_factory():
+        db = acceptance_session_factory()
+        db.info["race_role"] = "second"
+        return db
+
+    with engine.connect() as connection:
+        assert connection.execute(text("SHOW transaction_isolation")).scalar_one() == (
+            "read committed"
+        )
+
+    try:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            first_future = pool.submit(
+                accept_locked_review_handoff,
+                request,
+                session_factory=first_factory,
+            )
+            assert first_commit_entered.wait(timeout=5)
+            second_future = pool.submit(
+                accept_locked_review_handoff,
+                request,
+                session_factory=second_factory,
+            )
+            assert second_insert_started.wait(timeout=5)
+            _wait_for_postgresql_block(
+                acceptance_session_factory,
+                blocked_pid=pids["second"],
+                blocker_pid=pids["first"],
+                started=second_insert_started,
+            )
+            assert not second_future.done()
+            release_first.set()
+            first = first_future.result(timeout=20)
+            second = second_future.result(timeout=20)
+    finally:
+        release_first.set()
+        event.remove(engine, "before_cursor_execute", capture_sql)
+
+    assert first.status == "accepted"
+    assert second.status == "already_accepted"
+    assert first.claim == claim
+    assert second.claim == claim
+    assert second.accepted_at == first.accepted_at
+    inserts = [statement.lower() for statement in statements if "insert into" in statement.lower()]
+    assert inserts
+    assert all("on conflict (review_slot_id) do nothing" in statement for statement in inserts)
+    assert all("do update" not in statement for statement in inserts)
+    rows = [row for row in _rows(acceptance_session_factory) if row.review_slot_id == claim.review_slot_id]
+    assert len(rows) == 1
+    assert rows[0].canonical_handoff == payload
+    assert rows[0].accepted_at == first.accepted_at
+
+
+def test_postgresql_concurrent_authentic_distinct_handoffs_are_accept_and_conflict(
+    acceptance_session_factory,
+    monkeypatch,
+):
+    first_request, _first_handoff, first_payload = _authentic_request(
+        naturalness="meets",
+        item_index=2,
+    )
+    second_request, _second_handoff, second_payload = _authentic_request(
+        naturalness="minor_issue",
+        item_index=2,
+    )
+    first_claim = validate_locked_review_handoff(
+        first_request.package,
+        first_request.private_manifest,
+        first_request.canonical_handoff,
+        private_commitment_key=first_request.private_commitment_key,
+    )
+    second_claim = validate_locked_review_handoff(
+        second_request.package,
+        second_request.private_manifest,
+        second_request.canonical_handoff,
+        private_commitment_key=second_request.private_commitment_key,
+    )
+    assert first_claim.review_slot_id == second_claim.review_slot_id
+    assert first_claim.handoff_id != second_claim.handoff_id
+
+    engine = acceptance_session_factory.kw["bind"]
+    first_commit_entered = Event()
+    second_insert_started = Event()
+    release_first = Event()
+    pids = {}
+
+    original_insert = acceptance_service._insert_acceptance_do_nothing
+
+    def capture_second_insert(db, inserted_claim, canonical_handoff):
+        if db.info.get("race_role") == "second":
+            pids["second"] = _backend_pid(db)
+            second_insert_started.set()
+        return original_insert(db, inserted_claim, canonical_handoff)
+
+    monkeypatch.setattr(
+        acceptance_service,
+        "_insert_acceptance_do_nothing",
+        capture_second_insert,
+    )
+
+    def first_factory():
+        db = acceptance_session_factory()
+        db.info["race_role"] = "first"
+        original_commit = db.commit
+
+        def gated_commit():
+            pids["first"] = _backend_pid(db)
+            first_commit_entered.set()
+            assert release_first.wait(timeout=5)
+            return original_commit()
+
+        db.commit = gated_commit
+        return db
+
+    def second_factory():
+        db = acceptance_session_factory()
+        db.info["race_role"] = "second"
+        return db
+
+    try:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            first_future = pool.submit(
+                accept_locked_review_handoff,
+                first_request,
+                session_factory=first_factory,
+            )
+            assert first_commit_entered.wait(timeout=5)
+            second_future = pool.submit(
+                accept_locked_review_handoff,
+                second_request,
+                session_factory=second_factory,
+            )
+            assert second_insert_started.wait(timeout=5)
+            _wait_for_postgresql_block(
+                acceptance_session_factory,
+                blocked_pid=pids["second"],
+                blocker_pid=pids["first"],
+                started=second_insert_started,
+            )
+            assert not second_future.done()
+            release_first.set()
+            first = first_future.result(timeout=20)
+            with pytest.raises(ReviewSlotConflict):
+                second_future.result(timeout=20)
+    finally:
+        release_first.set()
+
+    assert first.status == "accepted"
+    assert first.claim == first_claim
+    rows = [
+        row
+        for row in _rows(acceptance_session_factory)
+        if row.review_slot_id == first_claim.review_slot_id
+    ]
+    assert len(rows) == 1
+    assert rows[0].handoff_id == first_claim.handoff_id
+    assert rows[0].canonical_handoff == first_payload
+    assert rows[0].canonical_handoff != second_payload
+    assert rows[0].accepted_at == first.accepted_at
+
+
+def test_postgresql_insert_rollback_allows_other_authentic_handoff_to_accept(
+    acceptance_session_factory,
+    monkeypatch,
+):
+    first_request, _first_handoff, _first_payload = _authentic_request(
+        naturalness="meets",
+        reviewer_id="reviewer_b",
+        item_index=0,
+    )
+    second_request, _second_handoff, second_payload = _authentic_request(
+        naturalness="minor_issue",
+        reviewer_id="reviewer_b",
+        item_index=0,
+    )
+    first_claim = validate_locked_review_handoff(
+        first_request.package,
+        first_request.private_manifest,
+        first_request.canonical_handoff,
+        private_commitment_key=first_request.private_commitment_key,
+    )
+    second_claim = validate_locked_review_handoff(
+        second_request.package,
+        second_request.private_manifest,
+        second_request.canonical_handoff,
+        private_commitment_key=second_request.private_commitment_key,
+    )
+    assert first_claim.review_slot_id == second_claim.review_slot_id
+    assert first_claim.handoff_id != second_claim.handoff_id
+
+    engine = acceptance_session_factory.kw["bind"]
+    first_commit_entered = Event()
+    second_insert_started = Event()
+    release_first = Event()
+    pids = {}
+    original_insert = acceptance_service._insert_acceptance_do_nothing
+
+    def capture_second_insert(db, inserted_claim, canonical_handoff):
+        if db.info.get("race_role") == "second":
+            pids["second"] = _backend_pid(db)
+            second_insert_started.set()
+        return original_insert(db, inserted_claim, canonical_handoff)
+
+    monkeypatch.setattr(
+        acceptance_service,
+        "_insert_acceptance_do_nothing",
+        capture_second_insert,
+    )
+
+    def first_factory():
+        db = acceptance_session_factory()
+        db.info["race_role"] = "first"
+        original_commit = db.commit
+
+        def rollback_commit():
+            pids["first"] = _backend_pid(db)
+            first_commit_entered.set()
+            assert release_first.wait(timeout=5)
+            db.rollback()
+            raise SQLAlchemyError("controlled concurrent contender rollback")
+
+        db.commit = rollback_commit
+        return db
+
+    def second_factory():
+        db = acceptance_session_factory()
+        db.info["race_role"] = "second"
+        return db
+
+    try:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            first_future = pool.submit(
+                accept_locked_review_handoff,
+                first_request,
+                session_factory=first_factory,
+            )
+            assert first_commit_entered.wait(timeout=5)
+            second_future = pool.submit(
+                accept_locked_review_handoff,
+                second_request,
+                session_factory=second_factory,
+            )
+            assert second_insert_started.wait(timeout=5)
+            _wait_for_postgresql_block(
+                acceptance_session_factory,
+                blocked_pid=pids["second"],
+                blocker_pid=pids["first"],
+                started=second_insert_started,
+            )
+            assert not second_future.done()
+            release_first.set()
+            with pytest.raises(ReviewAcceptancePersistenceError):
+                first_future.result(timeout=20)
+            second = second_future.result(timeout=20)
+    finally:
+        release_first.set()
+
+    assert second.status == "accepted"
+    assert second.claim == second_claim
+    rows = [
+        row
+        for row in _rows(acceptance_session_factory)
+        if row.review_slot_id == second_claim.review_slot_id
+    ]
+    assert len(rows) == 1
+    assert rows[0].handoff_id == second_claim.handoff_id
+    assert rows[0].canonical_handoff == second_payload
+    assert rows[0].accepted_at == second.accepted_at
