@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-22T04:11:00+02:00
-Baseline Git previa a este checkpoint: c017d79fb7446f4f123d1844bfac3d33f734bbfe
+Actualizado: 2026-09-22T04:31:00+02:00
+Baseline Git previa a este checkpoint: b4ac47b70165dca4b1298b8d28074b5b6b2f4175
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -102,7 +102,7 @@ Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `9b2bd7898
 ### Incremento 3 — LOGUIC Operational Automation / Token Reduction — Validation Recipe approved-v1
 Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `8bc469595807926bd1e05cb8916486bfea332c5f` (`feat add validation recipe approved v1`). Implementación inicial PASS; primer postflight independiente FAIL por el único finding BLOCKING, abreviaturas `argparse` como `--foc` y `--verb`; corrección `ArgumentParser(..., allow_abbrev=False)`; re-postflight PASS con BLOCKING **0**, NONBLOCKING **0**, focales **22 PASS** y Closure Gate real PASS (block-close, git-close, checkpoint-prepare compacto y closure-gate), con árbol limpio/sincronizado y baseline histórica pre-cierre `1b902c2f424c5d0bec76654c25f160977e036737 == HEAD^`. Contrato final único `approved-v1`: un pytest con rutas focal/regression explícitas preseleccionadas por ChatGPT/Codex, luego `git diff --check`, `operational_state.py validate` y `conversation_checkpoint.py prepare --format compact`, en orden/fallo cerrado, read-only, `shell=False`, `stdin=DEVNULL` y cwd raíz; sin selección automática de tests, readiness, postflight, scope ni autorización automática de Closure Gate. Solo acepta `--focal`, `--regression` y `--verbose` completos; abreviaturas exit 2, sin passthrough genérico, comandos arbitrarios ni shell snippets. Ahorro final: flujo manual **1.153 bytes**, receta PASS **63 bytes**, reducción aproximada **94,54 %**. Scope cerrado: `scripts/engineering/validation_recipe.py`, `tests/test_validation_recipe.py`, `docs/estado-operativo.md` y `docs/loguic-engineering-operating-method-v1.md`.
 ## Bloque activo
-`Durable / Atomic Human Review Claim Acceptance` (B): contrato **CONTRACT APPROVED** en `docs/loguic-tts-engine-benchmark-protocol-v1.md`; B completo **NOT IMPLEMENTED**. Decisión local registrada en `docs/bitacora.md` y `docs/roadmap.md`. Frontera: handoff canónico más contexto privado → `validate_locked_review_handoff()` de A → `LockClaim` validado con el mismo handoff → aceptación transaccional de B; nunca claim externo aislado. El contrato exige PK por slot, retry idéntico sin escritura, conflicto sin reemplazo y commit confirmado. Subpaso 1: **CLOSED / PUBLISHED / SYNCED**. Subpaso 2: **IMPLEMENTED / REPOSTFLIGHT PASS / READY FOR CLOSURE**; servicio runtime interno en `app/services/tts_human_review_acceptance_service.py`, con validación real A→B, first accept, retry idéntico, conflicto por handoff distinto, verificación de evidencia almacenada y rollback transaccional; test auténtico `test_authentic_a_handoff_crosses_into_b_for_accept_retry_and_conflict`; focales **11 PASS**, regresiones **104 PASS**, re-postflight independiente **PASS**, `git diff --check` y `operational_state.py validate` **PASS**. Subpaso 3 (carreras PostgreSQL reales) sigue **NOT STARTED**. Human reviews reales **NOT STARTED**. Dirty paths reconocidos: `app/services/tts_human_review_acceptance_service.py` y `tests/test_tts_human_review_acceptance_service.py`.
+`Durable / Atomic Human Review Claim Acceptance` (B): contrato **CONTRACT APPROVED** en `docs/loguic-tts-engine-benchmark-protocol-v1.md`; B completo **NOT IMPLEMENTED**. Decisión local registrada en `docs/bitacora.md` y `docs/roadmap.md`. Frontera: handoff canónico más contexto privado → `validate_locked_review_handoff()` de A → `LockClaim` validado con el mismo handoff → aceptación transaccional de B; nunca claim externo aislado. El contrato exige PK por slot, retry idéntico sin escritura, conflicto sin reemplazo y commit confirmado. Subpaso 1: **CLOSED / PUBLISHED / SYNCED**. Subpaso 2: **CLOSED / PUBLISHED / SYNCED** en `b4ac47b70165dca4b1298b8d28074b5b6b2f4175`; evidencia cerrada de servicio runtime, frontera A→B auténtica, first accept, retry idéntico, conflicto, stored-integrity, rollback/error handling, focales **11 PASS**, regresiones **104 PASS** y re-postflight independiente **PASS**. Subpaso 3 (carreras PostgreSQL reales) sigue **NOT STARTED**. Human reviews reales **NOT STARTED**. Dirty paths reconocidos: `app/services/tts_human_review_acceptance_service.py` y `tests/test_tts_human_review_acceptance_service.py`.
 ### Fronteras A1, B52 y B181
 
 B52 para la source vigente está **NOT VERIFIED**; `LOADER = BLOCKED`. `content/content_tree.json` permanece intacto. B181 permanece **PAUSED** en puerta pedagógica; no se reactiva mediante A1 v4, el benchmark, el review-lock ni este microbloque.
@@ -125,12 +125,12 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 - benchmark técnicamente finalizado ≠ human review ≠ adjudicación ≠ winner ≠ voz de producto;
 - WAV del benchmark ≠ assets A1 aprobados ≠ B51/B52 ≠ loader readiness;
 - A1 v4 `MEMBER DURABLE` ≠ `ACTIVE`; no activar A1 ni modificar `content/content_tree.json`;
-- review-lock cerrado ≠ public reviewer package/workflow cerrado ≠ contrato B aprobado ≠ Subpaso 1 cerrado ≠ Subpaso 2 listo para cierre ≠ Subpaso 3 de concurrencia ≠ autorización para iniciar human reviews reales;
+- review-lock cerrado ≠ public reviewer package/workflow cerrado ≠ contrato B aprobado ≠ Subpaso 1 cerrado ≠ Subpaso 2 cerrado ≠ Subpaso 3 de concurrencia ≠ autorización para iniciar human reviews reales;
 - no iniciar human review, adjudicación, reviewer package, B52, loader o B181 sin autorización y evidencia específicas.
 
 ## Próximo objetivo
 
-La única siguiente acción es el **Closure Gate del Subpaso 2**, sin abrir el Subpaso 3 ni iniciar human reviews reales. B completo permanece **NOT IMPLEMENTED**. Las human reviews reales permanecen **NOT STARTED**, el winner **NOT SELECTED**; reconciliación de reviews y adjudicación siguen fuera de alcance. A1 v4 sigue **MEMBER DURABLE / NOT ACTIVE**, B52 **NOT VERIFIED**, loader **BLOCKED** y B181 **PAUSED**; ninguno se reactiva automáticamente.
+La única siguiente acción es el **preflight separado del Subpaso 3 de concurrencia PostgreSQL real**, sin abrirlo todavía ni iniciar human reviews reales. B completo permanece **NOT IMPLEMENTED**. Las human reviews reales permanecen **NOT STARTED**, el winner **NOT SELECTED**; reconciliación de reviews y adjudicación siguen fuera de alcance. A1 v4 sigue **MEMBER DURABLE / NOT ACTIVE**, B52 **NOT VERIFIED**, loader **BLOCKED** y B181 **PAUSED**; ninguno se reactiva automáticamente.
 
 ## Archivos clave
 

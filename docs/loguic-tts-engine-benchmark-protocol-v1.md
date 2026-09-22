@@ -92,7 +92,7 @@ Estado: **CONTRACT APPROVED / NOT IMPLEMENTED**. Esta aprobación fija el diseñ
 
 ### Estado local de implementación — Subpaso 2
 
-El contrato permanece **CONTRACT APPROVED** y B completo permanece **NOT IMPLEMENTED**. El Subpaso 2 está **IMPLEMENTED / REPOSTFLIGHT PASS / READY FOR CLOSURE** localmente: el servicio runtime interno valida el handoff auténtico mediante A antes de aceptar, y cubre first accept, retry idéntico, conflicto, verificación de evidencia almacenada y rollback/error handling. La prueba `test_authentic_a_handoff_crosses_into_b_for_accept_retry_and_conflict` demuestra la frontera A→B real; focales **11 PASS**, regresiones **104 PASS** y re-postflight independiente **PASS**. El Subpaso 3 de concurrencia PostgreSQL real sigue **NOT STARTED**. Este estado no autoriza human reviews reales, API, frontend, adjudicación, reconciliación ni ningún cierre Git; el siguiente paso es el Closure Gate del Subpaso 2.
+El contrato permanece **CONTRACT APPROVED** y B completo permanece **NOT IMPLEMENTED**. El Subpaso 2 está **CLOSED / PUBLISHED / SYNCED** en `b4ac47b70165dca4b1298b8d28074b5b6b2f4175`: servicio runtime interno, frontera A→B auténtica, first accept, retry idéntico, conflicto, stored-integrity y rollback/error handling; focales **11 PASS**, regresiones **104 PASS** y re-postflight independiente **PASS**. El Subpaso 3 de concurrencia PostgreSQL real sigue **NOT STARTED**. Este cierre no autoriza human reviews reales, API, frontend, adjudicación ni reconciliación; el siguiente objetivo es un preflight separado del Subpaso 3.
 
 ### Frontera A → B y autoridad
 
