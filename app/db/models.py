@@ -9,6 +9,7 @@ from sqlalchemy import (
     Integer,
     Index,
     JSON,
+    LargeBinary,
     String,
     Text,
     UniqueConstraint,
@@ -238,6 +239,39 @@ class ShortConnectedExchangeProductionReview(Base):
     source_id = Column(String, nullable=False)
     source_version = Column(String, nullable=True)
     reviewed_at = Column(DateTime(timezone=True), nullable=False)
+
+
+class TtsHumanReviewAcceptance(Base):
+    """Store one immutable, canonical human-review handoff per review slot."""
+
+    __tablename__ = "tts_human_review_acceptances"
+    __table_args__ = (
+        UniqueConstraint(
+            "handoff_id",
+            name="uq_tts_human_review_acceptances_handoff_id",
+        ),
+        CheckConstraint(
+            "review_slot_version = 'loguic-tts-public-review-slot/1.0'",
+            name="ck_tts_human_review_acceptances_slot_version",
+        ),
+        CheckConstraint(
+            "length(canonical_handoff) > 0",
+            name="ck_tts_human_review_acceptances_handoff_not_empty",
+        ),
+    )
+
+    review_slot_id = Column(String, primary_key=True)
+    review_slot_version = Column(String, nullable=False)
+    package_id = Column(String, nullable=False)
+    handoff_id = Column(String, nullable=False)
+    lock_transition_id = Column(String, nullable=False)
+    review_id = Column(String, nullable=False)
+    canonical_handoff = Column(LargeBinary, nullable=False)
+    accepted_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
 
 
 class DirectEnglishConstructionAttempt(Base):
