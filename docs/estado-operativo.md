@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-16T18:31:53+02:00
-Baseline Git previa a este checkpoint: 0c117e01e0d6109fbebff7f29470283a4d182249
+Actualizado: 2026-09-22T03:13:41+02:00
+Baseline Git previa a este checkpoint: 28ef6d24b9bda49ede5e2a270180ab9653763f0d
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -102,7 +102,7 @@ Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `9b2bd7898
 ### Incremento 3 — LOGUIC Operational Automation / Token Reduction — Validation Recipe approved-v1
 Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `8bc469595807926bd1e05cb8916486bfea332c5f` (`feat add validation recipe approved v1`). Implementación inicial PASS; primer postflight independiente FAIL por el único finding BLOCKING, abreviaturas `argparse` como `--foc` y `--verb`; corrección `ArgumentParser(..., allow_abbrev=False)`; re-postflight PASS con BLOCKING **0**, NONBLOCKING **0**, focales **22 PASS** y Closure Gate real PASS (block-close, git-close, checkpoint-prepare compacto y closure-gate), con árbol limpio/sincronizado y baseline histórica pre-cierre `1b902c2f424c5d0bec76654c25f160977e036737 == HEAD^`. Contrato final único `approved-v1`: un pytest con rutas focal/regression explícitas preseleccionadas por ChatGPT/Codex, luego `git diff --check`, `operational_state.py validate` y `conversation_checkpoint.py prepare --format compact`, en orden/fallo cerrado, read-only, `shell=False`, `stdin=DEVNULL` y cwd raíz; sin selección automática de tests, readiness, postflight, scope ni autorización automática de Closure Gate. Solo acepta `--focal`, `--regression` y `--verbose` completos; abreviaturas exit 2, sin passthrough genérico, comandos arbitrarios ni shell snippets. Ahorro final: flujo manual **1.153 bytes**, receta PASS **63 bytes**, reducción aproximada **94,54 %**. Scope cerrado: `scripts/engineering/validation_recipe.py`, `tests/test_validation_recipe.py`, `docs/estado-operativo.md` y `docs/loguic-engineering-operating-method-v1.md`.
 ## Bloque activo
-`LOGUIC Operational Automation / Token Reduction`: **CLOSED FOR NOW / OBJECTIVES ACHIEVED / NO_INCREMENT_4_RECOMMENDED**. Los Incrementos 1–3 permanecen cerrados/published/synced con sus contratos y ahorros históricos; el bloque posterior `CLI Help Clarification / Closure Gate usability` quedó implementado localmente y postflight PASS, sin cambio runtime ni scope creep; no se crea Incremento 4. B permanece **NOT IMPLEMENTED** y solo es candidata a preflight/decisión explícita; human reviews **NOT STARTED**; A1, B52, loader y B181 no se reactivan.
+`Durable / Atomic Human Review Claim Acceptance` (B): **CONTRACT APPROVED / NOT IMPLEMENTED** en `docs/loguic-tts-engine-benchmark-protocol-v1.md`; decisión local registrada en `docs/bitacora.md` y `docs/roadmap.md`. Frontera: handoff canónico más contexto privado → `validate_locked_review_handoff()` de A → `LockClaim` validado con el mismo handoff → aceptación transaccional de B; nunca claim externo aislado. La futura PK de `review_slot_id` en PostgreSQL arbitrará una aceptación por slot: primer commit gana, mismo `handoff_id` es retry sin escritura, otro es conflicto sin reemplazo; `accepted` exige commit. La tabla append-only conservará review y provenance exactas. No se abrió slice técnico ni existen tabla, migración, servicio o repositorio B; human reviews reales **NOT STARTED**. La línea de tooling previa sigue **CLOSED FOR NOW / OBJECTIVES ACHIEVED / NO_INCREMENT_4_RECOMMENDED**.
 ### Fronteras A1, B52 y B181
 
 B52 para la source vigente está **NOT VERIFIED**; `LOADER = BLOCKED`. `content/content_tree.json` permanece intacto. B181 permanece **PAUSED** en puerta pedagógica; no se reactiva mediante A1 v4, el benchmark, el review-lock ni este microbloque.
@@ -125,12 +125,12 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 - benchmark técnicamente finalizado ≠ human review ≠ adjudicación ≠ winner ≠ voz de producto;
 - WAV del benchmark ≠ assets A1 aprobados ≠ B51/B52 ≠ loader readiness;
 - A1 v4 `MEMBER DURABLE` ≠ `ACTIVE`; no activar A1 ni modificar `content/content_tree.json`;
-- review-lock cerrado ≠ public reviewer package/workflow cerrado ≠ persistencia append-only/runtime;
+- review-lock cerrado ≠ public reviewer package/workflow cerrado ≠ contrato B aprobado ≠ persistencia append-only/runtime implementada ≠ autorización para iniciar human reviews reales;
 - no iniciar human review, adjudicación, reviewer package, B52, loader o B181 sin autorización y evidencia específicas.
 
 ## Próximo objetivo
 
-La siguiente frontera funcional pendiente vuelve a ser B (aceptación durable/atómica del claim); permanece `NOT IMPLEMENTED` y requiere preflight y decisión explícita antes de cualquier autorización o implementación. Las human reviews reales permanecen `NOT STARTED`; adjudicación y winner siguen fuera de alcance, y A1, B52, loader y B181 no se reactivan automáticamente.
+La única siguiente acción es un **preflight de implementación separado** de B desde su contrato aprobado, sin iniciar todavía código, migración ni slice técnico. B permanece **CONTRACT APPROVED / NOT IMPLEMENTED**. Las human reviews reales permanecen **NOT STARTED**, el winner **NOT SELECTED**; reconciliación de reviews y adjudicación siguen fuera de alcance, y A1, B52, loader y B181 no se reactivan automáticamente.
 
 ## Archivos clave
 

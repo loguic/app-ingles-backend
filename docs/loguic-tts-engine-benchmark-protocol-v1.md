@@ -1,6 +1,6 @@
 # LOGUIC TTS Engine Benchmark Protocol v1
 
-Estado: benchmark **TÉCNICAMENTE FINALIZADO**; tercer intento de `TTS Public Reviewer Package / Workflow v1` **IMPLEMENTED LOCALLY / VALIDATED / POSTFLIGHT PASS / READY_FOR_CLOSURE**, tras dos postflights históricos **FAIL** y preflight Astra posterior **PASS**; human reviews **NOT STARTED** y consumidor B **NOT IMPLEMENTED**. Este contrato define el benchmark aislado y su frontera pública de review; no instala motores, no genera audio, no ejecuta reviews ni integra artefactos en producto.
+Estado: benchmark **TÉCNICAMENTE FINALIZADO**; tercer intento de `TTS Public Reviewer Package / Workflow v1` **IMPLEMENTED LOCALLY / VALIDATED / POSTFLIGHT PASS / READY_FOR_CLOSURE**, tras dos postflights históricos **FAIL** y preflight Astra posterior **PASS**; human reviews **NOT STARTED** y consumidor B **CONTRACT APPROVED / NOT IMPLEMENTED**. Este contrato define el benchmark aislado, su frontera pública de review y el contrato aprobado de aceptación durable; no instala motores, no genera audio, no ejecuta reviews ni integra artefactos en producto.
 
 ## Identidad y límites
 
@@ -84,10 +84,44 @@ Los estados anteriores a `locked` son drafts efímeros, no son `HumanReviewRecor
 
 `LockedReviewHandoff` permanece como envelope JSON UTF-8 canónico. `validate_locked_review_handoff()` revalida binding/commitment privado, package, autenticación y secuencia completa, disclosure autorizado, lock, IDs causales y correspondencia exacta con `HumanReviewRecord`. Solo entonces proyecta un `LockClaim` frozen con `review_slot_id`, `lock_transition_id`, `handoff_id` y el `HumanReviewRecord` exacto. `review_slot_id` usa el dominio versionado `loguic-tts-public-review-slot/1.0` y depende únicamente de `package_id`, reviewer y `blind_review_id`, por lo que permanece estable ante resultados de rúbrica o timestamps distintos. El claim conserva las identidades que B necesita y no representa persistencia ni aceptación.
 
-A garantiza autenticidad e integridad de la evidencia presentada, secuencia causal autenticada, validez individual del lock e identidades suficientes para detectar conflictos conocidos. A, por ser stateless, no garantiza consumo único de un prefijo auténtico, ausencia global de ramas, aceptación única durable, resolución de carreras/concurrencia ni append-only. B sigue **NOT IMPLEMENTED** y deberá imponer atómicamente: primer claim de un `review_slot_id`, aceptar; mismo `handoff_id`, retry idempotente; handoff distinto para el mismo slot, conflicto. La persistencia append-only/runtime sigue siendo un gap separado y bloqueante antes de iniciar human reviews reales. Este workflow no abre reconciliación, adjudicación, winner, API, DB, filesystem, frontend ni ejecución real.
+A garantiza autenticidad e integridad de la evidencia presentada, secuencia causal autenticada, validez individual del lock e identidades suficientes para detectar conflictos conocidos. A, por ser stateless, no garantiza consumo único de un prefijo auténtico, ausencia global de ramas, aceptación única durable, resolución de carreras/concurrencia ni append-only. B tiene contrato aprobado, pero sigue **NOT IMPLEMENTED**: su responsabilidad es aceptar atómicamente el primer handoff confirmado por slot, tratar el mismo handoff como retry y rechazar otro handoff para ese slot. La persistencia append-only/runtime sigue siendo un gap de implementación bloqueante antes de iniciar human reviews reales. Este workflow no abre reconciliación, adjudicación, winner, API, DB, filesystem, frontend ni ejecución real.
+
+## Durable / Atomic Human Review Claim Acceptance — contrato B aprobado
+
+Estado: **CONTRACT APPROVED / NOT IMPLEMENTED**. Esta aprobación fija el diseño de B; no crea tabla, migración, servicio, repositorio, API ni autorización para iniciar human reviews reales. El siguiente paso es un preflight de implementación separado.
+
+### Frontera A → B y autoridad
+
+B no acepta como autoridad un `LockClaim` externo aislado ni considera suficiente `LockClaim.model_validate()`: esa validación estructural no verifica los MAC privados. La entrada conserva el handoff JSON UTF-8 canónico y el contexto privado de A: `LockedReviewHandoff + contexto privado de A → validate_locked_review_handoff() → LockClaim validado por A → aceptación durable/transaccional de B`. El claim y el mismo payload validado llegan juntos a la operación interna de persistencia. A conserva autoridad sobre autenticidad, integridad, disclosure y causalidad individual; B adquiere autoridad solo sobre aceptación durable, unicidad por slot, idempotencia, conflicto, atomicidad y persistencia append-only/runtime.
+
+### Invariantes y resultado
+
+- Como máximo un handoff aceptado por `review_slot_id`. El primer handoff que logra **commit** queda aceptado durablemente; el orden de llegada de peticiones no decide al ganador.
+- El mismo `handoff_id` para ese slot es `already_accepted`: devuelve la aceptación original, sin fila, escritura ni `accepted_at` nuevos. Exige además igualdad del payload canónico y de las proyecciones almacenadas; una divergencia bajo el mismo ID es `StoredReviewIntegrityError`, no un retry.
+- Otro `handoff_id` para el slot es `ReviewSlotConflict`; el claim, la review, la evidencia y el timestamp originalmente aceptados permanecen intactos.
+- `accepted` solo se devuelve después de confirmar el commit. Un fallo o resultado incierto de commit no acredita aceptación; un retry posterior del mismo handoff resuelve el estado durable.
+- La review y su provenance aceptadas son inmutables. PostgreSQL, no una lectura o comprobación previa en Python, impone la unicidad en presencia de concurrencia.
+
+### Persistencia mínima y protección de base de datos
+
+Una única tabla `tts_human_review_acceptances` contiene una fila por `review_slot_id`. Sus columnas conceptuales, todas `NOT NULL`, son `review_slot_id`, `review_slot_version`, `package_id`, `handoff_id`, `lock_transition_id`, `review_id`, `canonical_handoff` y `accepted_at`. `canonical_handoff` guarda los bytes JSON UTF-8 canónicos exactos validados por A e incluye la `HumanReviewRecord` completa y el linaje autenticado; la review se reconstruye desde ese envelope. `review_id` es solo una proyección consultable, no otra autoridad. Deben persistirse así todos los campos del `LockClaim`, incluida su review exacta, sin separar una segunda tabla de review ni duplicar su cuerpo en otro JSON.
+
+`review_slot_id` es **PRIMARY KEY**, arbitraje durable de la aceptación única. `handoff_id` es **UNIQUE**; las columnas son obligatorias; un check fija la versión de slot y otro rechaza `canonical_handoff` vacío. La base de datos protege la tabla contra `UPDATE`, `DELETE` y `TRUNCATE` para sostener append-only; la sintaxis exacta de migración y trigger queda para el preflight técnico. No hay `DO UPDATE` ni reemplazo destructivo. No se persisten claves, secretos, mapping privado ni contexto privado en esta tabla. La custodia futura de ese contexto para replay criptográfico pertenece a otra frontera.
+
+### Transacción, carrera y fallos
+
+En PostgreSQL `READ COMMITTED`, el camino esperado es `INSERT ... ON CONFLICT (review_slot_id) DO NOTHING RETURNING ...`. Si devuelve la fila insertada, se hace commit antes de responder `accepted`. Si no devuelve fila, se lee en una sentencia posterior la aceptación del slot: mismo handoff y evidencia/proyecciones idénticas → `already_accepted`; handoff diferente → `ReviewSlotConflict`; mismo ID con evidencia divergente → `StoredReviewIntegrityError`. Si no se puede establecer el estado durable, la operación falla cerrada. Dos transacciones concurrentes quedan arbitradas por la PK: si la primera confirma, la otra observa su fila; si revierte, la otra puede insertar.
+
+El camino esperado con `ON CONFLICT` no transforma un `IntegrityError` genérico en retry. Si otra estrategia de inserción produce un conflicto de unicidad del slot reconocible, se hace rollback y se relee en una transacción nueva antes de clasificar; un error de otro constraint o una falla DB ajena al slot nunca se convierte automáticamente en retry o conflicto de dominio. Ningún resultado de `flush` sustituye un commit confirmado.
+
+### Boundary interna, errores y verificación posterior
+
+El servicio de aceptación recibe handoff y contexto privado, invoca A, obtiene el `LockClaim`, coordina la transacción y devuelve un resultado tipado. El repositorio solo inserta, consulta por slot y reconstruye datos; no autentica A ni ofrece update/delete. Los errores de dominio previstos son `InvalidLockedHandoff`, `ReviewSlotConflict`, `StoredReviewIntegrityError` y `ReviewAcceptancePersistenceError`. La implementación posterior deberá comprobar first accept, retry, conflicto, payload divergente, rollback/fallo de commit, constraints y carreras reales con transacciones independientes en PostgreSQL, además de que la DB rechaza update/delete/truncate.
+
+Fuera de B: human reviews reales **NOT STARTED**; winner **NOT SELECTED**; reconciliación de reviews, adjudicación, API, frontend, entrega de audio, selección de voz, loader **BLOCKED**, B52 **NOT VERIFIED**, B181 **PAUSED** y A1 v4 **MEMBER DURABLE / NOT ACTIVE**. `content/content_tree.json` permanece intacto.
 
 ## Licencias y salida permitida
 
 Antes de ejecutar, registrar separadamente licencia de engine/runtime, modelo y voz/dataset. Piper está autorizado únicamente para este benchmark aislado; una integración o distribución de producto requiere revisión independiente.
 
-Los contratos mínimos viven en `app/schemas/tts_engine_benchmark.py`. No definen DB, loader, frontend, ASR/alignment, WavLM/GOP decisorio, B51/B52 ni B181.
+Los contratos de esquema ejecutables viven en `app/schemas/tts_engine_benchmark.py`. No implementan DB, loader, frontend, ASR/alignment, WavLM/GOP decisorio, B51/B52 ni B181. La sección B anterior fija solo el contrato documental de la futura persistencia DB.
