@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-23T17:14:55+02:00
-Baseline Git previa a este checkpoint: 56068fda3d756accdd7e2933635b7d310c7f5812
+Actualizado: 2026-09-23T17:18:30+02:00
+Baseline Git previa a este checkpoint: b2fefa2198edc6b7acba595b2c2610df356fac6f
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -106,6 +106,7 @@ Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `8bc469595
 ## Bloque activo
 `A1 — prerequisitos físicos restantes / Puerta 3 preflight`: la specification `content/candidates/a1-u1/pedagogical-unit-specification-v3.json` está **HUMAN APPROVED AS CANONICAL BASIS FOR A1 v4** por identidad exacta con la specification embebida en candidate v4, cuyo digest es `sha256:e75a5c9864adb86a3152e67ab9c97951372e11ed5400b70406f033e6f70b9a8d`; candidate v4 permanece **HUMAN APPROVED**. El cierre de los 12 WAV ya está publicado; permanecen `scene-help.mp4` y `option-farewell.png`. El trabajo siguiente es read-only: preflight de esos dos assets y de los prerequisitos de Puerta 3, sin cerrar Puerta 3 ni activar A1. B completo permanece **CLOSED / PUBLISHED / SYNCED** en `25678e7c07bd249f03ea33dbe815d4d3d0b9e901`, sin Subpaso 4. A1 v4 permanece **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 **NOT CLOSED**; B181 **PAUSED**; B52 **NOT VERIFIED**; loader **BLOCKED**; human reviews TTS **NOT STARTED**; winner **NOT SELECTED**.
 ### A1 remaining visual assets — Human Gate: queda registrada la aprobación humana semántica de ambos briefs. `scene-help.mp4`: una persona usa una máquina; esta deja de funcionar; la persona lo intenta de nuevo sin poder usarla y mira hacia otra persona cercana porque necesita ayuda; no aparece inglés escrito ni se habla inglés y debe entenderse como «I need help» sin explicación técnica. `option-farewell.png`: dos personas terminan una interacción, se despiden con la mano y comienzan a alejarse; no aparece inglés escrito y debe comunicar despedida, no saludo inicial. El gate aprueba significado pedagógico en lenguaje ordinario, no archivos físicos ni parámetros técnicos internos; el estado continúa en **16/18** hasta producción y aprobación humana de los archivos.
+### A1 scene-help storyboard — Human Review Gate: **APPROVED**. El storyboard aprobado para el futuro vídeo es: una persona usa una máquina; la máquina funciona; la máquina se detiene o falla; la persona lo intenta de nuevo; la persona busca o pide ayuda a otra persona. Esta aprobación cubre únicamente la secuencia visual, no `scene-help.mp4`; el vídeo aún requiere producción y su propio Human Review Gate final.
 ### Fronteras A1, B52 y B181
 B52 para la source vigente está **NOT VERIFIED**; `LOADER = BLOCKED`. `content/content_tree.json` permanece intacto. B181 permanece **PAUSED** en puerta pedagógica; no se reactiva mediante A1 v4, el benchmark, el review-lock ni este microbloque.
 ## Automatización disponible
@@ -114,7 +115,6 @@ B52 para la source vigente está **NOT VERIFIED**; `LOADER = BLOCKED`. `content/
 - `block_workflow.py` es el orquestador canónico del tramo determinista de Closure Gates futuros: `checkpoint validation → block_close.py → git_close.py → conversation_checkpoint.py prepare`.
 - ChatGPT conserva readiness, postflight independiente, decisiones semánticas, scope/allowlist, mensaje e interpretación del checkpoint post-cierre; también realiza la reconciliación read-only si existe partial closure.
 - `a1_resource_asset_close.py` solo opera sobre assets A1 humanamente aprobados; no convierte outputs del benchmark en assets A1.
-
 ## Método operativo vigente
 
 Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad exclusiva para sus hechos vivos; este documento conserva exclusivamente continuidad semántica y una baseline previa validable. Bash sigue siendo la vía preferida para operaciones deterministas; el routing default sigue siendo `Terra / medium`.
@@ -130,7 +130,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-NEXT = producir candidatos concretos de `scene-help.mp4` y `option-farewell.png` para revisión humana; no activar A1 ni cerrar Puerta 3
+NEXT = producir el candidato concreto de `scene-help.mp4` para revisión humana; no activar A1 ni cerrar Puerta 3
 
 ## Archivos clave
 
