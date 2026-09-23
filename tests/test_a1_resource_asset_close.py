@@ -68,6 +68,12 @@ def _batch_manifest(tmp_path: Path, payload: object) -> Path:
     return manifest
 
 
+def _approved_handoff(tmp_path: Path, payload: object) -> Path:
+    handoff = tmp_path / "review-gate-handoff.json"
+    handoff.write_text(json.dumps(payload), encoding="utf-8")
+    return handoff
+
+
 def _git(root: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         ["git", *arguments],
@@ -313,6 +319,240 @@ def test_batch_manifest_closes_two_assets_with_one_docs_update_and_one_close(
         ],
         "root": prepared_root,
     }]
+
+
+def test_prepare_manifest_verifies_two_approved_downloads_and_preserves_schema(
+    prepared_root: Path, tmp_path: Path
+) -> None:
+    help_content = b"approved help video bytes"
+    farewell_content = b"approved farewell bytes"
+    downloads = _downloads(tmp_path, "scene-help.mp4", help_content)
+    (downloads / "option-farewell.png").write_bytes(farewell_content)
+    handoff = _approved_handoff(tmp_path, [
+        {
+            "resource_id": "visual.a1-u1-l1.comprehension-option.farewell.v1",
+            "sha256": _digest(farewell_content),
+            "human_approved": True,
+        },
+        {
+            "resource_id": "visual.a1-u1-l1.scene.help.v1",
+            "sha256": _digest(help_content),
+            "human_approved": True,
+        },
+    ])
+    output = tmp_path / "prepared" / "a1-u1-approved-assets.json"
+    output.parent.mkdir()
+    before = {
+        path.relative_to(prepared_root): path.read_bytes()
+        for path in prepared_root.rglob("*")
+        if path.is_file()
+    }
+
+    result = asset_close.prepare_approved_manifest(
+        handoff_path=handoff,
+        output_path=output,
+        root=prepared_root,
+        downloads_dir=downloads,
+    )
+
+    assert result == output
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert payload == [
+        {
+            "resource_id": "visual.a1-u1-l1.scene.help.v1",
+            "sha256": _digest(help_content),
+            "human_approved": True,
+        },
+        {
+            "resource_id": "visual.a1-u1-l1.comprehension-option.farewell.v1",
+            "sha256": _digest(farewell_content),
+            "human_approved": True,
+        },
+    ]
+    loaded = asset_close.load_batch_manifest(output, root=prepared_root)
+    assert tuple(request.resource_id for request in loaded) == tuple(
+        entry["resource_id"] for entry in payload
+    )
+    after = {
+        path.relative_to(prepared_root): path.read_bytes()
+        for path in prepared_root.rglob("*")
+        if path.is_file()
+    }
+    assert after == before
+
+
+def test_prepare_manifest_accepts_renamed_identical_bytes(
+    prepared_root: Path, tmp_path: Path
+) -> None:
+    content = b"approved farewell bytes"
+    downloads = _downloads(tmp_path, "reviewed-image.png", content)
+    handoff = _approved_handoff(tmp_path, [{
+        "resource_id": "visual.a1-u1-l1.comprehension-option.farewell.v1",
+        "sha256": _digest(content),
+        "human_approved": True,
+        "local_filename": "reviewed-image.png",
+    }])
+    output = tmp_path / "prepared.json"
+
+    asset_close.prepare_approved_manifest(
+        handoff_path=handoff,
+        output_path=output,
+        root=prepared_root,
+        downloads_dir=downloads,
+    )
+
+    assert json.loads(output.read_text(encoding="utf-8"))[0]["downloads_file"] == (
+        "reviewed-image.png"
+    )
+
+
+@pytest.mark.parametrize(
+    "payload,error",
+    [
+        ([{
+            "resource_id": "visual.a1-u1-l1.scene.help.v1",
+            "sha256": "0" * 64,
+        }], "human_approved=true"),
+        ([{
+            "resource_id": "visual.a1-u1-l1.scene.help.v1",
+            "sha256": "0" * 64,
+            "human_approved": False,
+        }], "human_approved=true"),
+        ([{
+            "resource_id": "unknown",
+            "sha256": "0" * 64,
+            "human_approved": True,
+        }], "not an A1-U1 binding"),
+        ([{
+            "resource_id": "visual.a1-u1-l1.scene.help.v1",
+            "sha256": "0" * 64,
+            "human_approved": True,
+        }, {
+            "resource_id": "visual.a1-u1-l1.scene.help.v1",
+            "sha256": "0" * 64,
+            "human_approved": True,
+        }], "resource_id values must be unique"),
+        ([{
+            "resource_id": "visual.a1-u1-l1.scene.help.v1",
+            "sha256": "0" * 64,
+            "human_approved": True,
+            "local_filename": "../scene-help.mp4",
+        }], "safe basename"),
+    ],
+)
+def test_prepare_manifest_rejects_invalid_approval_inputs(
+    prepared_root: Path, tmp_path: Path, payload: object, error: str
+) -> None:
+    handoff = _approved_handoff(tmp_path, payload)
+    output = tmp_path / "prepared.json"
+
+    with pytest.raises(asset_close.AssetCloseError, match=error):
+        asset_close.prepare_approved_manifest(
+            handoff_path=handoff,
+            output_path=output,
+            root=prepared_root,
+            downloads_dir=tmp_path,
+        )
+    assert not output.exists()
+
+
+def test_prepare_manifest_rejects_missing_and_mismatched_source(
+    prepared_root: Path, tmp_path: Path
+) -> None:
+    downloads = _downloads(tmp_path, "scene-help.mp4", b"wrong bytes")
+    output = tmp_path / "prepared.json"
+    missing = _approved_handoff(tmp_path, [{
+        "resource_id": "visual.a1-u1-l1.scene.help.v1",
+        "sha256": _digest(b"approved help video bytes"),
+        "human_approved": True,
+    }])
+    with pytest.raises(asset_close.AssetCloseError, match="does not match"):
+        asset_close.prepare_approved_manifest(
+            handoff_path=missing,
+            output_path=output,
+            root=prepared_root,
+            downloads_dir=downloads,
+        )
+    downloads.joinpath("scene-help.mp4").unlink()
+    with pytest.raises(asset_close.AssetCloseError, match="unavailable"):
+        asset_close.prepare_approved_manifest(
+            handoff_path=missing,
+            output_path=output,
+            root=prepared_root,
+            downloads_dir=downloads,
+        )
+    assert not output.exists()
+
+
+def test_prepare_manifest_rejects_symlink_nonregular_and_repo_output(
+    prepared_root: Path, tmp_path: Path
+) -> None:
+    downloads = _downloads(tmp_path, "scene-help.mp4", b"approved")
+    content = _digest(b"approved")
+    handoff = _approved_handoff(tmp_path, [{
+        "resource_id": "visual.a1-u1-l1.scene.help.v1",
+        "sha256": content,
+        "human_approved": True,
+    }])
+    output = tmp_path / "prepared.json"
+    symlink = downloads / "linked.mp4"
+    os.symlink(downloads / "scene-help.mp4", symlink)
+    handoff.write_text(json.dumps([{
+        "resource_id": "visual.a1-u1-l1.scene.help.v1",
+        "sha256": content,
+        "human_approved": True,
+        "local_filename": "linked.mp4",
+    }]), encoding="utf-8")
+    with pytest.raises(asset_close.AssetCloseError, match="must not be a symlink"):
+        asset_close.prepare_approved_manifest(
+            handoff_path=handoff,
+            output_path=output,
+            root=prepared_root,
+            downloads_dir=downloads,
+        )
+    symlink.unlink()
+    downloads.joinpath("scene-help.mp4").unlink()
+    downloads.joinpath("scene-help.mp4").mkdir()
+    handoff.write_text(json.dumps([{
+        "resource_id": "visual.a1-u1-l1.scene.help.v1",
+        "sha256": content,
+        "human_approved": True,
+    }]), encoding="utf-8")
+    with pytest.raises(asset_close.AssetCloseError, match="regular file"):
+        asset_close.prepare_approved_manifest(
+            handoff_path=handoff,
+            output_path=output,
+            root=prepared_root,
+            downloads_dir=downloads,
+        )
+    with pytest.raises(asset_close.AssetCloseError, match="outside the repository"):
+        asset_close.prepare_approved_manifest(
+            handoff_path=handoff,
+            output_path=prepared_root / "inside.json",
+            root=prepared_root,
+            downloads_dir=downloads,
+        )
+
+
+def test_prepare_manifest_requires_external_absent_output(
+    prepared_root: Path, tmp_path: Path
+) -> None:
+    content = b"approved"
+    downloads = _downloads(tmp_path, "scene-help.mp4", content)
+    handoff = _approved_handoff(tmp_path, [{
+        "resource_id": "visual.a1-u1-l1.scene.help.v1",
+        "sha256": _digest(content),
+        "human_approved": True,
+    }])
+    output = tmp_path / "prepared.json"
+    output.write_text("existing", encoding="utf-8")
+    with pytest.raises(asset_close.AssetCloseError, match="already exists"):
+        asset_close.prepare_approved_manifest(
+            handoff_path=handoff,
+            output_path=output,
+            root=prepared_root,
+            downloads_dir=downloads,
+        )
 
 
 @pytest.mark.parametrize(

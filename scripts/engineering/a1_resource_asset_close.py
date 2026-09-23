@@ -57,6 +57,13 @@ class AssetRequest:
 
 
 @dataclass(frozen=True)
+class ApprovedHandoff:
+    resource_id: str
+    expected_sha256: str
+    local_filename: str | None = None
+
+
+@dataclass(frozen=True)
 class PreparedAsset:
     request: AssetRequest
     binding: ResourceBinding
@@ -235,7 +242,7 @@ def load_batch_manifest(manifest_path: Path, *, root: Path = ROOT) -> tuple[Asse
             raise AssetCloseError("batch manifest resource_id is invalid")
         if not isinstance(sha256, str):
             raise AssetCloseError("batch manifest SHA-256 is invalid")
-        if entry["human_approved"] is not True:
+        if entry.get("human_approved") is not True:
             raise AssetCloseError("batch manifest requires human_approved=true")
         if downloads_file is not None and not isinstance(downloads_file, str):
             raise AssetCloseError("batch manifest downloads_file is invalid")
@@ -253,6 +260,150 @@ def load_batch_manifest(manifest_path: Path, *, root: Path = ROOT) -> tuple[Asse
     if len({request.resource_id for request in requests}) != len(requests):
         raise AssetCloseError("batch manifest resource_id values must be unique")
     return tuple(requests)
+
+
+def _resolve_external_regular_file(path: Path, *, root: Path, label: str) -> Path:
+    """Resolve one regular non-symlink file outside the repository."""
+    root = root.resolve(strict=True)
+    if path.is_symlink():
+        raise AssetCloseError(f"{label} must not be a symlink")
+    try:
+        resolved = path.resolve(strict=True)
+        resolved.relative_to(root)
+    except ValueError:
+        pass
+    except OSError as exc:
+        raise AssetCloseError(f"{label} is unavailable") from exc
+    else:
+        raise AssetCloseError(f"{label} must stay outside the repository")
+    try:
+        mode = resolved.stat().st_mode
+    except OSError as exc:
+        raise AssetCloseError(f"{label} is unavailable") from exc
+    if not stat.S_ISREG(mode):
+        raise AssetCloseError(f"{label} must be a regular file")
+    return resolved
+
+
+def load_approved_handoff(
+    handoff_path: Path,
+    *,
+    root: Path = ROOT,
+) -> tuple[ApprovedHandoff, ...]:
+    """Read an explicit external Human Review Gate handoff."""
+    resolved = _resolve_external_regular_file(
+        handoff_path,
+        root=root,
+        label="approved handoff",
+    )
+    try:
+        payload = json.loads(resolved.read_text(encoding="utf-8"))
+    except (OSError, ValueError, UnicodeDecodeError) as exc:
+        raise AssetCloseError("approved handoff is invalid JSON") from exc
+    if not isinstance(payload, list) or not payload:
+        raise AssetCloseError("approved handoff must be a non-empty JSON list")
+
+    entries: list[ApprovedHandoff] = []
+    required_keys = {"resource_id", "sha256"}
+    allowed_keys = required_keys | {"human_approved", "local_filename"}
+    for entry in payload:
+        if not isinstance(entry, dict) or set(entry) - allowed_keys or set(entry) < required_keys:
+            raise AssetCloseError("approved handoff entry has invalid keys")
+        resource_id = entry["resource_id"]
+        sha256 = entry["sha256"]
+        local_filename = entry.get("local_filename")
+        if not isinstance(resource_id, str) or not resource_id:
+            raise AssetCloseError("approved handoff resource_id is invalid")
+        if not isinstance(sha256, str):
+            raise AssetCloseError("approved handoff SHA-256 is invalid")
+        if entry.get("human_approved") is not True:
+            raise AssetCloseError("approved handoff requires human_approved=true")
+        if local_filename is not None and not isinstance(local_filename, str):
+            raise AssetCloseError("approved handoff local_filename is invalid")
+        entries.append(
+            ApprovedHandoff(
+                resource_id=resource_id,
+                expected_sha256=_validate_sha256(sha256),
+                local_filename=(
+                    _validate_basename(local_filename)
+                    if local_filename is not None
+                    else None
+                ),
+            )
+        )
+    if len({entry.resource_id for entry in entries}) != len(entries):
+        raise AssetCloseError("approved handoff resource_id values must be unique")
+    return tuple(entries)
+
+
+def _manifest_output_path(output_path: Path, *, root: Path) -> Path:
+    """Validate an absent manifest output path outside the repository."""
+    root = root.resolve(strict=True)
+    if output_path.is_symlink():
+        raise AssetCloseError("output manifest must not be a symlink")
+    try:
+        resolved = output_path.resolve(strict=False)
+        resolved.relative_to(root)
+    except ValueError:
+        pass
+    else:
+        raise AssetCloseError("output manifest must stay outside the repository")
+    if output_path.exists():
+        raise AssetCloseError("output manifest already exists")
+    return output_path
+
+
+def prepare_approved_manifest(
+    *,
+    handoff_path: Path,
+    output_path: Path,
+    root: Path = ROOT,
+    downloads_dir: Path | None = None,
+) -> Path:
+    """Verify approved local bytes and emit the existing batch-manifest schema."""
+    root = root.resolve(strict=True)
+    output_path = _manifest_output_path(output_path, root=root)
+    handoff = load_approved_handoff(handoff_path, root=root)
+    bindings = load_binding_map(root)
+    validate_binding_inventory(root, bindings)
+    binding_by_id = {binding.resource_id: binding for binding in bindings}
+    if len(binding_by_id) != len(bindings):
+        raise AssetCloseError("canonical resource bindings are ambiguous")
+    downloads_root = downloads_dir or Path.home() / "Downloads"
+    manifest_entries: list[dict[str, object]] = []
+    prepared: list[tuple[int, dict[str, object]]] = []
+    binding_order = {binding.resource_id: index for index, binding in enumerate(bindings)}
+    for entry in handoff:
+        binding = binding_by_id.get(entry.resource_id)
+        if binding is None:
+            raise AssetCloseError("resource_id is not an A1-U1 binding")
+        canonical_filename = binding.relative_path.name
+        local_filename = entry.local_filename or canonical_filename
+        source = resolve_download_source(
+            downloads_dir=downloads_root,
+            filename=local_filename,
+        )
+        if _sha256(source) != entry.expected_sha256:
+            raise AssetCloseError("download source SHA-256 does not match approved handoff")
+        manifest_entry: dict[str, object] = {
+            "resource_id": entry.resource_id,
+            "sha256": entry.expected_sha256,
+            "human_approved": True,
+        }
+        if entry.local_filename is not None:
+            manifest_entry["downloads_file"] = entry.local_filename
+        prepared.append((binding_order[entry.resource_id], manifest_entry))
+    manifest_entries = [entry for _, entry in sorted(prepared, key=lambda item: item[0])]
+    try:
+        with output_path.open("x", encoding="utf-8") as output:
+            output.write(json.dumps(manifest_entries, ensure_ascii=False, indent=2) + "\n")
+            output.flush()
+            os.fsync(output.fileno())
+    except FileExistsError as exc:
+        raise AssetCloseError("output manifest already exists") from exc
+    except OSError as exc:
+        raise AssetCloseError("could not write output manifest") from exc
+    return output_path
 
 
 def _assert_no_unmapped_assets(root: Path, bindings: tuple[ResourceBinding, ...]) -> None:
@@ -663,9 +814,11 @@ def _parse_arguments(argv: list[str] | None = None) -> argparse.Namespace:
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--resource-id")
     mode.add_argument("--batch-manifest", type=Path)
+    mode.add_argument("--prepare-manifest", type=Path)
     parser.add_argument("--sha256")
     parser.add_argument("--human-approved", action="store_true")
     parser.add_argument("--downloads-file")
+    parser.add_argument("--output-manifest", type=Path)
     return parser.parse_args(argv)
 
 
@@ -673,11 +826,32 @@ def main(argv: list[str] | None = None) -> int:
     arguments = _parse_arguments(argv)
     try:
         if arguments.batch_manifest is not None:
-            if arguments.sha256 is not None or arguments.human_approved or arguments.downloads_file is not None:
+            if (
+                arguments.sha256 is not None
+                or arguments.human_approved
+                or arguments.downloads_file is not None
+                or arguments.output_manifest is not None
+            ):
                 raise AssetCloseError("--batch-manifest cannot use individual asset arguments")
             commit = close_approved_asset_batch(manifest_path=arguments.batch_manifest)
+        elif arguments.prepare_manifest is not None:
+            if (
+                arguments.sha256 is not None
+                or arguments.human_approved
+                or arguments.downloads_file is not None
+                or arguments.output_manifest is None
+            ):
+                raise AssetCloseError(
+                    "--prepare-manifest requires only --output-manifest"
+                )
+            output_path = prepare_approved_manifest(
+                handoff_path=arguments.prepare_manifest,
+                output_path=arguments.output_manifest,
+            )
+            print(f"A1 approved manifest prepared: {output_path}")
+            return 0
         else:
-            if arguments.sha256 is None or not arguments.human_approved:
+            if arguments.sha256 is None or not arguments.human_approved or arguments.output_manifest is not None:
                 raise AssetCloseError("individual mode requires --sha256 and --human-approved")
             commit = close_approved_asset(
                 resource_id=arguments.resource_id,
