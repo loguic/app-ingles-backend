@@ -4940,3 +4940,11 @@ El Closure Gate final de B terminó **PASS** y publicó `25678e7c07bd249f03ea33d
 ### A1 — aclaración contractual de specification v3
 
 La reconciliación posterior confirma que B ya no es el bloque activo: B completo permanece **CLOSED / PUBLISHED / SYNCED** y no existe Subpaso 4. El bloque activo pasa a ser `A1 — reentrada canónica / Puerta 3 preflight`; `NEXT = preflight read-only específico de Puerta 3 y prerequisitos de activación A1`. Puerta 3 no ha sido ejecutada, A1 no está activa y B181 no se reactiva.
+
+## Cierre canónico de assets físicos A1-U1 — 12 WAV aprobados
+
+La reconciliación de assets físicos A1-U1 quedó **CLOSED / PUBLISHED / SYNCED** en `824a4512e3e3bed1f9d950d66a80a50b59d2a3e1`. El cierre canónico del lote de doce WAV con aprobación humana directa se publicó en `cd19bb764177f23754497d914d7d9f3948b7a389`; el checkpoint final fue **PASS**, con `TREE=CLEAN`, `AHEAD=0`, `BEHIND=0` y baseline `824a4512e3e3bed1f9d950d66a80a50b59d2a3e1`.
+
+El estado físico aprobado queda en **16/18**: los cuatro visuales previos y los doce WAV concretos instalados con sus identidades SHA-256. Permanecen como únicos assets físicos pendientes `scene-help.mp4` y `option-farewell.png`. Esta aprobación directa de assets no completa las human blind reviews formales del benchmark, que siguen **NOT STARTED**, ni adjudica o selecciona winner, que sigue **NOT SELECTED**.
+
+A1 v4 permanece **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 permanece **NOT CLOSED**; B52 **NOT VERIFIED**; `LOADER = BLOCKED`; B181 **PAUSED**; `content/content_tree.json` permanece intacto. El siguiente frente canónico es el preflight read-only de los dos assets restantes y de los prerequisitos de Puerta 3; no se activa A1 ni se cierra Puerta 3 mediante este cierre.
