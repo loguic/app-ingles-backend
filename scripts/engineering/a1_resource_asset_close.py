@@ -34,12 +34,12 @@ CANDIDATE_RELATIVE_PATH = Path(
 )
 STATE_RELATIVE_PATH = Path("docs/estado-operativo.md")
 SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
-ASSET_STATE_PATTERN = re.compile(
-    r"PHYSICAL ASSETS = \*\*\d+/18 APPROVED\*\*: .*? No hay B52,",
-    re.DOTALL,
+ASSET_STATE_PATTERN = re.compile(r"(?m)^A1 ASSET STATE: .*?$")
+ASSET_CHECKPOINT_PATHS_PATTERN = re.compile(
+    r"(?m)^- A1 ASSET CHECKPOINT PATHS: .*?$"
 )
-NEXT_OBJECTIVE_PATTERN = re.compile(
-    r"Producir únicamente los \d+ assets A1-U1 restantes"
+GIT_BASELINE_PATTERN = re.compile(
+    r"(?m)^Baseline Git previa a este checkpoint: [0-9a-f]{40}$"
 )
 
 
@@ -287,22 +287,45 @@ def _installed_assets(root: Path, bindings: tuple[ResourceBinding, ...]) -> tupl
 
 def _render_asset_state(root: Path, bindings: tuple[ResourceBinding, ...]) -> str:
     installed = _installed_assets(root, bindings)
+    total = len(bindings)
+    installed_audio = tuple(
+        binding for binding in installed if binding.resource_id.startswith("audio.")
+    )
     entries = "; ".join(
         f"`{binding.resource_id}` está producido y aprobado en "
         f"`{(RESOURCE_ROOT / binding.relative_path).as_posix()}`, con SHA-256 "
         f"`{_sha256(_repository_path(root, RESOURCE_ROOT) / binding.relative_path)}`"
         for binding in installed
     )
-    pending = len(bindings) - len(installed)
+    pending = total - len(installed)
     return (
-        f"PHYSICAL ASSETS = **{len(installed)}/18 APPROVED**: {entries}; "
-        f"los otros {pending} assets siguen pendientes. Todavía no existe catálogo "
-        "ni manifest de expected `ResourcePhysicalIdentity`; no se inventarán "
-        "identities adicionales y estas se derivarán solo de bytes finales "
-        "semánticamente/humanamente aprobados. A1 v3 queda **MEMBER DURABLE / "
-        "NOT ACTIVE**; B52 = **NOT VERIFIED**, `LOADER = BLOCKED` y B181 sigue "
-        "PAUSED. No hay B52,"
+        f"A1 ASSET STATE: **{len(installed)}/{total} APPROVED**; "
+        f"{len(installed_audio)} WAV con aprobación directa de asset humano instalada; "
+        f"{len(installed)} assets mapeados instalados; quedan {pending} pendientes; "
+        f"{entries}. A1 v4 = **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 = "
+        "**NOT CLOSED**; B52 = **NOT VERIFIED**; `LOADER = BLOCKED`; "
+        "B181 = **PAUSED**; las human blind reviews formales = **NOT STARTED**; "
+        "winner = **NOT SELECTED**."
     )
+
+
+def _render_asset_checkpoint_paths(
+    root: Path,
+    bindings: tuple[ResourceBinding, ...],
+) -> str:
+    """Render the exact local paths this asset-close flow may dirty."""
+    installed = _installed_assets(root, bindings)
+    paths = (
+        "scripts/engineering/a1_resource_asset_close.py",
+        "tests/test_a1_resource_asset_close.py",
+        *(
+            (RESOURCE_ROOT / binding.relative_path).as_posix()
+            for binding in installed
+        ),
+    )
+    return "- A1 ASSET CHECKPOINT PATHS: " + ", ".join(
+        f"`{path}`" for path in paths
+    ) + "."
 
 
 def update_operational_state(
@@ -319,13 +342,21 @@ def update_operational_state(
     text, replacements = ASSET_STATE_PATTERN.subn(replacement, text)
     if replacements != 1:
         raise AssetCloseError("operational asset state marker is invalid")
-    pending = len(bindings) - len(_installed_assets(root, bindings))
-    text, objective_replacements = NEXT_OBJECTIVE_PATTERN.subn(
-        f"Producir únicamente los {pending} assets A1-U1 restantes",
+    checkpoint_replacement = _render_asset_checkpoint_paths(root, bindings)
+    text, checkpoint_replacements = ASSET_CHECKPOINT_PATHS_PATTERN.subn(
+        checkpoint_replacement,
         text,
     )
-    if objective_replacements != 1:
-        raise AssetCloseError("operational next-objective marker is invalid")
+    if checkpoint_replacements != 1:
+        raise AssetCloseError("operational asset checkpoint paths marker is invalid")
+    current_head = _git_head(root)
+    if current_head is not None:
+        text, baseline_replacements = GIT_BASELINE_PATTERN.subn(
+            f"Baseline Git previa a este checkpoint: {current_head}",
+            text,
+        )
+        if baseline_replacements != 1:
+            raise AssetCloseError("operational Git baseline marker is invalid")
     timestamp = (now or datetime.now().astimezone()).isoformat(timespec="seconds")
     text, timestamp_replacements = re.subn(
         r"(?m)^Actualizado: .*?$", f"Actualizado: {timestamp}", text

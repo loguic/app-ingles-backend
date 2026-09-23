@@ -12,6 +12,7 @@ from pathlib import Path
 import pytest
 
 from scripts.engineering import a1_resource_asset_close as asset_close
+from scripts.engineering import conversation_checkpoint
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,12 +20,27 @@ WATER = ROOT / "content/resources/a1-u1/visual/scene-water.png"
 FOOD = ROOT / "content/resources/a1-u1/visual/scene-food.png"
 NEED = ROOT / "content/resources/a1-u1/visual/option-need.png"
 GREETING = ROOT / "content/resources/a1-u1/visual/option-greeting.png"
+AUDIO_RESOURCE_IDS = (
+    "audio.a1-u1-l1.i-need-water.en-us.v1",
+    "audio.a1-u1-l1.i-need-water.en-gb.v1",
+    "audio.a1-u1-l1.i-need-help.en-gb.v1",
+    "audio.a1-u1-l1.i-need-food.en-gb.v1",
+    "audio.a1-u1-l1.water.en-us.v1",
+    "audio.a1-u1-l1.water.en-gb.v1",
+    "audio.a1-u1-l1.help.en-us.v1",
+    "audio.a1-u1-l1.help.en-gb.v1",
+    "audio.a1-u1-l1.food.en-us.v1",
+    "audio.a1-u1-l1.food.en-gb.v1",
+    "audio.a1-u1-l1.okay.en-us.v1",
+    "audio.a1-u1-l1.okay.en-gb.v1",
+)
 
 
 @pytest.fixture
 def prepared_root(tmp_path: Path) -> Path:
     root = tmp_path / "repository"
     (root / "content/resources/a1-u1/visual").mkdir(parents=True)
+    (root / "content/resources/a1-u1/audio").mkdir(parents=True)
     (root / "content/candidates/a1-u1").mkdir(parents=True)
     (root / "docs").mkdir()
     shutil.copy2(ROOT / asset_close.README_RELATIVE_PATH, root / asset_close.README_RELATIVE_PATH)
@@ -220,11 +236,17 @@ def test_default_download_filename_copies_byte_identically_and_updates_4_to_5(
     assert result == "published-commit"
     assert destination.read_bytes() == content
     assert asset_close._sha256(destination) == _digest(content)
-    assert "PHYSICAL ASSETS = **5/18 APPROVED**" in state
+    assert "A1 ASSET STATE: **5/18 APPROVED**" in state
     assert "visual.a1-u1-l1.scene.help.v1" in state
     assert _digest(content) in state
-    assert "los otros 13 assets siguen pendientes" in state
-    assert "Todavía no existe catálogo ni manifest" in state
+    assert "quedan 13 pendientes" in state
+    assert "A1 v4 = **MEMBER DURABLE / NOT ACTIVE**" in state
+    assert "Puerta 3 = **NOT CLOSED**" in state
+    assert "B52 = **NOT VERIFIED**" in state
+    assert "`LOADER = BLOCKED`" in state
+    assert "B181 = **PAUSED**" in state
+    assert "human blind reviews formales = **NOT STARTED**" in state
+    assert "winner = **NOT SELECTED**" in state
     assert calls == [{
         "branch": "master",
         "upstream": "origin/master",
@@ -278,8 +300,8 @@ def test_batch_manifest_closes_two_assets_with_one_docs_update_and_one_close(
     assert asset_close._sha256(prepared_root / "content/resources/a1-u1/visual/scene-help.mp4") == _digest(help_content)
     assert asset_close._sha256(prepared_root / "content/resources/a1-u1/visual/option-farewell.png") == _digest(farewell_content)
     state = (prepared_root / asset_close.STATE_RELATIVE_PATH).read_text(encoding="utf-8")
-    assert "PHYSICAL ASSETS = **6/18 APPROVED**" in state
-    assert "los otros 12 assets siguen pendientes" in state
+    assert "A1 ASSET STATE: **6/18 APPROVED**" in state
+    assert "quedan 12 pendientes" in state
     assert calls == [{
         "branch": "master",
         "upstream": "origin/master",
@@ -566,7 +588,7 @@ def test_unmapped_asset_is_rejected_before_copy(
         )
 
 
-def test_state_renderer_reports_the_current_four_assets_without_expected_catalog(
+def test_state_renderer_reports_current_compact_state_and_derived_inventory(
     prepared_root: Path
 ) -> None:
     bindings = asset_close.load_binding_map(prepared_root)
@@ -577,10 +599,115 @@ def test_state_renderer_reports_the_current_four_assets_without_expected_catalog
     )
     state = (prepared_root / asset_close.STATE_RELATIVE_PATH).read_text(encoding="utf-8")
 
-    assert "PHYSICAL ASSETS = **4/18 APPROVED**" in state
-    assert "los otros 14 assets siguen pendientes" in state
-    assert "Todavía no existe catálogo ni manifest" in state
+    assert "A1 ASSET STATE: **4/18 APPROVED**" in state
+    assert "0 WAV con aprobación directa de asset humano instalada" in state
+    assert "quedan 14 pendientes" in state
+    assert "A1 v4 = **MEMBER DURABLE / NOT ACTIVE**" in state
+    assert "Puerta 3 = **NOT CLOSED**" in state
+    assert "B52 = **NOT VERIFIED**" in state
+    assert "`LOADER = BLOCKED`" in state
+    assert "B181 = **PAUSED**" in state
+    assert "human blind reviews formales = **NOT STARTED**" in state
+    assert "winner = **NOT SELECTED**" in state
+    assert "Baseline Git previa a este checkpoint: " in state
+    sections = conversation_checkpoint._read_sections(
+        prepared_root / asset_close.STATE_RELATIVE_PATH
+    )
+    conversation_checkpoint._validate_local_paths(
+        sections,
+        (
+            conversation_checkpoint.GitChange(
+                status=" M", path="scripts/engineering/a1_resource_asset_close.py"
+            ),
+            conversation_checkpoint.GitChange(
+                status=" M", path="tests/test_a1_resource_asset_close.py"
+            ),
+        ),
+    )
     assert not (prepared_root / "content/expected-resource-identities.json").exists()
+
+
+def test_state_marker_must_be_exactly_one_unambiguous_target(
+    prepared_root: Path,
+) -> None:
+    state_path = prepared_root / asset_close.STATE_RELATIVE_PATH
+    state_path.write_text(
+        state_path.read_text(encoding="utf-8")
+        + "\nA1 ASSET STATE: duplicate\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(asset_close.AssetCloseError, match="marker is invalid"):
+        asset_close.update_operational_state(
+            root=prepared_root,
+            bindings=asset_close.load_binding_map(prepared_root),
+            now=datetime(2026, 9, 10, 19, 0, tzinfo=timezone.utc),
+        )
+
+
+def test_batch_installs_all_twelve_approved_audio_bindings_and_renders_hashes(
+    prepared_root: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    downloads = tmp_path / "Downloads"
+    downloads.mkdir()
+    entries: list[dict[str, object]] = []
+    contents: dict[str, bytes] = {}
+    for index, resource_id in enumerate(AUDIO_RESOURCE_IDS):
+        filename = resource_id.removeprefix("audio.a1-u1-l1.") + ".wav"
+        content = f"approved wav {index}".encode()
+        (downloads / filename).write_bytes(content)
+        contents[resource_id] = content
+        entries.append({
+            "resource_id": resource_id,
+            "sha256": _digest(content),
+            "human_approved": True,
+            "downloads_file": filename,
+        })
+    manifest = _batch_manifest(tmp_path, entries)
+    calls = _close_without_git(monkeypatch)
+
+    result = asset_close.close_approved_asset_batch(
+        manifest_path=manifest,
+        root=prepared_root,
+        downloads_dir=downloads,
+        now=datetime(2026, 9, 10, 19, 0, tzinfo=timezone.utc),
+        close_function=asset_close.close_git_changes,
+    )
+
+    assert result == "published-commit"
+    assert len(calls) == 1
+    state = (prepared_root / asset_close.STATE_RELATIVE_PATH).read_text(encoding="utf-8")
+    assert "A1 ASSET STATE: **16/18 APPROVED**" in state
+    assert "12 WAV con aprobación directa de asset humano instalada" in state
+    assert "quedan 2 pendientes" in state
+    assert "A1 v4 = **MEMBER DURABLE / NOT ACTIVE**" in state
+    assert "Puerta 3 = **NOT CLOSED**" in state
+    assert "human blind reviews formales = **NOT STARTED**" in state
+    assert "winner = **NOT SELECTED**" in state
+    sections = conversation_checkpoint._read_sections(
+        prepared_root / asset_close.STATE_RELATIVE_PATH
+    )
+    conversation_checkpoint._validate_local_paths(
+        sections,
+        tuple(
+            conversation_checkpoint.GitChange(
+                status="??",
+                path=(asset_close.RESOURCE_ROOT / next(
+                    item.relative_path
+                    for item in asset_close.load_binding_map(prepared_root)
+                    if item.resource_id == resource_id
+                )).as_posix(),
+            )
+            for resource_id in AUDIO_RESOURCE_IDS
+        ),
+    )
+    for resource_id, content in contents.items():
+        binding = next(
+            item for item in asset_close.load_binding_map(prepared_root)
+            if item.resource_id == resource_id
+        )
+        destination = prepared_root / asset_close.RESOURCE_ROOT / binding.relative_path
+        assert destination.read_bytes() == content
+        assert _digest(content) in state
 
 
 def test_post_copy_failure_restores_state_and_removes_only_new_destination(

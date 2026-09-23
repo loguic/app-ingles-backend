@@ -4871,6 +4871,8 @@ La última frontera documental previa de esta bitácora fue `54f64cec43a3f7bb09e
 
 `8358144` aprobó la corrección IPA de Candidate A1 v4: `help` en-GB pasa de `/hɛlp/` a `/help/`. `cc2a8bc` publicó el `AdmissionRecord` v4, `6e9270f` su membership durable y `a0a2bcc` apuntó el helper de assets a v4. A1 v4 permanece **MEMBER DURABLE / NOT ACTIVE**. Los cuatro visuales siguen siendo los únicos assets A1 aprobados; los WAV del benchmark no son assets A1 aprobados. B52 permanece **NOT VERIFIED**, `LOADER = BLOCKED`, B181 permanece **PAUSED** y `content/content_tree.json` no se modificó.
 
+La reconciliación posterior registra doce muestras WAV concretas con aprobación humana directa como assets físicos A1-U1. Esta aprobación no equivale a human blind review formal del benchmark: las human blind reviews siguen **NOT STARTED** y el winner **NOT SELECTED**. La instalación/cierre automatizado de esos bytes conserva A1 v4 **MEMBER DURABLE / NOT ACTIVE**, Puerta 3 **NOT CLOSED**, B52 **NOT VERIFIED**, `LOADER = BLOCKED`, B181 **PAUSED** y `content/content_tree.json` intacto.
+
 ### Contratos TTS publicados y reconciliación privada A/B
 
 `c2897ba` publicó el perfil de normalización WAV TTS v1. `a3b8b75` publicó el protocolo TTS Engine Benchmark v1 para Kokoro `0.9.4` y Piper `1.8.0`, con corpus Candidate v4, replicación adaptativa y contratos de identidad, manifests y review ciego. `4a6ce2f` corrigió el scope de aplicabilidad de `DeterminismProbe`. `3e10e97a932f6be27cc05081ba02c555d4611565` aclaró la identidad de normalización y es el `backend_canonical_commit` del benchmark externo.

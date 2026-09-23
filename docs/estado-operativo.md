@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-23T03:24:50+02:00
-Baseline Git previa a este checkpoint: f5a76924f989c3f2ee855bd78c8a2c2fd987018a
+Actualizado: 2026-09-23T16:28:03+02:00
+Baseline Git previa a este checkpoint: b5d6a4c8125a278fa892be07549eb872d869b160
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -38,7 +38,7 @@ Estado semántico: **TÉCNICAMENTE FINALIZADO** en `/home/guiller/projects/logui
 
 ### A1 v3/v4 publicada
 
-A1 v4 permanece **MEMBER DURABLE / NOT ACTIVE**. Los únicos assets físicos A1 aprobados son cuatro visuales: `water`, `food`, `need` y `greeting`; los WAV del benchmark no son assets A1 aprobados.
+A1 ASSET STATE: **4/18 APPROVED**; 0 WAV con aprobación directa de asset humano instalada; 4 assets mapeados instalados; quedan 14 pendientes; los cuatro visuales existentes son `water`, `food`, `need` y `greeting`. Doce muestras WAV concretas tienen aprobación humana directa como assets físicos A1-U1 y permanecen pendientes de instalación/cierre automatizado con sus bytes y SHA-256 externos. A1 v4 = **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 = **NOT CLOSED**; B52 = **NOT VERIFIED**; `LOADER = BLOCKED`; B181 = **PAUSED**; las human blind reviews formales = **NOT STARTED**; winner = **NOT SELECTED**.
 
 ## Último bloque cerrado
 
@@ -123,7 +123,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 - baseline Git previa ≠ HEAD actual; una diferencia válida post-cierre no es contradicción;
 - benchmark técnicamente finalizado ≠ human review ≠ adjudicación ≠ winner ≠ voz de producto;
-- WAV del benchmark ≠ assets A1 aprobados ≠ B51/B52 ≠ loader readiness;
+- finalización/output del benchmark WAV por sí solo ≠ assets A1 aprobados ≠ B51/B52 ≠ loader readiness; las 12 muestras WAV seleccionadas sí tienen aprobación humana directa como assets físicos A1-U1, sin completar blind review, adjudicación ni winner;
 - A1 v4 `MEMBER DURABLE` ≠ `ACTIVE`; no activar A1 ni modificar `content/content_tree.json`;
 - review-lock cerrado ≠ public reviewer package/workflow cerrado ≠ contrato B aprobado ≠ Subpaso 1 cerrado ≠ Subpaso 2 cerrado ≠ Subpaso 3 de concurrencia ≠ autorización para iniciar human reviews reales;
 - no iniciar human review, adjudicación, reviewer package, B52, loader o B181 sin autorización y evidencia específicas.
@@ -137,4 +137,4 @@ NEXT = preflight read-only específico de Puerta 3 y prerequisitos de activació
 - `docs/loguic-engineering-operating-method-v1.md`, `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`, `docs/devsecops-gate.md`, `scripts/engineering/operational_state.py`, `scripts/engineering/conversation_checkpoint.py`, `tests/test_operational_state.py` y `tests/test_conversation_checkpoint.py`;
 - `scripts/engineering/block_workflow.py`, `tests/test_block_workflow.py`, `scripts/engineering/block_close.py` y `scripts/engineering/git_close.py` definen y cubren el tramo determinista de cierre; los dos últimos permanecen sin cambios;
 - `app/schemas/tts_engine_benchmark.py`, `app/services/tts_public_reviewer_workflow.py`, `docs/loguic-tts-engine-benchmark-protocol-v1.md` y `tests/test_tts_engine_benchmark_schema.py` contienen el review-lock publicado y el public reviewer workflow local;
-- `content/candidates/a1-u1/pedagogical-unit-candidate-v4.json`, `content/admissions/a1-u1/adm-a1-u1-002.json` y `content/active-source/active-candidate-source-002.json`.
+- A1 ASSET CHECKPOINT PATHS: `scripts/engineering/a1_resource_asset_close.py`, `tests/test_a1_resource_asset_close.py`.
