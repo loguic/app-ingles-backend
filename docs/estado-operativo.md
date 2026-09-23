@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-23T16:43:20+02:00
-Baseline Git previa a este checkpoint: cd19bb764177f23754497d914d7d9f3948b7a389
+Actualizado: 2026-09-23T17:14:55+02:00
+Baseline Git previa a este checkpoint: 56068fda3d756accdd7e2933635b7d310c7f5812
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -105,9 +105,9 @@ Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `8bc469595
 `Durable / Atomic Human Review Claim Acceptance` (B): contrato **CONTRACT APPROVED** en `docs/loguic-tts-engine-benchmark-protocol-v1.md`; B completo **CLOSED / PUBLISHED / SYNCED** en `25678e7c07bd249f03ea33dbe815d4d3d0b9e901`. La preflight global confirmó los 15 criterios contractuales satisfechos, sin criterios pendientes y sin Subpaso 4. Decisión local registrada en `docs/bitacora.md` y `docs/roadmap.md`. Frontera: handoff canónico más contexto privado → `validate_locked_review_handoff()` de A → `LockClaim` validado con el mismo handoff → aceptación transaccional de B; nunca claim externo aislado. El contrato exige PK por slot, retry idéntico sin escritura, conflicto sin reemplazo y commit confirmado. Subpasos 1, 2 y 3: **CLOSED / PUBLISHED / SYNCED**. Human reviews reales **NOT STARTED**. La aprobación de candidate v4 cubre su specification embebida solo cuando es exactamente idéntica a `content/candidates/a1-u1/pedagogical-unit-specification-v3.json`; no crea approval record ni schema independientes y conserva el digest candidate v4 `sha256:e75a5c9864adb86a3152e67ab9c97951372e11ed5400b70406f033e6f70b9a8d`. El siguiente objetivo requiere preflight read-only de selección de siguiente frontera canónica. Dirty paths reconocidos: `docs/estado-operativo.md`, `docs/loguic-tts-engine-benchmark-protocol-v1.md`, `docs/bitacora.md` y `docs/roadmap.md`.
 ## Bloque activo
 `A1 — prerequisitos físicos restantes / Puerta 3 preflight`: la specification `content/candidates/a1-u1/pedagogical-unit-specification-v3.json` está **HUMAN APPROVED AS CANONICAL BASIS FOR A1 v4** por identidad exacta con la specification embebida en candidate v4, cuyo digest es `sha256:e75a5c9864adb86a3152e67ab9c97951372e11ed5400b70406f033e6f70b9a8d`; candidate v4 permanece **HUMAN APPROVED**. El cierre de los 12 WAV ya está publicado; permanecen `scene-help.mp4` y `option-farewell.png`. El trabajo siguiente es read-only: preflight de esos dos assets y de los prerequisitos de Puerta 3, sin cerrar Puerta 3 ni activar A1. B completo permanece **CLOSED / PUBLISHED / SYNCED** en `25678e7c07bd249f03ea33dbe815d4d3d0b9e901`, sin Subpaso 4. A1 v4 permanece **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 **NOT CLOSED**; B181 **PAUSED**; B52 **NOT VERIFIED**; loader **BLOCKED**; human reviews TTS **NOT STARTED**; winner **NOT SELECTED**.
+### A1 remaining visual assets — Human Gate: queda registrada la aprobación humana semántica de ambos briefs. `scene-help.mp4`: una persona usa una máquina; esta deja de funcionar; la persona lo intenta de nuevo sin poder usarla y mira hacia otra persona cercana porque necesita ayuda; no aparece inglés escrito ni se habla inglés y debe entenderse como «I need help» sin explicación técnica. `option-farewell.png`: dos personas terminan una interacción, se despiden con la mano y comienzan a alejarse; no aparece inglés escrito y debe comunicar despedida, no saludo inicial. El gate aprueba significado pedagógico en lenguaje ordinario, no archivos físicos ni parámetros técnicos internos; el estado continúa en **16/18** hasta producción y aprobación humana de los archivos.
 ### Fronteras A1, B52 y B181
 B52 para la source vigente está **NOT VERIFIED**; `LOADER = BLOCKED`. `content/content_tree.json` permanece intacto. B181 permanece **PAUSED** en puerta pedagógica; no se reactiva mediante A1 v4, el benchmark, el review-lock ni este microbloque.
-
 ## Automatización disponible
 - `operational_state.py` valida estructura, timestamp timezone-aware, baseline Git previa y ausencia de campos Git vivos.
 - `conversation_checkpoint.py prepare|resume` compone estado semántico y Git vivo en una vista efímera read-only con upstream obligatorio. `--format compact` entrega `compact-v1` parseable mediante `urllib.parse.parse_qsl`; `--format json` conserva las secciones semánticas completas. Ambos reutilizan las validaciones del checkpoint Markdown y no crean una nueva autoridad.
@@ -130,7 +130,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-NEXT = preflight read-only de `scene-help.mp4` y `option-farewell.png`, seguido de los prerequisitos de Puerta 3; no activar A1 ni cerrar Puerta 3
+NEXT = producir candidatos concretos de `scene-help.mp4` y `option-farewell.png` para revisión humana; no activar A1 ni cerrar Puerta 3
 
 ## Archivos clave
 
