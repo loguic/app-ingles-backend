@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-24T22:25:28+02:00
-Baseline Git previa a este checkpoint: c665fdecb1172414f84634ff4dc0bd85e944bf3f
+Actualizado: 2026-09-24T22:33:10+02:00
+Baseline Git previa a este checkpoint: 409d5a586dbe3ea68425ee40b95772384f9c72a9
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -107,7 +107,7 @@ Se mantienen las fronteras: A1 v4 **MEMBER DURABLE / NOT ACTIVE**, B52 real **NO
 ## Bloque activo
 `REAL-A1-B43-B51`: Human Gate **APPROVED / CONSUMED** para una única corrida read-only de `active-candidate-source-002`. La corrida válida, usando el intérprete canónico `.venv/bin/python` para tooling dependiente de la aplicación, obtuvo B43 **PASS**, B51 **PASS**, 18 resources verified y same-B39 **PASS**; no requirió instalar dependencias. La primera tentativa con `/usr/bin/python3` falló antes del orchestrator por `pydantic` ausente y no se reintentó automáticamente. No hubo B52, activación, loader/runtime ni modificación de `content/content_tree.json`. A1 v4 permanece **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 **NOT CLOSED**; B52 **NOT VERIFIED**; loader **BLOCKED**; B181 **PAUSED**.
 ### Fronteras A1, B52 y B181
-B52 para la source vigente está **NOT VERIFIED**; `LOADER = BLOCKED`. `content/content_tree.json` permanece intacto. La declaración expected durable de 18 digests no acredita B51/B52, activación A1/runtime v4, loader, cierre de Puerta 3, reanudación B181 ni human blind reviews/adjudicación TTS. B181 permanece **PAUSED** en puerta pedagógica.
+B52 real para `active-candidate-source-002` está **VERIFIED / PASS**: Human Gate **APPROVED / CONSUMED**, B43 PASS, B51 PASS, 18 resources y same-B39 PASS. A1 v4 permanece **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 **NOT CLOSED**; `LOADER = BLOCKED`; B181 **PAUSED**. `content/content_tree.json` permanece intacto y no se ejecutó activación/runtime.
 ## Automatización disponible
 - `operational_state.py` valida estructura, timestamp timezone-aware, baseline Git previa y ausencia de campos Git vivos.
 - `conversation_checkpoint.py prepare|resume` compone estado semántico y Git vivo en una vista efímera read-only con upstream obligatorio. `--format compact` entrega `compact-v1` parseable mediante `urllib.parse.parse_qsl`; `--format json` conserva las secciones semánticas completas. Ambos reutilizan las validaciones del checkpoint Markdown y no crean una nueva autoridad.
@@ -129,7 +129,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-NEXT = human-gate-real-a1-b52-run; no ejecutar B52 real, no cerrar Puerta 3 ni activar A1 sin autorización específica
+NEXT = preflight read-only del mecanismo de loader/activación A1; no activar A1 ni ejecutar loader/runtime
 
 ## Archivos clave
 
