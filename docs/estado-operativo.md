@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-24T18:10:00+02:00
-Baseline Git previa a este checkpoint: 0cd16cc0537abe7524eca129f5967ea664edf4b9
+Actualizado: 2026-09-24T19:25:41+02:00
+Baseline Git previa a este checkpoint: bb107ff517ca45264f421801103ddc34faa6e8cf
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -104,7 +104,7 @@ Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `8bc469595
 ## Bloque histórico cerrado
 `Durable / Atomic Human Review Claim Acceptance` (B): contrato **CONTRACT APPROVED** en `docs/loguic-tts-engine-benchmark-protocol-v1.md`; B completo **CLOSED / PUBLISHED / SYNCED** en `25678e7c07bd249f03ea33dbe815d4d3d0b9e901`. La preflight global confirmó los 15 criterios contractuales satisfechos, sin criterios pendientes y sin Subpaso 4. Decisión local registrada en `docs/bitacora.md` y `docs/roadmap.md`. Frontera: handoff canónico más contexto privado → `validate_locked_review_handoff()` de A → `LockClaim` validado con el mismo handoff → aceptación transaccional de B; nunca claim externo aislado. El contrato exige PK por slot, retry idéntico sin escritura, conflicto sin reemplazo y commit confirmado. Subpasos 1, 2 y 3: **CLOSED / PUBLISHED / SYNCED**. Human reviews reales **NOT STARTED**. La aprobación de candidate v4 cubre su specification embebida solo cuando es exactamente idéntica a `content/candidates/a1-u1/pedagogical-unit-specification-v3.json`; no crea approval record ni schema independientes y conserva el digest candidate v4 `sha256:e75a5c9864adb86a3152e67ab9c97951372e11ed5400b70406f033e6f70b9a8d`. El siguiente objetivo requiere preflight read-only de selección de siguiente frontera canónica. Dirty paths reconocidos: `docs/estado-operativo.md`, `docs/loguic-tts-engine-benchmark-protocol-v1.md`, `docs/bitacora.md` y `docs/roadmap.md`.
 ## Bloque activo
-`A1 source integrity operator CLI v1`: `scripts/engineering/a1_source_integrity_operator.py` queda cerrado mediante este Closure Gate. Es un thin wrapper sobre el orchestrator cerrado: exige manifest, candidate unit ID/path, admission ID/path, expected document y `repository_root` explícitos; no usa locator convention, cwd inference ni auto-discovery. Reutiliza los tipos B38/B41 existentes, invoca el orchestrator exactamente una vez en success, reporta same-B39 mediante `is`, devuelve exit 0/1, ofrece report externo opcional fuera del repo y no ejecuta Git, persistencia de repository, activación, loader ni runtime. B52 queda excluido. La integración sintética, postflight independiente, 10 focales, 182 regresiones y `git diff --check` PASS. No se ejecuta el CLI contra A1 real. A1 v4 permanece **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 **NOT CLOSED**; B52 **NOT VERIFIED**; loader **BLOCKED**; B181 **PAUSED**; `content/content_tree.json` intacto.
+`REAL-A1-B43-B51`: Human Gate **APPROVED / CONSUMED** para una única corrida read-only de `active-candidate-source-002`. La corrida válida, usando el intérprete canónico `.venv/bin/python` para tooling dependiente de la aplicación, obtuvo B43 **PASS**, B51 **PASS**, 18 resources verified y same-B39 **PASS**; no requirió instalar dependencias. La primera tentativa con `/usr/bin/python3` falló antes del orchestrator por `pydantic` ausente y no se reintentó automáticamente. No hubo B52, activación, loader/runtime ni modificación de `content/content_tree.json`. A1 v4 permanece **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 **NOT CLOSED**; B52 **NOT VERIFIED**; loader **BLOCKED**; B181 **PAUSED**.
 ### Fronteras A1, B52 y B181
 B52 para la source vigente está **NOT VERIFIED**; `LOADER = BLOCKED`. `content/content_tree.json` permanece intacto. La declaración expected durable de 18 digests no acredita B51/B52, activación A1/runtime v4, loader, cierre de Puerta 3, reanudación B181 ni human blind reviews/adjudicación TTS. B181 permanece **PAUSED** en puerta pedagógica.
 ## Automatización disponible
@@ -128,7 +128,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-NEXT = Human Gate separado para autorizar, si procede, una única corrida real read-only del CLI sobre `active-candidate-source-002`; leerá manifest, candidate, admission, expected, README y 18 resources mediante B49, producirá B43+B51 y same-B39, sin B52, activación, loader/runtime, content-tree ni persistencia de verification state
+NEXT = preflight read-only específico de Puerta 3 y prerequisitos de activación A1; no cerrar Puerta 3, no verificar B52 ni activar A1
 
 ## Archivos clave
 
