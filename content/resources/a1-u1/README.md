@@ -28,8 +28,8 @@ entregar un `Path` absoluto al contrato de `ResourceBinding`.
 | `visual.a1-u1-l1.comprehension-option.greeting.v1` | `visual/option-greeting.png` |
 | `visual.a1-u1-l1.comprehension-option.farewell.v1` | `visual/option-farewell.png` |
 
-No se han creado assets ni expected identities. Cada expected
-`ResourcePhysicalIdentity` se derivará únicamente de los bytes finales,
-semánticamente y humanamente aprobados. Si esos bytes cambian, su SHA-256
-cambia y B51/B52 deberán verificarse de nuevo. Este mapa no activa contenido,
-no publica recursos ni habilita loader.
+El documento durable source-bound de expected identities ya existe en
+`content/expected-resource-identities/active-candidate-source-002.json` con
+18 identities. Si los bytes canonicalizados cambian, su SHA-256 cambia y
+B51/B52 deberán verificarse de nuevo. Este mapa no activa contenido, no
+publica recursos ni habilita loader.
