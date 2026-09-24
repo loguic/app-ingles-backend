@@ -11,6 +11,13 @@
 - Último bloque cerrado integralmente: B180
 - Bloque curricular más reciente: slice estructural 15 cerrada, publicada y sincronizada mediante los commits técnico `aeba506` y documental `ce22f92`; primer push confirmado hasta `ce22f92`; B181 continúa pausado en puerta pedagógica
 
+## Human Gate — A1 runtime authority
+
+- Decisión aprobada: `IMMUTABLE_PROJECTIONS_ATOMIC_POINTER`. El runtime futuro usará proyecciones inmutables source-bound, activation records inmutables y `content/runtime-active.json` como commit point atómico; `content/content_tree.json` permanece como legacy/bootstrap durante la migración.
+- Decisión aprobada: `PRESERVE_A1_V2_COMPATIBILITY`. El A1 v2 histórico permanece disponible mediante su archivo/resolver exacto; v2 y v4 no se mezclan ni quedan ambos activos. El rollback será una nueva transición de activación, no una mutación manual.
+- Fronteras preservadas: B52 real `VERIFIED / PASS`; A1 v4 `MEMBER DURABLE / NOT ACTIVE`; Puerta 3 `NOT CLOSED`; `LOADER = BLOCKED`; B181 `PAUSED`; `content/content_tree.json` intacto. No se implementaron documentos, loader ni activation.
+- NEXT: `A1 runtime projection and activation documents v1 — contract + publication/acquisition`.
+
 ## Política operativa LOGUIC AI Model Routing v1
 
 - Se versionó `docs/loguic-ai-model-routing-policy-v1.md` como política transversal de ingeniería LOGUIC, alojada en este repositorio como piloto operativo.

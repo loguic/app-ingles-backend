@@ -20,6 +20,14 @@ El historial técnico conservado en este roadmap continúa siendo válido como t
 
 Todo trabajo nuevo deberá partir de una capacidad observable del estudiante y justificar su contribución directa al puerto de llegada.
 
+## Frontera A1 vigente
+
+Human Gate aprobado: `IMMUTABLE_PROJECTIONS_ATOMIC_POINTER` + `PRESERVE_A1_V2_COMPATIBILITY`. El runtime futuro usará proyecciones inmutables source-bound, activation records inmutables y `content/runtime-active.json` como commit point atómico; `content/content_tree.json` permanece como legacy/bootstrap durante la migración. El A1 v2 histórico seguirá disponible mediante su archivo/resolver exacto; v2 y v4 no se mezclarán ni quedarán ambos activos. El rollback será una nueva transición de activación, no una mutación manual.
+
+B52 real = **VERIFIED / PASS**; A1 v4 = **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 = **NOT CLOSED**; `LOADER = BLOCKED`; B181 = **PAUSED**; `content/content_tree.json` intacto. No se implementaron documentos, loader ni activation.
+
+Siguiente objetivo: `A1 runtime projection and activation documents v1 — contract + publication/acquisition`.
+
 
 ## Fase 1 — Backend base
 

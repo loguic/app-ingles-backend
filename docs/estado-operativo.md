@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-24T22:33:10+02:00
-Baseline Git previa a este checkpoint: 409d5a586dbe3ea68425ee40b95772384f9c72a9
+Actualizado: 2026-09-24T22:53:52+02:00
+Baseline Git previa a este checkpoint: dc1e03ae6e8552667fd81e697eb3e798527357ed
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -13,16 +13,15 @@ Formato: checkpoint operativo compacto
 - La baseline es la frontera Git previa no circular de este checkpoint, no una declaración del HEAD actual.
 
 ## Último bloque cerrado
+### Human Gate — A1 runtime authority
+Decisiones aprobadas: `IMMUTABLE_PROJECTIONS_ATOMIC_POINTER` y `PRESERVE_A1_V2_COMPATIBILITY`; runtime futuro con proyecciones inmutables source-bound, activation records inmutables y `content/runtime-active.json` como commit point atómico; `content/content_tree.json` legacy/bootstrap durante la migración; rollback por nueva transición. A1 v2 histórico disponible mediante su archivo/resolver exacto; v2 y v4 no se mezclan ni quedan ambos activos. B52 real **VERIFIED / PASS**; A1 v4 **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 **NOT CLOSED**; `LOADER = BLOCKED`; B181 **PAUSED**; content tree intacto. No se implementaron documentos, loader ni activation. NEXT = `A1 runtime projection and activation documents v1 — contract + publication/acquisition`.
 ### Reconciliación documental fail-closed y human review lock
-
 Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `7e62908809087f6314d6e17058bbee90d0c967c9`.
-
 La recuperación documental anterior quedó completada. `HumanReviewRecord` representa una review final/locked, exige `locked_at` timezone-aware canonicalizado a UTC y deriva `review_id` causal. La persistencia append-only/runtime sigue siendo un gap separado; el public reviewer package/workflow quedó cerrado como microbloque posterior. Este cierre no inició human reviews, adjudicación ni selección de winner.
 
 ### Microbloque tooling — METHOD_GAP checkpoint/closure
 
 Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `93cef0e770dd1e2a2566c2f4192f58bb7a6fb268`.
-
 El microbloque separó autoridad semántica durable y Git vivo, introdujo la baseline Git previa no circular y mantuvo `conversation_checkpoint.py prepare|resume` como composición efímera read-only. Implementación y postflight independiente: **PASS**; BLOCKING: **0**; NONBLOCKING: **0**. La evidencia vigente incluyó 60 tests focales PASS, `tests/test_block_workflow.py` 3 PASS, integración temporal `prepare → close_git_changes() → prepare` PASS, `operational_state.py validate` PASS y `git diff --check` PASS.
 
 El `prepare` post-cierre histórico confirmó HEAD vivo `93cef0e770dd1e2a2566c2f4192f58bb7a6fb268`, baseline previa `7e62908809087f6314d6e17058bbee90d0c967c9 == HEAD^`, árbol limpio y ahead 0 / behind 0. No hubo circularidad ni fue necesaria modificación posterior para satisfacer ese contrato. Quedan confirmados baseline única/completa/no circular, pre-cierre `baseline == HEAD`, post-cierre limpio `baseline == HEAD^`, sentinel root exclusivo `0000000000000000000000000000000000000000`, checkpoint stale fail-closed, dirty-path coverage, timestamps timezone-aware y `prepare|resume` read-only.
@@ -129,7 +128,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-NEXT = preflight read-only del mecanismo de loader/activación A1; no activar A1 ni ejecutar loader/runtime
+NEXT = A1 runtime projection and activation documents v1 — contract + publication/acquisition; no implementar runtime ni activar A1
 
 ## Archivos clave
 
