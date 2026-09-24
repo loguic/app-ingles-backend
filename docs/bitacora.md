@@ -5001,3 +5001,9 @@ El report opcional es explícito, externo al repositorio y no sobrescribe; no ha
 Human Gate **APPROVED / CONSUMED**. La primera tentativa fue ejecutada con `/usr/bin/python3` y falló antes del orchestrator por `ModuleNotFoundError: No module named 'pydantic'`; no se reintentó automáticamente. La corrida válida posterior usó `.venv/bin/python`, el intérprete canónico para tooling dependiente de la aplicación, sin instalar dependencias.
 
 La corrida única válida sobre `active-candidate-source-002` obtuvo B43 **PASS**, B51 **PASS**, `RESOURCE_COUNT=18` y same-B39 **PASS**. El report externo fue emitido. B52 permanece **NOT VERIFIED**; no hubo B52, activación A1, loader/runtime ni modificación de `content/content_tree.json`. A1 v4 permanece **MEMBER DURABLE / NOT ACTIVE**, Puerta 3 **NOT CLOSED**, `LOADER = BLOCKED` y B181 **PAUSED**. El siguiente objetivo es un preflight read-only específico de Puerta 3 y de los prerequisitos de activación A1.
+
+## A1 — B52 controlled execution operator v1
+
+El wrapper controlado queda implementado para componer B38–B51 exactamente una vez y pasar inmediatamente sus aggregates B43/B51, preservados en el mismo proceso y con el mismo B39 por identidad `is`, al B52 existente exactamente una vez. El CLI separado exige inputs explícitos, conserva el CLI B38–B51 sin cambios, no persiste estado y no activa loader/runtime ni `content/content_tree.json`.
+
+La integración sintética y el postflight independiente fueron **PASS**: 8 focales, 192 regresiones, `git diff --check` PASS, sin ejecución A1 real. Se preservan A1 v4 **MEMBER DURABLE / NOT ACTIVE**, B52 real **NOT VERIFIED**, Puerta 3 **NOT CLOSED**, `LOADER = BLOCKED` y B181 **PAUSED**. El siguiente bloque es `human-gate-real-a1-b52-run`, separado de este cierre técnico.
