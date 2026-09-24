@@ -1944,6 +1944,29 @@ Los riesgos no bloqueantes externos a B45 son: resource IDs sin nonblank/namespa
 
 Después de B45 siguen pendientes conceptualmente active-source resource coverage/context, physical expected declaration/publication si aparece un consumidor real, resource bindings, read-once acquisition, observed identity, expected-vs-observed integrity, active source integrity y loader. `LOADER = BLOCKED` y A1-U1 permanece `pending / non-member`.
 
+### Expected resource identity collection document v1
+
+`ExpectedResourceIdentityCollectionDocumentV1` materializa una declaración B45 ya decidida como evidencia durable, versionada y Git-tracked, independiente de toda adquisición B49 y de toda identidad observed B50. No modifica `ResourcePhysicalIdentity`, B45, candidate, admission, membership ni el manifest de source activa.
+
+El documento JSON canónico contiene exactamente:
+
+```text
+document_schema_version
+source_snapshot_revision
+source_snapshot_manifest_digest
+identities
+```
+
+`document_schema_version` es exactamente `"1.0"`. `identities` conserva la secuencia de objetos con exactamente `resource_id` y `content_digest` de `ResourcePhysicalIdentity`; cada digest persistido debe tener formato `sha256:<64 hexadecimal lowercase>` y los `resource_id` deben ser únicos por las invariantes B45. No contiene paths, bytes, metadata media, observed identities, runtime, loader, actor, timestamp, provenance, candidate, AdmissionRecord ni memberships duplicadas.
+
+La identidad durable de la colección es el par `source_snapshot_revision` más `source_snapshot_manifest_digest`. El primer campo refiere la revisión del `ActiveCandidateSourceSnapshot`; el segundo es SHA-256 de los bytes de `serialize_active_candidate_source_snapshot_manifest(snapshot)` para ese mismo snapshot. La revisión sola no basta como identidad exacta porque el value object local no impone unicidad global de revisiones. El digest del manifest liga la colección a sus memberships y orden exactos sin duplicar su semántica dentro del documento. Un cambio de declarations expected requiere una nueva identidad de source y un nuevo documento; no se reescribe silenciosamente una colección de una source histórica.
+
+La serialización es JSON UTF-8 determinista, `ensure_ascii=False`, separators compactos, orden de keys contractual, `allow_nan=False` y exactamente un LF final. La publicación local reutiliza el patrón de documentos durables: path absoluto regular/no symlink, temporal en el directorio destino, write completo, flush, file `fsync`, `os.replace` y directory `fsync`; fallo antes de replace limpia el temporal y fallo de directory sync informa que el replace ya es visible sin declarar durabilidad confirmada.
+
+La adquisición read-only recibe un path y un `ActiveCandidateSourceCandidateIntegrityVerification` B39 ya producido. Lee el documento una vez, rechaza BOM, UTF-8/JSON inválidos, keys duplicadas, fields desconocidos o ausentes, schema no soportado, bytes no canónicos, revisión inválida, digest malformado, IDs duplicados, path inexistente/no regular/symlink y toda divergencia entre el par durable del documento y el snapshot preservado por B39. Tras validar ese vínculo, construye y devuelve exclusivamente `ExpectedResourceIdentityCollection` B45. No recibe paths de recursos, no abre assets, no deriva hashes observed y no llama B47–B52.
+
+La declaración expected se establece por publicación explícita y revisada desde bytes canónicos humanamente aprobados antes de cualquier adquisición de verificación. B49/B50 adquieren después recursos independientemente y B51 compara la declaration B45 ya adquirida contra identities observed B50 por `resource_id`. Derivar expected desde los mismos bytes B49/B50 dentro de ese flujo es tautológico y queda prohibido. La adquisición no acredita autenticidad, provenance externa, B51, B52, loader readiness, activación ni cierre de Puerta 3.
+
 ### Active candidate source required resource inventory v1
 
 B46 — **Active candidate source required resource inventory v1** deriva, desde la evidencia ya verificada de B39, el inventario lógico source-wide de los `resource_id` declarados en `PedagogicalUnitCandidate.required_resource_ids` por todos los candidates de la active candidate source. Su garantía positiva mínima es únicamente: estos son los IDs lógicos requeridos que declaran los payloads candidate cuya identidad B39 verificó, agregados de forma determinista para esa source.
