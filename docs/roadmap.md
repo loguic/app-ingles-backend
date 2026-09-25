@@ -1054,3 +1054,6 @@ Runtime Documents v1 queda **CLOSED / PUBLISHED / SYNCED** en `407b8068842e41499
 ## Human Gate — A1 Runtime Projection Constructor v1
 
 Contrato aprobado, implementación pendiente: constructor puro desde B52 positiva en memoria/B39 causal idéntico hacia `RuntimeContentProjectionDocumentV1`, limitado a una membership activa y un `Level`/`Unit` que preserva el orden del snapshot sin mezcla legacy. No autoriza publicación, puntero, loader, cambio de autoridad, activación, múltiples unidades ni Puerta 3. Se preservan A1 v2, B52 real **VERIFIED / PASS**, A1 v4 **MEMBER DURABLE / NOT ACTIVE** y `content/content_tree.json` intacto. NEXT = `implementación del constructor puro A1 Runtime Projection v1`.
+## A1 — Runtime Projection Builder v1
+
+Constructor puro implementado conforme al contrato aprobado: B52 positiva en memoria, B39 idéntico por identidad entre B43/B51, bytes ya adquiridos, orden del snapshot, agrupación por nivel y schemas Runtime Documents v1. Focales (5) y regresión relacionada (23) PASS; postflight independiente PASS (0 bloqueantes). No se autoriza publicación, activación, cambio de autoridad ni modificación de `content/content_tree.json`. NEXT = `Closure Gate de A1 Runtime Projection Builder v1`.
