@@ -2726,6 +2726,29 @@ La adquisición lee cada documento exactamente una vez. Projection acquisition v
 
 El rollback futuro será una nueva transition record/pointer hacia una projection inmutable previa, nunca editar o borrar un artefacto histórico ni restaurar manualmente bytes. La implementación posterior deberá preservar esta política y el soporte histórico exacto A1 v2.
 
+### A1 Runtime Projection Constructor v1 — Human Gate approved
+
+Human Gate: **APPROVED / CONTRACT ONLY / NOT IMPLEMENTED**. Se aprueba exclusivamente un constructor puro desde evidencia B52 positiva en memoria hacia `RuntimeContentProjectionDocumentV1`; no se aprueban publicación, `ActiveRuntimePointerDocumentV1`, loader/resolver, cambio de autoridad runtime, activación A1, modificación de `content/content_tree.json`, Puerta 3 ni soporte de múltiples unidades activas.
+
+La única frontera pública conceptual recibe exactamente un `ActiveCandidateSourceIntegrityVerification` B52 positivo y devuelve exactamente un `RuntimeContentProjectionDocumentV1`. B52 es la única entrada pública de evidencia. El constructor obtiene B39 solo por la ruta B43 ya contratada:
+
+```text
+B52.current_admission_gate_reevaluation
+-> admission_record_correspondence_verification
+-> admission_record_acquisition
+-> candidate_integrity_verification (B39)
+```
+
+Debe exigir además que ese B39 sea el mismo objeto Python (`is`) que el B39 transitivo por la rama B51. No reejecuta B39, B43, B51 ni B52, ni acepta boolean, report, snapshot revision, digest, igualdad estructural o evidencia histórica como sustituto. La B52 real previamente verificada para `active-candidate-source-002` es evidencia histórica; una futura construcción elegible exige una B52 positiva nueva, en la misma ejecución, de la que se consumen los bytes B39.
+
+La v1 aprobada exige exactamente una membership y una entry B39; cero o más de una fallan cerrado. La entry se consume una vez y en el orden del snapshot. Sus `candidate_bytes` ya adquiridos se reconstruyen una vez como `PedagogicalUnitCandidate`, sin abrir paths. Debe cumplirse literalmente `candidate.candidate_unit.id == entry.membership.identity.unit_id`. El árbol resultante tiene exactamente un `Level(code=candidate.specification.level)` y un `Unit` igual a `candidate.candidate_unit`; se preservan `id`, `title`, lecciones y sus órdenes, sin normalización, sorting, dedupe, transformación de recursos ni mezcla/fallback desde `content/content_tree.json`. Agrupar por nivel no añade política multiunidad en v1: con una única entry produce un único nivel/unidad.
+
+`source_snapshot_revision` es literalmente `B39.snapshot.snapshot_revision`. `source_snapshot_manifest_digest` es `sha256:` más SHA-256 de `serialize_active_candidate_source_snapshot_manifest(B39.snapshot)`, no de un path releído ni de un digest caller-provided. `runtime_projection_digest` y la serialización permanecen exclusivamente bajo el builder/serializer existente de Runtime Documents v1. Cualquier tipo inválido, B39 causal distinto, cardinalidad distinta de uno, bytes/candidate inválidos, mismatch unit/membership, fallo de `ContentTreeResponse` o fallo del builder Runtime Documents produce error fail-closed y ningún resultado parcial.
+
+El constructor es determinista e in-memory: no hace filesystem I/O, publication, pointer update, clock, red, DB, cache, runtime lookup ni mutación. No incorpora `evaluation_plans`, `feedback_plans`, `lesson_capability_plans`, `skill_coverage`, `required_resource_ids`, `validation_report`, decisiones pendientes ni resumen de propuesta al árbol runtime. La autoridad actual `content_service -> content/content_tree.json` y el resolver histórico A1 v2 siguen intactos.
+
+Permanecen diferidas a incrementos separados: frescura/autorización operacional para una corrida B52 futura; rutas y layout de documentos; secuencia projection/record/pointer, recovery y rollback operacional; loader/resolver; compatibilidad de autoridad durante migración; soporte multiunidad; y criterios/Human Gate de Puerta 3 para cualquier publicación activa o activación.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.
