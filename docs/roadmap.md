@@ -1061,3 +1061,11 @@ Constructor puro implementado conforme al contrato aprobado: B52 positiva en mem
 ## A1 — Immutable Runtime Projection Publication Contract v1
 
 Human Gate 4/4 **APPROVED / INACTIVE PUBLICATION ONLY**. El contrato fija B52 directa in-memory en una única ejecución controlada, CLI explícito con autorización humana por publicación, root canónico `content/runtime-projections/`, y path determinista `sha256-<SHA-256 de los bytes UTF-8 exactos de snapshot_revision>.json`, conservando la revisión original en el documento. Mismos bytes son idempotentes; conflictos/duplicados fallan cerrado. Se preserva la política canónica de fallo previo a visibilidad frente a visible-but-durability-incomplete tras directory fsync, sin borrado, rollback ni retry automático. No se aprueban activation record, puntero, loader, cambio de autoridad, activación A1, multiunidad ni cambios en `content/content_tree.json`. NEXT = `diseño/implementación controlada del publisher de proyección inactiva A1 v1, tras preflight de contrato`.
+
+## A1 — Inactive Runtime Projection Publisher v1
+
+Implementación completada y pendiente de postflight independiente. El operador CLI reutiliza el servicio B38–B52 controlado una vez, pasa B52 directamente al constructor puro y publica solo proyección inactiva mediante el publisher Runtime Documents v1. Deriva `content/runtime-projections/sha256-<SHA-256 de snapshot_revision UTF-8 exacta>.json`, exige parent existente, no crea directorios y conserva idempotencia, conflictos y la frontera visible-but-durability-incomplete sin borrado, rollback ni retry. Validación de implementación: 7 focales PASS, 29 regresiones relacionadas PASS y `git diff --check` PASS. No se ejecutó B52 real ni publicación/activación. NEXT = `postflight independiente del publisher A1 v1`.
+
+### Closure Gate — A1 Inactive Runtime Projection Publisher v1
+
+Bloque **CLOSED / PUBLISHED / SYNCED**: postflight independiente PASS (0 findings), 7 focales PASS, 29 regresiones relacionadas PASS y `git diff --check` PASS. El operador sigue limitado a publicación inactiva; no se ejecutaron B52 real ni publicación real, no se crearon directorios runtime y no se activó A1. La primera publicación real requiere Human Gate separado. NEXT = `Human Gate y preflight de primera publicación real inactiva A1 v1`.

@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-25T17:55:00+02:00
-Baseline Git previa a este checkpoint: f3ce875ae2b0ac0dbb8bb0bba955cf0368b2d708
+Actualizado: 2026-09-25T18:25:00+02:00
+Baseline Git previa a este checkpoint: bb780fb313e4acb4b61a236426cf6678d19d5402
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -104,9 +104,9 @@ Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `8bc469595
 ### A1 — B52 controlled execution operator v1: wrapper separado ejecuta B38–B51 una vez y pasa B43/B51 en memoria a B52, preservando B39 por `is`; CLI explícito separado, sin modificar el CLI B38–B51, sin persistencia/activación/loader/runtime/content-tree/B181/A1 real; integración sintética y postflight PASS, 8 focales, 192 regresiones, `git diff --check` PASS.
 Se mantienen las fronteras: A1 v4 **MEMBER DURABLE / NOT ACTIVE**, B52 real **NOT VERIFIED**, Puerta 3 **NOT CLOSED**, `LOADER = BLOCKED`, B181 **PAUSED**. El siguiente objetivo es `human-gate-real-a1-b52-run`; ese gate será separado y no se consume mediante este cierre técnico.
 ## Bloque activo
-`A1-RUNTIME-PROJECTION-PUBLICATION-V1`: Human Gate **APPROVED / INACTIVE PUBLICATION ONLY** (4/4). Se preservan las cinco decisiones aprobadas: B52 directa in-memory en una única ejecución; CLI explícito y autorización humana por publicación; root `content/runtime-projections/` con path `sha256-<SHA-256 de los bytes UTF-8 exactos de snapshot_revision>.json`; idempotencia y rechazo de conflictos; publicación exclusivamente inactiva. La proyección conserva la revisión original, cardinalidad v1 de una unidad y B39 común por `is`; fallos previos a visibilidad y visibilidad sin durabilidad confirmada tras directory fsync siguen la política canónica, sin borrado, rollback ni retry automático. No se autorizan activation record, puntero, loader, cambio de autoridad, activación, múltiples unidades ni Puerta 3. Runtime Documents v1 permanece **CLOSED / PUBLISHED / SYNCED** en `407b8068842e4149972dea838f27903b2cc18ecd`; A1 v2 está preservado; B52 real **VERIFIED / PASS**; A1 v4 **MEMBER DURABLE / NOT ACTIVE**; `content/content_tree.json` intacto.
+`A1-INACTIVE-RUNTIME-PROJECTION-PUBLISHER-V1`: **CLOSED / PUBLISHED / SYNCED** mediante este Closure Gate, con postflight independiente **PASS / 0 findings**, 7 focales PASS y 29 regresiones relacionadas PASS. El CLI reutiliza una ejecución controlada B38–B52, entrega B52 directamente al constructor y publica mediante Runtime Documents v1 en el root aprobado; no crea directorios. Se preservan las cinco decisiones Human Gate 4/4, publicación exclusivamente inactiva, A1 v2, B52 real **VERIFIED / PASS**, A1 v4 **MEMBER DURABLE / NOT ACTIVE**, Puerta 3 **NOT CLOSED** y `content/content_tree.json` intacto; no hay activation record, puntero, loader ni cambio de autoridad runtime. La primera publicación real requiere un Human Gate separado.
 
-Scope local reconocido: `docs/curriculum-preparation-prerequisites-contract-v1.md`, `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/roadmap.md`.
+Scope local reconocido: `scripts/engineering/a1_inactive_runtime_projection_publish_operator.py`, `tests/test_a1_inactive_runtime_projection_publish_operator.py`, `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/roadmap.md`.
 ## Automatización disponible
 - `operational_state.py` valida estructura, timestamp timezone-aware, baseline Git previa y ausencia de campos Git vivos.
 - `conversation_checkpoint.py prepare|resume` compone estado semántico y Git vivo en una vista efímera read-only con upstream obligatorio. `--format compact` entrega `compact-v1` parseable mediante `urllib.parse.parse_qsl`; `--format json` conserva las secciones semánticas completas. Ambos reutilizan las validaciones del checkpoint Markdown y no crean una nueva autoridad.
@@ -128,7 +128,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-NEXT = diseño/implementación controlada del publisher de proyección inactiva A1 v1, tras preflight de contrato
+NEXT = Human Gate y preflight de primera publicación real inactiva A1 v1
 
 ## Archivos clave
 
