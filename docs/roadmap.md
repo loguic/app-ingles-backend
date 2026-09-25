@@ -1069,3 +1069,6 @@ Implementación completada y pendiente de postflight independiente. El operador 
 ### Closure Gate — A1 Inactive Runtime Projection Publisher v1
 
 Bloque **CLOSED / PUBLISHED / SYNCED**: postflight independiente PASS (0 findings), 7 focales PASS, 29 regresiones relacionadas PASS y `git diff --check` PASS. El operador sigue limitado a publicación inactiva; no se ejecutaron B52 real ni publicación real, no se crearon directorios runtime y no se activó A1. La primera publicación real requiere Human Gate separado. NEXT = `Human Gate y preflight de primera publicación real inactiva A1 v1`.
+### A1 — Reconciliación posterior a publicación inactiva
+
+Publicación inactiva reportada **PASS** para `active-candidate-source-002` tras consumir el Human Gate específico. El JSON `content/runtime-projections/sha256-d6aefc0ec0658796a48bc6d4fb28ec97253925dabab04e11d0ee4650f1a0fb8d.json` queda reconocido documentalmente; la lectura independiente mediante acquirer sigue **PENDIENTE**. A1 permanece **NOT ACTIVE**, sin activación ni cambio runtime. NEXT = `verificación read-only de la proyección publicada`.

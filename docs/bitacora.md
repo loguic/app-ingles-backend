@@ -5044,3 +5044,6 @@ Implementación local completada; el postflight independiente sigue **PENDIENTE*
 ## Closure Gate — A1 Inactive Runtime Projection Publisher v1
 
 El bloque queda **CLOSED / PUBLISHED / SYNCED** mediante el Closure Gate canónico: postflight independiente PASS sin findings, 7 focales PASS, 29 regresiones relacionadas PASS y `git diff --check` PASS. Se preservan publicación exclusivamente inactiva, B52 real histórica VERIFIED/PASS, A1 v2, A1 v4 MEMBER DURABLE/NOT ACTIVE, Puerta 3 NOT CLOSED y `content/content_tree.json` intacto. No se ejecutó B52 real ni publicación real, no se crearon directorios runtime y no hubo activación. La siguiente dependencia autorizada es un Human Gate y preflight separado para la primera publicación real inactiva A1 v1.
+## A1 — Reconciliación posterior a publicación inactiva
+
+El operador reportó **B52=PASS** y publicación inactiva **PASS** para `active-candidate-source-002`; el Human Gate específico fue consumido. El documento publicado es `content/runtime-projections/sha256-d6aefc0ec0658796a48bc6d4fb28ec97253925dabab04e11d0ee4650f1a0fb8d.json` y queda reconocido en el scope activo. La lectura independiente mediante acquirer permanece **PENDIENTE**; A1 sigue **NOT ACTIVE**. No se repitió B52, no se ejecutaron tests ni activación. NEXT = `verificación read-only de la proyección publicada`.
