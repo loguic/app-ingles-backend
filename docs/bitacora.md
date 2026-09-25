@@ -5032,3 +5032,7 @@ Decisión humana: **APPROVED / CONTRACT ONLY / NOT IMPLEMENTED**. Se aprueba el 
 ## A1 — Runtime Projection Builder v1
 
 Constructor puro implementado y listo para Closure Gate. Reutiliza B52/B39 y los schemas Runtime Documents v1, reconstruye desde bytes adquiridos, preserva orden y falla cerrado sin I/O ni publicación. Evidencia: 5 focales PASS, 23 regresiones relacionadas PASS y postflight independiente PASS (0 bloqueantes). Se preservan A1 v2, B52 real **VERIFIED / PASS**, A1 v4 **MEMBER DURABLE / NOT ACTIVE**, Puerta 3 **NOT CLOSED** y `content/content_tree.json` intacto. NEXT = `Closure Gate de A1 Runtime Projection Builder v1`.
+
+## A1 — Immutable Runtime Projection Publication Contract v1
+
+Human Gate 4/4 **APPROVED / INACTIVE PUBLICATION ONLY**. Se registran cinco decisiones: B52 directa in-memory en una ejecución controlada; CLI explícito y autorización humana por publicación; root `content/runtime-projections/`; path determinista `sha256-<SHA-256 de los bytes UTF-8 exactos de snapshot_revision>.json`, preservando la revisión original; e idempotencia con rechazo fail-closed de conflictos/duplicados. La publicación reutilizará Runtime Documents v1, distinguirá fallo previo a visibilidad de visibilidad sin durabilidad confirmada tras directory fsync y no hará borrado, rollback ni retry automático. No autoriza activation record, puntero, loader, cambio de autoridad, activación A1 ni `content/content_tree.json`. NEXT = `diseño/implementación controlada del publisher de proyección inactiva A1 v1, tras preflight de contrato`.

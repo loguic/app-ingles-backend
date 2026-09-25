@@ -1057,3 +1057,7 @@ Contrato aprobado, implementación pendiente: constructor puro desde B52 positiv
 ## A1 — Runtime Projection Builder v1
 
 Constructor puro implementado conforme al contrato aprobado: B52 positiva en memoria, B39 idéntico por identidad entre B43/B51, bytes ya adquiridos, orden del snapshot, agrupación por nivel y schemas Runtime Documents v1. Focales (5) y regresión relacionada (23) PASS; postflight independiente PASS (0 bloqueantes). No se autoriza publicación, activación, cambio de autoridad ni modificación de `content/content_tree.json`. NEXT = `Closure Gate de A1 Runtime Projection Builder v1`.
+
+## A1 — Immutable Runtime Projection Publication Contract v1
+
+Human Gate 4/4 **APPROVED / INACTIVE PUBLICATION ONLY**. El contrato fija B52 directa in-memory en una única ejecución controlada, CLI explícito con autorización humana por publicación, root canónico `content/runtime-projections/`, y path determinista `sha256-<SHA-256 de los bytes UTF-8 exactos de snapshot_revision>.json`, conservando la revisión original en el documento. Mismos bytes son idempotentes; conflictos/duplicados fallan cerrado. Se preserva la política canónica de fallo previo a visibilidad frente a visible-but-durability-incomplete tras directory fsync, sin borrado, rollback ni retry automático. No se aprueban activation record, puntero, loader, cambio de autoridad, activación A1, multiunidad ni cambios en `content/content_tree.json`. NEXT = `diseño/implementación controlada del publisher de proyección inactiva A1 v1, tras preflight de contrato`.

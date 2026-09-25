@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-25T16:05:00+02:00
-Baseline Git previa a este checkpoint: 5f310ade497ab15c18f79dcd057051fa90dca8ed
+Actualizado: 2026-09-25T17:55:00+02:00
+Baseline Git previa a este checkpoint: f3ce875ae2b0ac0dbb8bb0bba955cf0368b2d708
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -104,9 +104,9 @@ Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `8bc469595
 ### A1 — B52 controlled execution operator v1: wrapper separado ejecuta B38–B51 una vez y pasa B43/B51 en memoria a B52, preservando B39 por `is`; CLI explícito separado, sin modificar el CLI B38–B51, sin persistencia/activación/loader/runtime/content-tree/B181/A1 real; integración sintética y postflight PASS, 8 focales, 192 regresiones, `git diff --check` PASS.
 Se mantienen las fronteras: A1 v4 **MEMBER DURABLE / NOT ACTIVE**, B52 real **NOT VERIFIED**, Puerta 3 **NOT CLOSED**, `LOADER = BLOCKED`, B181 **PAUSED**. El siguiente objetivo es `human-gate-real-a1-b52-run`; ese gate será separado y no se consume mediante este cierre técnico.
 ## Bloque activo
-`A1-RUNTIME-PROJECTION-CONSTRUCTOR-V1`: implementación **READY FOR CLOSURE GATE**. El constructor puro B52/B39 → `RuntimeContentProjectionDocumentV1` conserva B52 positiva en memoria de la misma ejecución, identidad B39 `is` entre B43/B51, una única membership/entry, orden del snapshot y un nivel/unidad sin mezcla legacy. Evidencia: 5 focales PASS, 23 regresiones relacionadas PASS y postflight independiente PASS (0 bloqueantes). No se autorizan publicación, activación, cambio de autoridad, múltiples unidades activas ni Puerta 3. Runtime Documents v1 permanece **CLOSED / PUBLISHED / SYNCED** en `407b8068842e4149972dea838f27903b2cc18ecd`; A1 v2 está preservado; B52 real **VERIFIED / PASS**; A1 v4 **MEMBER DURABLE / NOT ACTIVE**; `content/content_tree.json` intacto.
+`A1-RUNTIME-PROJECTION-PUBLICATION-V1`: Human Gate **APPROVED / INACTIVE PUBLICATION ONLY** (4/4). Se preservan las cinco decisiones aprobadas: B52 directa in-memory en una única ejecución; CLI explícito y autorización humana por publicación; root `content/runtime-projections/` con path `sha256-<SHA-256 de los bytes UTF-8 exactos de snapshot_revision>.json`; idempotencia y rechazo de conflictos; publicación exclusivamente inactiva. La proyección conserva la revisión original, cardinalidad v1 de una unidad y B39 común por `is`; fallos previos a visibilidad y visibilidad sin durabilidad confirmada tras directory fsync siguen la política canónica, sin borrado, rollback ni retry automático. No se autorizan activation record, puntero, loader, cambio de autoridad, activación, múltiples unidades ni Puerta 3. Runtime Documents v1 permanece **CLOSED / PUBLISHED / SYNCED** en `407b8068842e4149972dea838f27903b2cc18ecd`; A1 v2 está preservado; B52 real **VERIFIED / PASS**; A1 v4 **MEMBER DURABLE / NOT ACTIVE**; `content/content_tree.json` intacto.
 
-Scope local reconocido: `app/services/pedagogical_runtime_projection_builder.py`, `tests/test_pedagogical_runtime_projection_builder.py`, `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/roadmap.md`.
+Scope local reconocido: `docs/curriculum-preparation-prerequisites-contract-v1.md`, `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/roadmap.md`.
 ## Automatización disponible
 - `operational_state.py` valida estructura, timestamp timezone-aware, baseline Git previa y ausencia de campos Git vivos.
 - `conversation_checkpoint.py prepare|resume` compone estado semántico y Git vivo en una vista efímera read-only con upstream obligatorio. `--format compact` entrega `compact-v1` parseable mediante `urllib.parse.parse_qsl`; `--format json` conserva las secciones semánticas completas. Ambos reutilizan las validaciones del checkpoint Markdown y no crean una nueva autoridad.
@@ -128,7 +128,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-NEXT = Closure Gate de A1 Runtime Projection Builder v1
+NEXT = diseño/implementación controlada del publisher de proyección inactiva A1 v1, tras preflight de contrato
 
 ## Archivos clave
 
