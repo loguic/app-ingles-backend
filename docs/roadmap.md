@@ -1046,3 +1046,7 @@ El retry de persistencia B181 y la corrección UX consigna ≠ respuesta están 
 ## A1 — Runtime projection and activation documents v1
 
 Runtime Documents v1 implementado y listo para Closure Gate. La frontera conserva A1 v2, B52 real **VERIFIED / PASS**, A1 v4 **MEMBER DURABLE / NOT ACTIVE**, Puerta 3 **NOT CLOSED** y `content/content_tree.json` intacto; no ejecuta activación ni cambia runtime. Evidencia: re-postflight independiente **PASS** (0 findings), 16 focales PASS, 16 de compatibilidad v2 PASS y 45 de regresión contractual PASS. NEXT = `Closure Gate de Runtime Documents v1`.
+
+## Reconciliación posterior — Runtime Documents v1
+
+Runtime Documents v1 queda **CLOSED / PUBLISHED / SYNCED** en `407b8068842e4149972dea838f27903b2cc18ecd`. Se mantienen A1 v2 preservado, B52 real **VERIFIED / PASS**, A1 v4 **MEMBER DURABLE / NOT ACTIVE**, Puerta 3 **NOT CLOSED**, sin activación ni cambio de `content/content_tree.json`. El siguiente objetivo autorizado es el preflight read-only del mecanismo de loader/activación A1; no se abre aún su implementación.

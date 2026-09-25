@@ -5021,3 +5021,7 @@ Human Gate real **APPROVED / CONSUMED** para una única corrida read-only sobre 
 ## A1 — Runtime projection and activation documents v1
 
 Runtime Documents v1 queda preparado para Closure Gate: proyección source-bound inmutable, activation record inmutable y puntero mutable atómico, con serialización canónica, cross-links, adquisición read-once mediante descriptor no-follow validado con `fstat`, guardia de swap antes de publicación, fail-closed y fsync/atomicidad preservados. El re-postflight independiente fue **PASS**, con 0 findings; focales **16 PASS**, compatibilidad A1 v2 **16 PASS** y regresión contractual previa **45 PASS**. Se mantienen B52 real **VERIFIED / PASS**, A1 v4 **MEMBER DURABLE / NOT ACTIVE**, Puerta 3 **NOT CLOSED**, sin activación ni cambio de `content/content_tree.json`. NEXT = `Closure Gate de Runtime Documents v1`.
+
+## Reconciliación posterior — Runtime Documents v1
+
+El Closure Gate canónico quedó **CLOSED / PUBLISHED / SYNCED** en `407b8068842e4149972dea838f27903b2cc18ecd`, con árbol limpio y sincronizado. No se repiten pruebas, postflight ni el gate anterior. Se preservan B52 real **VERIFIED / PASS**, A1 v4 **MEMBER DURABLE / NOT ACTIVE**, Puerta 3 **NOT CLOSED**, A1 v2, ausencia de activación y `content/content_tree.json` intacto. El siguiente objetivo autorizado es un preflight read-only del mecanismo de loader/activación A1; no se implementa todavía.
