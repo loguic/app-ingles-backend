@@ -2670,6 +2670,62 @@ La cobertura futura mínima B52 incluye: shape frozen exacto con los dos campos 
 
 Después de B52 podrá estudiarse un loader, pero B52 no lo diseña, activa ni habilita. `LOADER = BLOCKED`; A1-U1 permanece `pending / non-member`.
 
+### Runtime projection and activation documents v1
+
+El Human Gate aprobó `IMMUTABLE_PROJECTIONS_ATOMIC_POINTER` y `PRESERVE_A1_V2_COMPATIBILITY`. Esta frontera materializa únicamente documentos físicos durables para una futura activation; no construye candidate→runtime projection, no consume B52 para activar, no cambia `content_service`, no modifica `content/content_tree.json`, no ejecuta loader/runtime, no altera B181 ni cierra Puerta 3.
+
+La futura autoridad runtime será una cadena verificable `active pointer -> immutable activation record -> immutable runtime projection`. Durante la migración, `content/content_tree.json` permanece intacto como legacy/bootstrap; el archivo/resolver exacto A1 v2 permanece disponible y v2/v4 no se mezclan ni quedan ambos activos.
+
+Los tres documentos usan JSON UTF-8 sin BOM, `ensure_ascii=False`, separators compactos, `allow_nan=False`, orden contractual de keys y exactamente un LF final. Todos los digests son `sha256:<64 hexadecimal lowercase>` de los bytes canónicos definidos. Parser/adquisición rechaza fail-closed BOM, UTF-8/JSON inválido, constantes JSON no estándar, keys duplicadas en cualquier nivel, keys desconocidas/ausentes, schema distinto de `"1.0"`, tipos inválidos, digests inválidos y bytes no canónicos.
+
+`RuntimeContentProjectionDocumentV1` es inmutable, source-bound y contiene exactamente:
+
+```json
+{
+  "document_schema_version":"1.0",
+  "source_snapshot_revision":"...",
+  "source_snapshot_manifest_digest":"sha256:<64 lowercase hex>",
+  "runtime_projection_digest":"sha256:<64 lowercase hex>",
+  "content_tree":{"levels":[]}
+}
+```
+
+`content_tree` valida como `ContentTreeResponse`; `runtime_projection_digest` es SHA-256 de los bytes canónicos de ese árbol, no de resources, candidate bytes ni B52. El documento no contiene B52, paths de resources, bytes, loader state, runtime state, actor, timestamp o Puerta 3 state.
+
+`RuntimeActivationRecordDocumentV1` es inmutable/append-only y contiene exactamente:
+
+```json
+{
+  "document_schema_version":"1.0",
+  "activation_revision":"...",
+  "source_snapshot_revision":"...",
+  "source_snapshot_manifest_digest":"sha256:<64 lowercase hex>",
+  "runtime_projection_revision":"...",
+  "runtime_projection_digest":"sha256:<64 lowercase hex>",
+  "previous_activation_revision":null
+}
+```
+
+`activation_revision` es explícita, no se infiere de path, clock, Git ni identidad Python. El record debe enlazar exactamente source revision/digest y projection revision/digest del `RuntimeContentProjectionDocumentV1`; `previous_activation_revision`, cuando existe, es no blank y distinto de la revisión actual. No autoriza activation por existir.
+
+`ActiveRuntimePointerDocumentV1` es el único documento mutable y contiene exactamente:
+
+```json
+{
+  "document_schema_version":"1.0",
+  "activation_revision":"...",
+  "activation_record_digest":"sha256:<64 lowercase hex>"
+}
+```
+
+Su adquisición exige que `activation_revision` y `activation_record_digest` correspondan literalmente al `RuntimeActivationRecordDocumentV1` adquirido. El puntero no contiene árbol, B52, candidate, loader, runtime state ni historial.
+
+Projection y activation record se publican de forma inmutable: target absoluto, parent existente, sin symlink y archivo regular si existe; create exclusivo desde un temporal sibling durable. Repetir los mismos bytes es idempotente; bytes distintos para el mismo target fallan cerrado y nunca reemplazan el artefacto. El puntero se publica mediante temporal sibling, write/flush/file `fsync`, `os.replace` y directory `fsync`; es el único commit point mutable. Todo fallo previo al replace deja el puntero previo activo; un fallo de directory `fsync` posterior al replace se informa como visible pero durability-incomplete, sin rollback/retry automático.
+
+La adquisición lee cada documento exactamente una vez. Projection acquisition valida el digest del árbol; record acquisition requiere la projection explícita y valida todos los cross-links; pointer acquisition requiere el record explícito y valida revisión/digest. No existe discovery por cwd, filename convention, registry, DB, red, loader ni activation API en esta frontera.
+
+El rollback futuro será una nueva transition record/pointer hacia una projection inmutable previa, nunca editar o borrar un artefacto histórico ni restaurar manualmente bytes. La implementación posterior deberá preservar esta política y el soporte histórico exacto A1 v2.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.

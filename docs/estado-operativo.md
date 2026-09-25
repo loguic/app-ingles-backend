@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-24T22:53:52+02:00
-Baseline Git previa a este checkpoint: dc1e03ae6e8552667fd81e697eb3e798527357ed
+Actualizado: 2026-09-25T00:00:00+02:00
+Baseline Git previa a este checkpoint: c700bee09e46252ed123dc57c3df4b4bffe68a3b
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -104,9 +104,9 @@ Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `8bc469595
 ### A1 — B52 controlled execution operator v1: wrapper separado ejecuta B38–B51 una vez y pasa B43/B51 en memoria a B52, preservando B39 por `is`; CLI explícito separado, sin modificar el CLI B38–B51, sin persistencia/activación/loader/runtime/content-tree/B181/A1 real; integración sintética y postflight PASS, 8 focales, 192 regresiones, `git diff --check` PASS.
 Se mantienen las fronteras: A1 v4 **MEMBER DURABLE / NOT ACTIVE**, B52 real **NOT VERIFIED**, Puerta 3 **NOT CLOSED**, `LOADER = BLOCKED`, B181 **PAUSED**. El siguiente objetivo es `human-gate-real-a1-b52-run`; ese gate será separado y no se consume mediante este cierre técnico.
 ## Bloque activo
-`REAL-A1-B43-B51`: Human Gate **APPROVED / CONSUMED** para una única corrida read-only de `active-candidate-source-002`. La corrida válida, usando el intérprete canónico `.venv/bin/python` para tooling dependiente de la aplicación, obtuvo B43 **PASS**, B51 **PASS**, 18 resources verified y same-B39 **PASS**; no requirió instalar dependencias. La primera tentativa con `/usr/bin/python3` falló antes del orchestrator por `pydantic` ausente y no se reintentó automáticamente. No hubo B52, activación, loader/runtime ni modificación de `content/content_tree.json`. A1 v4 permanece **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 **NOT CLOSED**; B52 **NOT VERIFIED**; loader **BLOCKED**; B181 **PAUSED**.
-### Fronteras A1, B52 y B181
-B52 real para `active-candidate-source-002` está **VERIFIED / PASS**: Human Gate **APPROVED / CONSUMED**, B43 PASS, B51 PASS, 18 resources y same-B39 PASS. A1 v4 permanece **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 **NOT CLOSED**; `LOADER = BLOCKED`; B181 **PAUSED**. `content/content_tree.json` permanece intacto y no se ejecutó activación/runtime.
+`A1-RUNTIME-DOCUMENTS-V1`: Runtime Documents v1 está implementado. El re-postflight independiente terminó **PASS**, con **0** bloqueantes; focales **16 PASS** y compatibilidad A1 v2 **16 PASS**. La regresión contractual previa permanece en **45 PASS**. A1 v2 está preservado; B52 real **VERIFIED / PASS**; A1 v4 **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 **NOT CLOSED**. No se ejecutó activación y `content/content_tree.json` permanece intacto.
+
+Scope local reconocido: `docs/curriculum-preparation-prerequisites-contract-v1.md`, `app/services/pedagogical_runtime_activation_documents.py`, `tests/test_pedagogical_runtime_activation_documents.py`, `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/roadmap.md`.
 ## Automatización disponible
 - `operational_state.py` valida estructura, timestamp timezone-aware, baseline Git previa y ausencia de campos Git vivos.
 - `conversation_checkpoint.py prepare|resume` compone estado semántico y Git vivo en una vista efímera read-only con upstream obligatorio. `--format compact` entrega `compact-v1` parseable mediante `urllib.parse.parse_qsl`; `--format json` conserva las secciones semánticas completas. Ambos reutilizan las validaciones del checkpoint Markdown y no crean una nueva autoridad.
@@ -128,7 +128,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-NEXT = A1 runtime projection and activation documents v1 — contract + publication/acquisition; no implementar runtime ni activar A1
+NEXT = Closure Gate de Runtime Documents v1
 
 ## Archivos clave
 
