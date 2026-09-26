@@ -16,7 +16,8 @@
 - Decisión aprobada: `IMMUTABLE_PROJECTIONS_ATOMIC_POINTER`. El runtime futuro usará proyecciones inmutables source-bound, activation records inmutables y `content/runtime-active.json` como commit point atómico; `content/content_tree.json` permanece como legacy/bootstrap durante la migración.
 - Decisión aprobada: `PRESERVE_A1_V2_COMPATIBILITY`. El A1 v2 histórico permanece disponible mediante su archivo/resolver exacto; v2 y v4 no se mezclan ni quedan ambos activos. El rollback será una nueva transición de activación, no una mutación manual.
 - Fronteras preservadas: B52 real `VERIFIED / PASS`; A1 v4 `MEMBER DURABLE / NOT ACTIVE`; Puerta 3 `NOT CLOSED`; `LOADER = BLOCKED`; B181 `PAUSED`; `content/content_tree.json` intacto. No se implementaron documentos, loader ni activation.
-- NEXT: `A1 runtime projection and activation documents v1 — contract + publication/acquisition`.
+- Human Gate contractual posterior aprobado: root `content/runtime-activations/`, nombre determinista por SHA-256 de `activation_revision` UTF-8, verificación fail-closed de predecesor si existe puntero, y secuencia projection→record→reacquisition. Solo autoriza documentación, implementación y pruebas temporales; no publicación real, puntero, loader ni activación.
+- NEXT: `postflight independiente de A1 Runtime Activation Record Operator v1`.
 
 ## Política operativa LOGUIC AI Model Routing v1
 
@@ -5047,3 +5048,11 @@ El bloque queda **CLOSED / PUBLISHED / SYNCED** mediante el Closure Gate canóni
 ## A1 — Reconciliación posterior a publicación inactiva
 
 El operador reportó **B52=PASS** y publicación inactiva **PASS** para `active-candidate-source-002`; el Human Gate específico fue consumido. El documento publicado es `content/runtime-projections/sha256-d6aefc0ec0658796a48bc6d4fb28ec97253925dabab04e11d0ee4650f1a0fb8d.json` y queda reconocido en el scope activo. La lectura independiente mediante acquirer permanece **PENDIENTE**; A1 sigue **NOT ACTIVE**. No se repitió B52, no se ejecutaron tests ni activación. NEXT = `verificación read-only de la proyección publicada`.
+
+## Closure Gate — A1 Runtime Activation Record Operator v1
+
+El operador queda **CLOSED / PUBLISHED / SYNCED** mediante el Closure Gate canónico. El postflight independiente fue **PASS**, con **0 BLOCKING** y **0 NONBLOCKING**; la evidencia focal es **5 PASS** del operador y **16 PASS** del componente Runtime Documents v1. La validación de cierre usa únicamente esas rutas focales y regresiones seleccionadas, además de `git diff --check`, validación del estado operativo y checkpoint `prepare`.
+
+El scope exacto son los cuatro documentos de continuidad/contrato, el operador `scripts/engineering/a1_runtime_activation_record_publish_operator.py` y `tests/test_a1_runtime_activation_record_publish_operator.py`. No se ejecutó B52, no hubo publicación real en `content/`, no se modificó la proyección publicada ni `content/runtime-active.json`, y no hubo activación, loader o cambio de `content/content_tree.json`.
+
+El siguiente objetivo es preparar, mediante un Human Gate separado, la eventual publicación real del activation record. Ese gate aún **NO está autorizado**; no se inicia publicación, puntero ni activación con este cierre.

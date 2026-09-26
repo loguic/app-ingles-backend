@@ -2761,6 +2761,18 @@ Los fallos previos a la visibilidad (evidencia inválida, constructor/serializac
 
 Este contrato no autoriza usar la publicación como activación, no crea `RuntimeActivationRecordDocumentV1` ni `ActiveRuntimePointerDocumentV1`, no habilita loader/resolver, no mezcla A1 v2/v4 y conserva A1 v2 y la autoridad actual `content_service -> content/content_tree.json`.
 
+### A1 Immutable Runtime Activation Record Publication Contract v1
+
+Human Gate: **APPROVED / DOCUMENTATION, IMPLEMENTATION AND TEMPORARY TESTS ONLY / NO REAL PUBLICATION**. Este incremento autoriza exclusivamente un operador independiente para publicar y reacquirir un `RuntimeActivationRecordDocumentV1` inmutable; no autoriza una publicación real en `content/`, crear o modificar `content/runtime-active.json`, activar A1, cambiar autoridad runtime, habilitar loader/resolver, modificar `content/content_tree.json`, ejecutar B52 ni cerrar Puerta 3.
+
+El root de records es `content/runtime-activations/`, resuelto solo desde un `repository_root` absoluto y explícito. Para una `activation_revision` explícita, no blank y preservada literalmente, el target es `content/runtime-activations/sha256-<SHA-256 hexadecimal lowercase de activation_revision.encode("utf-8")>.json`. No existe descubrimiento por cwd, glob, registry, DB, red ni rutas caller-provided alternativas; el parent debe existir y el operador no lo crea. El filename no es identidad semántica: el record conserva los siete campos v1 ya definidos.
+
+El operador recibe la proyección actual mediante un path absoluto explícito y la adquiere canónicamente. Antes de publicar construye el record solo con `build_runtime_activation_record_document(...)`; después de publicar lo reacquiere canónicamente contra esa misma proyección. Publicación, idempotencia y conflicto se delegan exclusivamente a `publish_runtime_activation_record_document(...)`.
+
+La ausencia confirmada de `content/runtime-active.json` produce `previous_activation_revision=null`. Si el puntero existe —incluido un symlink roto, que debe fallar durante adquisición— el operador exige tanto `previous_activation_revision` como el path absoluto explícito de la proyección previa. Deriva el path del record previo únicamente de esa revisión explícita bajo el root autorizado, adquiere canónicamente proyección y record previos y luego adquiere/valida el puntero contra ese record; cualquier fallo de adquisición, enlace, digest o revisión falla cerrado. No infiere predecesor desde nombres de archivos. El puntero permanece fuera de la secuencia: no se publica, modifica ni sustituye en este incremento.
+
+La secuencia autorizada es `proyección verificada → record inmutable → reacquisition/verificación del record`. Un futuro incremento, con Human Gate independiente, definirá cualquier actualización de puntero y la transición efectiva de activación.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.

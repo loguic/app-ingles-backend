@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-25T19:13:00+02:00
-Baseline Git previa a este checkpoint: 8d401b3c1b053e1f469a31f2c18dbaca41f796da
+Actualizado: 2026-09-26T11:38:05+02:00
+Baseline Git previa a este checkpoint: 2947bef89ef5809bf4b29bb3b97a6f9c28233ed7
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -104,9 +104,9 @@ Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `8bc469595
 ### A1 — B52 controlled execution operator v1: wrapper separado ejecuta B38–B51 una vez y pasa B43/B51 en memoria a B52, preservando B39 por `is`; CLI explícito separado, sin modificar el CLI B38–B51, sin persistencia/activación/loader/runtime/content-tree/B181/A1 real; integración sintética y postflight PASS, 8 focales, 192 regresiones, `git diff --check` PASS.
 Se mantienen las fronteras: A1 v4 **MEMBER DURABLE / NOT ACTIVE**, B52 real **NOT VERIFIED**, Puerta 3 **NOT CLOSED**, `LOADER = BLOCKED`, B181 **PAUSED**. El siguiente objetivo es `human-gate-real-a1-b52-run`; ese gate será separado y no se consume mediante este cierre técnico.
 ## Bloque activo
-`A1-INACTIVE-RUNTIME-PROJECTION-PUBLISHER-V1`: implementación publicada y publicación inactiva reportada **PASS** para `active-candidate-source-002` bajo el Human Gate específico consumido. El JSON publicado queda reconocido por scope; la lectura independiente de la proyección permanece **PENDIENTE**. A1 continúa **NOT ACTIVE**; no hay activation record, puntero, loader ni cambio de autoridad runtime. Se preservan A1 v2, B52 real **VERIFIED / PASS**, A1 v4 **MEMBER DURABLE / NOT ACTIVE**, Puerta 3 **NOT CLOSED** y `content/content_tree.json` intacto.
+`A1-RUNTIME-ACTIVATION-RECORD-OPERATOR-V1`: bloque **CLOSED / PUBLISHED / SYNCED** mediante Closure Gate canónico. Implementación y postflight independiente **PASS**, con **0 BLOCKING**, **0 NONBLOCKING**, 5 pruebas focales del operador y 16 del componente Runtime Documents v1. No se ejecutó B52, no hubo publicación real, modificación de `content/runtime-active.json`, activación, loader ni cambio de autoridad runtime. A1 continúa **NOT ACTIVE**; se preservan A1 v2, B52 real **VERIFIED / PASS**, A1 v4 **MEMBER DURABLE / NOT ACTIVE**, Puerta 3 **NOT CLOSED** y `content/content_tree.json` intacto.
 
-Scope local reconocido: `content/runtime-projections/sha256-d6aefc0ec0658796a48bc6d4fb28ec97253925dabab04e11d0ee4650f1a0fb8d.json`, `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/roadmap.md`.
+Scope local reconocido: `scripts/engineering/a1_runtime_activation_record_publish_operator.py`, `tests/test_a1_runtime_activation_record_publish_operator.py`, `app/services/pedagogical_runtime_activation_documents.py`, `docs/curriculum-preparation-prerequisites-contract-v1.md`, `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/roadmap.md`. La proyección publicada permanece read-only y fuera de modificación.
 ## Automatización disponible
 - `operational_state.py` valida estructura, timestamp timezone-aware, baseline Git previa y ausencia de campos Git vivos.
 - `conversation_checkpoint.py prepare|resume` compone estado semántico y Git vivo en una vista efímera read-only con upstream obligatorio. `--format compact` entrega `compact-v1` parseable mediante `urllib.parse.parse_qsl`; `--format json` conserva las secciones semánticas completas. Ambos reutilizan las validaciones del checkpoint Markdown y no crean una nueva autoridad.
@@ -128,7 +128,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-NEXT = verificación read-only de la proyección publicada
+NEXT = preparar la publicación real del activation record mediante un Human Gate separado (NO AUTORIZADO)
 
 ## Archivos clave
 

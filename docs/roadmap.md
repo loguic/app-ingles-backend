@@ -24,9 +24,9 @@ Todo trabajo nuevo deberá partir de una capacidad observable del estudiante y j
 
 Human Gate aprobado: `IMMUTABLE_PROJECTIONS_ATOMIC_POINTER` + `PRESERVE_A1_V2_COMPATIBILITY`. El runtime futuro usará proyecciones inmutables source-bound, activation records inmutables y `content/runtime-active.json` como commit point atómico; `content/content_tree.json` permanece como legacy/bootstrap durante la migración. El A1 v2 histórico seguirá disponible mediante su archivo/resolver exacto; v2 y v4 no se mezclarán ni quedarán ambos activos. El rollback será una nueva transición de activación, no una mutación manual.
 
-B52 real = **VERIFIED / PASS**; A1 v4 = **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 = **NOT CLOSED**; `LOADER = BLOCKED`; B181 = **PAUSED**; `content/content_tree.json` intacto. No se implementaron documentos, loader ni activation.
+B52 real = **VERIFIED / PASS**; A1 v4 = **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 = **NOT CLOSED**; `LOADER = BLOCKED`; B181 = **PAUSED**; `content/content_tree.json` intacto. El Human Gate contractual actual autoriza documentación, implementación y pruebas temporales del operador de records inmutables, nunca publicación real ni activación.
 
-Siguiente objetivo: `A1 runtime projection and activation documents v1 — contract + publication/acquisition`.
+Siguiente objetivo: `postflight independiente de A1 Runtime Activation Record Operator v1`.
 
 
 ## Fase 1 — Backend base
@@ -1072,3 +1072,9 @@ Bloque **CLOSED / PUBLISHED / SYNCED**: postflight independiente PASS (0 finding
 ### A1 — Reconciliación posterior a publicación inactiva
 
 Publicación inactiva reportada **PASS** para `active-candidate-source-002` tras consumir el Human Gate específico. El JSON `content/runtime-projections/sha256-d6aefc0ec0658796a48bc6d4fb28ec97253925dabab04e11d0ee4650f1a0fb8d.json` queda reconocido documentalmente; la lectura independiente mediante acquirer sigue **PENDIENTE**. A1 permanece **NOT ACTIVE**, sin activación ni cambio runtime. NEXT = `verificación read-only de la proyección publicada`.
+
+## Closure Gate — A1 Runtime Activation Record Operator v1
+
+El operador queda **CLOSED / PUBLISHED / SYNCED** mediante el Closure Gate canónico. El postflight independiente fue **PASS**, con **0 BLOCKING** y **0 NONBLOCKING**; se verificaron **5 pruebas focales** del operador y **16 pruebas** del componente Runtime Documents v1. Se preservan A1 v4 **MEMBER DURABLE / NOT ACTIVE**, B52 real **VERIFIED / PASS**, Puerta 3 **NOT CLOSED**, `LOADER = BLOCKED`, B181 **PAUSED** y `content/content_tree.json` intacto.
+
+No se ejecutó B52, no hubo publicación real de records en `content/`, no se modificó el puntero `content/runtime-active.json`, la proyección publicada ni la autoridad runtime. El scope cerrado es exactamente el allowlist de cuatro documentos, operador y prueba del operador. El siguiente trabajo es preparar la eventual publicación real del activation record mediante un Human Gate separado; ese gate permanece **NO AUTORIZADO**.
