@@ -5056,3 +5056,9 @@ El operador queda **CLOSED / PUBLISHED / SYNCED** mediante el Closure Gate canó
 El scope exacto son los cuatro documentos de continuidad/contrato, el operador `scripts/engineering/a1_runtime_activation_record_publish_operator.py` y `tests/test_a1_runtime_activation_record_publish_operator.py`. No se ejecutó B52, no hubo publicación real en `content/`, no se modificó la proyección publicada ni `content/runtime-active.json`, y no hubo activación, loader o cambio de `content/content_tree.json`.
 
 El siguiente objetivo es preparar, mediante un Human Gate separado, la eventual publicación real del activation record. Ese gate aún **NO está autorizado**; no se inicia publicación, puntero ni activación con este cierre.
+
+## A1 — Publicación real de activation record y verificación independiente
+
+La publicación real inmutable de `a1-source002-activation-001` fue reportada **PASS** en `content/runtime-activations/sha256-4797505b64d191b46cc708a5f34d12b6ee1f02ca107137be92cdcc8aff52d096.json`. Esta constatación de publicación no se usa como sustituto de verificación.
+
+La verificación independiente read-only reacquirió el record contra la proyección publicada y confirmó bytes canónicos, esquema v1, `source_snapshot_revision=active-candidate-source-002`, digest de manifest y digest/revisión de proyección exactos, con `previous_activation_revision=null`. `content/runtime-active.json` sigue ausente. No se ejecutó B52, no se modificó puntero, proyección, loader ni runtime, y A1 continúa **NOT ACTIVE**. NEXT = `preparar el incremento de adquisición runtime y protocolo del puntero conforme al plan maestro`; la publicación del puntero permanece **NO AUTORIZADA**.
