@@ -2773,6 +2773,14 @@ La ausencia confirmada de `content/runtime-active.json` produce `previous_activa
 
 La secuencia autorizada es `proyección verificada → record inmutable → reacquisition/verificación del record`. Un futuro incremento, con Human Gate independiente, definirá cualquier actualización de puntero y la transición efectiva de activación.
 
+### A1 Runtime Selection Seam v1
+
+Human Gate contractual: **APPROVED / INTERNAL READ-ONLY IMPLEMENTATION, DOCUMENTATION AND TEMPORARY TESTS ONLY**. El seam recibe exclusivamente un `repository_root` `Path` absoluto, explícito y existente. Observa la presencia de `content/runtime-active.json` bajo ese root: si el puntero está ausente devuelve `None`; si está presente —incluido un symlink roto— delega una sola adquisición a `acquire_active_runtime_document_chain(repository_root)` y devuelve exclusivamente el `ContentTreeResponse` de la proyección ya verificada.
+
+El seam no relee el puntero ni compone documentos de snapshots distintos. Una cadena presente inválida, ausente, manipulada, no canónica o incompatible propaga el error explícito del acquirer canónico; nunca usa fallback silencioso a `content/content_tree.json`. El resolver histórico exacto A1 v2 en `content_service` permanece sin modificación y disponible.
+
+Esta autorización no crea ni publica un puntero real, no cambia `content_service`, endpoints, loader, autoridad runtime, Flutter, `content/content_tree.json` ni estado de activación A1. La futura integración productiva del seam y cualquier publicación del puntero requieren incrementos y autorización humana separados.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.

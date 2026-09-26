@@ -5074,3 +5074,13 @@ Las pruebas temporales cubren cadena válida y lectura única del puntero, diges
 El lector compuesto queda **CLOSED / PUBLISHED / SYNCED** mediante el Closure Gate canónico. El postflight independiente fue **PASS**, con **0 BLOCKING** y **0 NONBLOCKING**; la evidencia acreditada es 5 focales temporales y 16 regresiones directas. No se ejecutó B52, no se creó ni publicó `content/runtime-active.json`, no se modificaron documentos inmutables, loader, autoridad runtime o `content/content_tree.json`, y A1 continúa **NOT ACTIVE**.
 
 El siguiente objetivo es preparar la frontera contractual del puntero y su integración posterior con runtime; la publicación del puntero permanece **NO AUTORIZADA**. NEXT = `preparar la frontera contractual del puntero y su integración posterior con runtime`.
+
+## A1 — Runtime Selection Seam v1
+
+Human Gate contractual **APPROVED** y consumido exclusivamente para implementación interna read-only, documentación y pruebas temporales. El nuevo seam reutiliza `acquire_active_runtime_document_chain(repository_root)` con root absoluto/explícito: la ausencia de `content/runtime-active.json` devuelve `None`; su presencia retorna solo el árbol de la proyección completamente verificada, o propaga un error explícito si la cadena es inválida. No relee el puntero, no mezcla snapshots y no hace fallback a `content/content_tree.json`.
+
+Las pruebas temporales cubren puntero ausente, cadena válida, cadena inconsistente y preservación del resolver histórico A1 v2 mediante archive temporal: 4 focales del seam, 5 de la cadena reutilizada y 16 regresiones A1 v2 **PASS**. No se creó/publicó puntero real, no hubo activación, B52, cambio de autoridad, loader, `content_service`, endpoints, Flutter ni modificación de `content/content_tree.json`. NEXT = `postflight independiente de A1 Runtime Selection Seam v1`.
+
+## Closure Gate — A1 Runtime Selection Seam v1
+
+El seam queda **CLOSED / PUBLISHED / SYNCED** mediante el Closure Gate canónico. El postflight independiente fue **PASS**, con **0 BLOCKING** y **0 NONBLOCKING**; la validación de cierre acredita las pruebas focales y regresiones directas del seam. No se creó ni publicó `content/runtime-active.json`, no se modificó `content_service`, `content/content_tree.json`, loader, endpoints, Flutter o autoridad runtime, y A1 continúa **NOT ACTIVE**. NEXT = `preparar la integración selectiva del seam con content_service mediante Human Gate específico`; la publicación del puntero permanece **NO AUTORIZADA**.

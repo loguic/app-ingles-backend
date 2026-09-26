@@ -1090,3 +1090,13 @@ Implementación local pendiente de postflight independiente: composición read-o
 ## Closure Gate — A1 Runtime Active Document Chain v1
 
 El lector compuesto queda **CLOSED / PUBLISHED / SYNCED** mediante el Closure Gate canónico. El postflight independiente fue **PASS**, con **0 BLOCKING** y **0 NONBLOCKING**; se acreditaron 5 pruebas focales temporales y 16 regresiones directas. La cadena mantiene lectura única por documento, paths deterministas, no-follow, validación canónica de schema/digests/cross-links y fallo cerrado; no incorpora fallback al árbol histórico. No se creó el puntero real, no se ejecutó B52, no hubo activación, loader, cambio de autoridad ni modificación de `content/content_tree.json`. NEXT = `preparar la frontera contractual del puntero y su integración posterior con runtime`; la publicación del puntero permanece **NO AUTORIZADA**.
+
+## A1 — Runtime Selection Seam v1
+
+Human Gate contractual **APPROVED** para un seam interno read-only. Implementa la selección mínima sobre la cadena canónica: root absoluto/explícito, puntero ausente → `None`, y puntero presente → únicamente `ContentTreeResponse` de la proyección verificada. Una cadena presente inválida falla de forma explícita y cerrada; no hay reread del puntero, mezcla de snapshots ni fallback al árbol histórico. El resolver A1 v2 permanece intacto.
+
+No se crea/publica puntero real ni se modifica `content_service`, endpoints, loader, Flutter, autoridad runtime o `content/content_tree.json`; A1 sigue **NOT ACTIVE**. Evidencia: 4 focales del seam, 5 de la cadena reutilizada y 16 regresiones A1 v2 **PASS**. NEXT = `postflight independiente de A1 Runtime Selection Seam v1`.
+
+## Closure Gate — A1 Runtime Selection Seam v1
+
+El seam queda **CLOSED / PUBLISHED / SYNCED** mediante el Closure Gate canónico, con postflight independiente **PASS**, **0 BLOCKING**, **0 NONBLOCKING** y 25 pruebas acreditadas. No se creó ni publicó el puntero, no se modificó `content_service`, `content/content_tree.json`, loader, endpoints, Flutter o autoridad runtime, y A1 sigue **NOT ACTIVE**. NEXT = `preparar la integración selectiva del seam con content_service mediante Human Gate específico`; la publicación del puntero permanece **NO AUTORIZADA**.

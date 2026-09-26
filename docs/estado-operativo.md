@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-26T12:20:43+02:00
-Baseline Git previa a este checkpoint: 73111c4a260a281b1d2e5770e76bd27b83b89e11
+Actualizado: 2026-09-26T12:36:13+02:00
+Baseline Git previa a este checkpoint: b3ed65fe2d0f9768a6c7b25566ec992a7047bff8
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -104,9 +104,9 @@ Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `8bc469595
 ### A1 — B52 controlled execution operator v1: wrapper separado ejecuta B38–B51 una vez y pasa B43/B51 en memoria a B52, preservando B39 por `is`; CLI explícito separado, sin modificar el CLI B38–B51, sin persistencia/activación/loader/runtime/content-tree/B181/A1 real; integración sintética y postflight PASS, 8 focales, 192 regresiones, `git diff --check` PASS.
 Se mantienen las fronteras: A1 v4 **MEMBER DURABLE / NOT ACTIVE**, B52 real **NOT VERIFIED**, Puerta 3 **NOT CLOSED**, `LOADER = BLOCKED`, B181 **PAUSED**. El siguiente objetivo es `human-gate-real-a1-b52-run`; ese gate será separado y no se consume mediante este cierre técnico.
 ## Bloque activo
-`A1-RUNTIME-ACTIVE-DOCUMENT-CHAIN-V1`: bloque **CLOSED / PUBLISHED / SYNCED** mediante Closure Gate canónico. El postflight independiente fue **PASS**, con **0 BLOCKING** y **0 NONBLOCKING**; evidencia: 5 focales `tmp_path` más 16 regresiones directas **PASS**. El lector read-only reutiliza los acquirers/serializadores Runtime Documents v1, adquiere el puntero una sola vez, deriva locators deterministas y verifica la cadena completa sin fallback a `content/content_tree.json`. No se creó puntero real, no se ejecutó B52, no hubo activación, loader ni cambio de autoridad runtime. A1 continúa **NOT ACTIVE**; se preservan A1 v2, B52 real **VERIFIED / PASS**, A1 v4 **MEMBER DURABLE / NOT ACTIVE**, Puerta 3 **NOT CLOSED** y `content/content_tree.json` intacto.
+`A1-RUNTIME-SELECTION-SEAM-V1`: bloque **CLOSED / PUBLISHED / SYNCED** mediante Closure Gate canónico. El postflight independiente fue **PASS**, con **0 BLOCKING** y **0 NONBLOCKING**; evidencia: 4 focales del seam, 5 de la cadena reutilizada y 16 regresiones A1 v2 **PASS**. El seam recibe un `repository_root` absoluto/explícito: puntero ausente devuelve `None`; puntero presente adquiere una sola cadena canónica `pointer → record → projection` y retorna exclusivamente el `ContentTreeResponse` verificado. Una cadena presente inválida propaga error explícito, sin fallback a `content/content_tree.json`; el resolver histórico A1 v2 queda intacto. A1 continúa **NOT ACTIVE** y no se creó puntero real ni cambió autoridad runtime, loader, `content_service`, endpoints, Flutter o `content/content_tree.json`.
 
-Scope local reconocido: `app/services/pedagogical_runtime_activation_documents.py`, `tests/test_pedagogical_runtime_active_document_chain.py`, `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/roadmap.md`. La proyección publicada permanece read-only y fuera de modificación.
+Scope local reconocido: `app/services/pedagogical_runtime_selection_seam.py`, `tests/test_pedagogical_runtime_selection_seam.py`, `docs/curriculum-preparation-prerequisites-contract-v1.md`, `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/roadmap.md`. La proyección publicada permanece read-only y fuera de modificación.
 ## Automatización disponible
 - `operational_state.py` valida estructura, timestamp timezone-aware, baseline Git previa y ausencia de campos Git vivos.
 - `conversation_checkpoint.py prepare|resume` compone estado semántico y Git vivo en una vista efímera read-only con upstream obligatorio. `--format compact` entrega `compact-v1` parseable mediante `urllib.parse.parse_qsl`; `--format json` conserva las secciones semánticas completas. Ambos reutilizan las validaciones del checkpoint Markdown y no crean una nueva autoridad.
@@ -128,7 +128,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-NEXT = preparar la frontera contractual del puntero y su integración posterior con runtime; publicación del puntero NO AUTORIZADA y A1 no activa
+NEXT = preparar la integración selectiva del seam con content_service mediante Human Gate específico; publicación del puntero NO AUTORIZADA y A1 no activa
 
 ## Archivos clave
 
