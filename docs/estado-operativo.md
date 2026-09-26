@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-26T12:01:34+02:00
-Baseline Git previa a este checkpoint: 534c332a0083d0168a3f1186c6d3a65d1123faec
+Actualizado: 2026-09-26T12:20:43+02:00
+Baseline Git previa a este checkpoint: 73111c4a260a281b1d2e5770e76bd27b83b89e11
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -104,9 +104,9 @@ Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `8bc469595
 ### A1 — B52 controlled execution operator v1: wrapper separado ejecuta B38–B51 una vez y pasa B43/B51 en memoria a B52, preservando B39 por `is`; CLI explícito separado, sin modificar el CLI B38–B51, sin persistencia/activación/loader/runtime/content-tree/B181/A1 real; integración sintética y postflight PASS, 8 focales, 192 regresiones, `git diff --check` PASS.
 Se mantienen las fronteras: A1 v4 **MEMBER DURABLE / NOT ACTIVE**, B52 real **NOT VERIFIED**, Puerta 3 **NOT CLOSED**, `LOADER = BLOCKED`, B181 **PAUSED**. El siguiente objetivo es `human-gate-real-a1-b52-run`; ese gate será separado y no se consume mediante este cierre técnico.
 ## Bloque activo
-`A1-RUNTIME-ACTIVATION-RECORD-OPERATOR-V1`: bloque técnico **CLOSED / PUBLISHED / SYNCED** mediante Closure Gate canónico. La publicación real inmutable de `a1-source002-activation-001` fue reportada separadamente en `content/runtime-activations/sha256-4797505b64d191b46cc708a5f34d12b6ee1f02ca107137be92cdcc8aff52d096.json`; su verificación independiente read-only confirma bytes canónicos, esquema v1, vínculos exactos con la proyección publicada y predecesor nulo. No se ejecutó B52, no se modificó `content/runtime-active.json`, no hubo activación, loader ni cambio de autoridad runtime. A1 continúa **NOT ACTIVE**; se preservan A1 v2, B52 real **VERIFIED / PASS**, A1 v4 **MEMBER DURABLE / NOT ACTIVE**, Puerta 3 **NOT CLOSED** y `content/content_tree.json` intacto.
+`A1-RUNTIME-ACTIVE-DOCUMENT-CHAIN-V1`: bloque **CLOSED / PUBLISHED / SYNCED** mediante Closure Gate canónico. El postflight independiente fue **PASS**, con **0 BLOCKING** y **0 NONBLOCKING**; evidencia: 5 focales `tmp_path` más 16 regresiones directas **PASS**. El lector read-only reutiliza los acquirers/serializadores Runtime Documents v1, adquiere el puntero una sola vez, deriva locators deterministas y verifica la cadena completa sin fallback a `content/content_tree.json`. No se creó puntero real, no se ejecutó B52, no hubo activación, loader ni cambio de autoridad runtime. A1 continúa **NOT ACTIVE**; se preservan A1 v2, B52 real **VERIFIED / PASS**, A1 v4 **MEMBER DURABLE / NOT ACTIVE**, Puerta 3 **NOT CLOSED** y `content/content_tree.json` intacto.
 
-Scope local reconocido: `content/runtime-activations/sha256-4797505b64d191b46cc708a5f34d12b6ee1f02ca107137be92cdcc8aff52d096.json`, `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/roadmap.md`. La proyección publicada permanece read-only y fuera de modificación.
+Scope local reconocido: `app/services/pedagogical_runtime_activation_documents.py`, `tests/test_pedagogical_runtime_active_document_chain.py`, `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/roadmap.md`. La proyección publicada permanece read-only y fuera de modificación.
 ## Automatización disponible
 - `operational_state.py` valida estructura, timestamp timezone-aware, baseline Git previa y ausencia de campos Git vivos.
 - `conversation_checkpoint.py prepare|resume` compone estado semántico y Git vivo en una vista efímera read-only con upstream obligatorio. `--format compact` entrega `compact-v1` parseable mediante `urllib.parse.parse_qsl`; `--format json` conserva las secciones semánticas completas. Ambos reutilizan las validaciones del checkpoint Markdown y no crean una nueva autoridad.
@@ -128,7 +128,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-NEXT = preparar el incremento de adquisición runtime y protocolo del puntero conforme al plan maestro; publicación del puntero NO AUTORIZADA
+NEXT = preparar la frontera contractual del puntero y su integración posterior con runtime; publicación del puntero NO AUTORIZADA y A1 no activa
 
 ## Archivos clave
 

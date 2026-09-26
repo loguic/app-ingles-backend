@@ -5062,3 +5062,15 @@ El siguiente objetivo es preparar, mediante un Human Gate separado, la eventual 
 La publicación real inmutable de `a1-source002-activation-001` fue reportada **PASS** en `content/runtime-activations/sha256-4797505b64d191b46cc708a5f34d12b6ee1f02ca107137be92cdcc8aff52d096.json`. Esta constatación de publicación no se usa como sustituto de verificación.
 
 La verificación independiente read-only reacquirió el record contra la proyección publicada y confirmó bytes canónicos, esquema v1, `source_snapshot_revision=active-candidate-source-002`, digest de manifest y digest/revisión de proyección exactos, con `previous_activation_revision=null`. `content/runtime-active.json` sigue ausente. No se ejecutó B52, no se modificó puntero, proyección, loader ni runtime, y A1 continúa **NOT ACTIVE**. NEXT = `preparar el incremento de adquisición runtime y protocolo del puntero conforme al plan maestro`; la publicación del puntero permanece **NO AUTORIZADA**.
+
+## A1 — Runtime Active Document Chain v1
+
+Implementación local read-only de la cadena `pointer → activation record → projection` en `app/services/pedagogical_runtime_activation_documents.py`. El lector recibe un `repository_root` absoluto explícito, adquiere una sola vez `content/runtime-active.json`, deriva el record por SHA-256 de la revisión del puntero y la proyección por SHA-256 de la revisión declarada en el record. Reutiliza parser, serializador y validadores canónicos, y solo retorna tras validar bytes canónicos, esquema, digest/revisión y todos los cross-links; no hay cwd discovery, fallback legacy ni mezcla entre snapshots de puntero.
+
+Las pruebas temporales cubren cadena válida y lectura única del puntero, digest de record incorrecto, record referenciado ausente, conflicto de identidad pointer/record y proyección referenciada ausente. Focales 5 PASS; regresión directa Runtime Documents v1 16 PASS. No se creó puntero real, no se ejecutó B52, no se republicaron documentos, no hubo loader, activación o cambio de `content/content_tree.json`. NEXT = `postflight independiente de A1 Runtime Active Document Chain v1`.
+
+## Closure Gate — A1 Runtime Active Document Chain v1
+
+El lector compuesto queda **CLOSED / PUBLISHED / SYNCED** mediante el Closure Gate canónico. El postflight independiente fue **PASS**, con **0 BLOCKING** y **0 NONBLOCKING**; la evidencia acreditada es 5 focales temporales y 16 regresiones directas. No se ejecutó B52, no se creó ni publicó `content/runtime-active.json`, no se modificaron documentos inmutables, loader, autoridad runtime o `content/content_tree.json`, y A1 continúa **NOT ACTIVE**.
+
+El siguiente objetivo es preparar la frontera contractual del puntero y su integración posterior con runtime; la publicación del puntero permanece **NO AUTORIZADA**. NEXT = `preparar la frontera contractual del puntero y su integración posterior con runtime`.

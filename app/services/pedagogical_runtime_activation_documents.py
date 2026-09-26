@@ -15,6 +15,9 @@ from app.schemas.content import ContentTreeResponse
 
 RUNTIME_DOCUMENT_SCHEMA_VERSION = "1.0"
 _SHA256_DIGEST_PATTERN = re.compile(r"^sha256:[0-9a-f]{64}$")
+_RUNTIME_ACTIVATIONS_RELATIVE_ROOT = Path("content/runtime-activations")
+_RUNTIME_PROJECTIONS_RELATIVE_ROOT = Path("content/runtime-projections")
+_ACTIVE_RUNTIME_POINTER_RELATIVE_PATH = Path("content/runtime-active.json")
 
 
 @dataclass(frozen=True)
@@ -45,6 +48,15 @@ class ActiveRuntimePointerDocumentV1:
 
     activation_revision: str
     activation_record_digest: str
+
+
+@dataclass(frozen=True)
+class ActiveRuntimeDocumentChainV1:
+    """One fully verified active pointer, record, and projection snapshot."""
+
+    pointer_document: ActiveRuntimePointerDocumentV1
+    activation_record_document: RuntimeActivationRecordDocumentV1
+    projection_document: RuntimeContentProjectionDocumentV1
 
 
 def build_runtime_content_projection_document(
@@ -249,11 +261,7 @@ def acquire_runtime_content_projection_document(
 ) -> RuntimeContentProjectionDocumentV1:
     """Acquire exactly one canonical immutable projection document."""
 
-    document_bytes = _read_document_once(document_path, "runtime projection document")
-    document = _parse_runtime_content_projection_document(document_bytes)
-    if serialize_runtime_content_projection_document(document) != document_bytes:
-        raise ValueError("runtime projection document is not byte-conformant with v1")
-    return document
+    return _acquire_runtime_content_projection_document(document_path)
 
 
 def acquire_runtime_activation_record_document(
@@ -263,15 +271,98 @@ def acquire_runtime_activation_record_document(
 ) -> RuntimeActivationRecordDocumentV1:
     """Acquire one record and require its exact cross-link to a projection."""
 
+    document = _acquire_runtime_activation_record_document(document_path)
+    _validate_activation_record_projection_link(document, projection_document)
+    return document
+
+
+def acquire_active_runtime_pointer_document(
+    document_path: Path,
+    *,
+    activation_record: RuntimeActivationRecordDocumentV1,
+) -> ActiveRuntimePointerDocumentV1:
+    """Acquire one pointer and require its exact link to one record."""
+
+    document = _acquire_active_runtime_pointer_document(document_path)
+    _validate_pointer_activation_record_link(document, activation_record)
+    return document
+
+
+def acquire_active_runtime_document_chain(
+    repository_root: Path,
+) -> ActiveRuntimeDocumentChainV1:
+    """Acquire one complete active runtime chain without rereading its pointer."""
+
+    _validate_repository_root(repository_root)
+    pointer_document = _acquire_active_runtime_pointer_document(
+        repository_root / _ACTIVE_RUNTIME_POINTER_RELATIVE_PATH
+    )
+    activation_record_document = _acquire_runtime_activation_record_document(
+        _activation_record_document_path(
+            repository_root,
+            pointer_document.activation_revision,
+        )
+    )
+    projection_document = _acquire_runtime_content_projection_document(
+        _runtime_projection_document_path(
+            repository_root,
+            activation_record_document.runtime_projection_revision,
+        )
+    )
+    _validate_activation_record_projection_link(
+        activation_record_document,
+        projection_document,
+    )
+    _validate_pointer_activation_record_link(
+        pointer_document,
+        activation_record_document,
+    )
+    return ActiveRuntimeDocumentChainV1(
+        pointer_document=pointer_document,
+        activation_record_document=activation_record_document,
+        projection_document=projection_document,
+    )
+
+
+def _acquire_runtime_content_projection_document(
+    document_path: Path,
+) -> RuntimeContentProjectionDocumentV1:
+    document_bytes = _read_document_once(document_path, "runtime projection document")
+    document = _parse_runtime_content_projection_document(document_bytes)
+    if serialize_runtime_content_projection_document(document) != document_bytes:
+        raise ValueError("runtime projection document is not byte-conformant with v1")
+    return document
+
+
+def _acquire_runtime_activation_record_document(
+    document_path: Path,
+) -> RuntimeActivationRecordDocumentV1:
+    document_bytes = _read_document_once(document_path, "runtime activation record document")
+    document = _parse_runtime_activation_record_document(document_bytes)
+    if serialize_runtime_activation_record_document(document) != document_bytes:
+        raise ValueError("runtime activation record document is not byte-conformant with v1")
+    return document
+
+
+def _acquire_active_runtime_pointer_document(
+    document_path: Path,
+) -> ActiveRuntimePointerDocumentV1:
+    document_bytes = _read_document_once(document_path, "active runtime pointer document")
+    document = _parse_active_runtime_pointer_document(document_bytes)
+    if serialize_active_runtime_pointer_document(document) != document_bytes:
+        raise ValueError("active runtime pointer document is not byte-conformant with v1")
+    return document
+
+
+def _validate_activation_record_projection_link(
+    document: RuntimeActivationRecordDocumentV1,
+    projection_document: RuntimeContentProjectionDocumentV1,
+) -> None:
     if not isinstance(projection_document, RuntimeContentProjectionDocumentV1):
         raise ValueError(
             "projection_document must be a RuntimeContentProjectionDocumentV1"
         )
     _validate_projection_document(projection_document)
-    document_bytes = _read_document_once(document_path, "runtime activation record document")
-    document = _parse_runtime_activation_record_document(document_bytes)
-    if serialize_runtime_activation_record_document(document) != document_bytes:
-        raise ValueError("runtime activation record document is not byte-conformant with v1")
     if document.source_snapshot_revision != projection_document.source_snapshot_revision:
         raise ValueError("runtime activation record source revision mismatch")
     if (
@@ -283,31 +374,49 @@ def acquire_runtime_activation_record_document(
         raise ValueError("runtime activation record projection revision mismatch")
     if document.runtime_projection_digest != projection_document.runtime_projection_digest:
         raise ValueError("runtime activation record projection digest mismatch")
-    return document
 
 
-def acquire_active_runtime_pointer_document(
-    document_path: Path,
-    *,
+def _validate_pointer_activation_record_link(
+    document: ActiveRuntimePointerDocumentV1,
     activation_record: RuntimeActivationRecordDocumentV1,
-) -> ActiveRuntimePointerDocumentV1:
-    """Acquire one pointer and require its exact link to one record."""
-
+) -> None:
     if not isinstance(activation_record, RuntimeActivationRecordDocumentV1):
         raise ValueError(
             "activation_record must be a RuntimeActivationRecordDocumentV1"
         )
     _validate_activation_record_document(activation_record)
-    document_bytes = _read_document_once(document_path, "active runtime pointer document")
-    document = _parse_active_runtime_pointer_document(document_bytes)
-    if serialize_active_runtime_pointer_document(document) != document_bytes:
-        raise ValueError("active runtime pointer document is not byte-conformant with v1")
     if document.activation_revision != activation_record.activation_revision:
         raise ValueError("active runtime pointer activation revision mismatch")
     expected_digest = _digest(serialize_runtime_activation_record_document(activation_record))
     if document.activation_record_digest != expected_digest:
         raise ValueError("active runtime pointer activation record digest mismatch")
-    return document
+
+
+def _validate_repository_root(repository_root: Path) -> None:
+    if not isinstance(repository_root, Path):
+        raise ValueError("repository_root must be a Path")
+    if not repository_root.is_absolute():
+        raise ValueError("repository_root must be absolute")
+    if not repository_root.exists() or not repository_root.is_dir():
+        raise ValueError("repository_root must be an existing directory")
+
+
+def _activation_record_document_path(
+    repository_root: Path,
+    activation_revision: str,
+) -> Path:
+    _require_nonblank_string(activation_revision, "activation_revision")
+    digest = hashlib.sha256(activation_revision.encode("utf-8")).hexdigest()
+    return repository_root / _RUNTIME_ACTIVATIONS_RELATIVE_ROOT / f"sha256-{digest}.json"
+
+
+def _runtime_projection_document_path(
+    repository_root: Path,
+    snapshot_revision: str,
+) -> Path:
+    _require_nonblank_string(snapshot_revision, "snapshot_revision")
+    digest = hashlib.sha256(snapshot_revision.encode("utf-8")).hexdigest()
+    return repository_root / _RUNTIME_PROJECTIONS_RELATIVE_ROOT / f"sha256-{digest}.json"
 
 
 def _parse_runtime_content_projection_document(
