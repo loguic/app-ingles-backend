@@ -2781,6 +2781,12 @@ El seam no relee el puntero ni compone documentos de snapshots distintos. Una ca
 
 Esta autorización no crea ni publica un puntero real, no cambia `content_service`, endpoints, loader, autoridad runtime, Flutter, `content/content_tree.json` ni estado de activación A1. La futura integración productiva del seam y cualquier publicación del puntero requieren incrementos y autorización humana separados.
 
+### A1 Content Service Internal Integration v1
+
+Human Gate contractual: **APPROVED / INTERNAL IMPLEMENTATION, DOCUMENTATION AND TEMPORARY TESTS ONLY / NO PRODUCTIVE INTEGRATION**. `content_service.build_content_tree()` conserva literalmente su lectura de `content/content_tree.json` y la autoridad legacy. Se autoriza únicamente `content_service.select_active_runtime_content_tree(repository_root)`, una entrada interna explícita que delega en el Runtime Selection Seam v1 con un `repository_root` absoluto.
+
+La entrada devuelve `None` sin puntero, devuelve exclusivamente el árbol de la proyección canónicamente verificada con cadena válida y propaga todo error de puntero/cadena presente inválida sin fallback. Ningún consumidor existente invoca esta entrada automáticamente; el resolver histórico exacto A1 v2 permanece íntegro. Esta frontera no crea/publica puntero, no altera documentos runtime inmutables, endpoints, Flutter, loader, autoridad productiva, `content/content_tree.json` ni activación A1. La integración productiva exige un incremento y Human Gate posteriores.
+
 ### Source integrity y familias de error
 
 Un active member declarado cuyo payload no existe, no puede leerse o parsearse, o no satisface el schema produce acquisition failure. Si sus `candidate_bytes` adquiridos no reconstruyen una identity que coincida con la membership declarada bajo su revision declarada, produce candidate payload integrity verification failure. Ninguno se degrada silenciosamente a una candidate ausente del scope.

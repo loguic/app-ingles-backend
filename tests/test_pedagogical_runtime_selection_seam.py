@@ -55,6 +55,27 @@ def test_returns_none_when_the_explicit_root_has_no_pointer(tmp_path: Path) -> N
     assert selection_seam.select_active_runtime_content_tree(root) is None
 
 
+def test_content_service_legacy_tree_remains_the_default(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    legacy_path = tmp_path / "content_tree.json"
+    legacy_path.write_bytes(content_service.CONTENT_TREE_PATH.read_bytes())
+    monkeypatch.setattr(content_service, "CONTENT_TREE_PATH", legacy_path)
+
+    legacy_tree = content_service.build_content_tree()
+
+    assert legacy_tree.model_dump(mode="json") == ContentTreeResponse.model_validate_json(
+        legacy_path.read_bytes()
+    ).model_dump(mode="json")
+
+
+def test_content_service_explicit_selection_returns_none_without_a_pointer(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "repository"
+    root.mkdir()
+
+    assert content_service.select_active_runtime_content_tree(root) is None
+
+
 def test_returns_only_the_verified_projection_from_one_chain_snapshot(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -76,6 +97,14 @@ def test_returns_only_the_verified_projection_from_one_chain_snapshot(
     assert calls == [root]
 
 
+def test_content_service_explicit_selection_returns_the_verified_projection(
+    tmp_path: Path,
+) -> None:
+    root, expected_tree = _write_valid_chain(tmp_path)
+
+    assert content_service.select_active_runtime_content_tree(root) == expected_tree
+
+
 def test_rejects_a_present_pointer_with_an_inconsistent_chain(tmp_path: Path) -> None:
     root, _ = _write_valid_chain(tmp_path)
     pointer_path = root / "content/runtime-active.json"
@@ -88,6 +117,25 @@ def test_rejects_a_present_pointer_with_an_inconsistent_chain(tmp_path: Path) ->
 
     with pytest.raises(ValueError, match="activation record digest mismatch"):
         selection_seam.select_active_runtime_content_tree(root)
+
+
+def test_content_service_explicit_selection_propagates_an_invalid_pointer(
+    tmp_path: Path,
+) -> None:
+    root, _ = _write_valid_chain(tmp_path)
+    pointer_path = root / "content/runtime-active.json"
+    pointer = documents._parse_active_runtime_pointer_document(pointer_path.read_bytes())
+    pointer_path.write_bytes(
+        documents.serialize_active_runtime_pointer_document(
+            documents.ActiveRuntimePointerDocumentV1(
+                activation_revision=pointer.activation_revision,
+                activation_record_digest="sha256:" + "f" * 64,
+            )
+        )
+    )
+
+    with pytest.raises(ValueError, match="activation record digest mismatch"):
+        content_service.select_active_runtime_content_tree(root)
 
 
 def test_historical_a1_v2_resolution_remains_available_from_a_temporary_archive(

@@ -5,6 +5,9 @@ from app.services.pedagogical_authoritative_curriculum_hierarchy import (
     AuthoritativeCurriculumHierarchy,
     _issue_authoritative_curriculum_hierarchy,
 )
+from app.services.pedagogical_runtime_selection_seam import (
+    select_active_runtime_content_tree as _select_active_runtime_content_tree,
+)
 
 CONTENT_TREE_PATH = Path(__file__).resolve().parents[2] / "content" / "content_tree.json"
 HISTORICAL_A1_U1_L1_V2_PATH = (
@@ -18,6 +21,14 @@ HISTORICAL_A1_U1_L1_V2_KEY = ("a1-u1-l1", "2.0")
 def build_content_tree() -> ContentTreeResponse:
     data = json.loads(CONTENT_TREE_PATH.read_text(encoding="utf-8"))
     return ContentTreeResponse.model_validate(data)
+
+
+def select_active_runtime_content_tree(
+    repository_root: Path,
+) -> ContentTreeResponse | None:
+    """Explicitly select a verified runtime tree without changing legacy authority."""
+
+    return _select_active_runtime_content_tree(repository_root)
 
 
 def load_authoritative_curriculum_hierarchy(

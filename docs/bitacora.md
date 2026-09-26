@@ -5084,3 +5084,17 @@ Las pruebas temporales cubren puntero ausente, cadena válida, cadena inconsiste
 ## Closure Gate — A1 Runtime Selection Seam v1
 
 El seam queda **CLOSED / PUBLISHED / SYNCED** mediante el Closure Gate canónico. El postflight independiente fue **PASS**, con **0 BLOCKING** y **0 NONBLOCKING**; la validación de cierre acredita las pruebas focales y regresiones directas del seam. No se creó ni publicó `content/runtime-active.json`, no se modificó `content_service`, `content/content_tree.json`, loader, endpoints, Flutter o autoridad runtime, y A1 continúa **NOT ACTIVE**. NEXT = `preparar la integración selectiva del seam con content_service mediante Human Gate específico`; la publicación del puntero permanece **NO AUTORIZADA**.
+
+## A1 — Content Service Internal Integration v1
+
+Human Gate contractual **APPROVED** para la única composición interna explícita entre `content_service` y Runtime Selection Seam v1. `build_content_tree()` permanece legacy y lee `content/content_tree.json`; `select_active_runtime_content_tree(repository_root)` solo delega en el seam. Sin puntero devuelve `None`, con cadena válida retorna exclusivamente la proyección verificada y con puntero/cadena inválida propaga el error sin fallback. Ningún consumidor existente queda conectado automáticamente y el resolver histórico A1 v2 permanece intacto.
+
+No se creó/publicó puntero real, no hubo B52, activación, cambio de autoridad, endpoints, Flutter, loader, documentos runtime inmutables ni modificación de `content/content_tree.json`. NEXT = `postflight independiente del Paso 124`.
+
+## A1 — Content Service Internal Integration v1 · Postflight y preparación de cierre
+
+El postflight independiente queda registrado como **PASS**, con **0 BLOCKING** y **0 NONBLOCKING**. Se reutiliza evidencia de **29 pruebas PASS**: selección seam/servicio, cadena runtime y compatibilidad/versionado A1 v2. La revisión confirmó delegación única sin recursión, preservación de `build_content_tree()` legacy, ausencia de consumidores productivos automáticos, propagación fail-closed de punteros inválidos y ausencia de puntero real.
+
+La preparación documental queda completa, pero el cierre Git permanece **PENDIENTE** y no se ejecutó desde el entorno restringido de Codex. Fricción registrada: evitar ejecuciones redundantes de pruebas y microbloques administrativos en incrementos pequeños; reutilizar evidencia acreditada y mantener controles proporcionales al riesgo.
+
+No se ejecutó B52, publicación, activación, cambio de autoridad, loader, endpoints o Flutter. NEXT = `Closure Gate desde terminal Ubuntu`; después del cierre se determinará el consumidor productivo autorizado mediante Human Gate específico. La publicación del puntero sigue **NO AUTORIZADA**.

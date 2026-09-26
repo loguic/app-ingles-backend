@@ -1100,3 +1100,15 @@ No se crea/publica puntero real ni se modifica `content_service`, endpoints, loa
 ## Closure Gate — A1 Runtime Selection Seam v1
 
 El seam queda **CLOSED / PUBLISHED / SYNCED** mediante el Closure Gate canónico, con postflight independiente **PASS**, **0 BLOCKING**, **0 NONBLOCKING** y 25 pruebas acreditadas. No se creó ni publicó el puntero, no se modificó `content_service`, `content/content_tree.json`, loader, endpoints, Flutter o autoridad runtime, y A1 sigue **NOT ACTIVE**. NEXT = `preparar la integración selectiva del seam con content_service mediante Human Gate específico`; la publicación del puntero permanece **NO AUTORIZADA**.
+
+## A1 — Content Service Internal Integration v1
+
+Human Gate contractual **APPROVED** para una integración interna explícita y read-only. `build_content_tree()` conserva la autoridad legacy sobre `content/content_tree.json`; la entrada nueva `select_active_runtime_content_tree(repository_root)` delega exclusivamente en el seam, devuelve `None` sin puntero, la proyección verificada con cadena válida y error explícito con puntero inválido. Ningún consumidor existente la utiliza automáticamente y A1 v2 se preserva.
+
+No hay publicación de puntero, documentos runtime, cambio de autoridad, endpoint, Flutter, loader o activación A1. NEXT = `postflight independiente del Paso 124`.
+
+## A1 — Content Service Internal Integration v1 · Preparación de cierre
+
+Implementación y postflight independiente **PASS**, con **0 BLOCKING**, **0 NONBLOCKING** y **29 pruebas acreditadas reutilizadas**. La entrada explícita delega en Runtime Selection Seam v1, conserva la autoridad legacy de `build_content_tree()` y no conecta consumidores productivos automáticamente. Puntero, activación A1 y autoridad runtime permanecen sin cambios.
+
+El cierre Git queda **PENDIENTE** y deberá ejecutarse mediante el mecanismo canónico desde terminal Ubuntu. Fricción operativa: evitar repetir pruebas y abrir microbloques administrativos innecesarios; reutilizar evidencia vigente y aplicar controles proporcionales al riesgo. NEXT = `Closure Gate desde terminal Ubuntu`; después, Human Gate específico para determinar el consumidor productivo autorizado.
