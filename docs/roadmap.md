@@ -1112,3 +1112,9 @@ No hay publicación de puntero, documentos runtime, cambio de autoridad, endpoin
 Implementación y postflight independiente **PASS**, con **0 BLOCKING**, **0 NONBLOCKING** y **29 pruebas acreditadas reutilizadas**. La entrada explícita delega en Runtime Selection Seam v1, conserva la autoridad legacy de `build_content_tree()` y no conecta consumidores productivos automáticamente. Puntero, activación A1 y autoridad runtime permanecen sin cambios.
 
 El cierre Git queda **PENDIENTE** y deberá ejecutarse mediante el mecanismo canónico desde terminal Ubuntu. Fricción operativa: evitar repetir pruebas y abrir microbloques administrativos innecesarios; reutilizar evidencia vigente y aplicar controles proporcionales al riesgo. NEXT = `Closure Gate desde terminal Ubuntu`; después, Human Gate específico para determinar el consumidor productivo autorizado.
+
+## Paso 127 — Reconciliación post-cierre: A1 Content Service Internal Integration v1
+
+`A1-CONTENT-SERVICE-INTERNAL-INTEGRATION-V1` queda **CLOSED / PUBLISHED / SYNCED** en `09963388f545104fc84fe0786509cbcaede8fd0f`. La implementación y el postflight independiente fueron **PASS**, con **0 BLOCKING** y **0 NONBLOCKING**; se reutiliza la evidencia de 29 pruebas PASS. La integración no selecciona ni activa automáticamente ningún consumidor productivo. A1 continúa **NOT ACTIVE** y la publicación del puntero permanece **NO AUTORIZADA**.
+
+NEXT = determinar el consumidor productivo autorizado mediante el Human Gate previsto en este roadmap.

@@ -11,6 +11,14 @@
 - Último bloque cerrado integralmente: B180
 - Bloque curricular más reciente: slice estructural 15 cerrada, publicada y sincronizada mediante los commits técnico `aeba506` y documental `ce22f92`; primer push confirmado hasta `ce22f92`; B181 continúa pausado en puerta pedagógica
 
+## Paso 127 — Reconciliación post-cierre: A1-CONTENT-SERVICE-INTERNAL-INTEGRATION-V1
+
+- Estado: **CLOSED / PUBLISHED / SYNCED**.
+- Commit: `09963388f545104fc84fe0786509cbcaede8fd0f`.
+- Implementación y postflight independiente: **PASS**, con **0 BLOCKING** y **0 NONBLOCKING**; evidencia reutilizada: 29 pruebas PASS.
+- No se conectó automáticamente ningún consumidor productivo. A1 continúa **NOT ACTIVE** y la publicación del puntero `content/runtime-active.json` permanece **NO AUTORIZADA**.
+- NEXT: determinar el consumidor productivo autorizado mediante el Human Gate previsto en el roadmap.
+
 ## Human Gate — A1 runtime authority
 
 - Decisión aprobada: `IMMUTABLE_PROJECTIONS_ATOMIC_POINTER`. El runtime futuro usará proyecciones inmutables source-bound, activation records inmutables y `content/runtime-active.json` como commit point atómico; `content/content_tree.json` permanece como legacy/bootstrap durante la migración.
