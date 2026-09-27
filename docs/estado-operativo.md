@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-27T00:00:00+02:00
-Baseline Git previa a este checkpoint: a82dcddb66f562848a616c6063c4d5286ff78544
+Actualizado: 2026-09-27T09:36:56+02:00
+Baseline Git previa a este checkpoint: 9f821b65460e19a0a48a43cb0d04769179ac1138
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -104,7 +104,7 @@ Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `8bc469595
 ### A1 — B52 controlled execution operator v1: wrapper separado ejecuta B38–B51 una vez y pasa B43/B51 en memoria a B52, preservando B39 por `is`; CLI explícito separado, sin modificar el CLI B38–B51, sin persistencia/activación/loader/runtime/content-tree/B181/A1 real; integración sintética y postflight PASS, 8 focales, 192 regresiones, `git diff --check` PASS.
 Se mantienen las fronteras: A1 v4 **MEMBER DURABLE / NOT ACTIVE**, B52 real **NOT VERIFIED**, Puerta 3 **NOT CLOSED**, `LOADER = BLOCKED`, B181 **PAUSED**. El siguiente objetivo es `human-gate-real-a1-b52-run`; ese gate será separado y no se consume mediante este cierre técnico.
 ## Bloque activo
-`A1-CONTENT-ROUTER-RUNTIME-SELECTION-V1`: **IMPLEMENTED / POSTFLIGHT PASS / READY FOR CLOSURE**. Las seis rutas `/api/v1/content/*` seleccionan una vez por solicitud mediante `select_active_runtime_content_tree(CONTENT_TREE_PATH.parent.parent)`: puntero ausente → árbol legacy una vez; cadena válida → árbol verificado exclusivo; cadena inválida → error canónico sin fallback. Se preservan paths, schemas, 404, orden y compatibilidad A1 v2. Evidencia acreditada: **41 PASS**; postflight independiente **PASS**, BLOCKING **0**, NONBLOCKING **0**; `git diff --check` y `operational_state.py validate` **PASS**. A1 continúa **NOT ACTIVE** y el puntero permanece **NO AUTORIZADO**.
+`A1-CONTENT-ROUTER-RUNTIME-SELECTION-V1`: **CLOSED / PUBLISHED / SYNCED** en `9f821b65460e19a0a48a43cb0d04769179ac1138`. El cierre conserva las seis rutas, selección única por solicitud, árbol legacy sin puntero, proyección verificada con cadena válida, fallo cerrado con puntero inválido, root determinista, paths, schemas, 404, orden y compatibilidad A1 v2. Evidencia: **41 PASS**; postflight independiente **PASS**, BLOCKING **0**, NONBLOCKING **0**; `git diff --check` y `operational_state.py validate` **PASS**. A1 continúa **NOT ACTIVE** y el puntero permanece **NO AUTORIZADO**.
 
 Scope local reconocido: `app/api/v1/endpoints/content.py`, `tests/test_content_runtime_selection_router.py`, `tests/test_content_tree.py`, `tests/test_content_levels.py`, `tests/test_content_units.py`, `tests/test_content_lessons.py`, `tests/test_pedagogical_runtime_selection_seam.py`, `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/roadmap.md`. La proyección publicada permanece read-only y fuera de modificación.
 ## Automatización disponible
@@ -128,7 +128,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-NEXT = Closure Gate desde terminal Ubuntu; publicación del puntero NO AUTORIZADA y A1 no activa
+NEXT = preparar el incremento de adquisición runtime y protocolo del puntero conforme al plan maestro; publicación del puntero NO AUTORIZADA y A1 no activa
 
 ## Archivos clave
 

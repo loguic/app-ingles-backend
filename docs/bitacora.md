@@ -17,7 +17,7 @@
 - Commit: `09963388f545104fc84fe0786509cbcaede8fd0f`.
 - Implementación y postflight independiente: **PASS**, con **0 BLOCKING** y **0 NONBLOCKING**; evidencia reutilizada: 29 pruebas PASS.
 - No se conectó automáticamente ningún consumidor productivo. A1 continúa **NOT ACTIVE** y la publicación del puntero `content/runtime-active.json` permanece **NO AUTORIZADA**.
-- NEXT: determinar el consumidor productivo autorizado mediante el Human Gate previsto en el roadmap.
+- NEXT: preparar el incremento de adquisición runtime y protocolo del puntero conforme al plan maestro.
 
 ## Paso 133 — A1 Content Router Runtime Selection v1
 
@@ -35,6 +35,14 @@
 - Allowlist completa: `app/api/v1/endpoints/content.py`, `tests/test_content_runtime_selection_router.py`, `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/roadmap.md`.
 - No hubo publicación del puntero, activación A1, B52, Flutter, Direct English ni cambios de otros consumidores productivos. El cierre Git queda pendiente y no se declara commit publicado.
 - NEXT: `Closure Gate desde terminal Ubuntu`.
+
+## Paso 137 — Reconciliación post-cierre: A1 Content Router Runtime Selection v1
+
+- `A1-CONTENT-ROUTER-RUNTIME-SELECTION-V1` queda **CLOSED / PUBLISHED / SYNCED** en `9f821b65460e19a0a48a43cb0d04769179ac1138`.
+- La implementación y el postflight independiente quedan acreditados como **PASS**, con **41 pruebas PASS**, **0 BLOCKING** y **0 NONBLOCKING**. No se repitieron pruebas ni postflight.
+- Se preservan las seis rutas, la selección única por solicitud, el árbol legacy sin puntero, la proyección verificada con cadena válida, el fallo cerrado sin fallback, el root determinista, paths, schemas, 404, orden y compatibilidad A1 v2.
+- No se publicó el puntero, no se activó A1, no se ejecutó B52 y no se modificaron Flutter, Direct English ni otros consumidores productivos. A1 sigue **NOT ACTIVE** y la publicación del puntero **NO AUTORIZADA**.
+- NEXT: determinar el consumidor productivo autorizado mediante el Human Gate previsto en el roadmap.
 
 ## Human Gate — A1 runtime authority
 
