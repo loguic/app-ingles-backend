@@ -19,6 +19,23 @@
 - No se conectó automáticamente ningún consumidor productivo. A1 continúa **NOT ACTIVE** y la publicación del puntero `content/runtime-active.json` permanece **NO AUTORIZADA**.
 - NEXT: determinar el consumidor productivo autorizado mediante el Human Gate previsto en el roadmap.
 
+## Paso 133 — A1 Content Router Runtime Selection v1
+
+- Human Gate aprobado: la primera integración productiva queda limitada a las seis rutas existentes `/api/v1/content/*`.
+- Implementación local: el router selecciona una vez por solicitud con `select_active_runtime_content_tree(CONTENT_TREE_PATH.parent.parent)`; sin puntero usa el árbol legacy una vez, con cadena válida usa exclusivamente la proyección verificada y con cadena inválida propaga el error canónico sin fallback.
+- Focales y regresiones directas: **41 PASS**. Se preservan 404, schemas, paths, orden y el resolver histórico A1 v2.
+- No hubo publicación de puntero, activación A1, B52, Puerta 3, Flutter, Direct English ni cambios de otros consumidores.
+- NEXT: postflight independiente de A1 Content Router Runtime Selection v1.
+
+## Paso 135 — A1 Content Router Runtime Selection v1 · Preparación de cierre
+
+- Estado: **IMPLEMENTED / POSTFLIGHT PASS / READY FOR CLOSURE**, todavía local y no publicado.
+- El postflight independiente confirmó las seis rutas con selección única por solicitud, árbol legacy exclusivo sin puntero, proyección verificada exclusiva con cadena válida y fallo canónico sin fallback con puntero inválido. Se preservan root determinista `CONTENT_TREE_PATH.parent.parent`, paths, schemas, 404, orden y compatibilidad histórica A1 v2.
+- Evidencia acreditada reutilizada: **41 PASS**; `git diff --check` **PASS**; `operational_state.py validate` **PASS**; BLOCKING **0**; NONBLOCKING **0**. No se repitieron pytest ni postflight.
+- Allowlist completa: `app/api/v1/endpoints/content.py`, `tests/test_content_runtime_selection_router.py`, `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/roadmap.md`.
+- No hubo publicación del puntero, activación A1, B52, Flutter, Direct English ni cambios de otros consumidores productivos. El cierre Git queda pendiente y no se declara commit publicado.
+- NEXT: `Closure Gate desde terminal Ubuntu`.
+
 ## Human Gate — A1 runtime authority
 
 - Decisión aprobada: `IMMUTABLE_PROJECTIONS_ATOMIC_POINTER`. El runtime futuro usará proyecciones inmutables source-bound, activation records inmutables y `content/runtime-active.json` como commit point atómico; `content/content_tree.json` permanece como legacy/bootstrap durante la migración.

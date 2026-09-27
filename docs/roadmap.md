@@ -1118,3 +1118,11 @@ El cierre Git queda **PENDIENTE** y deberá ejecutarse mediante el mecanismo can
 `A1-CONTENT-SERVICE-INTERNAL-INTEGRATION-V1` queda **CLOSED / PUBLISHED / SYNCED** en `09963388f545104fc84fe0786509cbcaede8fd0f`. La implementación y el postflight independiente fueron **PASS**, con **0 BLOCKING** y **0 NONBLOCKING**; se reutiliza la evidencia de 29 pruebas PASS. La integración no selecciona ni activa automáticamente ningún consumidor productivo. A1 continúa **NOT ACTIVE** y la publicación del puntero permanece **NO AUTORIZADA**.
 
 NEXT = determinar el consumidor productivo autorizado mediante el Human Gate previsto en este roadmap.
+
+## A1 — Content Router Runtime Selection v1
+
+Human Gate consumido exclusivamente para la familia existente `/api/v1/content/*`. La implementación local selecciona una sola vez por solicitud mediante `select_active_runtime_content_tree(CONTENT_TREE_PATH.parent.parent)`: puntero ausente → árbol legacy una vez; cadena válida → proyección verificada exclusiva; puntero/cadena presente inválido → error canónico sin fallback ni mezcla. Las seis rutas conservan paths, schemas, 404 y orden; cada recurso se deriva del árbol ya seleccionado. Focales y regresiones directas: **41 PASS**.
+
+Estado actual: **IMPLEMENTED / POSTFLIGHT PASS / READY FOR CLOSURE**, todavía local y no publicado. Evidencia acreditada: **41 PASS**, `git diff --check` **PASS**, `operational_state.py validate` **PASS**, BLOCKING **0** y NONBLOCKING **0**. El scope queda limitado a `app/api/v1/endpoints/content.py`, `tests/test_content_runtime_selection_router.py` y estos tres documentos.
+
+No se publican puntero ni documentos runtime, no se activa A1, no se ejecuta B52, no se modifica `content/content_tree.json`, Flutter, Direct English ni otros consumidores. A1 v2 histórico permanece íntegro. NEXT = `Closure Gate desde terminal Ubuntu`.

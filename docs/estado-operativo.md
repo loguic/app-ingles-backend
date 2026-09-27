@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-26T13:20:50+02:00
-Baseline Git previa a este checkpoint: 09963388f545104fc84fe0786509cbcaede8fd0f
+Actualizado: 2026-09-27T00:00:00+02:00
+Baseline Git previa a este checkpoint: a82dcddb66f562848a616c6063c4d5286ff78544
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -104,9 +104,9 @@ Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `8bc469595
 ### A1 — B52 controlled execution operator v1: wrapper separado ejecuta B38–B51 una vez y pasa B43/B51 en memoria a B52, preservando B39 por `is`; CLI explícito separado, sin modificar el CLI B38–B51, sin persistencia/activación/loader/runtime/content-tree/B181/A1 real; integración sintética y postflight PASS, 8 focales, 192 regresiones, `git diff --check` PASS.
 Se mantienen las fronteras: A1 v4 **MEMBER DURABLE / NOT ACTIVE**, B52 real **NOT VERIFIED**, Puerta 3 **NOT CLOSED**, `LOADER = BLOCKED`, B181 **PAUSED**. El siguiente objetivo es `human-gate-real-a1-b52-run`; ese gate será separado y no se consume mediante este cierre técnico.
 ## Bloque activo
-No hay bloque técnico activo. `A1-CONTENT-SERVICE-INTERNAL-INTEGRATION-V1` está **CLOSED / PUBLISHED / SYNCED** en `09963388f545104fc84fe0786509cbcaede8fd0f`; implementación y postflight independiente PASS, con **0 BLOCKING** y **0 NONBLOCKING**. A1 continúa **NOT ACTIVE** y el puntero permanece **NO AUTORIZADO**.
+`A1-CONTENT-ROUTER-RUNTIME-SELECTION-V1`: **IMPLEMENTED / POSTFLIGHT PASS / READY FOR CLOSURE**. Las seis rutas `/api/v1/content/*` seleccionan una vez por solicitud mediante `select_active_runtime_content_tree(CONTENT_TREE_PATH.parent.parent)`: puntero ausente → árbol legacy una vez; cadena válida → árbol verificado exclusivo; cadena inválida → error canónico sin fallback. Se preservan paths, schemas, 404, orden y compatibilidad A1 v2. Evidencia acreditada: **41 PASS**; postflight independiente **PASS**, BLOCKING **0**, NONBLOCKING **0**; `git diff --check` y `operational_state.py validate` **PASS**. A1 continúa **NOT ACTIVE** y el puntero permanece **NO AUTORIZADO**.
 
-Scope local reconocido: `app/services/content_service.py`, `tests/test_pedagogical_runtime_selection_seam.py`, `docs/curriculum-preparation-prerequisites-contract-v1.md`, `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/roadmap.md`. La proyección publicada permanece read-only y fuera de modificación.
+Scope local reconocido: `app/api/v1/endpoints/content.py`, `tests/test_content_runtime_selection_router.py`, `tests/test_content_tree.py`, `tests/test_content_levels.py`, `tests/test_content_units.py`, `tests/test_content_lessons.py`, `tests/test_pedagogical_runtime_selection_seam.py`, `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/roadmap.md`. La proyección publicada permanece read-only y fuera de modificación.
 ## Automatización disponible
 - `operational_state.py` valida estructura, timestamp timezone-aware, baseline Git previa y ausencia de campos Git vivos.
 - `conversation_checkpoint.py prepare|resume` compone estado semántico y Git vivo en una vista efímera read-only con upstream obligatorio. `--format compact` entrega `compact-v1` parseable mediante `urllib.parse.parse_qsl`; `--format json` conserva las secciones semánticas completas. Ambos reutilizan las validaciones del checkpoint Markdown y no crean una nueva autoridad.
@@ -128,7 +128,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-NEXT = determinar el consumidor productivo autorizado mediante el Human Gate previsto en el roadmap; publicación del puntero NO AUTORIZADA y A1 no activa
+NEXT = Closure Gate desde terminal Ubuntu; publicación del puntero NO AUTORIZADA y A1 no activa
 
 ## Archivos clave
 
