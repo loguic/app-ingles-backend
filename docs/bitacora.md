@@ -44,6 +44,15 @@
 - No se publicó el puntero, no se activó A1, no se ejecutó B52 y no se modificaron Flutter, Direct English ni otros consumidores productivos. A1 sigue **NOT ACTIVE** y la publicación del puntero **NO AUTORIZADA**.
 - NEXT: determinar el consumidor productivo autorizado mediante el Human Gate previsto en el roadmap.
 
+## Paso 144 — A1 Initial Runtime Pointer Transition v1
+
+- Human Gate consumido solo para contrato, implementación, documentación y pruebas temporales; no autoriza transición real.
+- Se añadió la creación inicial no-replace al componente Runtime Documents v1: temporal sibling durable + `os.link()` atómico, sin fallback a `os.replace`; un destino concurrente, archivo o symlink falla cerrado sin sobrescritura.
+- El operador nuevo exige root y documentos explícitos, paths canónicos, record/proyección cross-linked, `previous_activation_revision=null` y puntero ausente; tras éxito reacquiere la cadena completa. Distingue fallo previo a visibilidad, destino concurrente, durabilidad incompleta tras link y fallo de verificación visible, sin retry, rollback ni borrado.
+- Evidencia: **40 PASS** focales/regresiones directas. El TestClient histórico del router no se repitió dentro del sandbox; no cambió el router.
+- No hubo puntero real, activación A1, loader, B52, modificación de documentos runtime publicados, `content/content_tree.json`, Flutter u otros consumidores. A1 v2 y legacy permanecen intactos.
+- NEXT: postflight independiente de A1 Initial Runtime Pointer Transition v1.
+
 ## Human Gate — A1 runtime authority
 
 - Decisión aprobada: `IMMUTABLE_PROJECTIONS_ATOMIC_POINTER`. El runtime futuro usará proyecciones inmutables source-bound, activation records inmutables y `content/runtime-active.json` como commit point atómico; `content/content_tree.json` permanece como legacy/bootstrap durante la migración.
@@ -5131,3 +5140,9 @@ El postflight independiente queda registrado como **PASS**, con **0 BLOCKING** y
 La preparación documental queda completa, pero el cierre Git permanece **PENDIENTE** y no se ejecutó desde el entorno restringido de Codex. Fricción registrada: evitar ejecuciones redundantes de pruebas y microbloques administrativos en incrementos pequeños; reutilizar evidencia acreditada y mantener controles proporcionales al riesgo.
 
 No se ejecutó B52, publicación, activación, cambio de autoridad, loader, endpoints o Flutter. NEXT = `Closure Gate desde terminal Ubuntu`; después del cierre se determinará el consumidor productivo autorizado mediante Human Gate específico. La publicación del puntero sigue **NO AUTORIZADA**.
+
+## A1 — Initial Runtime Pointer Transition v1 · preparación de cierre
+
+Re-postflight independiente **PASS**, con **BLOCKING 0** y **NONBLOCKING 0**. La prueba focal end-to-end usa una proyección válida y un record individualmente canónico pero incompatible; invoca el operador con ambos documentos y sus identidades explícitas, obtiene exit 1 / `PRECONDITION_FAILURE` y mantiene ausente el puntero temporal. Evidencia reutilizada: **12 PASS** focales y **29 PASS** de regresión directa; `git diff --check` **PASS`**.
+
+Scope exacto: los cuatro documentos canónicos más `app/services/pedagogical_runtime_activation_documents.py`, `scripts/engineering/a1_initial_runtime_pointer_transition_operator.py` y `tests/test_a1_initial_runtime_pointer_transition_operator.py`. No se modificó archivo productivo en la corrección. Se conservan A1 v4 **MEMBER DURABLE / NOT ACTIVE**, Puerta 3 **NOT CLOSED**, B52 **VERIFIED / PASS** sin repetición, puntero real ausente, primera transición real pendiente de Human Gate y protocolo humano de recuperación pendiente. NEXT = `Closure Gate desde terminal Ubuntu`; después queda acordado retomar la demostración A1 v4 en Flutter mediante el gate correspondiente.

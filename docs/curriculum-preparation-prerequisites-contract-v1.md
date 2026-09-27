@@ -2773,6 +2773,16 @@ La ausencia confirmada de `content/runtime-active.json` produce `previous_activa
 
 La secuencia autorizada es `proyección verificada → record inmutable → reacquisition/verificación del record`. Un futuro incremento, con Human Gate independiente, definirá cualquier actualización de puntero y la transición efectiva de activación.
 
+### A1 Initial Runtime Pointer Transition Contract v1
+
+Human Gate: **APPROVED / CONTRACT, IMPLEMENTATION, DOCUMENTATION AND TEMPORARY TESTS ONLY / NO REAL TRANSITION**. Esta frontera define exclusivamente la primera creación de `content/runtime-active.json`; no autoriza ejecutar el operador sobre el repositorio real, activar A1, modificar `content/content_tree.json`, habilitar loader, cerrar Puerta 3, reanudar B181 ni ejecutar B52.
+
+El operador recibe `repository_root`, `activation_revision`, record y proyección por paths absolutos explícitos. Ambos paths deben ser los targets deterministas bajo el root canónico y se adquieren mediante los acquirers Runtime Documents v1. El record debe enlazar exactamente con la proyección y declarar `previous_activation_revision=null`; la presencia previa de puntero —archivo, symlink o symlink roto— falla cerrado.
+
+La primera creación reutiliza serialización, validación de paths, temporal sibling, flush y file `fsync` del publisher canónico, pero no usa `os.replace`: enlaza atómicamente el temporal con `os.link()` al target ausente dentro del mismo filesystem. `EEXIST` falla cerrado y no sustituye el destino; no existe fallback a replace. El publisher `os.replace` vigente conserva sin cambios su semántica para transiciones futuras que reciban autorización separada.
+
+Tras creación y directory `fsync` confirmados, el operador reacquiere una vez la cadena completa y exige las identidades del record y proyección solicitados. Si falla antes de visibilidad, informa fallo sin resultado; si el directory `fsync` falla después del link, informa **visible but durability-incomplete** y solo observa read-only la cadena. Si la verificación posterior falla, informa **visible verification failure**. No borra, revierte, reintenta ni convierte la observación en éxito; la recuperación humana sigue fuera de este incremento.
+
 ### A1 Runtime Selection Seam v1
 
 Human Gate contractual: **APPROVED / INTERNAL READ-ONLY IMPLEMENTATION, DOCUMENTATION AND TEMPORARY TESTS ONLY**. El seam recibe exclusivamente un `repository_root` `Path` absoluto, explícito y existente. Observa la presencia de `content/runtime-active.json` bajo ese root: si el puntero está ausente devuelve `None`; si está presente —incluido un symlink roto— delega una sola adquisición a `acquire_active_runtime_document_chain(repository_root)` y devuelve exclusivamente el `ContentTreeResponse` de la proyección ya verificada.

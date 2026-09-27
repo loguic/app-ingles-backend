@@ -256,6 +256,44 @@ def publish_active_runtime_pointer_document(
             _cleanup_temporary(temporary_path)
 
 
+def create_initial_active_runtime_pointer_document(
+    document: ActiveRuntimePointerDocumentV1,
+    *,
+    document_path: Path,
+) -> None:
+    """Create the first active pointer atomically, only while it is absent."""
+
+    document_bytes = serialize_active_runtime_pointer_document(document)
+    _validate_publish_path(document_path)
+    if _inspect_publish_target(document_path) is not None:
+        raise ValueError("initial active runtime pointer target must be absent")
+
+    temporary_path: Path | None = None
+    created = False
+    try:
+        temporary_path = _write_durable_temporary(document_path, document_bytes)
+        try:
+            os.link(temporary_path, document_path)
+        except OSError as error:
+            if error.errno == errno.EEXIST:
+                raise ValueError(
+                    "initial active runtime pointer target already exists"
+                ) from error
+            raise
+        created = True
+        _fsync_directory(document_path.parent)
+    except OSError as error:
+        if created:
+            raise OSError(
+                "initial active runtime pointer is visible but durable directory "
+                "sync failed"
+            ) from error
+        raise
+    finally:
+        if temporary_path is not None:
+            _cleanup_temporary(temporary_path)
+
+
 def acquire_runtime_content_projection_document(
     document_path: Path,
 ) -> RuntimeContentProjectionDocumentV1:
