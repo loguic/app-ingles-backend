@@ -1,14 +1,14 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-27T10:15:00+02:00
-Baseline Git previa a este checkpoint: df28d3374af858d92335b75cd22121ffc6c2b1d7
+Actualizado: 2026-09-30T00:25:52+02:00
+Baseline Git previa a este checkpoint: bb0977de74350cdaf0a8fd0487d3651a9adc9bf9
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
 
 - Producto: entrenador de fluidez conversacional funcional.
 - Documento rector: `docs/modelo-pedagogico-maestro.md`; contrato curricular: `docs/curriculum-preparation-prerequisites-contract-v1.md`.
-- Método operativo: `docs/loguic-engineering-operating-method-v1.md`; routing: `docs/loguic-ai-model-routing-policy-v1.md` (default `Terra / medium`).
+- Método operativo: `docs/loguic-engineering-operating-method-v1.md`; routing: `docs/loguic-ai-model-routing-policy-v1.md` (default `Terra / medium`); adopción cross-project vigente: `LOGUIC-OS-CROSS-PROJECT-GOVERNANCE-CONTRACT@1.0.0`, declarada en `docs/governance/loguic-os-cross-project-governance-contract-adoption-v1.md`, sin adopción automática de versiones futuras ni transferencia de los dominios soberanos de LOGUIC English.
 - Este documento es la autoridad semántica durable; HEAD, branch, upstream, ahead/behind y working tree actuales proceden exclusivamente de la inspección read-only de Git realizada por `conversation_checkpoint.py`.
 - La baseline es la frontera Git previa no circular de este checkpoint, no una declaración del HEAD actual.
 
@@ -104,9 +104,9 @@ Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `8bc469595
 ### A1 — B52 controlled execution operator v1: wrapper separado ejecuta B38–B51 una vez y pasa B43/B51 en memoria a B52, preservando B39 por `is`; CLI explícito separado, sin modificar el CLI B38–B51, sin persistencia/activación/loader/runtime/content-tree/B181/A1 real; integración sintética y postflight PASS, 8 focales, 192 regresiones, `git diff --check` PASS.
 Se mantienen las fronteras: A1 v4 **MEMBER DURABLE / NOT ACTIVE**, B52 real **NOT VERIFIED**, Puerta 3 **NOT CLOSED**, `LOADER = BLOCKED`, B181 **PAUSED**. El siguiente objetivo es `human-gate-real-a1-b52-run`; ese gate será separado y no se consume mediante este cierre técnico.
 ## Bloque activo
-`A1-INITIAL-RUNTIME-POINTER-TRANSITION-V1`: implementación local lista para postflight independiente. Añade creación inicial no-replace mediante `os.link()` sobre temporal sibling durable y un operador explícito que valida record/proyección, exige puntero ausente, publica una sola vez y reacquiere la cadena. Focales y regresiones directas: **40 PASS**. No hubo transición real, activación A1, loader, B52 ni cambio de autoridad legacy.
+`LOGUIC-ENGLISH-ADOPTION-P1-GOV-001-V1`: adopción gobernada local de `LOGUIC-OS-CROSS-PROJECT-GOVERNANCE-CONTRACT@1.0.0`, aprobada por Human Authority y fijada exactamente a `1.0.0`. La declaración durable registra `ADOPTED`, compatibilidad `COMPATIBLE`, migración `NO`, versión current/available `1.0.0`, procedencia upstream exacta y soberanía de LOGUIC English. Cierre semántico: **ADOPTED / CLOSED / PUBLISHED / SYNCED**; futuras versiones **NOT AUTOMATICALLY ADOPTED**; soberanía **PRESERVED**; Operational Resilience **NOT STARTED**; objetivo funcional B **NOT STARTED during this closure**. No importa políticas LOGUIC OS adicionales ni cambia A1, B52, loader, B181, human review, adjudicación o winner. Verificación upstream read-only PASS sobre el commit fijado; validación focal/regresión **85 PASS** y receta canónica `approved-v1` **PASS**.
 
-Scope local reconocido: `app/services/pedagogical_runtime_activation_documents.py`, `scripts/engineering/a1_initial_runtime_pointer_transition_operator.py`, `tests/test_a1_initial_runtime_pointer_transition_operator.py`, `docs/curriculum-preparation-prerequisites-contract-v1.md`, `docs/estado-operativo.md`, `docs/bitacora.md` y `docs/roadmap.md`. La proyección y el record publicados permanecen read-only y fuera de modificación.
+Scope local reconocido: `docs/governance/loguic-os-cross-project-governance-contract-adoption-v1.md` y `docs/estado-operativo.md`. Token Reduction Increments 1–3 permanecen **CLOSED / PUBLISHED / SYNCED** y no se crea Increment 4. La adopción queda separada de toda implementación funcional y pendiente de cierre Git conforme al método operativo.
 ## Automatización disponible
 - `operational_state.py` valida estructura, timestamp timezone-aware, baseline Git previa y ausencia de campos Git vivos.
 - `conversation_checkpoint.py prepare|resume` compone estado semántico y Git vivo en una vista efímera read-only con upstream obligatorio. `--format compact` entrega `compact-v1` parseable mediante `urllib.parse.parse_qsl`; `--format json` conserva las secciones semánticas completas. Ambos reutilizan las validaciones del checkpoint Markdown y no crean una nueva autoridad.
@@ -128,11 +128,11 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-NEXT = Closure Gate desde terminal Ubuntu; después, retomar mediante Human Gate la demostración A1 v4 en Flutter, sin activar A1 ni cambiar prioridades canónicas
+NEXT = Closure Gate del microbloque de adopción P1-GOV-001 v1 desde terminal Ubuntu; después del cierre completo, B puede volver como siguiente objetivo funcional salvo dependencia explícitamente gobernada que lo superseda
 
 ## Archivos clave
 
-- `docs/loguic-engineering-operating-method-v1.md`, `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`, `docs/curriculum-preparation-prerequisites-contract-v1.md`, `docs/devsecops-gate.md`, `scripts/engineering/operational_state.py`, `scripts/engineering/conversation_checkpoint.py`, `tests/test_operational_state.py`, `tests/test_conversation_checkpoint.py`, `app/services/pedagogical_expected_resource_identity_collection_document.py`, `app/services/pedagogical_expected_resource_identity_collection_acquisition.py`, `tests/test_pedagogical_expected_resource_identity_collection_document.py`, `tests/test_pedagogical_expected_resource_identity_collection_acquisition.py`, `content/expected-resource-identities/active-candidate-source-002.json` y `tests/test_a1_expected_resource_identity_materialization.py`;
+- `docs/loguic-engineering-operating-method-v1.md`, `docs/estado-operativo.md`, `docs/governance/loguic-os-cross-project-governance-contract-adoption-v1.md`, `docs/bitacora.md`, `docs/roadmap.md`, `docs/curriculum-preparation-prerequisites-contract-v1.md`, `docs/devsecops-gate.md`, `scripts/engineering/operational_state.py`, `scripts/engineering/conversation_checkpoint.py`, `tests/test_operational_state.py`, `tests/test_conversation_checkpoint.py`, `app/services/pedagogical_expected_resource_identity_collection_document.py`, `app/services/pedagogical_expected_resource_identity_collection_acquisition.py`, `tests/test_pedagogical_expected_resource_identity_collection_document.py`, `tests/test_pedagogical_expected_resource_identity_collection_acquisition.py`, `content/expected-resource-identities/active-candidate-source-002.json` y `tests/test_a1_expected_resource_identity_materialization.py`; la declaración de adopción conserva procedencia, compatibilidad, versión, migración, soberanía y límites de importación de `LOGUIC-OS-CROSS-PROJECT-GOVERNANCE-CONTRACT@1.0.0`;
 - `scripts/engineering/block_workflow.py`, `tests/test_block_workflow.py`, `scripts/engineering/block_close.py` y `scripts/engineering/git_close.py` definen y cubren el tramo determinista de cierre; los dos últimos permanecen sin cambios;
 - `scripts/engineering/a1_resource_binding_adapter.py`, `tests/test_a1_resource_binding_adapter.py` y `content/resources/a1-u1/README.md` adaptan y documentan la tabla física A1 canónica para el B48 existente sin adquirir recursos; `app/services/pedagogical_active_candidate_source_integrity_orchestrator.py` y `tests/test_pedagogical_active_candidate_source_integrity_orchestrator.py` componen sintéticamente B38–B51 con un único B39 y se detienen antes de B52; `scripts/engineering/a1_source_integrity_operator.py` y `tests/test_a1_source_integrity_operator.py` proporcionan el entrypoint explícito sintético y reportable;
 - `app/schemas/tts_engine_benchmark.py`, `app/services/tts_public_reviewer_workflow.py`, `docs/loguic-tts-engine-benchmark-protocol-v1.md` y `tests/test_tts_engine_benchmark_schema.py` contienen el review-lock publicado y el public reviewer workflow local; `app/services/pedagogical_active_candidate_source_integrity_controlled_execution.py`, `scripts/engineering/a1_b52_controlled_execution_operator.py` y `tests/test_a1_b52_controlled_execution_operator.py` implementan y cubren el wrapper controlado B38–B52, sin ejecución A1 real;
