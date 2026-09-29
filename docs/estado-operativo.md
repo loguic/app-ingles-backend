@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-09-30T00:25:52+02:00
-Baseline Git previa a este checkpoint: bb0977de74350cdaf0a8fd0487d3651a9adc9bf9
+Actualizado: 2026-09-30T00:37:28+02:00
+Baseline Git previa a este checkpoint: fdb2e6f93e2f4b609e83e54f6effa2e38d8faa3d
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -104,9 +104,9 @@ Estado semántico: **CLOSED / PUBLISHED / SYNCED** históricamente en `8bc469595
 ### A1 — B52 controlled execution operator v1: wrapper separado ejecuta B38–B51 una vez y pasa B43/B51 en memoria a B52, preservando B39 por `is`; CLI explícito separado, sin modificar el CLI B38–B51, sin persistencia/activación/loader/runtime/content-tree/B181/A1 real; integración sintética y postflight PASS, 8 focales, 192 regresiones, `git diff --check` PASS.
 Se mantienen las fronteras: A1 v4 **MEMBER DURABLE / NOT ACTIVE**, B52 real **NOT VERIFIED**, Puerta 3 **NOT CLOSED**, `LOADER = BLOCKED`, B181 **PAUSED**. El siguiente objetivo es `human-gate-real-a1-b52-run`; ese gate será separado y no se consume mediante este cierre técnico.
 ## Bloque activo
-`LOGUIC-ENGLISH-ADOPTION-P1-GOV-001-V1`: adopción gobernada local de `LOGUIC-OS-CROSS-PROJECT-GOVERNANCE-CONTRACT@1.0.0`, aprobada por Human Authority y fijada exactamente a `1.0.0`. La declaración durable registra `ADOPTED`, compatibilidad `COMPATIBLE`, migración `NO`, versión current/available `1.0.0`, procedencia upstream exacta y soberanía de LOGUIC English. Cierre semántico: **ADOPTED / CLOSED / PUBLISHED / SYNCED**; futuras versiones **NOT AUTOMATICALLY ADOPTED**; soberanía **PRESERVED**; Operational Resilience **NOT STARTED**; objetivo funcional B **NOT STARTED during this closure**. No importa políticas LOGUIC OS adicionales ni cambia A1, B52, loader, B181, human review, adjudicación o winner. Verificación upstream read-only PASS sobre el commit fijado; validación focal/regresión **85 PASS** y receta canónica `approved-v1` **PASS**.
+`LOGUIC-ENGLISH-ADOPTION-P1-GOV-001-V1`: adopción gobernada local de `LOGUIC-OS-CROSS-PROJECT-GOVERNANCE-CONTRACT@1.0.0`, aprobada por Human Authority y fijada exactamente a `1.0.0`. La declaración durable registra `ADOPTED`, compatibilidad `COMPATIBLE`, migración `NO`, versión current/available `1.0.0`, procedencia upstream exacta y soberanía de LOGUIC English. Cierre semántico: **ADOPTED / CLOSED / PUBLISHED / SYNCED**; futuras versiones **NOT AUTOMATICALLY ADOPTED**; soberanía **PRESERVED**. Human Authority decide **OPERATIONAL_RESILIENCE_FIRST**: Operational Resilience está **NOT_STARTED** en LOGUIC English y Shared Engineering Operating Policy v1 queda **DEFERRED_PENDING_OPERATIONAL_RESILIENCE_EVIDENCE**. El objetivo funcional B no se inicia mediante esta reconciliación. No importa políticas LOGUIC OS adicionales ni cambia A1, B52, loader, B181, human review, adjudicación o winner. Verificación upstream read-only PASS sobre el commit fijado; validación focal/regresión **85 PASS** y receta canónica `approved-v1` **PASS**.
 
-Scope local reconocido: `docs/governance/loguic-os-cross-project-governance-contract-adoption-v1.md` y `docs/estado-operativo.md`. Token Reduction Increments 1–3 permanecen **CLOSED / PUBLISHED / SYNCED** y no se crea Increment 4. La adopción queda separada de toda implementación funcional y pendiente de cierre Git conforme al método operativo.
+Scope local reconocido: `docs/governance/loguic-os-cross-project-governance-contract-adoption-v1.md` y `docs/estado-operativo.md`. Token Reduction Increments 1–3 permanecen **CLOSED / PUBLISHED / SYNCED** y no se crea Increment 4. La adopción permanece separada de toda implementación funcional; esta reconciliación no inicia Operational Resilience ni el objetivo funcional B.
 ## Automatización disponible
 - `operational_state.py` valida estructura, timestamp timezone-aware, baseline Git previa y ausencia de campos Git vivos.
 - `conversation_checkpoint.py prepare|resume` compone estado semántico y Git vivo en una vista efímera read-only con upstream obligatorio. `--format compact` entrega `compact-v1` parseable mediante `urllib.parse.parse_qsl`; `--format json` conserva las secciones semánticas completas. Ambos reutilizan las validaciones del checkpoint Markdown y no crean una nueva autoridad.
@@ -128,7 +128,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-NEXT = Closure Gate del microbloque de adopción P1-GOV-001 v1 desde terminal Ubuntu; después del cierre completo, B puede volver como siguiente objetivo funcional salvo dependencia explícitamente gobernada que lo superseda
+NEXT = Return to LOGUIC OS and begin Operational Resilience v1 at OR-G0 — Authority + Scope Decision, under LOGUIC-OS-CROSS-PROJECT-GOVERNANCE-CONTRACT@1.0.0. OR-G0 remains NOT_STARTED.
 
 ## Archivos clave
 
