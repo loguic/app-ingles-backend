@@ -11,6 +11,16 @@
 - Último bloque cerrado integralmente: B180
 - Bloque curricular más reciente: slice estructural 15 cerrada, publicada y sincronizada mediante los commits técnico `aeba506` y documental `ce22f92`; primer push confirmado hasta `ce22f92`; B181 continúa pausado en puerta pedagógica
 
+## Microbloque método — Canonical Codex Output Envelope Rule
+
+Se confirmó fricción de usabilidad/método: las respuestas finales de Codex habían perdido delimitación visual fiable frente a texto TUI, comandos, warnings, prompts y respuestas posteriores. La convención `COPY START`/`COPY END` ya se usaba operativamente, pero no era obligatoria en el método canónico.
+
+La corrección incorpora un sobre externo obligatorio para toda respuesta final destinada a handoff humano o copia de vuelta, correlacionado por el `TASK TITLE` exacto: primera línea `▶ COPY START · CODEX · <TASK TITLE>`, última línea `◀ COPY END · CODEX · <TASK TITLE>`, sin contenido exterior. Los outputs internos pueden conservar marcadores locales sin sustituir ni duplicar ese sobre único.
+
+La revisión independiente focal del diff fue **PASS** y `git diff --check` fue **PASS**. No se creó helper, script ni motor de templates. Es exclusivamente una regla de presentación/handoff: no crea autoridad semántica, Git, de autorización, validación ni cierre. Una eventual promoción cross-project pertenece a LOGUIC OS y requerirá evidencia justificada; este cambio local no la adopta globalmente.
+
+El postflight independiente detectó redacción histórica ambigua sobre B52: la cronología canónica confirma el estado actual **VERIFIED / PASS**, sin rerun. Los estados históricos `NOT VERIFIED` se preservan y se acotan temporalmente; la reconciliación histórica de alcance roadmap queda diferida a la adjudicación pendiente del audit de plan maestro/drift.
+
 ## Paso 127 — Reconciliación post-cierre: A1-CONTENT-SERVICE-INTERNAL-INTEGRATION-V1
 
 - Estado: **CLOSED / PUBLISHED / SYNCED**.

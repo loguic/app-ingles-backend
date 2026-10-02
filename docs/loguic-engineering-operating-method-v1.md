@@ -112,6 +112,17 @@ Antes de inspeccionar, ejecutar o validar:
 4. no reinspeccionar archivos sin cambio material;
 5. evitar `cat`/`sed` más copiar y pegar código al chat cuando Codex puede trabajar directamente sobre el repositorio.
 6. para tareas Codex recurrentes, usar prompts compactos que declaren objetivo, scope, restricciones y evidencia nueva, y ordenen inspeccionar los documentos canónicos; las plantillas no son autoridad y no duplican contratos extensos.
+7. toda respuesta final de Codex destinada a handoff humano o copia de vuelta usará exclusivamente este sobre externo, con el título de tarea exactamente igual al declarado en el prompt:
+
+   ```text
+   ▶ COPY START · CODEX · <TASK TITLE>
+
+   <respuesta final completa>
+
+   ◀ COPY END · CODEX · <TASK TITLE>
+   ```
+
+   La primera línea será `COPY START` y la última `COPY END`; no habrá contenido antes ni después. El sobre correlaciona un prompt con una respuesta Codex. Los outputs internos pueden usar marcadores locales cuando ayuden, sin sustituir ni duplicar el sobre externo único. Esta regla solo gobierna presentación/handoff: no crea autoridad semántica, Git, de autorización, validación ni cierre.
 
 Evidencia documentada significa evidencia reutilizable, no autorización para atribuir garantías más amplias.
 
