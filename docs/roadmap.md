@@ -1140,3 +1140,23 @@ Evidencia focal y de regresión directa: **40 PASS**. No se ejecutó el operador
 Re-postflight independiente **PASS**, con **BLOCKING 0** y **NONBLOCKING 0**. La cobertura focal corregida demuestra incompatibilidad end-to-end entre proyección válida y record individualmente canónico incompatible; el operador recibe ambos documentos con revisión y rutas explícitas, devuelve exit 1 / `PRECONDITION_FAILURE` y deja ausente el puntero temporal. Evidencia: **12 focales PASS**, **29 regresiones directas PASS** reutilizadas y `git diff --check` **PASS**. Scope exacto: los cuatro documentos canónicos más `app/services/pedagogical_runtime_activation_documents.py`, `scripts/engineering/a1_initial_runtime_pointer_transition_operator.py` y `tests/test_a1_initial_runtime_pointer_transition_operator.py`; no hubo archivos productivos modificados por la corrección.
 
 Se mantienen A1 v4 **MEMBER DURABLE / NOT ACTIVE**, Puerta 3 **NOT CLOSED**, B52 **VERIFIED / PASS** sin repetición, puntero real ausente, primera transición real pendiente de Human Gate y protocolo humano de recuperación pendiente. El próximo objetivo inmediato es `Closure Gate desde terminal Ubuntu`; una vez cerrado, se retoma la demostración A1 v4 en Flutter mediante el gate correspondiente, sin alterar unilateralmente las prioridades canónicas.
+
+## Reconciliación — A1 v4 first bounded Gate 2 demo increment
+
+El primer incremento acotado de la demo A1 v4 queda **CLOSED / PUBLISHED /
+SYNCED** en frontend mediante `3144b929a829bbc2ded1352e0c7411d7e9e26fde`.
+La implementación, 3 tests Flutter focales, `git diff --check` y postflight
+independiente fueron PASS, con BLOCKING=0, NONBLOCKING=0 y sin scope creep.
+El transcript/modelo completo permanece oculto inicialmente y después de la
+referencia; la primera respuesta de comprensión es el punto de revelación
+aprobado. Repetición/autopercepción se distingue de producción oral propia; la
+producción propia se habilita solo tras comprensión correcta, oculta el modelo
+completo al iniciarse y sigue local/demo-only, con estado e identidad separados
+que se reinician al reentrar.
+
+No se autorizan apoyo inferior, transferencia, revisión humana, retención,
+mastery, progreso ni completion. A1 v4 sigue **MEMBER DURABLE / NOT ACTIVE**;
+Puerta 3 sigue **NOT CLOSED**; loader, activación, runtime pointer y B181
+permanecen no autorizados. NEXT = acotar separadamente el siguiente incremento
+de Gate 2; este cierre no autoriza automáticamente apoyo inferior,
+transferencia, revisión ni retención.

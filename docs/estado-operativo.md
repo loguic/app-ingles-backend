@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-10-02T17:05:24+02:00
-Baseline Git previa a este checkpoint: 63321879c05f859aaf3b4406c6e3942b11c80e82
+Actualizado: 2026-10-04T10:58:31+02:00
+Baseline Git previa a este checkpoint: 447903485da4bd90313ea1f528aabb816b928026
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -129,7 +129,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-NEXT = implementar únicamente el primer incremento acotado bajo el plan aprobado en Gate 2: dentro de la demo aislada A1 v4, corregir el timing de visibilidad del transcript/modelo completo según la candidata aprobada y distinguir la producción oral propia de escuchar/repetir para autopercepción y de la comprensión. Permanece demo-only, sin loader, activación A1, puntero runtime, cambios de contenido/runtime ni B181. Menor apoyo, transferencia cercana, revisión humana cualitativa y seguimiento de retención a 24–48 horas siguen en el plan aprobado de Gate 2, pero no se implementan en este primer incremento ni quedan autorizados automáticamente por este cierre; requieren incrementos posteriores de alcance explícito bajo Gate 2. LOGUIC OS sigue pausado por Human Authority después de OR-I2; OR-I3–OR-I7 permanecen NOT_STARTED / NOT_AUTHORIZED.
+Reconciliación A1 v4 first bounded Gate 2 demo increment: **CLOSED / PUBLISHED / SYNCED** en frontend `3144b929a829bbc2ded1352e0c7411d7e9e26fde`; implementación, 3 tests Flutter focales, `git diff --check` y postflight PASS; BLOCKING=0, NONBLOCKING=0, sin scope creep. Transcript/modelo completo oculto inicialmente y tras referencia; primera respuesta de comprensión = reveal point. Repetición/autopercepción ≠ producción oral propia; esta sigue solo comprensión correcta, oculta modelo al iniciar y es local/demo-only con identidad/estado propios y reset al reentrar. Sin apoyo inferior, transferencia, revisión humana, retención, mastery/progreso/completion. A1 v4 = **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 = **NOT CLOSED**; loader/activación/runtime pointer/B181 no autorizados. NEXT = acotar separadamente el siguiente incremento Gate 2, sin autorización automática de apoyo inferior, transferencia, revisión o retención. LOGUIC OS sigue pausado por Human Authority después de OR-I2; OR-I3–OR-I7 permanecen NOT_STARTED / NOT_AUTHORIZED.
 
 ## Archivos clave
 

@@ -5170,3 +5170,23 @@ Solo revisión **humana** puede acreditar pertinencia e inteligibilidad funciona
 Benchmark futuro sin proveedor seleccionado: offline y reversible donde sea posible, neutral respecto de proveedor, mismas WAV y etiquetas humanas para todas las opciones, frases `I need water`, `I need help`, `I need food`, referencia objetivo `en-GB` y habla principiante/no nativa. Comparará errores de reconocimiento, ausencia de voz/fallos, falsa tranquilidad/rechazo, desacuerdo con revisión humana, latencia e identidad/versión de proveedor. No hay porcentaje universal de aceptación fijado antes de evidencia; score de proveedor ≠ autoridad pedagógica.
 
 Estado de este bloque documental: **CLOSED / PUBLISHED / SYNCED** en `63321879c05f859aaf3b4406c6e3942b11c80e82`. El re-postflight independiente previo obtuvo **POSTFLIGHT PASS**, **BLOCKING 0** y **NONBLOCKING 0**. Human Gate 1 y Human Gate 2 permanecen **APPROVED BY HUMAN AUTHORITY**; sus decisiones no son cierres separados. Esta reconciliación no autoriza código, tests, frontend, modificación de candidata/review v4, A1 histórico, nuevo vocabulario/patrón, plataforma de voz general, realtime, selección definitiva de proveedor, loader, `content/runtime-active.json`, `content/content_tree.json`, activación A1 ni B181. Permanecen A1 v4 **MEMBER DURABLE / NOT ACTIVE**, B52 **VERIFIED / PASS**, Puerta 3 **NOT CLOSED**, loader **BLOCKED / NOT AUTHORIZED** y B181 **PAUSED / NOT AUTHORIZED**. NEXT = únicamente el primer incremento acotado bajo Gate 2: en la demo aislada A1 v4, corregir el timing de visibilidad del transcript/modelo completo según la candidata aprobada y distinguir producción oral propia de escuchar/repetir para autopercepción y de comprensión; demo-only, sin activación/loader/puntero runtime/B181. Menor apoyo, transferencia cercana, revisión humana cualitativa y seguimiento de retención a 24–48 horas permanecen en el plan aprobado de Gate 2, pero no se implementan en este primer incremento ni quedan autorizados automáticamente por este cierre; requieren incrementos posteriores de alcance explícito bajo Gate 2.
+
+### Reconciliación — A1 v4 first bounded Gate 2 demo increment
+
+El primer incremento acotado de la demo A1 v4 queda **CLOSED / PUBLISHED /
+SYNCED** en frontend mediante `3144b929a829bbc2ded1352e0c7411d7e9e26fde`.
+La implementación, 3 tests Flutter focales, `git diff --check` y postflight
+independiente fueron PASS, con BLOCKING=0, NONBLOCKING=0 y sin scope creep.
+El transcript/modelo completo está oculto inicialmente y después de la
+referencia; la primera respuesta de comprensión es el punto de revelación
+aprobado. Repetición/autopercepción se distingue de producción oral propia;
+esta se habilita solo tras comprensión correcta, oculta el modelo completo al
+iniciar y permanece local/demo-only con estado e identidad propios reiniciados
+al reentrar.
+
+No se autorizan ni incorporan apoyo inferior, transferencia, revisión humana,
+retención, mastery, progreso o completion. A1 v4 sigue **MEMBER DURABLE / NOT
+ACTIVE**; Puerta 3 sigue **NOT CLOSED**. Loader, activación, runtime pointer y
+B181 siguen no autorizados. NEXT = acotar separadamente el siguiente
+incremento Gate 2; este cierre no autoriza automáticamente apoyo inferior,
+transferencia, revisión ni retención.
