@@ -1160,3 +1160,19 @@ Puerta 3 sigue **NOT CLOSED**; loader, activación, runtime pointer y B181
 permanecen no autorizados. NEXT = acotar separadamente el siguiente incremento
 de Gate 2; este cierre no autoriza automáticamente apoyo inferior,
 transferencia, revisión ni retención.
+
+## Reconciliación — A1 v4 lower-support Gate 2 increment
+
+El incremento de producción con menor apoyo queda **CLOSED / PUBLISHED /
+SYNCED** en frontend mediante `0a3d8d701a4b85668af7800d13584b678312fc20`.
+Implementación, tests focales, `git diff --check` y postflight independiente:
+PASS; BLOCKING=0, NONBLOCKING=0 y sin scope creep.
+
+Tras la producción propia actual, añade únicamente una producción de la misma
+capacidad y contexto de agua con menos apoyo, sin oración modelo completa y
+con identidad/estado de grabación locales separados; permanece demo-only. No
+autoriza transferencia, revisión humana, retención ni mastery/progreso/
+completion. A1 v4 sigue **MEMBER DURABLE / NOT ACTIVE**, Puerta 3 **NOT
+CLOSED**, y loader, activación, runtime pointer y B181 siguen no autorizados.
+NEXT = acotar separadamente el incremento Gate 2 de transferencia cercana; no
+autoriza automáticamente revisión ni retención.

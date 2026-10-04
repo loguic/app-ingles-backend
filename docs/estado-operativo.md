@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-10-04T10:58:31+02:00
-Baseline Git previa a este checkpoint: 447903485da4bd90313ea1f528aabb816b928026
+Actualizado: 2026-10-04T11:18:16+02:00
+Baseline Git previa a este checkpoint: 8e691ee070d13db8f4733e16a08ce4f7369275a3
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -129,7 +129,7 @@ Seguir `docs/loguic-engineering-operating-method-v1.md`: Git real es autoridad e
 
 ## Próximo objetivo
 
-Reconciliación A1 v4 first bounded Gate 2 demo increment: **CLOSED / PUBLISHED / SYNCED** en frontend `3144b929a829bbc2ded1352e0c7411d7e9e26fde`; implementación, 3 tests Flutter focales, `git diff --check` y postflight PASS; BLOCKING=0, NONBLOCKING=0, sin scope creep. Transcript/modelo completo oculto inicialmente y tras referencia; primera respuesta de comprensión = reveal point. Repetición/autopercepción ≠ producción oral propia; esta sigue solo comprensión correcta, oculta modelo al iniciar y es local/demo-only con identidad/estado propios y reset al reentrar. Sin apoyo inferior, transferencia, revisión humana, retención, mastery/progreso/completion. A1 v4 = **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 = **NOT CLOSED**; loader/activación/runtime pointer/B181 no autorizados. NEXT = acotar separadamente el siguiente incremento Gate 2, sin autorización automática de apoyo inferior, transferencia, revisión o retención. LOGUIC OS sigue pausado por Human Authority después de OR-I2; OR-I3–OR-I7 permanecen NOT_STARTED / NOT_AUTHORIZED.
+Reconciliación A1 v4 lower-support Gate 2 increment: **CLOSED / PUBLISHED / SYNCED** en frontend `0a3d8d701a4b85668af7800d13584b678312fc20`; implementación, tests focales, `git diff --check` y postflight independiente PASS; BLOCKING=0, NONBLOCKING=0, sin scope creep. Tras producción propia se añadió únicamente producción con menor apoyo para la misma capacidad y contexto de agua, sin modelo completo, con estado/identidad de grabación separados, local/demo-only. Sin transferencia, revisión humana, retención ni mastery/progreso/completion. A1 v4 = **MEMBER DURABLE / NOT ACTIVE**; Puerta 3 = **NOT CLOSED**; loader/activación/runtime pointer/B181 no autorizados. NEXT = acotar separadamente el incremento Gate 2 de transferencia cercana; no autoriza automáticamente revisión ni retención. LOGUIC OS sigue pausado por Human Authority después de OR-I2; OR-I3–OR-I7 permanecen NOT_STARTED / NOT_AUTHORIZED.
 
 ## Archivos clave
 
