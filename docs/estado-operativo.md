@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-10-11T19:55:27+02:00
-Baseline Git previa a este checkpoint: 0349fa8d3928c98a83de0449b49d4dc5a8146c64
+Actualizado: 2026-10-11T20:03:19+02:00
+Baseline Git previa a este checkpoint: 6384c2d73b8751130050d8653855a8e3b6064e1f
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -21,7 +21,7 @@ El postflight final acreditó **19 PASS / 5 skipped**, `git diff --check` PASS, 
 
 ## Bloque activo
 
-Reconciliación semántica post-cierre: **LOCAL / NOT PUBLISHED**. Corrige el estado activo stale sin abrir un incremento: el Supervisor está cerrado por el commit publicado y esta actualización documental aún requiere su propio cierre autorizado.
+Reconciliación semántica post-cierre: **PUBLISHED / SYNCED** en 6384c2d73b8751130050d8653855a8e3b6064e1f. Corrige el estado activo stale sin abrir un incremento: el Supervisor está cerrado por el commit publicado y esta actualización documental aún requiere su propio cierre autorizado.
 
 Corrección mínima autorizada: un `NEXT` que exige autorización humana explícita enruta `ACTOR=HUMAN`, `CODEX_REQUIRED=NO`, `ROUTING=NONE`; el prefijo canónico `NEXT =` se normaliza antes de presentarse. Se preservan reconciliación fail-closed y routing Codex/Terra para trabajo técnico autorizado. Evidencia vigente: tests independientes del Supervisor **14 PASS** y `validation_recipe.py approved-v1` **PASS (4 pasos)**, sin repetir pruebas.
 
@@ -45,7 +45,7 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = no iniciar un incremento de producto; preparar únicamente el cierre autorizado de esta reconciliación semántica documental.
+NEXT = revisar el Plan Maestro Pedagógico y roadmap de LOGUIC English; sin autorización para iniciar un incremento de producto.
 
 ## Archivos clave
 
