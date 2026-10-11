@@ -19,12 +19,13 @@ def state_document(
     frontend_paths: tuple[str, ...] = (),
     unrelated_active_code: tuple[str, ...] = (),
     next_objective: str,
+    baseline: str = ROOT_GIT_BASELINE,
 ) -> str:
     sections = (
         "Dirección vigente", "Último bloque cerrado", "Bloque activo", "Automatización disponible",
         "Método operativo vigente", "Fronteras obligatorias", "Próximo objetivo", "Archivos clave",
     )
-    lines = ["# Estado operativo — LOGUIC English", "", f"Actualizado: {datetime.now().astimezone().isoformat(timespec='seconds')}", f"Baseline Git previa a este checkpoint: {ROOT_GIT_BASELINE}", ""]
+    lines = ["# Estado operativo — LOGUIC English", "", f"Actualizado: {datetime.now().astimezone().isoformat(timespec='seconds')}", f"Baseline Git previa a este checkpoint: {baseline}", ""]
     for section in sections:
         content = f"Canonical {section}."
         if section == "Bloque activo":
@@ -217,6 +218,67 @@ def test_clean_state_and_human_next_decision(tmp_path: Path) -> None:
     assert state.codex_required is False
     assert "ACTOR=HUMAN" in development_supervisor.render_next(state)
     assert "CODEX_REQUIRED=NO" in development_supervisor.render_next(state)
+
+
+def test_explicit_human_authorization_next_routes_to_human_without_duplicate_prefix(
+    tmp_path: Path,
+) -> None:
+    backend, frontend = fixture(
+        tmp_path,
+        backend_paths=("tracked.txt", "docs/estado-operativo.md"),
+    )
+    state_path = backend / "docs" / "estado-operativo.md"
+    next_objective = "NEXT = no iniciar el siguiente incremento sin autorización humana explícita."
+    state_path.write_text(
+        state_document(
+            paths=("tracked.txt",),
+            backend_paths=("docs/estado-operativo.md",),
+            next_objective=next_objective,
+            baseline=git(backend, "rev-parse", "HEAD"),
+        ),
+        encoding="utf-8",
+    )
+
+    state = development_supervisor.build_supervisor(
+        root=backend,
+        frontend_root=frontend,
+        state_path=state_path,
+    )
+
+    assert state.supervisor_status == "PASS", state.error
+    assert state.actor == "HUMAN"
+    assert state.codex_required is False
+    assert state.routing is None
+    assert "OBJECTIVE=no iniciar el siguiente incremento" in development_supervisor.render_next(state)
+    assert "NEXT=NEXT" not in development_supervisor.render_status(state)
+
+
+def test_authorized_technical_next_keeps_codex_routing(tmp_path: Path) -> None:
+    backend, frontend = fixture(
+        tmp_path,
+        backend_paths=("tracked.txt", "docs/estado-operativo.md"),
+    )
+    state_path = backend / "docs" / "estado-operativo.md"
+    state_path.write_text(
+        state_document(
+            paths=("tracked.txt",),
+            backend_paths=("docs/estado-operativo.md",),
+            next_objective="NEXT = implementar la corrección técnica autorizada.",
+            baseline=git(backend, "rev-parse", "HEAD"),
+        ),
+        encoding="utf-8",
+    )
+
+    state = development_supervisor.build_supervisor(
+        root=backend,
+        frontend_root=frontend,
+        state_path=state_path,
+    )
+
+    assert state.supervisor_status == "PASS", state.error
+    assert state.actor == "CODEX"
+    assert state.codex_required is True
+    assert state.routing == "Terra / medium — bounded implementation/review under canonical state"
 
 
 def test_active_block_and_next_are_preserved_without_truncation(tmp_path: Path) -> None:

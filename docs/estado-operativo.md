@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-10-11T01:54:31+02:00
-Baseline Git previa a este checkpoint: aa03d931487e269074715da925b4bddd34363737
+Actualizado: 2026-10-11T18:45:02+02:00
+Baseline Git previa a este checkpoint: ec720eee019b5d78537a8444dff07497e91d42be
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -21,7 +21,11 @@ El postflight final acreditó **19 PASS / 5 skipped**, `git diff --check` PASS, 
 
 `Development Supervisor v1` permanece **IMPLEMENTED / LOCAL / NOT CLOSED / NOT PUBLISHED**, separado del cierre de producto A1 y read-only. Su presencia en el scope de este commit no constituye el cierre, publicación semántica ni inicio de una capacidad independiente.
 
-Dirty backend reconocido para este Closure Gate: `app/api/v1/router.py`, `app/api/v1/endpoints/spoken_turns.py`, `app/schemas/spoken_turn.py`, `app/services/spoken_turn_evaluation_service.py`, `scripts/engineering/development_supervisor.py`, `tests/test_development_supervisor.py`, `tests/test_spoken_turn_evaluation_service.py`, `tests/test_spoken_turns.py`, `docs/bitacora.md`, `docs/estado-operativo.md`, `docs/roadmap.md`.
+Corrección mínima autorizada: un `NEXT` que exige autorización humana explícita enruta `ACTOR=HUMAN`, `CODEX_REQUIRED=NO`, `ROUTING=NONE`; el prefijo canónico `NEXT =` se normaliza antes de presentarse. Se preservan reconciliación fail-closed y routing Codex/Terra para trabajo técnico autorizado. Evidencia vigente: tests independientes del Supervisor **14 PASS** y `validation_recipe.py approved-v1` **PASS (4 pasos)**, sin repetir pruebas.
+
+Postflight independiente: **PASS**. Readiness documental: **PASS**; allowlist exacta de cinco rutas: `scripts/engineering/development_supervisor.py`, `tests/test_development_supervisor.py`, `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`. No hay blockers; el bloque está listo para Closure Gate, sin reclamar aún cierre, publicación ni sincronización.
+
+Dirty backend reconocido para esta corrección local: `scripts/engineering/development_supervisor.py`, `tests/test_development_supervisor.py`, `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
 
 No activar ni publicar A1: loader/runtime pointer permanecen no autorizados; no modificar `content/content_tree.json`; no iniciar B181, human review, adjudicación, winner, mastery, progreso ni completion.
 
@@ -40,7 +44,7 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = no iniciar el siguiente incremento de producto; conservar `Development Supervisor v1` separado hasta autorización explícita.
+NEXT = ejecutar el Closure Gate canónico de `Development Supervisor v1` con la allowlist aprobada.
 
 ## Archivos clave
 

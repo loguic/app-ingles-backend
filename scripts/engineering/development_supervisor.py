@@ -112,6 +112,8 @@ def _documented_dirty_paths(
 def _actor_for(next_objective: str, reconciliation_required: bool) -> tuple[str, bool, str | None]:
     if reconciliation_required:
         return "CODEX", True, "Terra / medium — reconcile canonical state before continuation"
+    if "autorización humana" in next_objective.casefold():
+        return "HUMAN", False, None
     if "Human Visual Review" in next_objective and "implementar `Development Supervisor" not in next_objective:
         return "HUMAN", False, None
     return "CODEX", True, "Terra / medium — bounded implementation/review under canonical state"
@@ -167,7 +169,12 @@ def build_supervisor(
         expected_frontend = ()
     else:
         active_block = _semantic_section(sections, "Bloque activo")
-        next_objective = _semantic_section(sections, "Próximo objetivo")
+        next_objective = re.sub(
+            r"^NEXT\s*=\s*",
+            "",
+            _semantic_section(sections, "Próximo objetivo"),
+            count=1,
+        )
         restrictions = _semantic_section(sections, "Fronteras obligatorias")
         try:
             expected_backend = _documented_dirty_paths(

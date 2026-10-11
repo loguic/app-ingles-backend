@@ -5272,3 +5272,11 @@ Human Gate: **OPTION 1 APPROVED**. Se autoriza exclusivamente reconciliar esos d
 El cierre cubre el flujo aprobado de tres turnos y preserva la evidencia Qwen `qwen3:8b` ya verificada sin repetirla. No abre help/Figma/waveform ni autoriza loader, runtime pointer, B181, mastery, progreso, completion o cambios en `content/content_tree.json`. `Development Supervisor v1` permanece **IMPLEMENTED / LOCAL / NOT CLOSED / NOT PUBLISHED** y no queda cerrado como capacidad independiente por este producto.
 
 NEXT = no iniciar un nuevo incremento de producto sin autorización humana explícita.
+
+## Development Supervisor v1 — corrección mínima autorizada
+
+Human Authority aprobó la corrección mínima local, sin cierre: un `NEXT` con autorización humana explícita devuelve `ACTOR=HUMAN`, `CODEX_REQUIRED=NO` y `ROUTING=NONE`; la presentación elimina un prefijo `NEXT =` duplicado. Reconciliación fail-closed y routing Codex/Terra para trabajo técnico autorizado permanecen intactos. Evidencia independiente reutilizada: `tests/test_development_supervisor.py` **14 PASS** y `validation_recipe.py approved-v1` **PASS (4 pasos)**.
+
+Scope independiente: `scripts/engineering/development_supervisor.py` y `tests/test_development_supervisor.py`. El Supervisor sigue **IMPLEMENTED / LOCAL / NOT CLOSED / NOT PUBLISHED**, read-only y separado de A1 v4. NEXT = postflight independiente y preparación del Closure Gate; ejecución de cierre no autorizada.
+
+Postflight independiente **PASS**. Readiness documental **PASS** con allowlist exacta de cinco rutas: los dos archivos independientes y `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`. No hay blockers; queda preparado para el Closure Gate canónico sin declarar aún **CLOSED / PUBLISHED / SYNCED**.

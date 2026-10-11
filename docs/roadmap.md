@@ -1240,3 +1240,11 @@ NEXT = reconciliar solo los dos tests bloqueantes; después, rerun de validació
 El cierre acredita el milestone aprobado de tres turnos y conserva la validación Qwen `qwen3:8b` existente sin repetirla. Loader, runtime pointer, B181, mastery, progreso, completion y cambios a `content/content_tree.json` siguen fuera de autorización. `Development Supervisor v1` permanece **IMPLEMENTED / LOCAL / NOT CLOSED / NOT PUBLISHED**, separado y sin cierre como capacidad propia.
 
 NEXT = no iniciar un nuevo incremento de producto sin autorización humana explícita.
+
+## Development Supervisor v1 — corrección mínima autorizada
+
+Corrección local aprobada, sin cierre: un `NEXT` que requiere autorización humana explícita enruta a `HUMAN` sin Codex ni routing, y la presentación elimina `NEXT =` duplicado. Se conservan reconciliación fail-closed y routing Codex/Terra para trabajo técnico autorizado. Evidencia: tests independientes del Supervisor **14 PASS**; `validation_recipe.py approved-v1` **PASS (4 pasos)**.
+
+Scope: `scripts/engineering/development_supervisor.py` y `tests/test_development_supervisor.py`. El Supervisor permanece **IMPLEMENTED / LOCAL / NOT CLOSED / NOT PUBLISHED**, read-only y separado del producto A1 v4; sus restricciones permanecen intactas. NEXT = postflight independiente y preparación del Closure Gate; la ejecución de cierre no está autorizada.
+
+Postflight independiente **PASS**. Readiness documental **PASS**. Allowlist de preparación: `scripts/engineering/development_supervisor.py`, `tests/test_development_supervisor.py`, `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`. No hay blockers; el Closure Gate canónico es el siguiente paso y no se declara cierre antes de ejecutarlo.
