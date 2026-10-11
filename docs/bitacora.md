@@ -5280,3 +5280,7 @@ Human Authority aprobó la corrección mínima local, sin cierre: un `NEXT` con 
 Scope independiente: `scripts/engineering/development_supervisor.py` y `tests/test_development_supervisor.py`. El Supervisor sigue **IMPLEMENTED / LOCAL / NOT CLOSED / NOT PUBLISHED**, read-only y separado de A1 v4. NEXT = postflight independiente y preparación del Closure Gate; ejecución de cierre no autorizada.
 
 Postflight independiente **PASS**. Readiness documental **PASS** con allowlist exacta de cinco rutas: los dos archivos independientes y `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`. No hay blockers; queda preparado para el Closure Gate canónico sin declarar aún **CLOSED / PUBLISHED / SYNCED**.
+
+### Reconciliación semántica posterior al Closure Gate
+
+El Closure Gate de `Development Supervisor v1` quedó **CLOSED / PUBLISHED / SYNCED** en `0349fa8d3928c98a83de0449b49d4dc5a8146c64` (`fix close development supervisor v1 routing and continuity`): 14 tests PASS, block-close PASS, git-close PASS, checkpoint-prepare PASS y Git limpio/sincronizado. Esta reconciliación corrige únicamente el estado activo y NEXT stale; permanece **LOCAL / NOT PUBLISHED** hasta un cierre documental posterior autorizado. No abre producto ni altera restricciones A1 v4.

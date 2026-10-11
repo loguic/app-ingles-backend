@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-10-11T18:45:02+02:00
-Baseline Git previa a este checkpoint: ec720eee019b5d78537a8444dff07497e91d42be
+Actualizado: 2026-10-11T19:55:27+02:00
+Baseline Git previa a este checkpoint: 0349fa8d3928c98a83de0449b49d4dc5a8146c64
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -17,15 +17,16 @@ Formato: checkpoint operativo compacto
 
 El postflight final acreditó **19 PASS / 5 skipped**, `git diff --check` PASS, estado operativo PASS, checkpoint PASS y `UNEXPECTED_FILES = NONE`. Qwen runtime/provenance `qwen3:8b` permanece evidencia PASS existente, sin repetición. Loader/runtime pointer/B181/mastery/progreso/completion y cambios a `content/content_tree.json` siguen no autorizados.
 
+`Development Supervisor v1` queda **CLOSED / PUBLISHED / SYNCED** en `0349fa8d3928c98a83de0449b49d4dc5a8146c64` (`fix close development supervisor v1 routing and continuity`). El Closure Gate acreditó 14 tests PASS, block-close PASS, git-close PASS y checkpoint-prepare PASS, con árbol limpio y sincronizado.
+
 ## Bloque activo
 
-`Development Supervisor v1` permanece **IMPLEMENTED / LOCAL / NOT CLOSED / NOT PUBLISHED**, separado del cierre de producto A1 y read-only. Su presencia en el scope de este commit no constituye el cierre, publicación semántica ni inicio de una capacidad independiente.
+Reconciliación semántica post-cierre: **LOCAL / NOT PUBLISHED**. Corrige el estado activo stale sin abrir un incremento: el Supervisor está cerrado por el commit publicado y esta actualización documental aún requiere su propio cierre autorizado.
 
 Corrección mínima autorizada: un `NEXT` que exige autorización humana explícita enruta `ACTOR=HUMAN`, `CODEX_REQUIRED=NO`, `ROUTING=NONE`; el prefijo canónico `NEXT =` se normaliza antes de presentarse. Se preservan reconciliación fail-closed y routing Codex/Terra para trabajo técnico autorizado. Evidencia vigente: tests independientes del Supervisor **14 PASS** y `validation_recipe.py approved-v1` **PASS (4 pasos)**, sin repetir pruebas.
 
-Postflight independiente: **PASS**. Readiness documental: **PASS**; allowlist exacta de cinco rutas: `scripts/engineering/development_supervisor.py`, `tests/test_development_supervisor.py`, `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`. No hay blockers; el bloque está listo para Closure Gate, sin reclamar aún cierre, publicación ni sincronización.
+La corrección técnica y su postflight independiente ya están cerrados; las rutas técnicas no forman parte de esta reconciliación. Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
 
-Dirty backend reconocido para esta corrección local: `scripts/engineering/development_supervisor.py`, `tests/test_development_supervisor.py`, `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
 
 No activar ni publicar A1: loader/runtime pointer permanecen no autorizados; no modificar `content/content_tree.json`; no iniciar B181, human review, adjudicación, winner, mastery, progreso ni completion.
 
@@ -44,7 +45,7 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = ejecutar el Closure Gate canónico de `Development Supervisor v1` con la allowlist aprobada.
+NEXT = no iniciar un incremento de producto; preparar únicamente el cierre autorizado de esta reconciliación semántica documental.
 
 ## Archivos clave
 

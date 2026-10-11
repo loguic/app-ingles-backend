@@ -1248,3 +1248,7 @@ Corrección local aprobada, sin cierre: un `NEXT` que requiere autorización hum
 Scope: `scripts/engineering/development_supervisor.py` y `tests/test_development_supervisor.py`. El Supervisor permanece **IMPLEMENTED / LOCAL / NOT CLOSED / NOT PUBLISHED**, read-only y separado del producto A1 v4; sus restricciones permanecen intactas. NEXT = postflight independiente y preparación del Closure Gate; la ejecución de cierre no está autorizada.
 
 Postflight independiente **PASS**. Readiness documental **PASS**. Allowlist de preparación: `scripts/engineering/development_supervisor.py`, `tests/test_development_supervisor.py`, `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`. No hay blockers; el Closure Gate canónico es el siguiente paso y no se declara cierre antes de ejecutarlo.
+
+## Development Supervisor v1 — reconciliación semántica posterior
+
+El Supervisor quedó **CLOSED / PUBLISHED / SYNCED** en `0349fa8d3928c98a83de0449b49d4dc5a8146c64` con 14 tests PASS, block-close PASS, git-close PASS y checkpoint-prepare PASS; Git quedó limpio y sincronizado. Esta reconciliación documental corrige el estado y NEXT stale, pero sigue **LOCAL / NOT PUBLISHED** hasta un cierre documental autorizado. No inicia producto ni modifica restricciones A1 v4.
