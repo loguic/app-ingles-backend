@@ -5206,3 +5206,69 @@ mastery/progreso/completion; A1 v4 sigue **MEMBER DURABLE / NOT ACTIVE**,
 Puerta 3 **NOT CLOSED** y loader, activación, runtime pointer y B181 no están
 autorizados. NEXT = acotar separadamente la transferencia cercana Gate 2; no
 autoriza automáticamente revisión ni retención.
+
+## A1 V4 REAL VERTICAL SLICE — LOCAL ACTIVE
+
+Estado: **LOCAL ACTIVE / NOT CLOSED / NOT PUBLISHED / NOT SYNCED**.
+
+Fronteras publicadas preservadas: backend `aa03d931487e269074715da925b4bddd34363737` y frontend
+`0a3d8d701a4b85668af7800d13584b678312fc20`. El último incremento frontend cerrado continúa siendo
+lower-support Gate 2.
+
+Después de esa frontera se implementó localmente el vertical slice real A1 v4:
+producción propia de agua, producción de agua con menor apoyo, transferencia
+cercana a comida, micrófono real, Moonshine STT, backend spoken-turn,
+evaluación semántica local Ollama/Qwen, feedback adaptativo, resumen final y
+reproducción del audio del alumno. Este flujo de tres turnos satisface el
+alcance de producto y pedagógico aprobado; no requiere un cuarto turno.
+
+La validación humana end-to-end del flujo ya fue realizada. La validación
+runtime/provenance Qwen 3 8B también es **PASS**: `OLLAMA_MODEL=qwen3:8b` se
+seleccionó solo para el proceso contra `http://192.168.181.1:11434`; Ollama
+reportó el tag `qwen3:8b` disponible (8.2B), la prueba real focal pasó (**1
+PASS**, 15.39 s) y la evaluación semántica real devolvió `provider=ollama` y
+`model=qwen3:8b`, sin fallback a `qwen3:4b-instruct`. No se modificaron código,
+tests ni configuración persistente. No se atribuye mastery, progreso ni
+completion.
+
+El frontend local incorpora además rediseño premium Dark/Light, selector
+persistente, layout de tres zonas, progress rail, scene framing corregido,
+feedback learner-facing y `PREMIUM VOICE INTERACTION`. Human Visual Review
+confirmó que la grabación del alumno es audible y que la reproducción vuelve a
+idle: ambos **PASS**. El pulido visual de waveform queda deliberadamente
+diferido y no bloquea este cierre.
+
+El backend local incluye `think=false` para Ollama y normalización determinista
+de metadata cross-turn a partir de estados semánticos decididos por el modelo;
+la decisión semántica continúa siendo responsabilidad de Qwen.
+
+No se activa A1 v4 ni se autorizan loader, runtime pointer, B181 o cambios en
+`content/content_tree.json`.
+
+Human Authority decide implementar, después del checkpoint recuperado,
+`Development Supervisor v1` mínimo y read-only para eliminar reconstrucciones
+manuales de continuidad. Debe reutilizar el tooling canónico existente.
+
+### Development Supervisor v1 — implementación local
+
+Estado: **IMPLEMENTED / LOCAL / NOT CLOSED / NOT PUBLISHED**. Se añadió `scripts/engineering/development_supervisor.py` con `status`, `next` y `handoff`: compone `conversation_checkpoint.py` como autoridad backend, inspección Git read-only del frontend mediante `--frontend-root` explícito y `docs/estado-operativo.md` como semántica; no crea una fuente de verdad, no usa red, no ejecuta Codex/validaciones/Closure Gate y no muta repositorios. La política frontend v1 es fail-closed: cualquier dirty path frontend requiere reconciliación hasta que exista una autoridad semántica explícita para reconocerlo. Esta reconciliación reconoce `lib/services/pronunciation_audio_service.dart` y los cinco tests que implementan explícitamente `onPlaybackPosition` y `onPlaybackDuration`: `test/lesson_conversation_card_test.dart`, `test/lesson_detail_card_test.dart`, `test/lesson_experience_card_test.dart`, `test/lesson_pronunciation_controls_test.dart` y `test/visual_demo_flow_test.dart`.
+
+La evidencia fresca acredita `test/a1_v4_visible_demo_screen_test.dart` **5 PASS**, validación frontend relacionada **60 PASS** y `flutter analyze` **PASS** sin issues. Human Authority mantiene UI simple y funcional, Figma fuera del flujo activo y waveform no bloqueante. No se atribuye cierre al Supervisor ni se autorizan loader, runtime, B181, mastery, progreso o completion. `Development Supervisor v1` permanece separado: **IMPLEMENTED / LOCAL / NOT CLOSED / NOT PUBLISHED**.
+
+NEXT = ejecutar el postflight canónico de cierre de `A1-V4-REAL-VERTICAL-SLICE`.
+
+### Reconciliación documental — postflight canónico FAIL y autorización de tests
+
+El postflight canónico de `A1-V4-REAL-VERTICAL-SLICE` ya fue ejecutado con **POSTFLIGHT_RESULT = FAIL**. El alcance permanece válido: `PRODUCT_SCOPE_VALID = YES`, `PEDAGOGICAL_SCOPE_VALID = YES`, `UNEXPECTED_FILES = NONE`; por los bloqueadores siguientes, `READY_FOR_GIT_CLOSURE = NO`.
+
+Los únicos bloqueadores son `test_re_evaluates_logically_inconsistent_cross_turn_model_output` y `test_rejects_model_when_constrained_re_evaluation_remains_inconsistent`. Ambos conservan la expectativa anterior de una re-evaluación del modelo. El contrato actual del servicio normaliza determinísticamente la metadata comparativa cross-turn antes de la validación de consistencia; el juicio semántico sigue siendo responsabilidad de Qwen. Este comportamiento debe preservarse.
+
+Human Gate: **OPTION 1 APPROVED**. Se autoriza exclusivamente reconciliar esos dos tests con el contrato vigente; no se autorizan cambios a `spoken_turn_evaluation_service.py`, frontend, Qwen/Ollama ni funcionalidades nuevas. NEXT = reconciliar solo esos dos tests y después rerun de validación focal y postflight.
+
+## Closure Gate — A1 V4 REAL VERTICAL SLICE
+
+`A1-V4-REAL-VERTICAL-SLICE` queda **CLOSED / PUBLISHED / SYNCED** por el Closure Gate canónico. El postflight final acreditó pytest **19 PASS / 5 skipped**, backend `git diff --check` PASS, estado operativo PASS, checkpoint PASS y `UNEXPECTED_FILES = NONE`; no quedaron blockers. El frontend se publicó mediante su helper canónico en `36f12735006db893a701a10825edc8281dc617fa` (`feat close A1 v4 real vertical slice`); el commit backend de este gate publica el tramo backend y esta continuidad.
+
+El cierre cubre el flujo aprobado de tres turnos y preserva la evidencia Qwen `qwen3:8b` ya verificada sin repetirla. No abre help/Figma/waveform ni autoriza loader, runtime pointer, B181, mastery, progreso, completion o cambios en `content/content_tree.json`. `Development Supervisor v1` permanece **IMPLEMENTED / LOCAL / NOT CLOSED / NOT PUBLISHED** y no queda cerrado como capacidad independiente por este producto.
+
+NEXT = no iniciar un nuevo incremento de producto sin autorización humana explícita.

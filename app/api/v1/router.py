@@ -7,6 +7,7 @@ from app.api.v1.endpoints.progress import router as progress_router
 from app.api.v1.endpoints.conversation_attempts import router as conversation_attempts_router
 from app.api.v1.endpoints.conversation_productions import router as conversation_productions_router
 from app.api.v1.endpoints.experience_attempts import router as experience_attempts_router
+from app.api.v1.endpoints.spoken_turns import router as spoken_turns_router
 
 router = APIRouter(prefix="/api/v1")
 
@@ -18,3 +19,4 @@ router.include_router(progress_router)
 router.include_router(conversation_attempts_router)
 router.include_router(conversation_productions_router)
 router.include_router(experience_attempts_router)
+router.include_router(spoken_turns_router)
