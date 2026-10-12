@@ -26,6 +26,15 @@ retención 10 %; experiencia y accesibilidad 10 %; preparación para lanzamiento
 5 %. El seguimiento diferenciará avance acreditado del producto, avance técnico
 aprovechable, coste y esfuerzo económico, y confianza de las estimaciones.
 
+## Preferencia humana reciente pendiente de validación
+
+Se registra como preferencia humana reciente una inmersión comprensible y
+progresiva, con apoyo puntual en español cuando sea necesario para preservar
+comprensión y continuidad. Su estado es **PROPUESTA PENDIENTE DE VALIDACIÓN**:
+no sustituye el modelo maestro, no convierte el español en método dominante y
+debe contrastarse con las misiones comunicativas, la construcción directa en
+inglés, la retirada progresiva de apoyos y la evidencia observable.
+
 ## Puerto de llegada
 
 LOGUIC English será un entrenador pedagógico de fluidez conversacional.

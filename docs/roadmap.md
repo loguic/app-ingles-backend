@@ -38,6 +38,77 @@ El siguiente objetivo documentado es la auditoría focalizada de reutilización
 técnica y la primera línea base verificable del MVP. No autoriza código,
 activación, loader, runtime pointer, B181, progreso, mastery ni completion.
 
+## Plan de innovación MVP — especificación documental provisional
+
+Esta sección consolida una propuesta de trabajo, no una aprobación técnica
+individual ni criterios de aceptación definitivos. Los estados usados son:
+**IMPLEMENTADO**, **PROTOTIPO**, **DOCUMENTADO**, **PROPUESTO** y **NO
+VERIFICADO**. La auditoría read-only reciente solo aporta contexto cualitativo.
+
+| ID | Entregable | Problema / capacidad esperada | Evidencia mínima y criterio propuesto | Dependencias / reutilización | Estado / validación humana |
+|---|---|---|---|---|---|
+| 1.1 | Diagnóstico conversacional inicial | No conocer el punto de partida; obtener perfil inicial trazable | Sesión, observaciones y perfil con evidencias; cobertura y trazabilidad verificables | B177/B179; schemas y persistencia diagnóstica | IMPLEMENTADO técnico; validar experiencia real |
+| 1.2 | Entrada comprensible desde cero | Bloqueo ante instrucciones iniciales | Misión comprensible para principiante y producción observable; comprensión confirmada | Modelo maestro, futura A1 L1, UX | PROPUESTO; definir con revisión humana |
+| 1.3 | Asignación según necesidades | Practicar sin atender bloqueos prioritarios | Plan inicial ligado a evidencia y apoyo; reglas revisables | Diagnóstico, fases, constructor pedagógico | DOCUMENTADO; validar reglas |
+| 2.1 | Diseño de experiencias pedagógicas | Contenido técnico sin capacidad completa | Experiencia con intención, apoyo, evidencia y transferencia explícitos | Constructor, candidato, validadores | DOCUMENTADO; aprobar diseño |
+| 2.2 | Misiones comunicativas funcionales | Ejercicios aislados sin propósito | Misión nueva con producción y variación pertinentes | B180; candidata A1 v4; recursos | PROTOTIPO; validar progresión A1 |
+| 2.3 | Evaluación de la experiencia | Confundir recorrido con aprendizaje | Evidencia observable y rúbrica separada de completion | ExperienceAttempt, evidencia, revisión humana | PROPUESTO; definir rúbrica |
+| 3.1 | Reproducción y grabación fiables | No poder escuchar o producir | Audio reproducible, grabación recuperable y estados claros | Audio temporal, endpoints de producción, frontend documentado | PROTOTIPO; validar con principiantes |
+| 3.2 | STT y recuperación técnica | Fallos de reconocimiento que bloquean | Error técnico distinguible y reintento sin falsa evaluación | Moonshine/STT, producción oral, UX | PROTOTIPO; validar cobertura de fallos |
+| 3.3 | Entrenamiento fonético funcional | Pronunciación poco inteligible | Escuchar–distinguir–producir–feedback–transferir en contexto | B136–B147, audio/IPA; scores no son verdad | DOCUMENTADO; calibración humana pendiente |
+| 4.1 | Interlocutor contextual | Responder sin intención comunicativa | Intervención contextual comprensible y pertinente | Contenido de experiencia, spoken turns | PROTOTIPO; validar conversación nueva |
+| 4.2 | Respuestas contingentes | Repetir guiones ante información nueva | Respuesta oral conectada a intervención inesperada | B181, audio-first, revisión humana | PROTOTIPO; B181 pausado |
+| 4.3 | Adaptación controlada de apoyos | Retirar ayuda sin evidencia suficiente | `model → anchors → initial_word → none` solo con evidencia | B180/B181, estados de apoyo | IMPLEMENTADO técnico; validar seguridad pedagógica |
+| 5.1 | Orientaciones comprensibles | Feedback abstracto o excesivo | Una orientación prioritaria accionable antes del reintento | B180 orientations, feedback schemas | IMPLEMENTADO técnico; validar comprensión |
+| 5.2 | Separar errores lingüísticos/técnicos | Premiar o penalizar el fallo equivocado | Estados y mensajes distinguen audio/STT/semántica | Spoken evaluator, feedback service, UX | PROPUESTO; criterios pendientes |
+| 5.3 | Reintento guiado | Repetir sin foco ni retirada de apoyo | Orientación presentada, apoyo menor y nueva producción trazable | B180 retry preparation, attempts | IMPLEMENTADO técnico; validar mejora sin inferirla |
+| 6.1 | Variaciones comunicativas nuevas | Memorizar una respuesta | Transferencia a escena o necesidad nueva | B180 transfer bank, A1 v4 | PROTOTIPO; ampliar cobertura |
+| 6.2 | Recuperación diferida | Olvidar tras éxito inmediato | Tarea 24–48 h después, contexto distinto, apoyo definido | Identidad de evidencia, obligación de retención | PROPUESTO; no existe ejecución acreditada |
+| 6.3 | Evidencia independiente de aprendizaje | Confundir señal técnica con aprendizaje | Producción nueva revisada con criterios humanos | Revisión humana, audio temporal, rúbrica | PROPUESTO; definir puerta humana |
+| 7.1 | Instrucciones comprensibles | Principiante no sabe qué hacer | Prueba con principiantes y comprensión de consigna | UX A1 V4, microcopy documentada | NO VERIFICADO; hallazgos abiertos |
+| 7.2 | Navegación e interacción claras | Estados de grabación y feedback confusos | Flujo sin ambigüedad entre escuchar, grabar, evaluar y repetir | Frontend A1 V4 documentado; accesibilidad | PROTOTIPO; fuente frontend no auditada aquí |
+| 7.3 | Usabilidad y accesibilidad | Contratos accesibles sin validación de uso | Prueba cualitativa y criterios de accesibilidad con usuarios | `accessibility_label`, transcript contingente | DOCUMENTADO; validación humana pendiente |
+| 8.1 | Seguridad y privacidad | Audio y datos sensibles sin límites | Retención, acceso, borrado y provenance verificables | recovery/DevSecOps, audio privado, revisión | DOCUMENTADO parcial; definir controles MVP |
+| 8.2 | Despliegue estable y verificable | Demo técnica no equivale a release | Artefacto reproducible, smoke checks y rollback autorizado | Git, Docker, runtime docs; loader no autorizado | NO VERIFICADO; no activar A1 |
+| 8.3 | Piloto y condiciones de lanzamiento | Lanzar sin evidencia ni soporte | Criterios de piloto, riesgos, soporte y decisión humana | Rúbrica MVP, UX, privacidad, costes | PROPUESTO; sin fechas ni precios |
+
+### Dependencias y puertas del plan
+
+La secuencia de producto es una relación de dependencias pedagógicas y no una
+implementación rígida en cascada. Diagnóstico, entrada comprensible,
+experiencias A1, producción/escucha/pronunciación, tutor contingente, feedback,
+transferencia, recuperación, UX, accesibilidad y privacidad se incorporarán de
+forma transversal desde cada experiencia que los requiera. Se agruparán
+entregables por capacidades completas, no como 24 microbloques.
+
+Las dependencias pedagógicas obligatorias son el mapa de prerrequisitos, la
+comprensión de instrucciones, la capacidad observable y la evidencia de
+transferencia. Las dependencias técnicas reutilizables ya documentadas son
+diagnóstico B177/B179, construcción directa B180, experiencia/evidencia,
+audio-producción, feedback y revisión humana append-only B181. A1 v4 continúa
+inactiva; loader, runtime pointer, B52 y B181 no se inician con esta sección.
+
+Cada agrupación requiere Gate 1 de capacidad, Gate 2 de plan y Gate 3 de cierre,
+con evidencia humana cuando la aceptación sea pedagógica. Riesgos bloqueantes:
+entrada A1 no canónica, UX inicial confusa, ausencia de retención demostrada,
+dependencia de proveedor/runtime local y falta de criterios comerciales.
+
+### Línea base y economía del MVP
+
+Los pesos 15/20/15/15/10/10/10/5 son ponderaciones provisionales, no avance.
+La línea base verificable necesita por entregable: estado, evidencia concreta,
+criterio aprobado, fuente, responsable, fecha de medición y confianza. Mientras
+falte esa ficha, el avance pedagógico, el esfuerzo pendiente y el coste son
+**NO MEDIBLES**.
+
+El método económico separará, por entregable y agrupación: horas de trabajo
+nuevo, horas reutilizables, revisión humana, infraestructura y operación,
+incertidumbre y contingencia. El coste de desarrollo será esfuerzo × tarifa
+aprobada más costes directos; el coste operativo incluirá infraestructura,
+voz/STT/IA, almacenamiento, soporte y privacidad. El precio comercial se
+modelará aparte mediante escenarios de disposición a pagar, margen, volumen y
+coste de servicio. No se fijan presupuestos, precios ni fechas.
+
 ## Hallazgos observados en A1 V4
 
 Se observó dificultad para comprender instrucciones iniciales, mensajes

@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-10-12T02:36:16+02:00
-Baseline Git previa a este checkpoint: 2993b675d1592a132aefb6c93ebbf6a8788c4fed
+Actualizado: 2026-10-12T03:23:09+02:00
+Baseline Git previa a este checkpoint: d10a99a9f17ffc29fe34308b0398975096b04a88
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -19,12 +19,15 @@ El postflight final acreditó **19 PASS / 5 skipped**, `git diff --check` PASS, 
 
 `Development Supervisor v1` queda **CLOSED / PUBLISHED / SYNCED** en `0349fa8d3928c98a83de0449b49d4dc5a8146c64` (`fix close development supervisor v1 routing and continuity`). El Closure Gate acreditó 14 tests PASS, block-close PASS, git-close PASS y checkpoint-prepare PASS, con árbol limpio y sincronizado.
 
+La consolidación documental de decisiones iniciales del MVP Pre-A1 + A1 quedó
+publicada y sincronizada en `d10a99a9f17ffc29fe34308b0398975096b04a88`.
+
 ## Bloque activo
 
-Consolidación documental MVP Pre-A1 + A1 inicial:
-**LOCAL / NOT PUBLISHED**. Preparación documental completada;
-postflight independiente pendiente de aprobación final
-y Closure Gate todavía no ejecutado.
+Especificación documental del plan de innovación MVP preparada localmente;
+revisión y aprobación humana pendientes, seguida de publicación documental.
+Después corresponderá establecer una línea base verificable del MVP. Ningún
+incremento técnico está autorizado.
 
 Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/modelo-pedagogico-maestro.md`, `docs/roadmap.md`.
 Dirty backend reconocido: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/modelo-pedagogico-maestro.md`, `docs/roadmap.md`.
@@ -47,7 +50,9 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = auditoría focalizada de reutilización técnica y primera línea base verificable del MVP Pre-A1 + A1; sin autorización para iniciar un incremento de producto.
+NEXT = revisión y aprobación de la especificación documental del plan de
+innovación MVP, publicación documental y, después, establecimiento de una
+línea base verificable del MVP; ningún incremento técnico está autorizado.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 

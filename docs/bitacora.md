@@ -5314,3 +5314,25 @@ NEXT = auditoría focalizada de reutilización técnica y primera línea base
 verificable del MVP Pre-A1 + A1. No se autoriza activar A1, loader, runtime
 pointer, B181, progreso, mastery, completion ni modificar
 `content/content_tree.json`.
+
+## Plan de innovación MVP — consolidación documental provisional
+
+Se consolida la propuesta de 24 entregables en `docs/roadmap.md`, agrupada por
+las ocho dimensiones del MVP y marcada con estados diferenciados. La propuesta
+no aprueba implementación individual ni criterios de aceptación definitivos.
+
+Se registra como pendiente la preferencia humana por inmersión comprensible y
+progresiva con apoyo puntual en español. Debe contrastarse formalmente con el
+Modelo Pedagógico Maestro y no constituye todavía una política definitiva.
+
+La documentación separa avance pedagógico acreditado, reutilización técnica,
+trabajo pendiente, confianza, esfuerzo/coste y precio comercial. No se
+atribuyen porcentajes de ejecución ni se establecen presupuestos, precios o
+fechas. La línea base queda **NO MEDIBLE** hasta disponer de criterios
+aprobados, evidencia por entregable, responsable y medición comparable.
+
+El bloque documental actual queda **LOCAL / NOT PUBLISHED** hasta postflight
+independiente y aprobación humana. Se conservan las restricciones de no activar
+A1 v4, loader o runtime pointer, no iniciar B181/B52/human review/adjudicación,
+no modificar `content/content_tree.json` y no acreditar mastery, progreso o
+completion.
