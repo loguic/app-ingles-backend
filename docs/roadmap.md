@@ -45,32 +45,32 @@ individual ni criterios de aceptación definitivos. Los estados usados son:
 **IMPLEMENTADO**, **PROTOTIPO**, **DOCUMENTADO**, **PROPUESTO** y **NO
 VERIFICADO**. La auditoría read-only reciente solo aporta contexto cualitativo.
 
-| ID | Entregable | Problema / capacidad esperada | Evidencia mínima y criterio propuesto | Dependencias / reutilización | Estado / validación humana |
+| ID | Entregable | Problema / capacidad esperada | Evidencia mínima y criterio funcional V1 aprobado | Dependencias / reutilización | Estado / validación humana |
 |---|---|---|---|---|---|
-| 1.1 | Diagnóstico conversacional inicial | No conocer el punto de partida; obtener perfil inicial trazable | Sesión, observaciones y perfil con evidencias; cobertura y trazabilidad verificables | B177/B179; schemas y persistencia diagnóstica | IMPLEMENTADO técnico; validar experiencia real |
-| 1.2 | Entrada comprensible desde cero | Bloqueo ante instrucciones iniciales | Misión comprensible para principiante y producción observable; comprensión confirmada | Modelo maestro, futura A1 L1, UX | PROPUESTO; definir con revisión humana |
-| 1.3 | Asignación según necesidades | Practicar sin atender bloqueos prioritarios | Plan inicial ligado a evidencia y apoyo; reglas revisables | Diagnóstico, fases, constructor pedagógico | DOCUMENTADO; validar reglas |
-| 2.1 | Diseño de experiencias pedagógicas | Contenido técnico sin capacidad completa | Experiencia con intención, apoyo, evidencia y transferencia explícitos | Constructor, candidato, validadores | DOCUMENTADO; aprobar diseño |
-| 2.2 | Misiones comunicativas funcionales | Ejercicios aislados sin propósito | Misión nueva con producción y variación pertinentes | B180; candidata A1 v4; recursos | PROTOTIPO; validar progresión A1 |
-| 2.3 | Evaluación de la experiencia | Confundir recorrido con aprendizaje | Evidencia observable y rúbrica separada de completion | ExperienceAttempt, evidencia, revisión humana | PROPUESTO; definir rúbrica |
-| 3.1 | Reproducción y grabación fiables | No poder escuchar o producir | Audio reproducible, grabación recuperable y estados claros | Audio temporal, endpoints de producción, frontend documentado | PROTOTIPO; validar con principiantes |
-| 3.2 | STT y recuperación técnica | Fallos de reconocimiento que bloquean | Error técnico distinguible y reintento sin falsa evaluación | Moonshine/STT, producción oral, UX | PROTOTIPO; validar cobertura de fallos |
-| 3.3 | Entrenamiento fonético funcional | Pronunciación poco inteligible | Escuchar–distinguir–producir–feedback–transferir en contexto | B136–B147, audio/IPA; scores no son verdad | DOCUMENTADO; calibración humana pendiente |
-| 4.1 | Interlocutor contextual | Responder sin intención comunicativa | Intervención contextual comprensible y pertinente | Contenido de experiencia, spoken turns | PROTOTIPO; validar conversación nueva |
-| 4.2 | Respuestas contingentes | Repetir guiones ante información nueva | Respuesta oral conectada a intervención inesperada | B181, audio-first, revisión humana | PROTOTIPO; B181 pausado |
-| 4.3 | Adaptación controlada de apoyos | Retirar ayuda sin evidencia suficiente | `model → anchors → initial_word → none` solo con evidencia | B180/B181, estados de apoyo | IMPLEMENTADO técnico; validar seguridad pedagógica |
-| 5.1 | Orientaciones comprensibles | Feedback abstracto o excesivo | Una orientación prioritaria accionable antes del reintento | B180 orientations, feedback schemas | IMPLEMENTADO técnico; validar comprensión |
-| 5.2 | Separar errores lingüísticos/técnicos | Premiar o penalizar el fallo equivocado | Estados y mensajes distinguen audio/STT/semántica | Spoken evaluator, feedback service, UX | PROPUESTO; criterios pendientes |
-| 5.3 | Reintento guiado | Repetir sin foco ni retirada de apoyo | Orientación presentada, apoyo menor y nueva producción trazable | B180 retry preparation, attempts | IMPLEMENTADO técnico; validar mejora sin inferirla |
-| 6.1 | Variaciones comunicativas nuevas | Memorizar una respuesta | Transferencia a escena o necesidad nueva | B180 transfer bank, A1 v4 | PROTOTIPO; ampliar cobertura |
-| 6.2 | Recuperación diferida | Olvidar tras éxito inmediato | Tarea 24–48 h después, contexto distinto, apoyo definido | Identidad de evidencia, obligación de retención | PROPUESTO; no existe ejecución acreditada |
-| 6.3 | Evidencia independiente de aprendizaje | Confundir señal técnica con aprendizaje | Producción nueva revisada con criterios humanos | Revisión humana, audio temporal, rúbrica | PROPUESTO; definir puerta humana |
-| 7.1 | Instrucciones comprensibles | Principiante no sabe qué hacer | Prueba con principiantes y comprensión de consigna | UX A1 V4, microcopy documentada | NO VERIFICADO; hallazgos abiertos |
-| 7.2 | Navegación e interacción claras | Estados de grabación y feedback confusos | Flujo sin ambigüedad entre escuchar, grabar, evaluar y repetir | Frontend A1 V4 documentado; accesibilidad | PROTOTIPO; fuente frontend no auditada aquí |
-| 7.3 | Usabilidad y accesibilidad | Contratos accesibles sin validación de uso | Prueba cualitativa y criterios de accesibilidad con usuarios | `accessibility_label`, transcript contingente | DOCUMENTADO; validación humana pendiente |
-| 8.1 | Seguridad y privacidad | Audio y datos sensibles sin límites | Retención, acceso, borrado y provenance verificables | recovery/DevSecOps, audio privado, revisión | DOCUMENTADO parcial; definir controles MVP |
-| 8.2 | Despliegue estable y verificable | Demo técnica no equivale a release | Artefacto reproducible, smoke checks y rollback autorizado | Git, Docker, runtime docs; loader no autorizado | NO VERIFICADO; no activar A1 |
-| 8.3 | Piloto y condiciones de lanzamiento | Lanzar sin evidencia ni soporte | Criterios de piloto, riesgos, soporte y decisión humana | Rúbrica MVP, UX, privacidad, costes | PROPUESTO; sin fechas ni precios |
+| 1.1 | Diagnóstico conversacional inicial | No conocer el punto de partida; obtener perfil inicial trazable | Genera perfil trazable, observaciones y cobertura definida | B177/B179; schemas y persistencia diagnóstica | IMPLEMENTADO técnico; validar experiencia real |
+| 1.2 | Entrada comprensible desde cero | Bloqueo ante instrucciones iniciales | Principiante comprende la misión inicial y produce la acción objetivo sin confusión crítica | Modelo maestro, futura A1 L1, UX | PROPUESTO; definir con revisión humana |
+| 1.3 | Asignación según necesidades | Practicar sin atender bloqueos prioritarios | Asignación justificada por evidencia diagnóstica y reglas revisables | Diagnóstico, fases, constructor pedagógico | DOCUMENTADO; validar reglas |
+| 2.1 | Diseño de experiencias pedagógicas | Contenido técnico sin capacidad completa | Experiencia declara capacidad, apoyo, evidencia y transferencia | Constructor, candidato, validadores | DOCUMENTADO; aprobar diseño |
+| 2.2 | Misiones comunicativas funcionales | Ejercicios aislados sin propósito | Misión nueva exige producción pertinente, variación y coherencia con progresión A1 | B180; candidata A1 v4; recursos | PROTOTIPO; validar progresión A1 |
+| 2.3 | Evaluación de la experiencia | Confundir recorrido con aprendizaje | Evaluación separa recorrido, evidencia y acreditación mediante rúbrica aprobada | ExperienceAttempt, evidencia, revisión humana | PROPUESTO; definir rúbrica |
+| 3.1 | Reproducción y grabación fiables | No poder escuchar o producir | Reproducción, grabación y recuperación funcionan con estados comprensibles | Audio temporal, endpoints de producción, frontend documentado | PROTOTIPO; validar con principiantes |
+| 3.2 | STT y recuperación técnica | Fallos de reconocimiento que bloquean | Fallo técnico/STT se distingue de evaluación lingüística y permite reintento seguro | Moonshine/STT, producción oral, UX | PROTOTIPO; validar cobertura de fallos |
+| 3.3 | Entrenamiento fonético funcional | Pronunciación poco inteligible | Ciclo escuchar–distinguir–producir–feedback–transferir observado en contexto; ningún score aislado determina aprendizaje | B136–B147, audio/IPA; scores no son verdad | DOCUMENTADO; calibración humana pendiente |
+| 4.1 | Interlocutor contextual | Responder sin intención comunicativa | Interlocutor ofrece intervenciones comprensibles, pertinentes y contextualizadas | Contenido de experiencia, spoken turns | PROTOTIPO; validar conversación nueva |
+| 4.2 | Respuestas contingentes | Repetir guiones ante información nueva | Alumno responde oralmente a información inesperada durante intercambios conectados | B181, audio-first, revisión humana | PROTOTIPO; B181 pausado |
+| 4.3 | Adaptación controlada de apoyos | Retirar ayuda sin evidencia suficiente | Retirada `model → anchors → initial_word → none` basada en evidencia autorizada | B180/B181, estados de apoyo | IMPLEMENTADO técnico; validar seguridad pedagógica |
+| 5.1 | Orientaciones comprensibles | Feedback abstracto o excesivo | Orientación prioritaria accionable aplicable al reintento | B180 orientations, feedback schemas | IMPLEMENTADO técnico; validar comprensión |
+| 5.2 | Separar errores lingüísticos/técnicos | Premiar o penalizar el fallo equivocado | Mensajes distinguen fallo técnico, lingüístico y semántico sin elogio incondicional | Spoken evaluator, feedback service, UX | PROPUESTO; criterios pendientes |
+| 5.3 | Reintento guiado | Repetir sin foco ni retirada de apoyo | Reintento trazable con orientación y apoyo menor, sin inferir mejora automática | B180 retry preparation, attempts | IMPLEMENTADO técnico; validar mejora sin inferirla |
+| 6.1 | Variaciones comunicativas nuevas | Memorizar una respuesta | Transferencia pertinente e inteligible a escena o necesidad nueva | B180 transfer bank, A1 v4 | PROTOTIPO; ampliar cobertura |
+| 6.2 | Recuperación diferida | Olvidar tras éxito inmediato | Recuperación 24–48 horas después, en contexto distinto y sin modelo completo | Identidad de evidencia, obligación de retención | PROPUESTO; no existe ejecución acreditada |
+| 6.3 | Evidencia independiente de aprendizaje | Confundir señal técnica con aprendizaje | Evidencia independiente revisada mediante rúbrica humana | Revisión humana, audio temporal, rúbrica | PROPUESTO; definir puerta humana |
+| 7.1 | Instrucciones comprensibles | Principiante no sabe qué hacer | Principiante comprende instrucciones y completa consigna sin ayuda no prevista | UX A1 V4, microcopy documentada | NO VERIFICADO; hallazgos abiertos |
+| 7.2 | Navegación e interacción claras | Estados de grabación y feedback confusos | Flujo escuchar, grabar, evaluar y repetir claro y recuperable | Frontend A1 V4 documentado; accesibilidad | PROTOTIPO; fuente frontend no auditada aquí |
+| 7.3 | Usabilidad y accesibilidad | Contratos accesibles sin validación de uso | Usabilidad y accesibilidad contrastadas con usuarios y criterios explícitos | `accessibility_label`, transcript contingente | DOCUMENTADO; validación humana pendiente |
+| 8.1 | Seguridad y privacidad | Audio y datos sensibles sin límites | Acceso, retención, borrado y provenance de datos/audio mediante controles verificables | recovery/DevSecOps, audio privado, revisión | DOCUMENTADO parcial; definir controles MVP |
+| 8.2 | Despliegue estable y verificable | Demo técnica no equivale a release | Release reproducible con smoke check y rollback autorizado | Git, Docker, runtime docs; loader no autorizado | NO VERIFICADO; no activar A1 |
+| 8.3 | Piloto y condiciones de lanzamiento | Lanzar sin evidencia ni soporte | Piloto define elegibilidad, riesgos, soporte, salida y decisión humana | Rúbrica MVP, UX, privacidad, costes | PROPUESTO; sin fechas ni precios |
 
 ### Matriz V0 de trazabilidad cualitativa
 
@@ -223,6 +223,50 @@ permanece **NO MEDIBLE**. La estimación económica se evalúa por separado y
 requiere esfuerzo, tarifas, costes operativos y escenarios fundamentados; la
 ausencia de datos económicos no bloquea por sí sola la acreditación del avance
 del MVP.
+
+## Human Gate — Accreditation Matrix V1 aprobada
+
+La propuesta integrada de aplicación de Measurement V1 queda aprobada
+humanamente como definición funcional para los 24 entregables. Se preservan
+los entregables, sin aprobar todavía protocolos, umbrales, cumplimiento ni
+acreditación individual.
+
+Los criterios aprobados son los 24 criterios funcionales de la matriz V1:
+diagnóstico, entrada comprensible, asignación justificada; experiencias A1,
+misiones y rúbrica; reproducción/grabación, recuperación técnica y ciclo
+fonético; interlocución contextual, contingencia y retirada de apoyos;
+orientación, distinción de errores y reintento; transferencia, retención y
+evidencia independiente; instrucciones, flujo UX y accesibilidad; y controles
+de privacidad, release y piloto. La definición detallada queda consolidada en
+la aprobación humana y no implica cumplimiento.
+
+Los pesos internos aprobados son **6/5/4 = 15 %**, **7/8/5 = 20 %**,
+**6/4/5 = 15 %**, **6/5/4 = 15 %**, **4/3/3 = 10 %**, **3/4/3 = 10 %**,
+**4/3/3 = 10 %** y **2/2/1 = 5 %**. Total: **100 %**. Son pesos relativos
+del producto, no porcentajes de avance; conservan la justificación por
+impacto, dependencia crítica y riesgo.
+
+La validación se organiza en cuatro funciones colaborativas: responsable
+pedagógico, validador técnico, responsable UX/accesibilidad y responsable de
+operaciones/privacidad. Las personas concretas siguen pendientes.
+
+Toda evidencia deberá conservar fuente, fecha, versión, resultado,
+responsable, vigencia y representatividad, diferenciando evidencia técnica,
+pedagógica y operativa. Los estados siguen siendo **ACREDITADO**, **PARCIAL**,
+**SIN ACREDITAR** y **NO EVALUADO**. Esta aprobación no acredita ninguno de
+los 24 entregables, no convierte `NO EVALUADO` en 0 %, no calcula progreso y no
+infiere aprendizaje humano desde STT, Qwen, Flutter o backend.
+
+Quedan pendientes los protocolos de verificación por criterio, umbrales
+observables, responsables nominales, evidencia representativa, aplicación real
+de las reglas y acreditación individual verificable.
+
+La economía conservará reutilización técnica verificada, trabajo nuevo,
+integración, validaciones, horas/jornadas, tarifas justificadas, costes
+operativos, riesgos e incertidumbre en escenarios
+**OPTIMISTA/BASE/CONSERVADOR**. No se asignan cifras y se mantiene
+`COSTE != PRECIO != VALOR COMERCIAL`; la ausencia económica no bloquea por sí
+sola la medición del avance.
 
 ## Hallazgos observados en A1 V4
 

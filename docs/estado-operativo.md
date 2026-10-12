@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-10-12T05:20:11+02:00
-Baseline Git previa a este checkpoint: 3089b08682fcb6872280d87eb92975ee0fa181ee
+Actualizado: 2026-10-12T06:26:50+02:00
+Baseline Git previa a este checkpoint: 3f556915c3a47fbd4c893c8356e8123282adcc53
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -34,9 +34,13 @@ reclasifica retrospectivamente la ejecución original como Closure Gate PASS.
 
 BASELINE V0 del MVP: **PUBLISHED / SYNCED** tras recuperación de publicación.
 Measurement V1 está documentada y sus cinco decisiones metodológicas fueron
-aprobadas humanamente. La aplicación verificable queda pendiente de criterios
-definitivos, pesos internos, reglas operativas, responsables y entradas
-económicas; ningún incremento técnico está autorizado.
+aprobadas humanamente. La Accreditation Matrix V1 queda aprobada humanamente
+en sus 24 criterios funcionales, ocho distribuciones internas de pesos,
+funciones responsables, política de evidencia, condiciones de acreditación y
+entradas económicas necesarias. No implica cumplimiento ni acreditación nueva:
+faltan protocolos, umbrales observables, responsables nominales, evidencia
+representativa y aplicación individual. Ningún incremento técnico está
+autorizado.
 
 Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
 Dirty backend reconocido: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
@@ -59,10 +63,9 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = preparar la aplicación verificable de Measurement V1 a los 24
-entregables desde BASELINE V0, una vez definidos los criterios individuales,
-pesos internos, responsables, evidencia, estados parciales y entradas
-económicas pendientes. Ningún incremento técnico está autorizado.
+NEXT = preparar protocolos de verificación, responsables nominales y
+recopilación de evidencia para aplicar la Accreditation Matrix V1 a los 24
+entregables desde BASELINE V0. Ningún incremento técnico está autorizado.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 

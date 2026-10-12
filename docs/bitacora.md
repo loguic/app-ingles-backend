@@ -5416,3 +5416,29 @@ evidencia pendiente, horas, tarifas y costes reales permanecen pendientes.
 La siguiente frontera es aplicar verificablemente Measurement V1 a los 24
 entregables desde BASELINE V0. No se autoriza implementación, activación A1,
 B181, B52, loader, runtime pointer, mastery, progreso ni completion.
+
+## Human Gate — Accreditation Matrix V1 aprobada
+
+La propuesta integrada queda aprobada humanamente: se consolidan los 24
+criterios funcionales V1, las distribuciones internas **6/5/4**, **7/8/5**,
+**6/4/5**, **6/5/4**, **4/3/3**, **3/4/3**, **4/3/3** y **2/2/1**, que
+preservan respectivamente los pesos globales 15/20/15/15/10/10/10/5, y las
+cuatro funciones colaborativas de validación: responsable pedagógico, validador
+técnico, responsable UX/accesibilidad y responsable de operaciones/privacidad.
+
+La aprobación define condiciones funcionales, no protocolos, umbrales ni
+cumplimiento. La evidencia deberá conservar fuente, fecha, versión, resultado,
+responsable, vigencia y representatividad, diferenciando tipos técnico,
+pedagógico y operativo. Se mantienen ACREDITADO, PARCIAL, SIN ACREDITAR y NO
+EVALUADO; los 24 entregables no reciben acreditación nueva, no se convierte NO
+EVALUADO en 0 % y no se calcula progreso.
+
+Permanecen pendientes protocolos de verificación, umbrales observables,
+responsables nominales, evidencia representativa, aplicación individual y
+acreditación verificable. La economía conserva reutilización verificada,
+trabajo nuevo, integración, validaciones, horas/jornadas, tarifas justificadas,
+costes operativos, riesgos e incertidumbre en escenarios
+OPTIMISTA/BASE/CONSERVADOR, sin cifras y manteniendo COSTE != PRECIO != VALOR
+COMERCIAL. NEXT = preparar esos protocolos, responsables y evidencias sin
+autorizar implementación, activación A1, B181, B52, loader, runtime pointer,
+mastery, progreso, completion ni cambios en content/content_tree.json.
