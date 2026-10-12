@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-10-11T20:03:19+02:00
-Baseline Git previa a este checkpoint: 6384c2d73b8751130050d8653855a8e3b6064e1f
+Actualizado: 2026-10-12T02:36:16+02:00
+Baseline Git previa a este checkpoint: 2993b675d1592a132aefb6c93ebbf6a8788c4fed
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -21,11 +21,13 @@ El postflight final acreditó **19 PASS / 5 skipped**, `git diff --check` PASS, 
 
 ## Bloque activo
 
-Reconciliación semántica post-cierre: **PUBLISHED / SYNCED** en 6384c2d73b8751130050d8653855a8e3b6064e1f. Corrige el estado activo stale sin abrir un incremento: el Supervisor está cerrado por el commit publicado y esta actualización documental aún requiere su propio cierre autorizado.
+Consolidación documental MVP Pre-A1 + A1 inicial:
+**LOCAL / NOT PUBLISHED**. Preparación documental completada;
+postflight independiente pendiente de aprobación final
+y Closure Gate todavía no ejecutado.
 
-Corrección mínima autorizada: un `NEXT` que exige autorización humana explícita enruta `ACTOR=HUMAN`, `CODEX_REQUIRED=NO`, `ROUTING=NONE`; el prefijo canónico `NEXT =` se normaliza antes de presentarse. Se preservan reconciliación fail-closed y routing Codex/Terra para trabajo técnico autorizado. Evidencia vigente: tests independientes del Supervisor **14 PASS** y `validation_recipe.py approved-v1` **PASS (4 pasos)**, sin repetir pruebas.
-
-La corrección técnica y su postflight independiente ya están cerrados; las rutas técnicas no forman parte de esta reconciliación. Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
+Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/modelo-pedagogico-maestro.md`, `docs/roadmap.md`.
+Dirty backend reconocido: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/modelo-pedagogico-maestro.md`, `docs/roadmap.md`.
 
 
 No activar ni publicar A1: loader/runtime pointer permanecen no autorizados; no modificar `content/content_tree.json`; no iniciar B181, human review, adjudicación, winner, mastery, progreso ni completion.
@@ -45,7 +47,28 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = revisar el Plan Maestro Pedagógico y roadmap de LOGUIC English; sin autorización para iniciar un incremento de producto.
+NEXT = auditoría focalizada de reutilización técnica y primera línea base verificable del MVP Pre-A1 + A1; sin autorización para iniciar un incremento de producto.
+
+## Decisiones pedagógicas y comerciales consolidadas
+
+El primer MVP se encuadra provisionalmente en Pre-A1 + A1 inicial, dentro de
+la visión Pre-A1 hasta C2; Pre-A1 no es todavía un nivel curricular
+independiente aprobado definitivamente. La matriz provisional es: 15 %
+Pre-A1/diagnóstico, 20 % experiencias A1, 15 % escucha-habla-pronunciación,
+15 % tutor adaptativo, 10 % feedback, 10 % transferencia-retención, 10 %
+experiencia-accesibilidad y 5 % preparación para lanzamiento.
+
+El seguimiento distingue avance acreditado del producto, avance técnico
+aprovechable, coste y esfuerzo económico, y confianza de las estimaciones.
+Siguen pendientes de validación el desglose provisional de 24 entregables,
+criterios de aceptación, horas/costes, escenarios/precios, auditoría de
+reutilización técnica y recomendaciones condicionadas sobre repositorios.
+
+Los hallazgos A1 V4 incluyen dificultad con instrucciones iniciales, confusión
+entre grabación, reconocimiento y feedback, “Great job!” sin comprobación
+necesaria del resultado evaluado y necesidad de revisión para principiantes.
+La publicación técnica del vertical slice no acredita por sí sola aprendizaje
+humano.
 
 ## Archivos clave
 

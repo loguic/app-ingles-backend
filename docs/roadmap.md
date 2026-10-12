@@ -20,6 +20,33 @@ El historial técnico conservado en este roadmap continúa siendo válido como t
 
 Todo trabajo nuevo deberá partir de una capacidad observable del estudiante y justificar su contribución directa al puerto de llegada.
 
+## MVP Pre-A1 + A1 — consolidación documental
+
+El primer MVP queda encuadrado provisionalmente en **Pre-A1 + A1 inicial**,
+dentro de la visión integral **Pre-A1 hasta C2**. Pre-A1 no se declara todavía
+un nivel curricular independiente aprobado definitivamente.
+
+La matriz provisional es: Pre-A1 y diagnóstico 15 %; experiencias pedagógicas
+A1 20 %; escucha, habla y pronunciación 15 %; tutor adaptativo 15 %; feedback
+10 %; transferencia y retención 10 %; experiencia y accesibilidad 10 %;
+preparación para lanzamiento 5 %. Siguen pendientes de validación humana el
+desglose provisional de 24 entregables, criterios de aceptación, horas y
+costes, escenarios comerciales y precios, auditoría de reutilización técnica y
+recomendaciones condicionadas sobre repositorios existentes.
+
+El siguiente objetivo documentado es la auditoría focalizada de reutilización
+técnica y la primera línea base verificable del MVP. No autoriza código,
+activación, loader, runtime pointer, B181, progreso, mastery ni completion.
+
+## Hallazgos observados en A1 V4
+
+Se observó dificultad para comprender instrucciones iniciales, mensajes
+confusos sobre grabación, reconocimiento y feedback, y un panel que muestra
+“Great job!” sin comprobar necesariamente el resultado de la evaluación. La
+interfaz requiere revisión pedagógica para principiantes. El vertical slice
+está publicado técnicamente, pero no acredita automáticamente aprendizaje
+humano.
+
 ## Frontera A1 vigente
 
 Human Gate aprobado: `IMMUTABLE_PROJECTIONS_ATOMIC_POINTER` + `PRESERVE_A1_V2_COMPATIBILITY`. El runtime futuro usará proyecciones inmutables source-bound, activation records inmutables y `content/runtime-active.json` como commit point atómico; `content/content_tree.json` permanece como legacy/bootstrap durante la migración. El A1 v2 histórico seguirá disponible mediante su archivo/resolver exacto; v2 y v4 no se mezclarán ni quedarán ambos activos. El rollback será una nueva transición de activación, no una mutación manual.

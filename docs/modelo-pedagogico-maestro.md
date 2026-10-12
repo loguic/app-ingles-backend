@@ -8,6 +8,24 @@ LOGUIC English no se construirá como una colección de funcionalidades técnica
 
 Su núcleo diferencial será un sistema de aprendizaje conversacional que convierta teorías y métodos pedagógicos seleccionados en experiencias prácticas, progresivas, medibles y transferibles.
 
+## Decisiones provisionales de alcance del MVP
+
+El primer MVP se organizará alrededor de misiones comunicativas comprensibles,
+enseñanza contextual, construcción directa en inglés, producción oral, feedback
+útil, transferencia y recuperación posterior.
+
+El alcance inicial será **Pre-A1 + A1 inicial**. Pre-A1 es una frontera de
+diagnóstico y preparación del MVP, no un nivel curricular independiente
+definitivamente aprobado. La visión integral del recorrido sigue siendo
+**Pre-A1 hasta C2**.
+
+La matriz provisional de progreso del MVP es: Pre-A1 y diagnóstico 15 %;
+experiencias pedagógicas A1 20 %; escucha, habla y pronunciación 15 %; tutor
+conversacional adaptativo 15 %; feedback pedagógico 10 %; transferencia y
+retención 10 %; experiencia y accesibilidad 10 %; preparación para lanzamiento
+5 %. El seguimiento diferenciará avance acreditado del producto, avance técnico
+aprovechable, coste y esfuerzo económico, y confianza de las estimaciones.
+
 ## Puerto de llegada
 
 LOGUIC English será un entrenador pedagógico de fluidez conversacional.

@@ -5284,3 +5284,33 @@ Postflight independiente **PASS**. Readiness documental **PASS** con allowlist e
 ### Reconciliación semántica posterior al Closure Gate
 
 El Closure Gate de `Development Supervisor v1` quedó **CLOSED / PUBLISHED / SYNCED** en `0349fa8d3928c98a83de0449b49d4dc5a8146c64` (`fix close development supervisor v1 routing and continuity`): 14 tests PASS, block-close PASS, git-close PASS, checkpoint-prepare PASS y Git limpio/sincronizado. Esta reconciliación corrige únicamente el estado activo y NEXT stale; permanece **LOCAL / NOT PUBLISHED** hasta un cierre documental posterior autorizado. No abre producto ni altera restricciones A1 v4.
+
+## Consolidación documental del MVP Pre-A1 + A1
+
+Decisión humana provisional: el primer MVP se basa en misiones comunicativas
+comprensibles, enseñanza contextual, construcción directa en inglés, producción
+oral, feedback útil, transferencia y recuperación posterior. Su alcance es
+Pre-A1 + A1 inicial, con visión integral Pre-A1 hasta C2; Pre-A1 no queda
+aprobado como nivel curricular independiente.
+
+La matriz provisional queda registrada como 15 % Pre-A1/diagnóstico, 20 %
+experiencias A1, 15 % escucha-habla-pronunciación, 15 % tutor adaptativo, 10 %
+feedback, 10 % transferencia-retención, 10 % experiencia-accesibilidad y 5 %
+preparación para lanzamiento. El seguimiento separa avance acreditado del
+producto, avance técnico aprovechable, coste/esfuerzo económico y confianza de
+las estimaciones.
+
+Quedan pendientes de validación el desglose provisional de 24 entregables,
+criterios de aceptación, horas/costes, escenarios/precios, auditoría de
+reutilización técnica y evolución condicionada de repositorios.
+
+Hallazgos A1 V4: dificultad con instrucciones iniciales, mensajes confusos de
+grabación/reconocimiento/feedback, “Great job!” sin comprobar necesariamente
+el resultado de evaluación y necesidad de revisar la interfaz para
+principiantes. El vertical slice está publicado técnicamente, pero no acredita
+automáticamente aprendizaje humano.
+
+NEXT = auditoría focalizada de reutilización técnica y primera línea base
+verificable del MVP Pre-A1 + A1. No se autoriza activar A1, loader, runtime
+pointer, B181, progreso, mastery, completion ni modificar
+`content/content_tree.json`.
