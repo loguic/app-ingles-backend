@@ -190,6 +190,40 @@ validada, integración y pruebas pendientes, riesgos e incertidumbre, jornadas,
 tarifas, costes operativos y escenarios comerciales. Se mantendrá
 `COSTE != PRECIO != VALOR COMERCIAL`; no se crean presupuestos ficticios.
 
+## Human Gate Measurement V1 — decisiones aprobadas
+
+Queda aprobada humanamente la aplicación conjunta de las cinco reglas de
+Measurement V1. No se aprueban todavía los criterios individuales de los 24
+entregables, los pesos internos ni valores económicos.
+
+1. **Acreditación:** un entregable requiere criterios aprobados, evidencia
+   suficiente y verificable, y validación de un responsable autorizado.
+2. **Pesos internos:** se definirán según impacto pedagógico/funcional,
+   dependencia crítica y riesgo de producto. Se preservan los pesos globales
+   15/20/15/15/10/10/10/5; no se asignan pesos individuales ni se supone
+   reparto igualitario.
+3. **Evidencia:** debe corresponder al criterio y conservar fuente, fecha,
+   versión, resultado, responsable, vigencia y representatividad. Se
+   diferencian evidencias técnica, pedagógica y operativa; STT, Qwen, Flutter
+   y backend no acreditan por sí solos aprendizaje humano.
+4. **Avance parcial:** se conservan ACREDITADO, PARCIAL, SIN ACREDITAR y NO
+   EVALUADO. PARCIAL se reconocerá por criterios individuales acreditados, sin
+   porcentajes arbitrarios; `NO EVALUADO != 0 %`. Avance acreditado, cobertura,
+   trabajo pendiente y desconocido permanecen separados.
+5. **Economía:** se estimarán reutilización, trabajo nuevo, integración,
+   validación, horas/jornadas, tarifas justificadas, costes operativos, riesgos
+   e incertidumbre mediante escenarios OPTIMISTA, BASE y CONSERVADOR. No se
+   inventan cifras, se evita doble contabilización y se mantiene
+   `COSTE != PRECIO != VALOR COMERCIAL`.
+
+El cálculo cuantitativo del avance requiere criterios individuales aprobados,
+pesos internos, responsables, reglas de acreditación y evidencia suficiente,
+trazable y representativa. Hasta cumplir estas condiciones, el avance global
+permanece **NO MEDIBLE**. La estimación económica se evalúa por separado y
+requiere esfuerzo, tarifas, costes operativos y escenarios fundamentados; la
+ausencia de datos económicos no bloquea por sí sola la acreditación del avance
+del MVP.
+
 ## Hallazgos observados en A1 V4
 
 Se observó dificultad para comprender instrucciones iniciales, mensajes

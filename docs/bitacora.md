@@ -5400,3 +5400,19 @@ La medición económica requerirá esfuerzo nuevo, ahorro por reutilización,
 integración, pruebas, riesgos, jornadas, tarifas, costes operativos y
 escenarios comerciales, manteniendo `COSTE != PRECIO != VALOR COMERCIAL`.
 No se crean presupuestos ni porcentajes ficticios.
+
+## Human Gate Measurement V1 — consolidación aprobada
+
+Se registra la aprobación humana conjunta de las cinco decisiones
+metodológicas: acreditación por criterios, evidencia suficiente y responsable;
+pesos internos futuros según impacto, dependencia y riesgo sin reparto
+igualitario; evidencia técnica, pedagógica y operativa trazable; estados
+ACREDITADO/PARCIAL/SIN ACREDITAR/NO EVALUADO sin porcentajes arbitrarios; y
+estimación económica por reutilización, trabajo nuevo, integración, validación,
+horas, tarifas, costes, riesgos y escenarios OPTIMISTA/BASE/CONSERVADOR.
+
+Los criterios individuales, pesos numéricos internos, responsables concretos,
+evidencia pendiente, horas, tarifas y costes reales permanecen pendientes.
+La siguiente frontera es aplicar verificablemente Measurement V1 a los 24
+entregables desde BASELINE V0. No se autoriza implementación, activación A1,
+B181, B52, loader, runtime pointer, mastery, progreso ni completion.

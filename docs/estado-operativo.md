@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-10-12T04:50:14+02:00
-Baseline Git previa a este checkpoint: c985f5d0cfb2c10eba85cf855265aefe540f694e
+Actualizado: 2026-10-12T05:20:11+02:00
+Baseline Git previa a este checkpoint: 3089b08682fcb6872280d87eb92975ee0fa181ee
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -33,9 +33,10 @@ reclasifica retrospectivamente la ejecución original como Closure Gate PASS.
 ## Bloque activo
 
 BASELINE V0 del MVP: **PUBLISHED / SYNCED** tras recuperación de publicación.
-La metodología de medición V1 está documentada; su publicación efectiva se
-determina mediante Git y checkpoint vivos. Ningún incremento técnico está
-autorizado.
+Measurement V1 está documentada y sus cinco decisiones metodológicas fueron
+aprobadas humanamente. La aplicación verificable queda pendiente de criterios
+definitivos, pesos internos, reglas operativas, responsables y entradas
+económicas; ningún incremento técnico está autorizado.
 
 Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
 Dirty backend reconocido: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
@@ -58,11 +59,10 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = definir y aprobar criterios de aceptación definitivos, distribución
-interna de pesos, reglas de acreditación y evidencia, tratamiento de estados
-parciales y entradas para estimaciones económicas; después, preparar la
-medición verificable desde BASELINE V0. Estas decisiones siguen pendientes de
-aprobación. Ningún incremento técnico está autorizado.
+NEXT = preparar la aplicación verificable de Measurement V1 a los 24
+entregables desde BASELINE V0, una vez definidos los criterios individuales,
+pesos internos, responsables, evidencia, estados parciales y entradas
+económicas pendientes. Ningún incremento técnico está autorizado.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 
