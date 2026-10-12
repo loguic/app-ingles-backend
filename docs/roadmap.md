@@ -142,6 +142,54 @@ voz/STT/IA, almacenamiento, soporte y privacidad. El precio comercial se
 modelará aparte mediante escenarios de disposición a pagar, margen, volumen y
 coste de servicio. No se fijan presupuestos, precios ni fechas.
 
+## MVP Measurement Methodology v1
+
+Metodología provisional aprobada humanamente para medir el MVP sin confundir
+producto, reutilización, trabajo pendiente y economía.
+
+### Indicadores independientes
+
+- **Avance acreditado del MVP:** capacidades demostradas con criterios de aceptación aprobados y evidencia suficiente.
+- **Reutilización técnica:** componentes existentes aprovechables; no equivale a producto terminado.
+- **Trabajo pendiente:** capacidades, integración, pruebas, validaciones y dependencias restantes.
+- **Esfuerzo y coste:** horas, jornadas, tarifas, operación e incertidumbre.
+
+Ningún indicador se suma o sustituye automáticamente a otro.
+
+### Estados y reglas de cálculo
+
+- **ACREDITADO:** criterios aprobados cumplidos con evidencia válida.
+- **PARCIAL:** solo parte de los criterios tiene evidencia suficiente.
+- **SIN ACREDITAR:** existe evidencia de requisitos necesarios aún incumplidos.
+- **NO EVALUADO:** la información disponible no permite determinar el estado.
+
+`NO EVALUADO != 0 %`. `PARCIAL` y `SIN ACREDITAR` no reciben porcentaje
+automático. La ausencia de evidencia se mantiene separada de la evidencia de
+incumplimiento.
+
+El avance porcentual solo podrá calcularse cuando cada entregable disponga de
+criterios aprobados, evidencia trazable y vigente, responsable de validación,
+reglas de acreditación, distribución interna de pesos aprobada, tratamiento
+explícito de estados parciales, cobertura y confianza. Hasta entonces, el
+progreso global es **NO MEDIBLE**.
+
+Se conservan exactamente los pesos provisionales: Pre-A1 y diagnóstico 15 %;
+experiencias A1 20 %; escucha, habla y pronunciación 15 %; tutor adaptativo
+15 %; feedback pedagógico 10 %; transferencia y retención 10 %; UX y
+accesibilidad 10 %; preparación para lanzamiento 5 %. Total: 100 %. No se
+asume igualdad entre los tres entregables de cada resultado.
+
+La evidencia pedagógica mantiene `EXPUESTO != ENSEÑADO != PRACTICADO !=
+EVIDENCIADO != DOMINADO`. Pruebas de STT, Qwen, backend o Flutter no acreditan
+por sí solas aprendizaje humano, mastery, progreso curricular ni completion.
+
+### Entradas económicas pendientes
+
+La estimación requerirá esfuerzo nuevo por entregable, ahorro por reutilización
+validada, integración y pruebas pendientes, riesgos e incertidumbre, jornadas,
+tarifas, costes operativos y escenarios comerciales. Se mantendrá
+`COSTE != PRECIO != VALOR COMERCIAL`; no se crean presupuestos ficticios.
+
 ## Hallazgos observados en A1 V4
 
 Se observó dificultad para comprender instrucciones iniciales, mensajes

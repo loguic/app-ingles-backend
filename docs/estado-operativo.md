@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-10-12T04:29:09+02:00
-Baseline Git previa a este checkpoint: 90bf9e780124b2dc1ffc43c4526e83aedf215af4
+Actualizado: 2026-10-12T04:50:14+02:00
+Baseline Git previa a este checkpoint: c985f5d0cfb2c10eba85cf855265aefe540f694e
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -33,11 +33,12 @@ reclasifica retrospectivamente la ejecución original como Closure Gate PASS.
 ## Bloque activo
 
 BASELINE V0 del MVP: **PUBLISHED / SYNCED** tras recuperación de publicación.
-La trazabilidad documental de la incidencia queda registrada en bitácora;
-ningún incremento técnico está autorizado.
+La metodología de medición V1 está documentada; su publicación efectiva se
+determina mediante Git y checkpoint vivos. Ningún incremento técnico está
+autorizado.
 
-Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`.
-Dirty backend reconocido: `docs/estado-operativo.md`, `docs/bitacora.md`.
+Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
+Dirty backend reconocido: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
 
 
 No activar ni publicar A1: loader/runtime pointer permanecen no autorizados; no modificar `content/content_tree.json`; no iniciar B181, human review, adjudicación, winner, mastery, progreso ni completion.
@@ -57,9 +58,11 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = preparación de la medición verificable del MVP a partir de BASELINE V0,
-los 24 entregables y la evidencia existente; ningún incremento técnico está
-autorizado.
+NEXT = definir y aprobar criterios de aceptación definitivos, distribución
+interna de pesos, reglas de acreditación y evidencia, tratamiento de estados
+parciales y entradas para estimaciones económicas; después, preparar la
+medición verificable desde BASELINE V0. Estas decisiones siguen pendientes de
+aprobación. Ningún incremento técnico está autorizado.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 

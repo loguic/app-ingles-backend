@@ -5379,3 +5379,24 @@ publicación **PASS**; ejecución original del Closure Gate **FAIL**. No se cre�
 otro commit, no se repitió el Closure Gate ni se inició implementación.
 Permanecen no autorizados A1 v4, B181, B52, loader, runtime pointer, mastery,
 progreso y completion.
+
+## MVP Measurement Methodology v1 — consolidación documental
+
+Se documenta la metodología provisional aprobada humanamente para medir el
+MVP. Mantiene separados avance acreditado, reutilización técnica, trabajo
+pendiente y esfuerzo/coste.
+
+Los estados de entregable son **ACREDITADO**, **PARCIAL**, **SIN ACREDITAR** y
+**NO EVALUADO**. `NO EVALUADO != 0 %`; no se asignan porcentajes automáticos a
+PARCIAL o SIN ACREDITAR y se separa ausencia de evidencia de incumplimiento.
+
+El avance global permanece **NO MEDIBLE** hasta aprobar criterios, evidencia
+trazable y vigente, responsables, reglas de acreditación, pesos internos,
+tratamiento de estados parciales, cobertura y confianza. Se preservan los
+pesos 15/20/15/15/10/10/10/5 y la separación
+`EXPUESTO != ENSEÑADO != PRACTICADO != EVIDENCIADO != DOMINADO`.
+
+La medición económica requerirá esfuerzo nuevo, ahorro por reutilización,
+integración, pruebas, riesgos, jornadas, tarifas, costes operativos y
+escenarios comerciales, manteniendo `COSTE != PRECIO != VALOR COMERCIAL`.
+No se crean presupuestos ni porcentajes ficticios.
