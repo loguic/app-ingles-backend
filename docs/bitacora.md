@@ -5336,3 +5336,27 @@ independiente y aprobación humana. Se conservan las restricciones de no activar
 A1 v4, loader o runtime pointer, no iniciar B181/B52/human review/adjudicación,
 no modificar `content/content_tree.json` y no acreditar mastery, progreso o
 completion.
+
+## MVP Baseline V0 — consolidación documental cualitativa
+
+La primera línea base cualitativa recupera los 24 entregables del plan
+publicado y añade en `docs/roadmap.md` una matriz de trazabilidad por
+entregable: estado conocido, fuente, reutilización técnica acreditada,
+evidencia pedagógica pendiente, criterio propuesto, confianza e información
+faltante.
+
+La baseline confirma infraestructura diagnóstica reutilizable, experiencias A1
+y voz en estado técnico/prototípico, tutor Qwen/Ollama acotado, feedback
+trazable con un problema UX conocido, transferencia técnica `water → food`,
+retención diferida no acreditada, UX con evidencia limitada y readiness
+comercial no acreditado. No se atribuyen mastery, progreso curricular ni
+completion.
+
+Los pesos 15/20/15/15/10/10/10/5 se conservan como ponderaciones
+provisionales. El avance porcentual, el esfuerzo pendiente y los costes son
+**NO MEDIBLES** hasta disponer de criterios aprobados, evidencias comparables,
+horas, tarifas, costes operativos y escenarios comerciales.
+
+BASELINE V0 queda **LOCAL / NOT PUBLISHED**, pendiente de postflight
+independiente, aprobación humana y publicación. Se mantienen inactivas A1 v4,
+loader, runtime pointer y B181, y no se inicia implementación técnica.

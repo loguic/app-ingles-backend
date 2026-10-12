@@ -72,6 +72,39 @@ VERIFICADO**. La auditoría read-only reciente solo aporta contexto cualitativo.
 | 8.2 | Despliegue estable y verificable | Demo técnica no equivale a release | Artefacto reproducible, smoke checks y rollback autorizado | Git, Docker, runtime docs; loader no autorizado | NO VERIFICADO; no activar A1 |
 | 8.3 | Piloto y condiciones de lanzamiento | Lanzar sin evidencia ni soporte | Criterios de piloto, riesgos, soporte y decisión humana | Rúbrica MVP, UX, privacidad, costes | PROPUESTO; sin fechas ni precios |
 
+### Matriz V0 de trazabilidad cualitativa
+
+| Entregable | Estado conocido / fuente | Reutilización técnica acreditada | Evidencia pedagógica pendiente / criterio propuesto | Confianza / dato faltante |
+|---|---|---|---|---|
+| 1.1 | IMPLEMENTADO técnico; roadmap B177/B179 | Diagnóstico, schemas, persistencia | Uso real y perfil útil; sesión completada con observaciones trazables | Alta técnica / experiencia humana |
+| 1.2 | PROPUESTO; modelo maestro y hallazgos UX | Experiencias y recursos A1 | Comprensión desde cero; principiante ejecuta la misión sin confusión | Baja / prueba con principiantes |
+| 1.3 | DOCUMENTADO; modelo maestro | Perfil diagnóstico y fases | Plan responde al bloqueo observado; revisión de asignación | Media documental / reglas aprobadas |
+| 2.1 | DOCUMENTADO; roadmap y Gates | Constructor, candidatos, validadores | Capacidad completa con transferencia; Gate 1 aprobado | Media / diseño humano |
+| 2.2 | PROTOTIPO; B180/A1 v4 | Contenido, recursos, experiencias | Progresión A1 canónica; misión nueva pertinente | Media / secuencia validada |
+| 2.3 | PROPUESTO; contratos de evidencia | ExperienceAttempt y revisiones | Rúbrica separa recorrido de aprendizaje; evidencia independiente | Baja / rúbrica aprobada |
+| 3.1 | PROTOTIPO; A1 v4 documentada | Audio, producción, endpoints | Flujo fiable para principiante; reproducción/grabación observadas | Media / validación UX directa |
+| 3.2 | PROTOTIPO; A1 v4 y spoken turns | STT, producción, reintentos | Error técnico distinguible; recuperación no falsea evaluación | Media-baja / casos de fallo |
+| 3.3 | DOCUMENTADO; B136–B147 | Audio, IPA, análisis acústico | Mejora de inteligibilidad en contexto; rúbrica humana | Media técnica / calibración pedagógica |
+| 4.1 | PROTOTIPO; spoken-turn/A1 v4 | Evaluador Qwen/Ollama y contenido | Interlocución contextual pertinente; conversación nueva | Media técnica / evidencia humana |
+| 4.2 | PROTOTIPO; B181 pausado | Audio-first, producción, reviews | Respuesta contingente real; tres intercambios conectados | Baja / reanudación pedagógica |
+| 4.3 | IMPLEMENTADO técnico; B180/B181 | Estados de apoyo y transición | Retirada segura basada en evidencia; no solo regla técnica | Media / validación humana |
+| 5.1 | IMPLEMENTADO técnico; B180 | Orientaciones y feedback schemas | Alumno entiende y usa una orientación; reintento observado | Media / prueba de comprensión |
+| 5.2 | PROPUESTO; hallazgo A1 V4 | Evaluador, feedback, estados técnicos | Mensajes distinguen fallo técnico/lingüístico; UX sin “Great job!” incondicional | Baja / catálogo de estados |
+| 5.3 | IMPLEMENTADO técnico; B180 retry | Preparación de reintento y attempts | Aplicación de orientación y menor apoyo; no inferir mejora | Media técnica / observación humana |
+| 6.1 | PROTOTIPO; A1 v4 `water → food` | Transfer bank y producción oral | Variaciones más amplias; transferencia pertinente e inteligible | Media / muestras nuevas |
+| 6.2 | PROPUESTO; Gate 2 | Identidad de evidencia planificada | Recuperación 24–48 h en contexto distinto | Baja / ejecución diferida |
+| 6.3 | PROPUESTO; modelo maestro | Revisión humana y audio temporal | Evidencia nueva revisada con rúbrica; independencia de la inmediata | Baja / puerta humana |
+| 7.1 | NO VERIFICADO; hallazgos UX | Microcopy documentada | Principiante comprende la consigna; prueba de usabilidad | Baja / participantes y resultados |
+| 7.2 | PROTOTIPO; frontend documentado | Estados de experiencia y audio | Flujo claro escuchar/grabar/evaluar/repetir | Baja / fuente frontend y prueba |
+| 7.3 | DOCUMENTADO; contratos de accesibilidad | `accessibility_label`, transcript contingente | Usabilidad y accesibilidad observadas con usuarios | Baja / evaluación directa |
+| 8.1 | DOCUMENTADO parcial; DevSecOps/audio | Recovery, provenance, audio privado | Controles MVP de acceso, retención y borrado | Media técnica / política aplicada |
+| 8.2 | NO VERIFICADO; Git/Docker/runtime docs | Artefactos y validaciones históricas | Release reproducible y rollback autorizado | Baja / checklist de release |
+| 8.3 | PROPUESTO; plan económico | Evidencia MVP, UX y privacidad | Piloto y decisión de lanzamiento | Baja / criterios, costes y soporte |
+
+La matriz V0 es cualitativa: no convierte estado técnico en aprendizaje y no
+calcula porcentajes de avance. Los pesos provisionales del MVP permanecen
+15/20/15/15/10/10/10/5.
+
 ### Dependencias y puertas del plan
 
 La secuencia de producto es una relación de dependencias pedagógicas y no una

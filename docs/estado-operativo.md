@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-10-12T03:23:09+02:00
-Baseline Git previa a este checkpoint: d10a99a9f17ffc29fe34308b0398975096b04a88
+Actualizado: 2026-10-12T03:40:30+02:00
+Baseline Git previa a este checkpoint: f6b27e4bf261c43febb194f583c44c74a893bbec
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -24,13 +24,12 @@ publicada y sincronizada en `d10a99a9f17ffc29fe34308b0398975096b04a88`.
 
 ## Bloque activo
 
-Especificación documental del plan de innovación MVP preparada localmente;
-revisión y aprobación humana pendientes, seguida de publicación documental.
-Después corresponderá establecer una línea base verificable del MVP. Ningún
-incremento técnico está autorizado.
+BASELINE V0 del MVP preparada localmente; revisión y aprobación humana
+pendientes, seguida de publicación documental. Ningún incremento técnico está
+autorizado.
 
-Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/modelo-pedagogico-maestro.md`, `docs/roadmap.md`.
-Dirty backend reconocido: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/modelo-pedagogico-maestro.md`, `docs/roadmap.md`.
+Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
+Dirty backend reconocido: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
 
 
 No activar ni publicar A1: loader/runtime pointer permanecen no autorizados; no modificar `content/content_tree.json`; no iniciar B181, human review, adjudicación, winner, mastery, progreso ni completion.
@@ -50,9 +49,9 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = revisión y aprobación de la especificación documental del plan de
-innovación MVP, publicación documental y, después, establecimiento de una
-línea base verificable del MVP; ningún incremento técnico está autorizado.
+NEXT = revisión y aprobación de BASELINE V0, publicación documental y
+establecimiento posterior de la línea base verificable del MVP; ningún
+incremento técnico está autorizado.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 
