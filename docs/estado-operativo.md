@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-10-12T03:40:30+02:00
-Baseline Git previa a este checkpoint: f6b27e4bf261c43febb194f583c44c74a893bbec
+Actualizado: 2026-10-12T04:29:09+02:00
+Baseline Git previa a este checkpoint: 90bf9e780124b2dc1ffc43c4526e83aedf215af4
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -22,14 +22,22 @@ El postflight final acreditó **19 PASS / 5 skipped**, `git diff --check` PASS, 
 La consolidación documental de decisiones iniciales del MVP Pre-A1 + A1 quedó
 publicada y sincronizada en `d10a99a9f17ffc29fe34308b0398975096b04a88`.
 
+La publicación de BASELINE V0 quedó recuperada y sincronizada en
+`90bf9e780124b2dc1ffc43c4526e83aedf215af4`. La ejecución original del Closure
+Gate falló durante `git_close` al hacer push por error DNS de resolución de
+`github.com`, después de crear el commit local. Posteriormente se publicó el
+commit existente con `git push origin master` y
+`conversation_checkpoint.py prepare` terminó PASS, CLEAN y SYNCED. Esto no
+reclasifica retrospectivamente la ejecución original como Closure Gate PASS.
+
 ## Bloque activo
 
-BASELINE V0 del MVP preparada localmente; revisión y aprobación humana
-pendientes, seguida de publicación documental. Ningún incremento técnico está
-autorizado.
+BASELINE V0 del MVP: **PUBLISHED / SYNCED** tras recuperación de publicación.
+La trazabilidad documental de la incidencia queda registrada en bitácora;
+ningún incremento técnico está autorizado.
 
-Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
-Dirty backend reconocido: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
+Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`.
+Dirty backend reconocido: `docs/estado-operativo.md`, `docs/bitacora.md`.
 
 
 No activar ni publicar A1: loader/runtime pointer permanecen no autorizados; no modificar `content/content_tree.json`; no iniciar B181, human review, adjudicación, winner, mastery, progreso ni completion.
@@ -49,9 +57,9 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = revisión y aprobación de BASELINE V0, publicación documental y
-establecimiento posterior de la línea base verificable del MVP; ningún
-incremento técnico está autorizado.
+NEXT = preparación de la medición verificable del MVP a partir de BASELINE V0,
+los 24 entregables y la evidencia existente; ningún incremento técnico está
+autorizado.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 

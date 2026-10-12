@@ -5360,3 +5360,22 @@ horas, tarifas, costes operativos y escenarios comerciales.
 BASELINE V0 queda **LOCAL / NOT PUBLISHED**, pendiente de postflight
 independiente, aprobación humana y publicación. Se mantienen inactivas A1 v4,
 loader, runtime pointer y B181, y no se inicia implementación técnica.
+
+## Recuperación de publicación de BASELINE V0
+
+La ejecución original del Closure Gate comenzó con checkpoint **PASS** y
+`block_close` **PASS**. `git_close` creó el commit local, pero falló durante el
+push por el error DNS `Could not resolve hostname github.com`. La ejecución
+original queda registrada como **FAIL**; no se reclasifica retrospectivamente
+como Closure Gate PASS.
+
+Tras recuperarse DNS, se publicó el commit existente `90bf9e780124b2dc1ffc43c4526e83aedf215af4`
+mediante `git push origin master`, con publicación GitHub **PASS**. La
+reconciliación posterior mediante `conversation_checkpoint.py prepare` terminó
+**PASS**, con `CLEAN`, `AHEAD=0`, `BEHIND=0` y `DIRTY=0`.
+
+Estado resultante: BASELINE V0 **PUBLISHED / SYNCED**; recuperación de
+publicación **PASS**; ejecución original del Closure Gate **FAIL**. No se creó
+otro commit, no se repitió el Closure Gate ni se inició implementación.
+Permanecen no autorizados A1 v4, B181, B52, loader, runtime pointer, mastery,
+progreso y completion.
