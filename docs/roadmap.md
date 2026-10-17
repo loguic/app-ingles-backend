@@ -48,6 +48,47 @@ método, experiencia, evidencia, transferencia, alcance y exclusiones. Esta
 preparación no autoriza código, activación, loader, runtime pointer, B181,
 progreso, mastery ni completion.
 
+### MB1 — Comprender y expresar una necesidad
+
+**Human Gate 1: APPROVED.** MB1 pertenece a la Fase 1 — Desbloqueo mental, en
+la entrada Pre-A1 hacia A1 inicial. Su capacidad es comprender una situación
+cotidiana, construir directamente en inglés una petición sencilla y expresarla
+oralmente con pertinencia e inteligibilidad funcional.
+
+La experiencia aprobada es: **comprender → descubrir → construir → hablar →
+recibir orientación → reintentar → transferir**. Su evidencia será producción
+oral propia, apoyos utilizados, respuesta a la corrección y transferencia
+observable; la recuperación será posterior, en contexto diferente y sin modelo
+completo. El criterio Gate 1 es que un principiante comprende qué hacer,
+construye una respuesta oral propia, aprovecha una corrección y resuelve una
+variación cercana con menos apoyo.
+
+Esta aprobación recupera, no rediseña, construcción directa B180, orientación
+y reintento con retirada de apoyos, audio/producción, feedback y transferencia
+existentes. A1 v4 es evidencia técnica y demo histórica, no la entrada
+curricular definitiva ni contenido automáticamente reutilizable como tal.
+
+**Preparación Gate 2, sin autorización de implementación:** reutilizar en
+backend los contratos/servicios de `LessonExperience`, construcción directa,
+intento-producción, orientación y preparación de reintento, producción de
+conversación/audio y `spoken-turn`; reutilizar en Flutter la experiencia de
+audio/grabación/reproducción y la presentación de feedback ya documentadas.
+La integración necesaria es un candidato MB1 y el recorrido explícito entre
+esas capacidades, sin activar A1 ni cambiar el árbol canónico. El desarrollo
+nuevo mínimo se limita a aquello que resulte imprescindible para representar y
+ejecutar ese candidato completo tras inspección exacta de ambos repositorios;
+no se presume un contrato, persistencia o runtime nuevo.
+
+El alcance Gate 2 deberá concretar módulos backend y Flutter afectados,
+pruebas focales de contenido/experiencia, producción-orientación-reintento,
+recuperación técnica de audio, transferencia y flujo Flutter; también riesgos
+de UX principiante, fallo STT/runtime local, feedback no autoritativo,
+separación candidato/currículo canónico y recuperación diferida. La reversión
+será retirar el candidato y sus integraciones del alcance MB1, sin tocar
+`content/content_tree.json`, punteros runtime ni contenido activo. El checkout
+Flutter no está presente en este workspace: sus rutas exactas deben confirmarse
+en Gate 2 antes de cualquier implementación.
+
 ## Plan de innovación MVP — especificación documental provisional
 
 Esta sección consolida una propuesta de trabajo, no una aprobación técnica

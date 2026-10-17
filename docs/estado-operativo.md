@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-10-17T21:50:20+02:00
-Baseline Git previa a este checkpoint: ec2e1a0639a5603b8716d5e9621fe008df756b2f
+Actualizado: 2026-10-17T22:06:26+02:00
+Baseline Git previa a este checkpoint: 5f0fee43cdc87e1b7259d049f4bee4d2ba6ca63b
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -62,6 +62,16 @@ no añaden umbrales numéricos ni acreditan individualmente los cuatro
 entregables; permanecen pendientes protocolos, responsables nominales,
 evidencia representativa y aplicación individual.
 
+Human Gate 1 de MB1 queda **APPROVED**. MB1 — «Comprender y expresar una
+necesidad» — pertenece a Fase 1, entrada Pre-A1 hacia A1 inicial. La capacidad
+aprobada es comprender una situación cotidiana, construir directamente en
+inglés una petición sencilla y expresarla oralmente con pertinencia e
+inteligibilidad funcional. La experiencia aprobada es comprender → descubrir →
+construir → hablar → recibir orientación → reintentar → transferir; evidencia:
+producción oral, apoyos, respuesta a corrección y transferencia; recuperación
+posterior en otro contexto y sin modelo completo. A1 v4 sigue siendo demo
+histórica y no la entrada curricular definitiva.
+
 Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
 Dirty backend reconocido: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
 
@@ -83,11 +93,12 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = preparar el primer macrobloque pedagógico completo del MVP: recuperar
-capacidades, decisiones y dependencias existentes para definir bajo Gate 1 la
-fase, problema, capacidad observable, método, experiencia, evidencia,
-transferencia, alcance y exclusiones. No autoriza implementación ni altera las
-restricciones vigentes; Matrix V1 seguirá siendo el instrumento de verificación.
+NEXT = preparar Gate 2 de MB1: recuperar y delimitar la reutilización de
+construcción directa, intentos, orientación/reintento, audio/producción,
+feedback, `spoken-turn` y Flutter; confirmar los módulos Flutter exactos,
+integración mínima, desarrollo nuevo indispensable, pruebas focales, riesgos y
+reversión. Gate 1 no autoriza implementación; Matrix V1 sigue verificando y no
+se alteran las restricciones vigentes.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 

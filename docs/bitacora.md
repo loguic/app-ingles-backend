@@ -5494,3 +5494,35 @@ experiencia, evidencia, transferencia, alcance y exclusiones. Se preservan
 íntegramente las fronteras: A1 inactiva, loader/runtime pointer/B181/B52 no
 autorizados, sin cambios en `content/content_tree.json`, ni mastery, progreso o
 completion.
+
+## Human Gate 1 — MB1 y preparación Gate 2
+
+Human Authority aprueba Gate 1 de MB1: **Comprender y expresar una necesidad**,
+Fase 1 — Desbloqueo mental, entrada Pre-A1 hacia A1 inicial. El estudiante debe
+comprender una situación cotidiana, construir directamente en inglés una
+petición sencilla y expresarla oralmente con pertinencia e inteligibilidad
+funcional. La experiencia es comprender → descubrir → construir → hablar →
+recibir orientación → reintentar → transferir. La evidencia prevista es
+producción oral propia, apoyos usados, respuesta a corrección y transferencia
+observable; la recuperación será posterior, en otro contexto y sin modelo
+completo. El criterio aprobado exige que un principiante comprenda qué hacer,
+construya una respuesta oral propia, aproveche una corrección y resuelva una
+variación cercana con menos apoyo.
+
+La preparación Gate 2 recupera B180 (construcción directa, intento-producción,
+orientación y preparación de reintento), audio/producción, feedback y
+`spoken-turn`, además de la experiencia Flutter de audio/grabación/reproducción
+y feedback documentada. Se separa reutilización existente de la integración
+necesaria: candidato MB1 y recorrido explícito entre esas capacidades; el
+desarrollo nuevo mínimo permanece por determinar tras confirmar módulos
+exactos. El checkout Flutter no está en este workspace; Gate 2 debe confirmar
+sus rutas antes de autorizar implementación. A1 v4 no es automáticamente la
+entrada curricular definitiva.
+
+Pruebas futuras indispensables: contenido/experiencia, producción-orientación-
+reintento, recuperación técnica de audio, transferencia y flujo Flutter. Los
+riesgos son UX principiante, STT/runtime local, feedback no autoritativo,
+separación candidato/currículo canónico y recuperación diferida; la reversión
+retirará solo candidato e integraciones MB1 sin tocar contenido activo,
+`content/content_tree.json`, loader o runtime pointer. Gate 1 no autoriza
+implementación, A1, B181, B52, mastery, progreso o completion.
