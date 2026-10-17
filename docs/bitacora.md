@@ -5442,3 +5442,33 @@ OPTIMISTA/BASE/CONSERVADOR, sin cifras y manteniendo COSTE != PRECIO != VALOR
 COMERCIAL. NEXT = preparar esos protocolos, responsables y evidencias sin
 autorizar implementación, activación A1, B181, B52, loader, runtime pointer,
 mastery, progreso, completion ni cambios en content/content_tree.json.
+
+## Human Gate — Matrix V1 observable conditions, lote 3.1/5.3/6.1/7.2
+
+Human Authority aprueba cuatro condiciones observables V1, sin umbrales
+numéricos ni acreditación individual: **3.1**, escuchar, grabar y reproducir la
+propia voz y recuperarse de una interrupción controlada; **5.3**, comprender
+una orientación concreta y aplicarla en otro intento con menor apoyo; **6.1**,
+expresar una necesidad diferente con el patrón aprendido, con pertinencia e
+inteligibilidad según revisión humana; y **7.2**, distinguir escucha,
+grabación y evaluación, y comprender cómo repetir o continuar sin ayuda
+imprevista.
+
+Se vincula evidencia histórica ya recuperada, sin repetir auditorías o pruebas:
+BASELINE V0 documenta 3.1 como prototipo de audio/producción/endpoints, 5.3
+como preparación de reintento y attempts, 6.1 como transferencia técnica
+`water → food`, y 7.2 como frontend documentado. El cierre
+`A1-V4-REAL-VERTICAL-SLICE` aporta el flujo de tres turnos, audio y
+reproducción, feedback adaptativo, transferencia cercana y 19 PASS / 5 skipped;
+el frontend quedó publicado en `36f12735006db893a701a10825edc8281dc617fa`.
+La revisión visual histórica confirmó grabación audible y retorno a idle.
+
+La evidencia es técnica y UX reutilizable; no acredita comprensión de la
+orientación, pertinencia, inteligibilidad ni aprendizaje humano. Los cuatro
+entregables continúan sin acreditación individual. Siguen pendientes
+protocolos, responsables nominales, evidencia representativa y aplicación
+individual; no se autoriza implementación, activación A1, B181, B52, loader,
+runtime pointer, mastery, progreso, completion ni cambios en
+`content/content_tree.json`. NEXT se mantiene: preparar protocolos,
+responsables y recopilación de evidencia para aplicar Accreditation Matrix V1 a
+los 24 entregables desde BASELINE V0.

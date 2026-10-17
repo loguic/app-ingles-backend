@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-10-12T06:26:50+02:00
-Baseline Git previa a este checkpoint: 3f556915c3a47fbd4c893c8356e8123282adcc53
+Actualizado: 2026-10-17T19:08:15+02:00
+Baseline Git previa a este checkpoint: e2a02ed2fd5ce7d6faa86cc6f753f5ab37afa0de
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -41,6 +41,18 @@ entradas económicas necesarias. No implica cumplimiento ni acreditación nueva:
 faltan protocolos, umbrales observables, responsables nominales, evidencia
 representativa y aplicación individual. Ningún incremento técnico está
 autorizado.
+
+Human Authority aprobó cuatro condiciones observables V1 para los entregables
+3.1, 5.3, 6.1 y 7.2: recuperar audio propio tras interrupción controlada;
+aplicar una orientación en un reintento con menor apoyo; expresar una necesidad
+diferente con pertinencia e inteligibilidad según revisión humana; y distinguir
+escucha, grabación y evaluación para repetir o continuar sin ayuda imprevista.
+Se reutiliza la evidencia histórica de BASELINE V0 y A1-V4-REAL-VERTICAL-SLICE
+(audio/producción/reproducción, feedback adaptativo, `water → food`, cierre 19
+PASS / 5 skipped y revisión visual de grabación/reproducción). Las condiciones
+no añaden umbrales numéricos ni acreditan individualmente los cuatro
+entregables; permanecen pendientes protocolos, responsables nominales,
+evidencia representativa y aplicación individual.
 
 Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
 Dirty backend reconocido: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.

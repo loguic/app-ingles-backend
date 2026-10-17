@@ -257,6 +257,30 @@ pedagógica y operativa. Los estados siguen siendo **ACREDITADO**, **PARCIAL**,
 los 24 entregables, no convierte `NO EVALUADO` en 0 %, no calcula progreso y no
 infiere aprendizaje humano desde STT, Qwen, Flutter o backend.
 
+### Condiciones observables V1 aprobadas — lote 3.1, 5.3, 6.1 y 7.2
+
+Human Authority aprueba las siguientes condiciones observables V1, sin añadir
+umbrales numéricos, responsables nominales, protocolos ni acreditación
+individual:
+
+- **3.1 Reproducción y grabación fiables:** el estudiante escucha, graba y
+  reproduce su voz, y puede recuperarse de una interrupción controlada.
+- **5.3 Reintento guiado:** comprende una orientación concreta y demuestra
+  aplicarla en otro intento con menor apoyo.
+- **6.1 Variaciones comunicativas nuevas:** expresa una necesidad diferente
+  utilizando el patrón aprendido, con pertinencia e inteligibilidad según
+  revisión humana.
+- **7.2 Navegación e interacción claras:** distingue escucha, grabación y
+  evaluación; comprende cómo repetir o continuar sin ayuda imprevista.
+
+La evidencia histórica reutilizable permanece separada por tipo: A1 v4 aporta
+audio, producción, reproducción, feedback adaptativo y transferencia cercana
+`water → food`; su cierre registró 19 PASS / 5 skipped y el frontend publicado
+en `36f12735006db893a701a10825edc8281dc617fa`. La revisión visual acreditó
+grabación audible y retorno a idle. Esta evidencia técnica y UX no acredita por
+sí sola comprensión, pertinencia, inteligibilidad ni aprendizaje humano; los
+cuatro entregables continúan sin acreditación individual.
+
 Quedan pendientes los protocolos de verificación por criterio, umbrales
 observables, responsables nominales, evidencia representativa, aplicación real
 de las reglas y acreditación individual verificable.
