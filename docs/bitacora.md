@@ -5472,3 +5472,25 @@ runtime pointer, mastery, progreso, completion ni cambios en
 `content/content_tree.json`. NEXT se mantiene: preparar protocolos,
 responsables y recopilación de evidencia para aplicar Accreditation Matrix V1 a
 los 24 entregables desde BASELINE V0.
+
+## Human Decision — reconciliación de prioridad de producto MVP
+
+Human Authority confirma el cambio de prioridad operativa: materializar la
+experiencia pedagógica renovada del MVP Pre-A1 + A1 inicial conforme al Modelo
+Pedagógico Maestro. El resultado buscado es que el estudiante desarrolle
+comprensión, construcción directa en inglés, producción oral, feedback útil,
+interacción, transferencia y recuperación como capacidades observables.
+
+Accreditation Matrix V1 continúa vigente como instrumento de verificación de
+los 24 entregables; no se alteran sus criterios, pesos, condiciones aprobadas
+ni estados, y no desplaza la construcción del producto. Esta decisión no
+acredita entregables ni aprendizaje, no asigna responsables nominales y no
+autoriza implementación.
+
+NEXT = preparar el primer macrobloque pedagógico completo: recuperar
+capacidades, decisiones y dependencias existentes para definir bajo Gate 1 la
+fase pedagógica, problema del estudiante, capacidad observable, método,
+experiencia, evidencia, transferencia, alcance y exclusiones. Se preservan
+íntegramente las fronteras: A1 inactiva, loader/runtime pointer/B181/B52 no
+autorizados, sin cambios en `content/content_tree.json`, ni mastery, progreso o
+completion.

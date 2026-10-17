@@ -34,9 +34,19 @@ desglose provisional de 24 entregables, criterios de aceptación, horas y
 costes, escenarios comerciales y precios, auditoría de reutilización técnica y
 recomendaciones condicionadas sobre repositorios existentes.
 
-El siguiente objetivo documentado es la auditoría focalizada de reutilización
-técnica y la primera línea base verificable del MVP. No autoriza código,
-activación, loader, runtime pointer, B181, progreso, mastery ni completion.
+Por decisión humana confirmada, la prioridad operativa pasa a materializar la
+experiencia pedagógica renovada del MVP Pre-A1 + A1 inicial conforme al Modelo
+Pedagógico Maestro: comprensión, construcción directa en inglés, producción
+oral, feedback útil, interacción, transferencia y recuperación como
+capacidades observables. Accreditation Matrix V1 permanece vigente como
+instrumento de verificación y no desplaza la construcción del producto.
+
+El siguiente objetivo documentado es preparar el primer macrobloque pedagógico
+completo: recuperar las capacidades, decisiones y dependencias existentes para
+definir bajo Gate 1 la fase, problema del estudiante, capacidad observable,
+método, experiencia, evidencia, transferencia, alcance y exclusiones. Esta
+preparación no autoriza código, activación, loader, runtime pointer, B181,
+progreso, mastery ni completion.
 
 ## Plan de innovación MVP — especificación documental provisional
 

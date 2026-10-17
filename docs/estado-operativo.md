@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-10-17T19:08:15+02:00
-Baseline Git previa a este checkpoint: e2a02ed2fd5ce7d6faa86cc6f753f5ab37afa0de
+Actualizado: 2026-10-17T21:50:20+02:00
+Baseline Git previa a este checkpoint: ec2e1a0639a5603b8716d5e9621fe008df756b2f
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -42,6 +42,14 @@ faltan protocolos, umbrales observables, responsables nominales, evidencia
 representativa y aplicación individual. Ningún incremento técnico está
 autorizado.
 
+Por decisión humana confirmada, la prioridad operativa pasa a materializar la
+experiencia pedagógica renovada del MVP Pre-A1 + A1 inicial conforme al Modelo
+Pedagógico Maestro. Debe desarrollar comprensión, construcción directa en
+inglés, producción oral, feedback útil, interacción, transferencia y
+recuperación como capacidades observables. Accreditation Matrix V1 permanece
+vigente como instrumento de verificación, sin desplazar la construcción del
+producto ni acreditar entregables individualmente.
+
 Human Authority aprobó cuatro condiciones observables V1 para los entregables
 3.1, 5.3, 6.1 y 7.2: recuperar audio propio tras interrupción controlada;
 aplicar una orientación en un reintento con menor apoyo; expresar una necesidad
@@ -75,9 +83,11 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = preparar protocolos de verificación, responsables nominales y
-recopilación de evidencia para aplicar la Accreditation Matrix V1 a los 24
-entregables desde BASELINE V0. Ningún incremento técnico está autorizado.
+NEXT = preparar el primer macrobloque pedagógico completo del MVP: recuperar
+capacidades, decisiones y dependencias existentes para definir bajo Gate 1 la
+fase, problema, capacidad observable, método, experiencia, evidencia,
+transferencia, alcance y exclusiones. No autoriza implementación ni altera las
+restricciones vigentes; Matrix V1 seguirá siendo el instrumento de verificación.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 
