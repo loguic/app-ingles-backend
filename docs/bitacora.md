@@ -5557,3 +5557,15 @@ No se autoriza activación ni publicación curricular, ni loader, runtime
 pointer, B181, mastery, progreso, completion o cambios en
 `content/content_tree.json`. NEXT = cualquier nueva inferencia o verificación
 adversarial del condicional requiere autorización humana.
+
+## CANONICAL RESUME V1 — preparación documental de Closure Gate
+
+El entrypoint local read-only `python3 scripts/engineering/loguic.py resume`
+recupera desde las autoridades existentes el checkpoint, Git real de backend y
+frontend, incremento vigente, restricciones, NEXT, actor y routing; no
+autoriza desarrollo, inferencias, commit ni publicación. La evidencia
+autorizada es 21 tests PASS, preflight de `block_close.py` PASS y `git diff
+--check` PASS. La incidencia separada y preexistente
+`test_a1_v4_expected_resource_identity_document_is_source_bound_and_complete`
+exige `A1 ASSET STATE:` ausente también en HEAD; no se atribuye suite completa
+PASS ni se modifica A1 dentro de este bloque.

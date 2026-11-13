@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-11-13T01:56:58+01:00
-Baseline Git previa a este checkpoint: 2b12f7e6af19c6dcb1797e17be335a1dac4beeb6
+Actualizado: 2026-11-13T12:21:20+01:00
+Baseline Git previa a este checkpoint: 8aa6bcacbd01acd53b98707de15702316310fcba
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -73,7 +73,7 @@ posterior en otro contexto y sin modelo completo. A1 v4 sigue siendo demo
 histórica y no la entrada curricular definitiva.
 
 Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
-Dirty backend reconocido: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`, `app/services/pedagogical_constructor_ollama_service.py`, `tests/test_pedagogical_constructor_ollama_service.py`, `requirements-test.txt`.
+Dirty backend reconocido: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`, `app/services/pedagogical_constructor_ollama_service.py`, `tests/test_pedagogical_constructor_ollama_service.py`, `requirements-test.txt`, `scripts/engineering/loguic.py`, `tests/test_loguic.py`.
 
 ### AI CONSTRUCTOR INTEGRATION V1
 
@@ -85,12 +85,10 @@ sobre IDs existentes— con ensamblado determinista antes de Pydantic.
 Correcciones: Fase 1 exige LessonExperience 3.0 para A1-U1 cuando la
 especificación lo exige; relevance/intelligibility exigen production_function
 válida (guided, expanded o transfer). Pruebas: `jsonschema==4.25.1`.
-Ejecuciones Qwen: primer intento agotó timeout de 30 s; segundo generó grafo y
-Pydantic rechazó cuatro requisitos cualitativos incompletos. No existe
-candidato MB1 acreditado. Postflight: 28 focales PASS, 101 y 126 regresiones
-PASS, BLOCKING=0 y resultado CONDITIONAL. Verificación aislada: REQUEST_COUNT=1
-con `qwen3:8b`, OLLAMA_SCHEMA_ACCEPTANCE=PASS y RESPONSE_VALIDATION=PASS;
-CONDITIONAL_ENFORCEMENT=UNVERIFIED.
+Ejecuciones Qwen: primer intento agotó timeout de 30 s; el segundo generó grafo y Pydantic rechazó cuatro requisitos cualitativos incompletos. No existe candidato MB1 acreditado. Postflight: 28 focales PASS, 101 y 126 regresiones PASS, BLOCKING=0 y resultado CONDITIONAL.
+Verificación aislada: REQUEST_COUNT=1 con `qwen3:8b`, OLLAMA_SCHEMA_ACCEPTANCE=PASS, RESPONSE_VALIDATION=PASS y CONDITIONAL_ENFORCEMENT=UNVERIFIED.
+CANONICAL RESUME V1: `python3 scripts/engineering/loguic.py resume` es read-only; backend/frontend, incremento vigente, restricciones, NEXT y routing recuperan PASS. Evidencia autorizada: 21 tests PASS, preflight `block_close.py` PASS y `git diff --check` PASS.
+Incidencia preexistente separada: `test_a1_v4_expected_resource_identity_document_is_source_bound_and_complete` exige `A1 ASSET STATE:` ausente también en HEAD; no se declara suite completa PASS.
 NEXT: cualquier nueva inferencia o verificación adversarial del condicional
 requiere autorización humana; no ejecutar Qwen antes de ella.
 Restricciones: no activar/publicar currículo ni iniciar otro incremento.

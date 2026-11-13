@@ -1608,3 +1608,11 @@ autorización de activación o publicación curricular.
 NEXT = pendiente de autorización humana para cualquier nueva inferencia o
 verificación adversarial del condicional JSON Schema, sin activar A1 ni iniciar
 otro incremento.
+
+## Continuidad — CANONICAL RESUME V1
+
+Antes del Closure Gate autorizado, el único entrypoint de recuperación es
+`python3 scripts/engineering/loguic.py resume`: read-only, sin autorización
+implícita y basado en checkpoint, Supervisor y estado operativo canónicos. La
+incidencia A1 que requiere `A1 ASSET STATE:` es preexistente y está también en
+HEAD; queda fuera de este incremento y no permite declarar suite completa PASS.
