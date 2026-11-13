@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-11-13T12:21:20+01:00
-Baseline Git previa a este checkpoint: 8aa6bcacbd01acd53b98707de15702316310fcba
+Actualizado: 2026-11-13T15:46:11+01:00
+Baseline Git previa a este checkpoint: 225c9185dd7d7f00cfa492b69d8ec92b1086cec4
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -18,6 +18,8 @@ Formato: checkpoint operativo compacto
 El postflight final acreditó **19 PASS / 5 skipped**, `git diff --check` PASS, estado operativo PASS, checkpoint PASS y `UNEXPECTED_FILES = NONE`. Qwen runtime/provenance `qwen3:8b` permanece evidencia PASS existente, sin repetición. Loader/runtime pointer/B181/mastery/progreso/completion y cambios a `content/content_tree.json` siguen no autorizados.
 
 `Development Supervisor v1` queda **CLOSED / PUBLISHED / SYNCED** en `0349fa8d3928c98a83de0449b49d4dc5a8146c64` (`fix close development supervisor v1 routing and continuity`). El Closure Gate acreditó 14 tests PASS, block-close PASS, git-close PASS y checkpoint-prepare PASS, con árbol limpio y sincronizado.
+
+`Mission Control V2` queda **CLOSED / PUBLISHED / SYNCED**: `loguic.py progress` es read-only sobre matriz V0 de 24 entregables y 8 resultados; MVP sigue **NO MEDIBLE**, sin acreditación pedagógica nueva. Evidencia: 10 tests focales PASS y `git diff --check` PASS; NEXT del Constructor IA se conserva.
 
 La consolidación documental de decisiones iniciales del MVP Pre-A1 + A1 quedó
 publicada y sincronizada en `d10a99a9f17ffc29fe34308b0398975096b04a88`.

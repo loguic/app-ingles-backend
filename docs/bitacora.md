@@ -5569,3 +5569,11 @@ autorizada es 21 tests PASS, preflight de `block_close.py` PASS y `git diff
 `test_a1_v4_expected_resource_identity_document_is_source_bound_and_complete`
 exige `A1 ASSET STATE:` ausente también en HEAD; no se atribuye suite completa
 PASS ni se modifica A1 dentro de este bloque.
+
+## Closure Gate — Mission Control V2
+
+`loguic.py progress` queda **CLOSED / PUBLISHED / SYNCED** como vista read-only
+de la matriz V0: 24 entregables cualitativos agrupados en 8 resultados, sin
+porcentajes ni Measurement V1 duplicada. El MVP permanece **NO MEDIBLE** y no
+hay acreditación pedagógica nueva. La evidencia de cierre es 10 tests focales
+PASS y `git diff --check` PASS; el NEXT del Constructor IA no cambia.

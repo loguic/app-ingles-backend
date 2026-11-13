@@ -1616,3 +1616,13 @@ Antes del Closure Gate autorizado, el único entrypoint de recuperación es
 implícita y basado en checkpoint, Supervisor y estado operativo canónicos. La
 incidencia A1 que requiere `A1 ASSET STATE:` es preexistente y está también en
 HEAD; queda fuera de este incremento y no permite declarar suite completa PASS.
+
+## Closure Gate — Mission Control V2
+
+`loguic.py progress` queda **CLOSED / PUBLISHED / SYNCED** como proyección
+read-only de la matriz V0: 24 entregables cualitativos, 8 resultados
+funcionales y el incremento/NEXT canónicos. No recalcula Measurement V1 ni
+convierte estados técnicos en avance: MVP = **NO MEDIBLE**, sin acreditación
+pedagógica nueva. Validación de cierre: 10 tests focales PASS y `git diff
+--check` PASS. NEXT = conservar la espera de autorización humana para cualquier
+nueva inferencia o verificación adversarial del condicional JSON Schema.

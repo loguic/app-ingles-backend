@@ -179,6 +179,104 @@ def test_parser_uses_project_relative_frontend_default() -> None:
     )
 
 
+def test_progress_parses_and_groups_the_24_qualitative_deliverables(
+    tmp_path: Path,
+) -> None:
+    roadmap = tmp_path / "roadmap.md"
+    rows = []
+    states = ("IMPLEMENTADO", "PROTOTIPO", "DOCUMENTADO")
+    for outcome in range(1, 9):
+        for delivery in range(1, 4):
+            rows.append(
+                f"| {outcome}.{delivery} | Entregable {outcome}.{delivery} | "
+                f"{states[delivery - 1]} técnico; evidencia pendiente |"
+            )
+    roadmap.write_text(
+        "\n".join((
+            "## Plan de innovación MVP — especificación documental provisional",
+            "",
+            "| ID | Entregable | Estado / validación humana |",
+            "|---|---|---|",
+            *rows,
+            "",
+            "## Matriz V0 de trazabilidad cualitativa",
+        )),
+        encoding="utf-8",
+    )
+
+    matrix = loguic._progress_matrix(roadmap)
+    output = loguic._render_progress_matrix(matrix)
+
+    assert len(matrix) == 24
+    assert "RESULTADO 1 — PRE-A1 Y DIAGNÓSTICO" in output
+    assert "TÉCNICO=IMPLEMENTADO:1 PROTOTIPO:1 DOCUMENTADO:1" in output
+    assert "PRODUCTO_ACREDITADO=SIN ACREDITAR" in output
+    assert "EXPERIENCIA_UTILIZABLE=PENDIENTE DE VALIDACIÓN" in output
+    assert "MVP=NO MEDIBLE" in output
+
+
+def test_progress_rejects_an_incomplete_or_ambiguous_matrix(tmp_path: Path) -> None:
+    roadmap = tmp_path / "roadmap.md"
+    roadmap.write_text(
+        "\n".join((
+            "## Plan de innovación MVP — especificación documental provisional",
+            "",
+            "| ID | Entregable | Estado / validación humana |",
+            "|---|---|---|",
+            "| 1.1 | Uno | IMPLEMENTADO técnico |",
+            "",
+            "## Matriz V0 de trazabilidad cualitativa",
+        )),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="exactly 24 deliverables"):
+        loguic._progress_matrix(roadmap)
+
+
+def test_progress_dashboard_is_readable_without_tty_colors_and_adapts_width() -> None:
+    matrix = tuple(
+        loguic.ProgressDeliverable(f"{outcome}.{delivery}", "PROTOTIPO")
+        for outcome in range(1, 9)
+        for delivery in range(1, 4)
+    )
+
+    plain = loguic._render_progress_dashboard(
+        matrix,
+        active_increment="INCREMENTO LOCAL",
+        next_objective=(
+            "Esperar autorización humana para la siguiente verificación "
+            "sin perder este texto final."
+        ),
+        product_achievement="NO VERIFICADO · sin hito de producto acreditado canónico.",
+        technical_closure="A1-V4: CLOSED / PUBLISHED / SYNCED.",
+        color=False,
+        width=64,
+    )
+    colored = loguic._render_progress_dashboard(
+        matrix,
+        active_increment="INCREMENTO LOCAL",
+        next_objective="Esperar autorización humana para la siguiente verificación.",
+        product_achievement="NO VERIFICADO · sin hito de producto acreditado canónico.",
+        technical_closure=None,
+        color=True,
+        width=64,
+    )
+
+    assert "LOGUIC ENGLISH · MISSION CONTROL" in plain
+    assert "PRODUCTO" in plain and "INGENIERÍA" in plain
+    assert "EXPERIENCIA DEL ESTUDIANTE" in plain
+    assert "MISIÓN ACTUAL" in plain
+    assert "ÚLTIMO HITO DE PRODUCTO" in plain
+    assert "ÚLTIMO CIERRE TÉCNICO" in plain
+    assert "sin perder este texto final." in plain
+    assert "…" not in plain
+    assert "NO EVALUADO ≠ SIN ACREDITAR" in plain
+    assert "\x1b[" not in plain
+    assert "\x1b[" in colored
+    assert all(len(line) <= 64 for line in plain.splitlines())
+
+
 def test_direct_and_module_entrypoints_start(tmp_path: Path) -> None:
     script = loguic.ROOT / "scripts" / "engineering" / "loguic.py"
     commands = (
