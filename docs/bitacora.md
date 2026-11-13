@@ -5526,3 +5526,34 @@ separación candidato/currículo canónico y recuperación diferida; la reversi�
 retirará solo candidato e integraciones MB1 sin tocar contenido activo,
 `content/content_tree.json`, loader o runtime pointer. Gate 1 no autoriza
 implementación, A1, B181, B52, mastery, progreso o completion.
+
+## AI CONSTRUCTOR INTEGRATION V1 — reconciliación documental
+
+Estado: **IMPLEMENTED / LOCAL / NOT CLOSED / NOT PUBLISHED**. El Constructor
+local conserva dos fases: primero el grafo de contenido y después los vínculos
+pedagógicos, con ensamblado determinista y validación Pydantic existente.
+
+La corrección estructural exige LessonExperience `contract_version` 3.0 cuando
+la especificación A1-U1 lo declara. La corrección de
+`ExternalReviewRequirement` exige `production_function` válida (`guided`,
+`expanded` o `transfer`) para relevance e intelligibility; los contratos
+Pydantic preexistentes se preservan. Se añade la dependencia de pruebas
+`jsonschema==4.25.1`.
+
+El primer intento con Qwen agotó el timeout de 30 segundos. El segundo produjo
+el grafo y fue rechazado por Pydantic por cuatro requisitos cualitativos
+incompletos. No existe candidato MB1 acreditado. El postflight independiente
+registró 28 pruebas focales PASS, regresiones relacionadas de 101 PASS y 126
+PASS, y cero hallazgos BLOCKING; su resultado permanece CONDITIONAL.
+
+La verificación aislada usó una sola petición (`REQUEST_COUNT=1`) a
+`qwen3:8b` con la definición real condicional de
+`ExternalReviewRequirement`: `OLLAMA_SCHEMA_ACCEPTANCE=PASS` y
+`RESPONSE_VALIDATION=PASS`. La respuesta válida para `relevance` con
+`production_function=guided` no acredita rechazo de omisión o nulo;
+`CONDITIONAL_ENFORCEMENT=UNVERIFIED`.
+
+No se autoriza activación ni publicación curricular, ni loader, runtime
+pointer, B181, mastery, progreso, completion o cambios en
+`content/content_tree.json`. NEXT = cualquier nueva inferencia o verificación
+adversarial del condicional requiere autorización humana.

@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-10-17T22:06:26+02:00
-Baseline Git previa a este checkpoint: 5f0fee43cdc87e1b7259d049f4bee4d2ba6ca63b
+Actualizado: 2026-11-13T01:56:58+01:00
+Baseline Git previa a este checkpoint: 2b12f7e6af19c6dcb1797e17be335a1dac4beeb6
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -73,11 +73,29 @@ posterior en otro contexto y sin modelo completo. A1 v4 sigue siendo demo
 histórica y no la entrada curricular definitiva.
 
 Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
-Dirty backend reconocido: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
+Dirty backend reconocido: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`, `app/services/pedagogical_constructor_ollama_service.py`, `tests/test_pedagogical_constructor_ollama_service.py`, `requirements-test.txt`.
 
+### AI CONSTRUCTOR INTEGRATION V1
+
+Estado: IMPLEMENTED / LOCAL / NOT CLOSED / NOT PUBLISHED.
+Autorizado: generación pedagógica IA con Ollama/Qwen3:8b,
+reutilizando contratos y validadores existentes.
+Implementación: dos fases locales —grafo de contenido y vínculos pedagógicos
+sobre IDs existentes— con ensamblado determinista antes de Pydantic.
+Correcciones: Fase 1 exige LessonExperience 3.0 para A1-U1 cuando la
+especificación lo exige; relevance/intelligibility exigen production_function
+válida (guided, expanded o transfer). Pruebas: `jsonschema==4.25.1`.
+Ejecuciones Qwen: primer intento agotó timeout de 30 s; segundo generó grafo y
+Pydantic rechazó cuatro requisitos cualitativos incompletos. No existe
+candidato MB1 acreditado. Postflight: 28 focales PASS, 101 y 126 regresiones
+PASS, BLOCKING=0 y resultado CONDITIONAL. Verificación aislada: REQUEST_COUNT=1
+con `qwen3:8b`, OLLAMA_SCHEMA_ACCEPTANCE=PASS y RESPONSE_VALIDATION=PASS;
+CONDITIONAL_ENFORCEMENT=UNVERIFIED.
+NEXT: cualquier nueva inferencia o verificación adversarial del condicional
+requiere autorización humana; no ejecutar Qwen antes de ella.
+Restricciones: no activar/publicar currículo ni iniciar otro incremento.
 
 No activar ni publicar A1: loader/runtime pointer permanecen no autorizados; no modificar `content/content_tree.json`; no iniciar B181, human review, adjudicación, winner, mastery, progreso ni completion.
-
 ## Automatización disponible
 
 - `scripts/engineering/validation_recipe.py approved-v1` ejecuta, en orden y fail-closed, pytest con rutas explícitas, `git diff --check`, `operational_state.py validate` y `conversation_checkpoint.py prepare --format compact`; no cierra Git.
@@ -93,12 +111,8 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = preparar Gate 2 de MB1: recuperar y delimitar la reutilización de
-construcción directa, intentos, orientación/reintento, audio/producción,
-feedback, `spoken-turn` y Flutter; confirmar los módulos Flutter exactos,
-integración mínima, desarrollo nuevo indispensable, pruebas focales, riesgos y
-reversión. Gate 1 no autoriza implementación; Matrix V1 sigue verificando y no
-se alteran las restricciones vigentes.
+NEXT = esperar autorización humana para cualquier nueva inferencia o
+verificación adversarial del condicional JSON Schema con Ollama.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 

@@ -1584,3 +1584,27 @@ Postflight independiente **PASS**. Readiness documental **PASS**. Allowlist de p
 ## Development Supervisor v1 — reconciliación semántica posterior
 
 El Supervisor quedó **CLOSED / PUBLISHED / SYNCED** en `0349fa8d3928c98a83de0449b49d4dc5a8146c64` con 14 tests PASS, block-close PASS, git-close PASS y checkpoint-prepare PASS; Git quedó limpio y sincronizado. Esta reconciliación documental corrige el estado y NEXT stale, pero sigue **LOCAL / NOT PUBLISHED** hasta un cierre documental autorizado. No inicia producto ni modifica restricciones A1 v4.
+
+## AI CONSTRUCTOR INTEGRATION V1 — estado local
+
+El Constructor Pedagógico IA permanece **IMPLEMENTED / LOCAL / NOT CLOSED / NOT
+PUBLISHED**. Su arquitectura separa la generación del grafo de contenido de
+los vínculos pedagógicos y conserva el ensamblado determinista y los contratos
+Pydantic. A1-U1 exige estructuralmente LessonExperience 3.0 cuando su
+especificación lo declara; relevance e intelligibility exigen
+`production_function` válida. La cobertura de schema usa
+`jsonschema==4.25.1`.
+
+Los dos intentos Qwen no acreditan contenido: el primero agotó 30 segundos y
+el segundo fue rechazado por Pydantic tras generar el grafo, por cuatro
+requisitos cualitativos incompletos. El postflight independiente fue
+CONDITIONAL: 28 focales PASS, regresiones de 101 PASS y 126 PASS, BLOCKING=0.
+La verificación aislada con `qwen3:8b` registró `REQUEST_COUNT=1`,
+`OLLAMA_SCHEMA_ACCEPTANCE=PASS` y `RESPONSE_VALIDATION=PASS`; la respuesta
+válida no prueba el rechazo de ausencia o nulo, por lo que
+`CONDITIONAL_ENFORCEMENT=UNVERIFIED`. No existe candidato MB1 acreditado ni
+autorización de activación o publicación curricular.
+
+NEXT = pendiente de autorización humana para cualquier nueva inferencia o
+verificación adversarial del condicional JSON Schema, sin activar A1 ni iniciar
+otro incremento.
