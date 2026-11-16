@@ -1,4 +1,5 @@
 import json
+from copy import deepcopy
 from pathlib import Path
 
 import httpx
@@ -6,7 +7,7 @@ import pytest
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 
-from app.schemas.pedagogical_unit import PedagogicalUnitSpecification
+from app.schemas.pedagogical_unit import ContentLimits, PedagogicalUnitSpecification
 from app.services.pedagogical_constructor_ollama_service import (
     OllamaPedagogicalConstructor,
     OllamaPedagogicalConstructorConfig,
@@ -204,6 +205,85 @@ def test_content_graph_schema_does_not_mutate_approved_specification():
     assert SPECIFICATION.model_dump(mode="json") == before
 
 
+def test_content_graph_schema_projects_exactly_one_lesson():
+    specification = SPECIFICATION.model_copy(
+        update={"content_limits": ContentLimits(min_lessons=1, max_lessons=1)}
+    )
+
+    lessons = _content_graph_json_schema(specification)["$defs"]["Unit"][
+        "properties"
+    ]["lessons"]
+
+    assert lessons["minItems"] == 1
+    assert lessons["maxItems"] == 1
+
+
+def test_content_graph_schema_projects_defined_content_limits():
+    specification = SPECIFICATION.model_copy(
+        update={
+            "content_limits": ContentLimits(
+                min_lessons=1,
+                max_lessons=2,
+                min_examples_per_lesson=3,
+                max_examples_per_lesson=4,
+                min_conversations_per_lesson=2,
+                max_conversations_per_lesson=3,
+                min_exercises_per_lesson=1,
+                max_exercises_per_lesson=2,
+                min_options_per_exercise=3,
+                max_options_per_exercise=4,
+                min_turns_per_conversation=2,
+                max_turns_per_conversation=5,
+            )
+        }
+    )
+    definitions = _content_graph_json_schema(specification)["$defs"]
+
+    assert definitions["Unit"]["properties"]["lessons"]["minItems"] == 1
+    assert definitions["Unit"]["properties"]["lessons"]["maxItems"] == 2
+    assert definitions["Lesson"]["properties"]["examples"]["minItems"] == 3
+    assert definitions["Lesson"]["properties"]["examples"]["maxItems"] == 4
+    assert definitions["Lesson"]["properties"]["conversations"]["minItems"] == 2
+    assert definitions["Lesson"]["properties"]["conversations"]["maxItems"] == 3
+    assert definitions["Lesson"]["properties"]["exercises"]["minItems"] == 1
+    assert definitions["Lesson"]["properties"]["exercises"]["maxItems"] == 2
+    assert definitions["ExerciseMCQ"]["properties"]["options"]["minItems"] == 3
+    assert definitions["ExerciseMCQ"]["properties"]["options"]["maxItems"] == 4
+    assert definitions["Conversation"]["properties"]["turns"]["minItems"] == 2
+    assert definitions["Conversation"]["properties"]["turns"]["maxItems"] == 5
+
+
+def test_content_graph_schema_does_not_add_undefined_content_limits():
+    specification = SPECIFICATION.model_copy(
+        update={"content_limits": ContentLimits()}
+    )
+    definitions = _content_graph_json_schema(specification)["$defs"]
+
+    assert "minItems" not in definitions["Unit"]["properties"]["lessons"]
+    assert "maxItems" not in definitions["Unit"]["properties"]["lessons"]
+    assert "minItems" not in definitions["Lesson"]["properties"]["examples"]
+    assert "maxItems" not in definitions["Lesson"]["properties"]["examples"]
+    assert "maxItems" not in definitions["Lesson"]["properties"]["conversations"]
+    assert "maxItems" not in definitions["Lesson"]["properties"]["exercises"]
+    assert "maxItems" not in definitions["ExerciseMCQ"]["properties"]["options"]
+    assert "minItems" not in definitions["Conversation"]["properties"]["turns"]
+    assert "maxItems" not in definitions["Conversation"]["properties"]["turns"]
+
+
+@pytest.mark.parametrize(
+    "limits",
+    [
+        ContentLimits(max_lessons=0),
+        ContentLimits(max_options_per_exercise=1),
+    ],
+)
+def test_content_graph_schema_rejects_limits_incompatible_with_semantic_minima(limits):
+    specification = SPECIFICATION.model_copy(update={"content_limits": limits})
+
+    with pytest.raises(OllamaPedagogicalConstructorRuntimeError):
+        _content_graph_json_schema(specification)
+
+
 def test_phase_one_prompt_explicitly_requires_a1_u1_lesson_experience_v3():
     prompt = _prompt(SPECIFICATION)
 
@@ -212,6 +292,64 @@ def test_phase_one_prompt_explicitly_requires_a1_u1_lesson_experience_v3():
         "contract_version exactly 3.0; do not omit experience or use another "
         "version."
     ) in prompt
+
+
+@pytest.mark.parametrize("field", ["exercises", "conversations"])
+def test_optional_lesson_activity_is_required_only_by_explicit_minimum(field):
+    graph = deepcopy(CONTENT_GRAPH_DOCUMENT)
+    lesson = graph["candidate_unit"]["lessons"][0]
+    lesson.pop(field)
+    Draft202012Validator(_content_graph_json_schema(SPECIFICATION)).validate(graph)
+    limits = ContentLimits(**{f"min_{field}_per_lesson": 1})
+    explicit = SPECIFICATION.model_copy(update={"content_limits": limits})
+    validator = Draft202012Validator(_content_graph_json_schema(explicit))
+    for empty in (False, True):
+        if empty:
+            lesson[field] = []
+        with pytest.raises(ValidationError):
+            validator.validate(graph)
+
+
+def test_phase_one_schema_requires_executable_activities_and_binary_comprehension():
+    validator = Draft202012Validator(_content_graph_json_schema(SPECIFICATION))
+
+    missing_required_stage_activity = deepcopy(CONTENT_GRAPH_DOCUMENT)
+    missing_required_stage_activity["candidate_unit"]["lessons"][0][
+        "experience"
+    ]["stages"][1].pop("activity_ids")
+    with pytest.raises(ValidationError):
+        validator.validate(missing_required_stage_activity)
+
+    invalid_comprehension = deepcopy(CONTENT_GRAPH_DOCUMENT)
+    invalid_comprehension["candidate_unit"]["lessons"][0]["experience"][
+        "evidence_definitions"
+    ][0]["measurement_mode"] = "completion"
+    with pytest.raises(ValidationError):
+        validator.validate(invalid_comprehension)
+
+
+def test_phase_one_prompt_requires_real_activity_references():
+    prompt = _prompt(SPECIFICATION)
+
+    assert "activity_id must name an existing exercise or conversation" in prompt
+    assert "Every evidence stage must declare its activity_id" in prompt
+    assert "comprehension_result must use binary measurement" in prompt
+
+
+def test_rejects_graph_when_evidence_activity_is_not_declared_by_its_stage():
+    graph = deepcopy(CONTENT_GRAPH_DOCUMENT)
+    graph["candidate_unit"]["lessons"][0]["experience"]["stages"][1][
+        "activity_ids"
+    ] = ["a1-u1-l1-q1"]
+
+    def handler(_request):
+        return httpx.Response(200, json={"response": json.dumps(graph)})
+
+    with pytest.raises(
+        OllamaPedagogicalConstructorRuntimeError,
+        match="activity_id must be declared by stage",
+    ):
+        generate_pedagogical_candidate(SPECIFICATION, constructor=_constructor(handler))
 
 
 def test_phase_one_prompt_leaves_lesson_experience_optional_without_v3_obligation():

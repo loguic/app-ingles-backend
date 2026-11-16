@@ -75,6 +75,75 @@ def _requires_lesson_experience_v3(
     )
 
 
+def _project_content_limits(
+    schema: dict[str, object],
+    specification: PedagogicalUnitSpecification,
+) -> None:
+    """Project declarative cardinality limits onto the phase-one schema."""
+    limits = specification.content_limits
+    projections = (
+        ("Unit", "lessons", "min_lessons", "max_lessons", 1),
+        (
+            "Lesson",
+            "examples",
+            "min_examples_per_lesson",
+            "max_examples_per_lesson",
+            0,
+        ),
+        (
+            "Lesson",
+            "conversations",
+            "min_conversations_per_lesson",
+            "max_conversations_per_lesson",
+            0,
+        ),
+        (
+            "Lesson",
+            "exercises",
+            "min_exercises_per_lesson",
+            "max_exercises_per_lesson",
+            0,
+        ),
+        (
+            "ExerciseMCQ",
+            "options",
+            "min_options_per_exercise",
+            "max_options_per_exercise",
+            2,
+        ),
+        (
+            "Conversation",
+            "turns",
+            "min_turns_per_conversation",
+            "max_turns_per_conversation",
+            0,
+        ),
+    )
+    definitions = schema["$defs"]
+
+    for definition_name, property_name, minimum_name, maximum_name, semantic_minimum in projections:
+        property_schema = definitions[definition_name]["properties"][property_name]
+        minimum = getattr(limits, minimum_name)
+        maximum = getattr(limits, maximum_name)
+        effective_minimum = max(
+            semantic_minimum,
+            property_schema.get("minItems", 0),
+            minimum if minimum is not None else 0,
+        )
+        if maximum is not None and maximum < effective_minimum:
+            raise OllamaPedagogicalConstructorRuntimeError(
+                f"{maximum_name}={maximum} conflicts with the required minimum "
+                f"of {effective_minimum} for {property_name}"
+            )
+        if minimum is not None:
+            property_schema["minItems"] = effective_minimum
+            definition = definitions[definition_name]
+            if minimum > 0 and property_name not in definition.get("required", []):
+                definition.setdefault("required", []).append(property_name)
+        if maximum is not None:
+            property_schema["maxItems"] = maximum
+
+
 def _prompt(specification: PedagogicalUnitSpecification) -> str:
     experience_instruction = ""
     if _requires_lesson_experience_v3(specification):
@@ -92,8 +161,12 @@ def _prompt(specification: PedagogicalUnitSpecification) -> str:
         "publish, or modify curricular content. Supply every required field and "
         "return only JSON matching the supplied schema. The candidate will be "
         "rejected unless deterministic validators pass. Evidence definitions "
-        "must preserve their distinct purposes: comprehension_result is only "
+        "must reference activities that you create: activity_id must name an "
+        "existing exercise or conversation declared by its stage, never a "
+        "mission ID. Every evidence stage must declare its activity_id in "
+        "stage.activity_ids. Preserve the distinct purposes of evidence: comprehension_result is only "
         "for a comprehension exercise and requires comprehension_exercise_id; "
+        "comprehension_result must use binary measurement; "
         "guided_production is for own oral production and requires "
         "production_prompt_id; contextual_response is for oral transfer and "
         "requires production_prompt_id. Do not label oral evidence as "
@@ -138,6 +211,43 @@ def _candidate_json_schema(
     exercise["properties"]["id"] = {"pattern": r"^.+-q[1-9][0-9]*$"}
     exercise["properties"]["options"]["minItems"] = 2
     exercise["properties"]["answer_index"]["minimum"] = 0
+    lesson = schema["$defs"]["Lesson"]
+    evidence = schema["$defs"]["EvidenceDefinition"]
+    evidence["allOf"] = [
+        *evidence.get("allOf", []),
+        {
+            "if": {
+                "properties": {"evidence_type": {"const": "comprehension_result"}},
+                "required": ["evidence_type"],
+            },
+            "then": {
+                "required": ["comprehension_exercise_id"],
+                "properties": {"measurement_mode": {"const": "binary"}},
+            },
+        },
+    ]
+    stage = schema["$defs"]["LessonStage"]
+    stage["allOf"] = [
+        *stage.get("allOf", []),
+        {
+            "if": {
+                "properties": {
+                    "completion_condition": {
+                        "enum": [
+                            "any_activity_completed",
+                            "all_activities_completed",
+                            "evidence_recorded",
+                        ]
+                    }
+                },
+                "required": ["completion_condition"],
+            },
+            "then": {
+                "required": ["activity_ids"],
+                "properties": {"activity_ids": {"minItems": 1}},
+            },
+        },
+    ]
     external_review_requirement = schema["$defs"]["ExternalReviewRequirement"]
     external_review_requirement["allOf"] = [
         {
@@ -158,11 +268,11 @@ def _candidate_json_schema(
         }
     ]
     if _requires_lesson_experience_v3(specification):
-        lesson = schema["$defs"]["Lesson"]
         lesson["required"] = [*lesson["required"], "experience"]
         schema["$defs"]["LessonExperience"]["properties"][
             "contract_version"
         ] = {"const": "3.0"}
+    _project_content_limits(schema, specification)
     return schema
 
 
