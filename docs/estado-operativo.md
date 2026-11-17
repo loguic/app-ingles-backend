@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-11-17T02:14:25+01:00
-Baseline Git previa a este checkpoint: db7af4f90308d3f2381e8bd35550467f12f0cf0c
+Actualizado: 2026-11-17T02:21:47+01:00
+Baseline Git previa a este checkpoint: 9f31a3d70e571c775d219b06f02b4574bc35ab23
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -72,10 +72,10 @@ inteligibilidad funcional. La experiencia aprobada es comprender → descubrir �
 construir → hablar → recibir orientación → reintentar → transferir; evidencia:
 producción oral, apoyos, respuesta a corrección y transferencia; recuperación
 posterior en otro contexto y sin modelo completo. A1 v4 sigue siendo demo
-histórica y no la entrada curricular definitiva. MB1 DRAFT CIERRE-02: 9 archivos preservados; CIERRE-03 recurso MB1: imagen SHA-256 302873df04d41ac4d6a80bd0a21369d040a8c5bc18ee1ad2e30cc5d5eef0aeb9 y 2 adaptadores parametrizados con 53 tests PASS tras aislar fixture legacy A1; contenido local, sin manifest de publicación, binding curricular, admisión ni activación. Entry-point legacy A1 requiere marcadores históricos ausentes en estado vivo; no se declara reparado. 42 tests PASS con DB aislada; postflight de paquete PASS; sin admisión, activación, Qwen ni acreditación humana.
+histórica y no la entrada curricular definitiva. MB1 DRAFT CIERRE-02: 9 archivos preservados; CIERRE-04 demo interna: backend 2 pruebas PASS, Flutter analyze y widget tests PASS, recovery frontend ae4a3d42107d; sin Human Review visual ni conexión Flutter-FastAPI. CIERRE-03 recurso MB1: imagen SHA-256 302873df04d41ac4d6a80bd0a21369d040a8c5bc18ee1ad2e30cc5d5eef0aeb9 y 2 adaptadores parametrizados con 53 tests PASS tras aislar fixture legacy A1; contenido local, sin manifest de publicación, binding curricular, admisión ni activación. Entry-point legacy A1 requiere marcadores históricos ausentes en estado vivo; no se declara reparado. 42 tests PASS con DB aislada; postflight de paquete PASS; sin admisión, activación, Qwen ni acreditación humana.
 
-Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`, `docs/loguic-english-cierre-03-recursos-recuperacion.md`.
-Dirty backend reconocido: `content/resources/a1-u2/visual/station-restroom-help.png`, `docs/bitacora.md`, `docs/estado-operativo.md`, `docs/loguic-english-cierre-03-recursos-recuperacion.md`, `docs/roadmap.md`, `scripts/engineering/a1_resource_asset_close.py`, `scripts/engineering/a1_resource_binding_adapter.py`, `tests/test_a1_resource_asset_close.py`, `tests/test_a1_resource_binding_adapter.py`.
+Dirty documentación reconocida: `docs/bitacora.md`, `docs/estado-operativo.md`, `docs/roadmap.md`, `docs/loguic-english-cierre-04-demostracion-recuperacion.md`, `docs/loguic-english-uiux-design-review-v1-decision-2026-11-16.md`, `docs/loguic-english-weekly-goals-v1-decision-2026-11-16.md`.
+Dirty backend reconocido: `app/schemas/internal_station_demo.py`, `app/services/internal_station_demo_content_service.py`, `content/internal_demo/station_situations.v1.json`, `docs/bitacora.md`, `docs/estado-operativo.md`, `docs/loguic-english-cierre-04-demostracion-recuperacion.md`, `docs/loguic-english-uiux-design-review-v1-decision-2026-11-16.md`, `docs/loguic-english-weekly-goals-v1-decision-2026-11-16.md`, `docs/roadmap.md`, `tests/test_internal_station_demo_content.py`.
 
 ### AI CONSTRUCTOR INTEGRATION V1
 
@@ -111,7 +111,7 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = CIERRE-04: recuperar demostración interna backend y frontend; validación técnica y revisión visual humana pendientes. MB1 permanece DRAFT.
+NEXT = integración controlada de ramas de recuperación en master (backend y frontend), sin perder cambios originales; revisión visual humana y recorrido integral pendientes. MB1 DRAFT, sin activación.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 

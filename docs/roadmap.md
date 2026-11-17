@@ -1634,3 +1634,7 @@ El candidato `a1-u2` conserva estado **DRAFT**. Se incorporan contrato, validado
 ## CIERRE-03 — Recuperación acotada de recursos MB1
 
 Recurso visual local `a1-u2` con identidad `302873df04d41ac4d6a80bd0a21369d040a8c5bc18ee1ad2e30cc5d5eef0aeb9` y adaptadores parametrizables acreditados por 53 pruebas focales; las pruebas legacy A1 se ejecutan con fixture temporal de estado histórico para no alterar `docs/estado-operativo.md`. La ruta productiva antigua A1 sigue su contrato de marcadores y requiere reconciliación independiente antes de su reutilización real. MB1 DRAFT, sin activación. Siguiente hito: CIERRE-04 demostración interna/backend + frontend con revisión visual humana y funcionalidad real aún pendientes.
+
+## CIERRE-04 — Recuperación demostración interna UI-first
+
+Backend `internal_demo` con 2 tests PASS y Flutter en rama `recovery/cierre-04-station-ui` commit `ae4a3d42107d853063672f1f3c5b0e27229a752c`, con `flutter analyze` y pruebas focales PASS. Recuperación técnica separada de aprobación pedagógica y visual. Pendiente: Human Review visual y accesibilidad real, audios y flujo integral con dispositivo; resolver ilustración de la segunda situación; integración controlada en master sin perder los archivos dirty de ambos repositorios. MB1 DRAFT.

@@ -1,0 +1,22 @@
+{
+  "scope": "internal_demo",
+  "active_curriculum": false,
+  "situations": [
+    {
+      "id": "station-toilet",
+      "title": "Find a place at the station",
+      "scenario": "You are at a UK train station and need to find a place.",
+      "reference_audio_provisional": true,
+      "initial_prompt": "Ask for the toilet in your own words.",
+      "retry_orientation": "Try again: begin with ‘Excuse me’ and ask where the place is."
+    },
+    {
+      "id": "station-exit",
+      "title": "Find the exit",
+      "scenario": "You are in a nearby station passage and need to leave.",
+      "reference_audio_provisional": true,
+      "initial_prompt": "Ask for the exit in your own words.",
+      "retry_orientation": "Try again: start politely, then ask where the exit is."
+    }
+  ]
+}
