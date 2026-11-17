@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_serializer, model_validator
 from typing import List, Optional, Literal
 
 
@@ -753,6 +753,11 @@ class LessonExperience(BaseModel):
     """
 
     contract_version: Literal["2.0", "3.0"] = "2.0"
+    # Opt-in MB1 execution shape; absent means historical Direct English v3.
+    # Perfil MB1 opcional; ausente conserva el Direct English v3 historico.
+    direct_english_execution_profile: Optional[
+        Literal["stage_bound_evidence_v1"]
+    ] = None
     pedagogical_method: Optional[
         Literal[
             "direct_english_construction",
@@ -773,10 +778,28 @@ class LessonExperience(BaseModel):
         PronunciationReinforcement
     ] = None
 
+    @model_serializer(mode="wrap")
+    def serialize_execution_profile(self, handler):
+        # Historical payloads must not gain an implicit null field.
+        # Los payloads historicos no reciben un campo nulo nuevo.
+        data = handler(self)
+        if self.direct_english_execution_profile is None:
+            data.pop("direct_english_execution_profile", None)
+        return data
+
     @model_validator(mode="after")
     def validate_internal_integrity(self) -> "LessonExperience":
         # Validate the relationships owned by this aggregate.
         # Valida las relaciones pertenecientes a este agregado.
+
+        if self.direct_english_execution_profile is not None and (
+            self.contract_version != "3.0"
+            or self.pedagogical_method != "direct_english_construction"
+        ):
+            raise ValueError(
+                "Sequential Direct English profile requires version 3.0 "
+                "and direct_english_construction"
+            )
 
         def reject_duplicates(label: str, values: List[str]) -> None:
             seen: set[str] = set()

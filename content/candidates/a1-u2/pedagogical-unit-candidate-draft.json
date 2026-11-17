@@ -1,0 +1,179 @@
+{
+  "specification": {
+    "unit_id": "a1-u2",
+    "level": "A1",
+    "title": "MB1 — Ask where a place is at a train station",
+    "learner_outcome": "Given a clear visual and auditory situation in a UK train station, a beginning learner identifies the need to find the toilet, directly constructs and orally asks a relevant, functionally intelligible location question in English, responds to guidance with an improved own attempt, and transfers the question to finding an exit in a different nearby setting with less support. The learning entry is Pre-A1 toward initial A1; level A1 is the schema-level designation, not a claim of attained A1 mastery.",
+    "prerequisites": [],
+    "skills": [
+      {
+        "id": "mb1_ask_where_a_place_is_orally",
+        "description": "Understand a simple everyday need to find a place and independently ask where it is in spoken English, using guidance to retry and applying the request to a nearby variation with reduced support.",
+        "required_stages": ["introduce", "practice", "apply", "evaluate", "consolidate"]
+      }
+    ],
+    "required_evidence": [
+      "Before the first comprehension question, the learner observes the approved station visual and hears an authorised, genuinely audible situation cue that does not name the required destination or reveal the answer. A visual alone, a written instruction, or an unverified playback path does not demonstrate the required audiovisual comprehension.",
+      "The learner makes an own recorded oral request for the toilet that is relevant to the situation and reviewable for functional intelligibility; the evidence attempt is made without a visible complete sentence model, Spanish prompt or transcript.",
+      "A distinct, relevant guidance event, derived from the learner's own recorded attempt and limited to one authorised item, is observable and acknowledged BEFORE a separate retry; the guidance, its source, the learner's support level and the retry are traceable. If guidance is unavailable, do not claim that the guided-retry sequence was completed.",
+      "The learner orally requests the exit from a different nearby station-side passage without visible answer support; the earlier supported toilet request has one opening-word cue, while the retry and transfer have none. Store transfer separately and do not infer success from completion alone.",
+      "Deferred retrieval in a different context without a complete model is a later distinct check and is not treated as completed by the immediate experience."
+    ],
+    "lesson_scope": [
+      "First proposed experience within MB1 — Understanding and expressing a need; this specification does not define the full macrobloque.",
+      "Everyday scenario: a beginner needs to find the toilet at a UK train station.",
+      "Learner journey: understand, discover, construct, speak, receive guidance, retry, transfer.",
+      "Build the request directly in English from the communicative intention; do not rely on translating a Spanish sentence or copying a complete model for final evidence.",
+      "Transfer scenario: the learner moves from the main station hall to a nearby side passage and needs to find the exit; the new communicative need is presented without a full model and with less support than the preceding guided retry.",
+      "Keep exposure, instruction, supported practice, own oral production, evidence and transfer distinguishable; defer retrieval to a separate later context."
+    ],
+    "language_scope": [
+      "Main productive request: Where is the toilet, please?",
+      "Optional opening for politeness: Excuse me.",
+      "Transfer request: Where is the exit, please?",
+      "The target is one simple oral location-question pattern with toilet and exit, plus the optional politeness opening; do not require unapproved additional productive vocabulary or alternate question structures."
+    ],
+    "pronunciation_scope": [
+      "Prioritize functional intelligibility of a short spoken request over phonetic perfection or accent imitation.",
+      "Support understandable delivery of Where is the toilet, please? and Where is the exit, please? in short speech blocks.",
+      "Provide usable, non-authoritative pronunciation guidance followed by an opportunity to retry.",
+      "Do not turn individual phonemes, accent scoring or automatic speech recognition into separate Skills or evidence of mastery."
+    ],
+    "content_constraints": [
+      "Represent one integrated, observable oral communication Skill for this first experience; do not create separate Skills for grammar, vocabulary, comprehension or pronunciation.",
+      "Use the approved station-toilet need and transfer to finding an exit in a different nearby setting; do not reproduce the historical A1-U1 immediate-need mission or I need + noun content.",
+      "Use the approved main question and optional Excuse me. opening; avoid additional mandatory productive forms.",
+      "Reveal the communicative purpose through a beginner-comprehensible visual and auditory situation, then guide direct construction in English.",
+      "Allow discovery and supported practice, but remove a full sentence model before final own-production and transfer evidence.",
+      "Keep any Spanish rescue or transcript as optional, later support under applicable Strict Support Timing; neither can supply final production evidence.",
+      "Separate preparatory comprehension checking, own production, guidance, distinct retry and transfer evidence.",
+      "Guide a new attempt after feedback and reduce the support for transfer compared with supported production.",
+      "Treat qualitative relevance and intelligibility as reviewable by a human or authorized external reviewer; Qwen, STT or automatic scoring may not accredit them.",
+      "Do not claim Skill mastery, retention, curricular progress or deferred retrieval on the basis of immediate experience completion.",
+      "Do not reuse historical A1-U1 missions, conversations, exercises, evidence or LessonExperience content as new MB1 curricular content.",
+      "An audiovisual-comprehension claim is blocked until an authorised audible asset or supported playback path is verified in the actual learning experience; no audio approval or asset is implied by this draft.",
+      "Guidance must be observable and linked to the learner's prior attempt before retry; a stage acknowledgement alone does not prove helpful feedback occurred.",
+      "Support must decrease across the own request (two isolated anchors), the supported retry (one opening-word cue), and transfer (no visible answer cue)."
+    ],
+    "technical_constraints": [
+      "Keep this draft and any future candidate isolated from content/content_tree.json, active curricular data and runtime pointers.",
+      "unit_id and Skill id are provisional until the MB1 specification Human Review approves their exact identities; do not reuse a1-u1 or a1-u1-l1.",
+      "Reuse established backend contracts for LessonExperience, direct construction, oral production/attempts, guidance, retry, audio and spoken-turn where their precise interfaces permit.",
+      "Reuse established Flutter lesson experience, speech recording/playback and feedback presentation only through authorized MB1 integration work.",
+      "Define or verify the future candidate lesson identity and applicable contract_version during precise Gate 2 implementation scoping; do not assume that historical A1-U1 identities apply.",
+      "Keep comprehension, initial oral production, guidance, retry and transfer structurally distinguishable in future candidate evidence.",
+      "Prevent STT failures or runtime limitations from being interpreted as learning failures; preserve non-authoritative feedback boundaries.",
+      "Do not generate, activate, publish or insert a candidate into the active curriculum solely because this draft parses; require the appropriate human approval and focal validation first.",
+      "Do not introduce new persistence, content loading, runtime pointers or B181 work without separately demonstrating need and receiving explicit authorization.",
+      "Use LessonExperience contract_version 3.0 in the future candidate."
+    ],
+    "acceptance_criteria": [
+      "PedagogicalUnitSpecification parses this draft successfully with the current backend Pydantic contract; parsing alone is not human pedagogical approval.",
+      "The specification describes the first MB1 experience in the approved Pre-A1 to initial A1 learning entry, without claiming to define all MB1 content.",
+      "An understandable train-station scenario leads the learner to identify a need to find the toilet before composing a spoken request directly in English.",
+      "The main productive request is Where is the toilet, please?, with optional Excuse me.; the transfer is Where is the exit, please? in a different nearby setting.",
+      "The journey contains understanding, discovery, construction, own oral request, guidance, retry and nearby transfer with demonstrably reduced support.",
+      "Comprehension checking, own initial production, guidance, retry and transfer are distinct and reviewable; final oral evidence does not expose Spanish, transcript or a full sentence model.",
+      "Functional intelligibility and communicative relevance are reviewed through the authorized qualitative process, never automatically accredited by Qwen or STT.",
+      "The future candidate remains isolated from active curriculum, content tree and runtime pointers, and requires a separately authorized integration and execution validation.",
+      "No inference or candidate materialization begins until human review of this specification has approved the open choices, including provisional identifiers and constraints.",
+      "Actual opening audiovisual delivery is demonstrated before q1 using an authorised audible situation cue that does not name the destination; no unsupported audio identity may be invented.",
+      "An authorised, attempt-specific guidance event is evidenced before a distinct retry; a nominal feedback stage or empty feedback_plans alone does not satisfy this criterion.",
+      "The first own oral request has one opening-word cue; the guided retry and new-context transfer have no visible word cues. No full answer model is presented during scored oral evidence."
+    ],
+    "content_limits": {"min_lessons": 1, "max_lessons": 1}
+  },
+  "candidate_unit": {
+    "id": "a1-u2",
+    "title": "Find a place at the station",
+    "lessons": [
+      {
+        "id": "a1-u2-l1",
+        "title": "Find a place at the station",
+        "objective": "Find a place at a train station and transfer the request to finding the exit.",
+        "experience": {
+          "contract_version": "3.0",
+          "pedagogical_method": "direct_english_construction",
+          "mission": {
+            "id": "a1-u2-l1-m1",
+            "title": "Find help at the station",
+            "situation": "You are at a British train station and need help finding a place.",
+            "observable_outcome": "Make an own oral request for a place, retry after guidance, and ask for the exit with less support.",
+            "success_criteria": [
+              "Choose the place needed in the station situation.",
+              "Make an own request for the chosen place.",
+              "Make a distinct retry after guidance.",
+              "Ask for the exit without visible answer support."
+            ]
+          },
+          "skill_ids": ["mb1_ask_where_a_place_is_orally"],
+          "stages": [
+            {"id": "a1-u2-l1-s1", "type": "comprehension", "instruction": "Observe the station scene and listen to its authorised non-answer-revealing situation audio before choosing the place the passenger needs. If the audio is unavailable, the audiovisual requirement remains blocked rather than silently passing.", "activity_ids": ["a1-u2-l1-c1", "a1-u2-l1-q1"], "mode": "required", "completion_condition": "all_activities_completed"},
+            {"id": "a1-u2-l1-s2", "type": "language_support", "instruction": "Notice the English chunks used to ask for a place.", "activity_ids": [], "mode": "required", "completion_condition": "acknowledged"},
+            {"id": "a1-u2-l1-s3", "type": "guided_production", "instruction": "Build the request directly from the English chunks.", "activity_ids": ["a1-u2-l1-c2"], "mode": "required", "completion_condition": "any_activity_completed"},
+            {"id": "a1-u2-l1-s4", "type": "guided_production", "instruction": "Make your own oral request to a station worker using only the opening-word cue, never a complete example sentence.", "activity_ids": ["a1-u2-l1-c3"], "mode": "required", "completion_condition": "evidence_recorded"},
+            {"id": "a1-u2-l1-s5", "type": "adaptive_feedback", "instruction": "After the learner's recorded request, present exactly one available authorised, attempt-specific guidance item (prioritise relevance and intelligibility), and capture that it was received before the next attempt. If no such item is available, do not claim guidance or a successful guided retry.", "activity_ids": [], "mode": "required", "completion_condition": "acknowledged"},
+            {"id": "a1-u2-l1-s6", "type": "assisted_response", "instruction": "Retry the toilet request after the recorded guidance without visible word cues (less support than the opening-word cue shown for the first request).", "activity_ids": ["a1-u2-l1-c4"], "mode": "required", "completion_condition": "evidence_recorded"},
+            {"id": "a1-u2-l1-s7", "type": "evidence", "instruction": "Now in a different nearby side passage, ask a worker for the exit orally without any visible word cues or answer model; record this transfer separately.", "activity_ids": ["a1-u2-l1-c5"], "mode": "required", "completion_condition": "evidence_recorded"}
+          ],
+          "language_support": [
+            {"id": "a1-u2-l1-ls1", "type": "pattern", "en": "Where is", "es": null, "pronunciations": [], "usage_note": "Use this opening to ask for a place.", "stage_ids": ["a1-u2-l1-s2"], "spanish_reveal_after_first_response_to_exercise_id": null},
+            {"id": "a1-u2-l1-ls2", "type": "word", "en": "the toilet", "es": null, "pronunciations": [], "usage_note": "Name the place you need.", "stage_ids": ["a1-u2-l1-s2"], "spanish_reveal_after_first_response_to_exercise_id": null},
+            {"id": "a1-u2-l1-ls3", "type": "expression", "en": "please", "es": null, "pronunciations": [], "usage_note": "Add politeness to the request.", "stage_ids": ["a1-u2-l1-s2"], "spanish_reveal_after_first_response_to_exercise_id": null}
+          ],
+          "visual_contexts": [
+            {"id": "a1-u2-l1-vc1", "resource_id": "visual.a1-u2-l1.station-restroom-help.v1", "accessibility_label": "A passenger at a British train station asks a staff member for help.", "resource_type": "static_image", "autoplay_once": null, "replay_allowed": null, "stage_ids": ["a1-u2-l1-s1"]}
+          ],
+          "evidence_definitions": [
+            {"id": "a1-u2-l1-ev1", "skill_ids": ["mb1_ask_where_a_place_is_orally"], "stage_id": "a1-u2-l1-s1", "activity_id": "a1-u2-l1-c1", "evidence_type": "comprehension_result", "measurement_mode": "binary", "success_threshold": null, "required": true, "production_prompt_id": null, "comprehension_exercise_id": "a1-u2-l1-q1", "external_review_requirements": []},
+            {"id": "a1-u2-l1-ev2", "skill_ids": ["mb1_ask_where_a_place_is_orally"], "stage_id": "a1-u2-l1-s4", "activity_id": "a1-u2-l1-c3", "evidence_type": "guided_production", "measurement_mode": "completion", "success_threshold": null, "required": true, "production_prompt_id": "a1-u2-l1-c3-p1", "comprehension_exercise_id": null, "external_review_requirements": [{"dimension": "relevance", "production_function": "guided", "allowed_results": ["positive", "negative", "pending"], "question": "Does the learner's own request ask for the toilet in the station situation?", "positive_required_for_completion": true}, {"dimension": "intelligibility", "production_function": "guided", "allowed_results": ["positive", "negative", "pending"], "question": "Is the learner's own short request functionally intelligible to a reviewer?", "positive_required_for_completion": true}]},
+            {"id": "a1-u2-l1-ev3", "skill_ids": ["mb1_ask_where_a_place_is_orally"], "stage_id": "a1-u2-l1-s6", "activity_id": "a1-u2-l1-c4", "evidence_type": "guided_production", "measurement_mode": "completion", "success_threshold": null, "required": true, "production_prompt_id": "a1-u2-l1-c4-p1", "comprehension_exercise_id": null, "external_review_requirements": [{"dimension": "relevance", "production_function": "expanded", "allowed_results": ["positive", "negative", "pending"], "question": "Does the retry remain relevant to finding the toilet after guidance?", "positive_required_for_completion": true}, {"dimension": "intelligibility", "production_function": "expanded", "allowed_results": ["positive", "negative", "pending"], "question": "Is the retry functionally intelligible to a reviewer?", "positive_required_for_completion": true}]},
+            {"id": "a1-u2-l1-ev4", "skill_ids": ["mb1_ask_where_a_place_is_orally"], "stage_id": "a1-u2-l1-s7", "activity_id": "a1-u2-l1-c5", "evidence_type": "contextual_response", "measurement_mode": "completion", "success_threshold": null, "required": true, "production_prompt_id": "a1-u2-l1-c5-p1", "comprehension_exercise_id": null, "external_review_requirements": [{"dimension": "relevance", "production_function": "transfer", "allowed_results": ["positive", "negative", "pending"], "question": "Does the learner's transfer request ask for the exit in the nearby station setting?", "positive_required_for_completion": true}, {"dimension": "intelligibility", "production_function": "transfer", "allowed_results": ["positive", "negative", "pending"], "question": "Is the transfer request functionally intelligible to a reviewer?", "positive_required_for_completion": true}]}
+          ],
+          "completion_policy": {"practiced_stage_ids": ["a1-u2-l1-s1", "a1-u2-l1-s2", "a1-u2-l1-s3", "a1-u2-l1-s4", "a1-u2-l1-s5", "a1-u2-l1-s6", "a1-u2-l1-s7"], "required_evidence_ids": ["a1-u2-l1-ev1", "a1-u2-l1-ev2", "a1-u2-l1-ev3", "a1-u2-l1-ev4"], "reinforcement_on_failure": true, "allow_retry": true},
+          "correction_policy": {"max_guidance_items": 1, "priorities": ["relevance", "direct_english_construction", "intelligibility", "secondary_accuracy"]},
+          "pronunciation_reinforcement": null
+        },
+        "vocabulary": [],
+        "grammar": [],
+        "examples": [],
+        "conversations": [
+          {"id": "a1-u2-l1-c1", "title": "Station need", "context": "A passenger needs a service at the station.", "mode": "guided", "start_turn_id": "a1-u2-l1-c1-t1", "turns": [{"id": "a1-u2-l1-c1-t1", "speaker": "partner", "en": "Look at the station scene.", "es": null, "pronunciations": [], "production_prompt": null, "next_turn_id": null, "choices": [], "interaction_function": null}], "audio_first_policy": null},
+          {"id": "a1-u2-l1-c2", "title": "Build the request", "context": "Use separate English chunks to construct a request for the station need.", "mode": "free", "start_turn_id": "a1-u2-l1-c2-t1", "turns": [{"id": "a1-u2-l1-c2-t1", "speaker": "learner", "en": "Choose and arrange the English chunks to make the request.", "es": null, "pronunciations": [], "production_prompt": {"id": "a1-u2-l1-c2-p1", "accepted_modalities": ["voice", "text"], "required": true, "production_function": "guided", "primary_modality": "voice", "fallback_modalities": ["text"], "support_level": "anchors", "allow_full_answer_model": false, "transfer_bank_id": null, "transfer_variants": [], "visible_support": ["please", "Where is", "the toilet"]}, "next_turn_id": null, "choices": [], "interaction_function": null}], "audio_first_policy": null},
+          {"id": "a1-u2-l1-c3", "title": "Ask at the station", "context": "Ask a station worker for the toilet.", "mode": "free", "start_turn_id": "a1-u2-l1-c3-t1", "turns": [{"id": "a1-u2-l1-c3-t1", "speaker": "learner", "en": "Make your own oral request for the toilet.", "es": null, "pronunciations": [], "production_prompt": {"id": "a1-u2-l1-c3-p1", "accepted_modalities": ["voice"], "required": true, "production_function": "guided", "primary_modality": "voice", "fallback_modalities": [], "support_level": "initial_word", "allow_full_answer_model": false, "transfer_bank_id": null, "transfer_variants": [], "visible_support": ["Where"]}, "next_turn_id": null, "choices": [], "interaction_function": null}], "audio_first_policy": null},
+          {"id": "a1-u2-l1-c4", "title": "Retry after guidance", "context": "Try the request again after using any available authorised guidance.", "mode": "free", "start_turn_id": "a1-u2-l1-c4-t1", "turns": [{"id": "a1-u2-l1-c4-t1", "speaker": "learner", "en": "Make a clearer new oral request for the toilet.", "es": null, "pronunciations": [], "production_prompt": {"id": "a1-u2-l1-c4-p1", "accepted_modalities": ["voice"], "required": true, "production_function": "expanded", "primary_modality": "voice", "fallback_modalities": [], "support_level": "none", "allow_full_answer_model": false, "transfer_bank_id": null, "transfer_variants": [], "visible_support": []}, "next_turn_id": null, "choices": [], "interaction_function": null}], "audio_first_policy": null},
+          {"id": "a1-u2-l1-c5", "title": "Find the exit", "context": "You have left the main station hall and entered a nearby side passage. You need to find the exit in this different immediate setting.", "mode": "free", "start_turn_id": "a1-u2-l1-c5-t1", "turns": [{"id": "a1-u2-l1-c5-t1", "speaker": "learner", "en": "In this side passage, make your own oral request for the exit.", "es": null, "pronunciations": [], "production_prompt": {"id": "a1-u2-l1-c5-p1", "accepted_modalities": ["voice"], "required": true, "production_function": "transfer", "primary_modality": "voice", "fallback_modalities": [], "support_level": "none", "allow_full_answer_model": false, "transfer_bank_id": "a1-u2-l1-c5-nearby-station", "transfer_variants": [{"id": "a1-u2-l1-c5-tv1", "prompt": "You are in a nearby side passage rather than the main station hall. Ask a worker for the exit."}], "visible_support": []}, "next_turn_id": null, "choices": [], "interaction_function": null}], "audio_first_policy": null}
+        ],
+        "exercises": [
+          {"id": "a1-u2-l1-q1", "type": "mcq", "prompt": "Which place does the passenger need?", "options": ["The toilet", "The ticket office", "The exit"], "answer_index": 0, "skill_ids": ["mb1_ask_where_a_place_is_orally"]}
+        ]
+      }
+    ]
+  },
+  "evaluation_plans": [],
+  "feedback_plans": [],
+  "lesson_capability_plans": [
+    {"lesson_id": "a1-u2-l1", "claims": [
+      {"skill_id": "mb1_ask_where_a_place_is_orally", "preparation_state": "EXPOSURE_AVAILABLE", "artifact_ids": ["a1-u2-l1-s1", "a1-u2-l1-c1"]},
+      {"skill_id": "mb1_ask_where_a_place_is_orally", "preparation_state": "INSTRUCTION_AVAILABLE", "artifact_ids": ["a1-u2-l1-s2", "a1-u2-l1-ls1", "a1-u2-l1-ls2", "a1-u2-l1-ls3"]},
+      {"skill_id": "mb1_ask_where_a_place_is_orally", "preparation_state": "PRACTICE_AVAILABLE", "artifact_ids": ["a1-u2-l1-s3", "a1-u2-l1-c2", "a1-u2-l1-c2-p1"]},
+      {"skill_id": "mb1_ask_where_a_place_is_orally", "preparation_state": "EVIDENCE_GATE_AVAILABLE", "artifact_ids": ["a1-u2-l1-s7", "a1-u2-l1-ev4", "a1-u2-l1-c5", "a1-u2-l1-c5-p1"]}
+    ], "prerequisites": []}
+  ],
+  "skill_coverage": [
+    {"skill_id": "mb1_ask_where_a_place_is_orally", "introduced_in_lesson_id": "a1-u2-l1", "practice_activity_ids": ["a1-u2-l1-c2", "a1-u2-l1-c3", "a1-u2-l1-c4"], "application_activity_ids": ["a1-u2-l1-c5"], "evaluation_evidence_ids": ["a1-u2-l1-ev2", "a1-u2-l1-ev4"], "consolidation_activity_ids": ["a1-u2-l1-c5"], "modalities": ["reading", "speaking"], "status": "complete"}
+  ],
+  "required_resource_ids": ["visual.a1-u2-l1.station-restroom-help.v1"],
+  "validation_report": {"status": "passed", "findings": []},
+  "pending_human_decisions": ["DRAFT only: human review must decide qualitative relevance and intelligibility; no evidence result, mastery, activation, admission, or publication is recorded.", "The approved visual source identity sha256:302873df04d41ac4d6a80bd0a21369d040a8c5bc18ee1ad2e30cc5d5eef0aeb9 is logically associated with visual.a1-u2-l1.station-restroom-help.v1 for initial comprehension only; physical binding, manifest, acquisition, or activation remains separately unauthorized.", "AUDIOVISUAL BLOCKER: no approved audible asset, actual playback proof, or verified audio-first binding is supplied with this draft. The static visual and a textual listening instruction are insufficient; Human Gate remains CONDITIONAL.", "GUIDANCE BLOCKER: s5 is required and specifies evidence-based guidance, but feedback_plans is empty; actual guidance selection, presentation, persistence, and retry gating remain unverified. Stage acknowledgement is not accredited feedback.", "TRANSFER REVIEW: verify in the actual runtime that c3 exposes only one opening-word cue, c4 and c5 no visible word cues, and c5 is a distinct station-side passage context. c5 reduces support compared with c3, not compared with the already unsupported c4.", "VALIDATION PROVENANCE: the embedded validation_report.status='passed' was inherited from the uploaded source candidate and is historical only; this revised proposal was NOT revalidated against the backend Pydantic contract or runtime."],
+  "proposed_change_summary": [
+    "Keep this isolated a1-u2 draft outside active curriculum, content/content_tree.json, runtime pointers, admission, and publication.",
+    "Provide one LessonExperience 3.0 lesson for mb1_ask_where_a_place_is_orally with comprehension, direct English construction, own oral production, guidance, retry, and near transfer.",
+    "Logically bind the human-approved static station visual to initial comprehension only; retain its approved SHA-256 identity without creating a physical resource binding.",
+    "Declare qualitative relevance and intelligibility as pending human or authorized external review requirements; no automatic result or learner accreditation is stored.",
+    "Do not claim mastery, retention, curricular progress, or deferred retrieval from completion of this proposed experience.",
+    "Review revision (proposal only): require real non-answer-revealing aural comprehension before q1 and keep missing audio as an explicit blocker.",
+    "Review revision (proposal only): make feedback stage required and explicitly dependent on one authorised guidance item tied to the prior attempt; runtime support remains to be verified.",
+    "Review revision (proposal only): retain the canonical support contract for the first oral request (Where), reduce retry support to none, and apply transfer in a distinct side passage with no visible answer cues."
+  ]
+}

@@ -127,10 +127,24 @@ def _resolve_lesson(
     )
 
 
+def _uses_stage_bound_evidence_mapping(lesson: Lesson) -> bool:
+    """Require an explicit opt-in, never infer it from the lesson identity.
+
+    Exigir perfil explicito; nunca inferirlo por identidad curricular.
+    """
+    return (
+        lesson.experience is not None
+        and lesson.experience.contract_version == "3.0"
+        and lesson.experience.direct_english_execution_profile
+        == "stage_bound_evidence_v1"
+    )
+
+
 def _uses_single_evidence_mapping(lesson: Lesson) -> bool:
     return (
         lesson.experience is not None
         and lesson.experience.contract_version == "3.0"
+        and not _uses_stage_bound_evidence_mapping(lesson)
     )
 
 
@@ -257,6 +271,60 @@ def _execution_entries(
         raise DirectEnglishConstructionInvariantError(
             "Direct-English lesson has no experience"
         )
+    if _uses_stage_bound_evidence_mapping(lesson):
+        # One required oral evidence owns exactly one conversation/capture.
+        # Cada evidencia oral obligatoria tiene una conversacion/captura.
+        if evidence_definition_id is None:
+            raise DirectEnglishConstructionInvariantError(
+                "Stage-bound execution requires explicit evidence identity"
+            )
+        try:
+            validate_direct_english_construction_lesson(lesson)
+        except ValueError as exc:
+            raise DirectEnglishConstructionInvariantError(
+                "Stage-bound lesson content is invalid"
+            ) from exc
+        required_ids = set(
+            lesson.experience.completion_policy.required_evidence_ids
+        )
+        evidence = next(
+            (
+                item for item in lesson.experience.evidence_definitions
+                if item.id == evidence_definition_id
+                and item.id in required_ids
+                and item.evidence_type in {
+                    "guided_production", "contextual_response"
+                }
+            ),
+            None,
+        )
+        if evidence is None:
+            raise DirectEnglishConstructionInvariantError(
+                "Stage-bound direct evidence identity is unavailable"
+            )
+        conversation = next(
+            (item for item in lesson.conversations
+             if item.id == evidence.activity_id),
+            None,
+        )
+        if conversation is None:
+            raise DirectEnglishConstructionInvariantError(
+                "Stage-bound evidence conversation is unavailable"
+            )
+        entries = [
+            (turn, turn.production_prompt)
+            for turn in conversation.turns
+            if turn.production_prompt is not None
+            and turn.production_prompt.production_function is not None
+        ]
+        if len(entries) != 1 or entries[0][1].id != evidence.production_prompt_id:
+            raise DirectEnglishConstructionInvariantError(
+                "Stage-bound evidence prompt is incompatible"
+            )
+        turn, prompt = entries[0]
+        return {prompt.production_function: (
+            conversation, turn, prompt, evidence,
+        )}
     if _uses_single_evidence_mapping(lesson):
         if evidence_definition_id is None:
             raise DirectEnglishConstructionInvariantError(
@@ -596,6 +664,13 @@ def start_direct_english_construction_attempt(
         command.unit_id,
         command.lesson_id,
     )
+    if _uses_stage_bound_evidence_mapping(lesson):
+        # Historical start/finalize require three captures and cannot safely
+        # create a single stage-bound source. No partial DB writes.
+        # Inicio/finalizacion historicos: tres capturas; bloqueo sin escritura.
+        raise DirectEnglishConstructionInvariantError(
+            "Stage-bound single-capture execution is not yet enabled"
+        )
     evidence_definition_id = None
     try:
         if command.experience_attempt_id is not None:

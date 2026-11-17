@@ -5577,3 +5577,9 @@ de la matriz V0: 24 entregables cualitativos agrupados en 8 resultados, sin
 porcentajes ni Measurement V1 duplicada. El MVP permanece **NO MEDIBLE** y no
 hay acreditación pedagógica nueva. La evidencia de cierre es 10 tests focales
 PASS y `git diff --check` PASS; el NEXT del Constructor IA no cambia.
+
+## Recuperación CIERRE-02 — MB1 DRAFT
+
+Bloque aislado de 9 archivos desde el backend original, byte a byte. Evidencia focal existente: 42 PASS en entorno sin conexión de base de datos real; `git diff --check` previo PASS; revisión independiente del paquete de recuperación con identidades SHA-256 PASS.
+
+El perfil `stage_bound_evidence_v1` es opt-in; se preserva compatibilidad legacy. Candidato `a1-u2` y especificación siguen DRAFT, sin inferencia Qwen nueva, relevance/intelligibility humanos, admisión, activación ni publicación curricular. CIERRE-01 Constructor ya fue publicado aparte. El presente cierre Git se limita a la rama de recuperación CIERRE-02.

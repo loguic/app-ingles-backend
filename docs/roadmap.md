@@ -1626,3 +1626,7 @@ convierte estados técnicos en avance: MVP = **NO MEDIBLE**, sin acreditación
 pedagógica nueva. Validación de cierre: 10 tests focales PASS y `git diff
 --check` PASS. NEXT = conservar la espera de autorización humana para cualquier
 nueva inferencia o verificación adversarial del condicional JSON Schema.
+
+## CIERRE-02 — Recuperación controlada de MB1 DRAFT
+
+El candidato `a1-u2` conserva estado **DRAFT**. Se incorporan contrato, validadores de etapas y evidencia, ejecución aislada, especificación y pruebas focales. Resultado técnico disponible: **42 PASS**. No se interpreta como aprobación curricular ni acreditación del estudiante. Siguiente dependencia: CIERRE-03, recurso visual y adaptadores MB1, con protección explícita del entorno A1 existente; posteriormente CIERRE-04, demostración interna y Flutter.

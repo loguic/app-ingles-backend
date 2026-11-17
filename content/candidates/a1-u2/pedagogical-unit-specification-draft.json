@@ -1,0 +1,87 @@
+{
+  "unit_id": "a1-u2",
+  "level": "A1",
+  "title": "MB1 — Ask where a place is at a train station",
+  "learner_outcome": "Given a clear visual and auditory situation in a UK train station, a beginning learner identifies the need to find the toilet, directly constructs and orally asks a relevant, functionally intelligible location question in English, responds to guidance with an improved own attempt, and transfers the question to finding an exit in a different nearby setting with less support. The learning entry is Pre-A1 toward initial A1; level A1 is the schema-level designation, not a claim of attained A1 mastery.",
+  "prerequisites": [],
+  "skills": [
+    {
+      "id": "mb1_ask_where_a_place_is_orally",
+      "description": "Understand a simple everyday need to find a place and independently ask where it is in spoken English, using guidance to retry and applying the request to a nearby variation with reduced support.",
+      "required_stages": [
+        "introduce",
+        "practice",
+        "apply",
+        "evaluate",
+        "consolidate"
+      ]
+    }
+  ],
+  "required_evidence": [
+    "A comprehension check shows that the learner has understood the station situation and communicative purpose before own production; this is preparatory evidence, not independent receptive mastery.",
+    "The learner makes an own recorded oral request for the toilet that is relevant to the situation and reviewable for functional intelligibility; the evidence attempt is made without a visible complete sentence model, Spanish prompt or transcript.",
+    "A guidance event is recorded or observable, followed by a distinct learner retry; support used and changes after guidance remain identifiable, without claiming automatic qualitative accreditation.",
+    "The learner orally requests the exit in a different nearby setting with strictly less support than the preceding supported attempt; transfer evidence is recorded separately from the initial request.",
+    "Deferred retrieval in a different context without a complete model is a later distinct check and is not treated as completed by the immediate experience."
+  ],
+  "lesson_scope": [
+    "First proposed experience within MB1 — Understanding and expressing a need; this specification does not define the full macrobloque.",
+    "Everyday scenario: a beginner needs to find the toilet at a UK train station.",
+    "Learner journey: understand, discover, construct, speak, receive guidance, retry, transfer.",
+    "Build the request directly in English from the communicative intention; do not rely on translating a Spanish sentence or copying a complete model for final evidence.",
+    "Transfer scenario: in another nearby place, the learner needs to find the exit, using less support.",
+    "Keep exposure, instruction, supported practice, own oral production, evidence and transfer distinguishable; defer retrieval to a separate later context."
+  ],
+  "language_scope": [
+    "Main productive request: Where is the toilet, please?",
+    "Optional opening for politeness: Excuse me.",
+    "Transfer request: Where is the exit, please?",
+    "The target is one simple oral location-question pattern with toilet and exit, plus the optional politeness opening; do not require unapproved additional productive vocabulary or alternate question structures."
+  ],
+  "pronunciation_scope": [
+    "Prioritize functional intelligibility of a short spoken request over phonetic perfection or accent imitation.",
+    "Support understandable delivery of Where is the toilet, please? and Where is the exit, please? in short speech blocks.",
+    "Provide usable, non-authoritative pronunciation guidance followed by an opportunity to retry.",
+    "Do not turn individual phonemes, accent scoring or automatic speech recognition into separate Skills or evidence of mastery."
+  ],
+  "content_constraints": [
+    "Represent one integrated, observable oral communication Skill for this first experience; do not create separate Skills for grammar, vocabulary, comprehension or pronunciation.",
+    "Use the approved station-toilet need and transfer to finding an exit in a different nearby setting; do not reproduce the historical A1-U1 immediate-need mission or I need + noun content.",
+    "Use the approved main question and optional Excuse me. opening; avoid additional mandatory productive forms.",
+    "Reveal the communicative purpose through a beginner-comprehensible visual and auditory situation, then guide direct construction in English.",
+    "Allow discovery and supported practice, but remove a full sentence model before final own-production and transfer evidence.",
+    "Keep any Spanish rescue or transcript as optional, later support under applicable Strict Support Timing; neither can supply final production evidence.",
+    "Separate preparatory comprehension checking, own production, guidance, distinct retry and transfer evidence.",
+    "Guide a new attempt after feedback and reduce the support for transfer compared with supported production.",
+    "Treat qualitative relevance and intelligibility as reviewable by a human or authorized external reviewer; Qwen, STT or automatic scoring may not accredit them.",
+    "Do not claim Skill mastery, retention, curricular progress or deferred retrieval on the basis of immediate experience completion.",
+    "Do not reuse historical A1-U1 missions, conversations, exercises, evidence or LessonExperience content as new MB1 curricular content."
+  ],
+  "technical_constraints": [
+    "Keep this draft and any future candidate isolated from content/content_tree.json, active curricular data and runtime pointers.",
+    "unit_id and Skill id are provisional until the MB1 specification Human Review approves their exact identities; do not reuse a1-u1 or a1-u1-l1.",
+    "Reuse established backend contracts for LessonExperience, direct construction, oral production/attempts, guidance, retry, audio and spoken-turn where their precise interfaces permit.",
+    "Reuse established Flutter lesson experience, speech recording/playback and feedback presentation only through authorized MB1 integration work.",
+    "Define or verify the future candidate lesson identity and applicable contract_version during precise Gate 2 implementation scoping; do not assume that historical A1-U1 identities apply.",
+    "Keep comprehension, initial oral production, guidance, retry and transfer structurally distinguishable in future candidate evidence.",
+    "Prevent STT failures or runtime limitations from being interpreted as learning failures; preserve non-authoritative feedback boundaries.",
+    "Do not generate, activate, publish or insert a candidate into the active curriculum solely because this draft parses; require the appropriate human approval and focal validation first.",
+    "Do not introduce new persistence, content loading, runtime pointers or B181 work without separately demonstrating need and receiving explicit authorization.",
+    "Use LessonExperience contract_version 3.0 in the future candidate."
+  ],
+  "acceptance_criteria": [
+    "PedagogicalUnitSpecification parses this draft successfully with the current backend Pydantic contract; parsing alone is not human pedagogical approval.",
+    "The specification describes the first MB1 experience in the approved Pre-A1 to initial A1 learning entry, without claiming to define all MB1 content.",
+    "An understandable train-station scenario leads the learner to identify a need to find the toilet before composing a spoken request directly in English.",
+    "The main productive request is Where is the toilet, please?, with optional Excuse me.; the transfer is Where is the exit, please? in a different nearby setting.",
+    "The journey contains understanding, discovery, construction, own oral request, guidance, retry and nearby transfer with demonstrably reduced support.",
+    "Comprehension checking, own initial production, guidance, retry and transfer are distinct and reviewable; final oral evidence does not expose Spanish, transcript or a full sentence model.",
+    "Functional intelligibility and communicative relevance are reviewed through the authorized qualitative process, never automatically accredited by Qwen or STT.",
+    "The future candidate remains isolated from active curriculum, content tree and runtime pointers, and requires a separately authorized integration and execution validation.",
+    "No inference or candidate materialization begins until human review of this specification has approved the open choices, including provisional identifiers and constraints."
+  ],
+  "content_limits": {
+    "min_lessons": 1,
+    "max_lessons": 1
+  }
+}

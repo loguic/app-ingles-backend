@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-11-17T01:21:17+01:00
-Baseline Git previa a este checkpoint: 9d67d178859607a1f6b71faa19cbafe837b97174
+Actualizado: 2026-11-17T01:59:24+01:00
+Baseline Git previa a este checkpoint: 8e7b0b72d3a213bae34411c8f38b5cfada045ba5
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -72,10 +72,10 @@ inteligibilidad funcional. La experiencia aprobada es comprender → descubrir �
 construir → hablar → recibir orientación → reintentar → transferir; evidencia:
 producción oral, apoyos, respuesta a corrección y transferencia; recuperación
 posterior en otro contexto y sin modelo completo. A1 v4 sigue siendo demo
-histórica y no la entrada curricular definitiva.
+histórica y no la entrada curricular definitiva. MB1 DRAFT CIERRE-02: 9 archivos preservados; 42 tests PASS con DB aislada; postflight de paquete PASS; sin admisión, activación, Qwen ni acreditación humana.
 
-Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`.
-Dirty backend reconocido: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`, `app/services/pedagogical_constructor_ollama_service.py`, `tests/test_pedagogical_constructor_ollama_service.py`, `requirements-test.txt`, `scripts/engineering/loguic.py`, `tests/test_loguic.py`.
+Dirty documentación reconocida: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`, `docs/loguic-english-cierre-02-mb1-recovery.md`.
+Dirty backend reconocido: `app/schemas/content.py`, `app/services/direct_english_construction_content_validation.py`, `app/services/direct_english_construction_execution_service.py`, `content/candidates/a1-u2/pedagogical-unit-candidate-draft.json`, `content/candidates/a1-u2/pedagogical-unit-specification-draft.json`, `docs/bitacora.md`, `docs/estado-operativo.md`, `docs/loguic-english-cierre-02-mb1-recovery.md`, `docs/roadmap.md`, `tests/test_mb1_controlled_candidate.py`, `tests/test_mb1_sequential_profile_contract.py`, `tests/test_mb1_stage_bound_content_validation.py`, `tests/test_mb1_stage_bound_execution_binding.py`.
 
 ### AI CONSTRUCTOR INTEGRATION V1
 
@@ -111,8 +111,7 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = esperar autorización humana para cualquier nueva inferencia o
-verificación adversarial del condicional JSON Schema con Ollama.
+NEXT = CIERRE-03: recuperar recursos MB1 y adaptadores sin admisión, activación curricular ni repetición de inferencia IA.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 
