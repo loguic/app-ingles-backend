@@ -1642,3 +1642,7 @@ Backend `internal_demo` con 2 tests PASS y Flutter en rama `recovery/cierre-04-s
 ## Hito de recuperación integrado — 2026-11-17
 
 CIERRE-01..04 integrados y sincronizados en backend `master` (`e60d3f8`) y frontend `master` (`ae4a3d4`). Recuperación de código terminada. Hito funcional siguiente: revisión visual humana de Inicio y Estación, accesibilidad y recorrido real del estudiante; la segunda situación requiere ilustración adecuada. La documentación histórica respaldada se revisará sin sobrescritura automática. MB1 DRAFT, sin activar.
+
+## V1 UI/UX Estación — revisión de escritorio 2026-11-17
+
+Aprobación humana limitada al diseño de escritorio. Ajuste visual frontend publicado en `2c100be1315d816d8150c2d860ddd5060ab28390` con 8 tests focalizados y análisis Flutter PASS (evidencia previa); no equivale a aceptación integral. NEXT único de producto: comprobar respuesta en ventana estrecha, accesibilidad y secuencia audio-first antes de declarar la V1 completa. La documentación histórica respaldada sigue pendiente de revisión semántica. MB1 DRAFT, sin activar.
