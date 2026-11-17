@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-11-13T15:46:11+01:00
-Baseline Git previa a este checkpoint: 225c9185dd7d7f00cfa492b69d8ec92b1086cec4
+Actualizado: 2026-11-17T01:21:17+01:00
+Baseline Git previa a este checkpoint: 9d67d178859607a1f6b71faa19cbafe837b97174
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -79,7 +79,7 @@ Dirty backend reconocido: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/
 
 ### AI CONSTRUCTOR INTEGRATION V1
 
-Estado: IMPLEMENTED / LOCAL / NOT CLOSED / NOT PUBLISHED.
+Estado anterior: IMPLEMENTED / LOCAL / NOT CLOSED / NOT PUBLISHED. Corrección CIERRE-01: PUBLISHED/SYNCED exclusivamente en recovery/cierre-01-constructor, commit 9d67d178; checkpoint de recuperación pendiente; MB1 DRAFT; sin fusión a master.
 Autorizado: generación pedagógica IA con Ollama/Qwen3:8b,
 reutilizando contratos y validadores existentes.
 Implementación: dos fases locales —grafo de contenido y vínculos pedagógicos
