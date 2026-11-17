@@ -1630,3 +1630,7 @@ nueva inferencia o verificación adversarial del condicional JSON Schema.
 ## CIERRE-02 — Recuperación controlada de MB1 DRAFT
 
 El candidato `a1-u2` conserva estado **DRAFT**. Se incorporan contrato, validadores de etapas y evidencia, ejecución aislada, especificación y pruebas focales. Resultado técnico disponible: **42 PASS**. No se interpreta como aprobación curricular ni acreditación del estudiante. Siguiente dependencia: CIERRE-03, recurso visual y adaptadores MB1, con protección explícita del entorno A1 existente; posteriormente CIERRE-04, demostración interna y Flutter.
+
+## CIERRE-03 — Recuperación acotada de recursos MB1
+
+Recurso visual local `a1-u2` con identidad `302873df04d41ac4d6a80bd0a21369d040a8c5bc18ee1ad2e30cc5d5eef0aeb9` y adaptadores parametrizables acreditados por 53 pruebas focales; las pruebas legacy A1 se ejecutan con fixture temporal de estado histórico para no alterar `docs/estado-operativo.md`. La ruta productiva antigua A1 sigue su contrato de marcadores y requiere reconciliación independiente antes de su reutilización real. MB1 DRAFT, sin activación. Siguiente hito: CIERRE-04 demostración interna/backend + frontend con revisión visual humana y funcionalidad real aún pendientes.

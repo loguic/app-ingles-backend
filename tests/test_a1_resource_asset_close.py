@@ -7,7 +7,7 @@ import shutil
 import subprocess
 import sys
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import pytest
 
@@ -46,6 +46,22 @@ def prepared_root(tmp_path: Path) -> Path:
     shutil.copy2(ROOT / asset_close.README_RELATIVE_PATH, root / asset_close.README_RELATIVE_PATH)
     shutil.copy2(ROOT / asset_close.CANDIDATE_RELATIVE_PATH, root / asset_close.CANDIDATE_RELATIVE_PATH)
     shutil.copy2(ROOT / asset_close.STATE_RELATIVE_PATH, root / asset_close.STATE_RELATIVE_PATH)
+    # Estado historico A1 aislado: el estado operativo vivo ya no contiene
+    # estos marcadores. No modificar docs/estado-operativo.md productivo.
+    state_path = root / asset_close.STATE_RELATIVE_PATH
+    source_state = state_path.read_text(encoding="utf-8")
+    assert source_state.count("## Bloque activo\n") == 1
+    assert not any(line.startswith("A1 ASSET STATE: ") for line in source_state.splitlines())
+    assert not any(line.startswith("- A1 ASSET CHECKPOINT PATHS: ") for line in source_state.splitlines())
+    fixture_markers = (
+        "A1 ASSET STATE: fixture legacy pendiente\n"
+        "- A1 ASSET CHECKPOINT PATHS: fixture legacy pendiente\n"
+    )
+    state_path.write_text(
+        source_state.replace("## Bloque activo\n",
+                             "## Bloque activo\n" + fixture_markers, 1),
+        encoding="utf-8",
+    )
     for source in (WATER, FOOD, NEED, GREETING):
         shutil.copy2(source, root / source.relative_to(ROOT))
     return root
@@ -132,6 +148,79 @@ def _install(
         close_function=asset_close.close_git_changes,
     )
     return result, calls
+
+
+def test_generic_mb1_dry_run_verifies_sha_and_rejects_existing_destination(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "repository"
+    candidate_path = root / "content/candidates/a1-u2/candidate.json"
+    candidate_path.parent.mkdir(parents=True)
+    resource_id = "visual.a1-u2-l1.station-restroom-help.v1"
+    candidate_path.write_text(
+        json.dumps({"required_resource_ids": [resource_id]}),
+        encoding="utf-8",
+    )
+    downloads = tmp_path / "Downloads"
+    downloads.mkdir()
+    source = downloads / "approved.png"
+    source.write_bytes(b"approved MB1 visual")
+    binding = asset_close.ResourceBinding(
+        resource_id=resource_id,
+        relative_path=PurePosixPath("visual/station-restroom-help.png"),
+    )
+
+    prepared = asset_close.prepare_approved_assets(
+        root=root,
+        requests=(
+            asset_close.AssetRequest(
+                resource_id=resource_id,
+                expected_sha256=_digest(source.read_bytes()),
+                downloads_file="approved.png",
+            ),
+        ),
+        downloads_dir=downloads,
+        bindings=(binding,),
+        candidate_relative_path=Path("content/candidates/a1-u2/candidate.json"),
+        resource_root=Path("content/resources/a1-u2"),
+    )
+
+    assert prepared[0].source == source
+    assert not prepared[0].destination.exists()
+
+    with pytest.raises(asset_close.AssetCloseError, match="SHA-256"):
+        asset_close.prepare_approved_assets(
+            root=root,
+            requests=(
+                asset_close.AssetRequest(
+                    resource_id=resource_id,
+                    expected_sha256="0" * 64,
+                    downloads_file="approved.png",
+                ),
+            ),
+            downloads_dir=downloads,
+            bindings=(binding,),
+            candidate_relative_path=Path("content/candidates/a1-u2/candidate.json"),
+            resource_root=Path("content/resources/a1-u2"),
+        )
+
+    prepared[0].destination.parent.mkdir(parents=True)
+    prepared[0].destination.write_bytes(b"existing")
+    with pytest.raises(asset_close.AssetCloseError, match="already exists"):
+        asset_close.prepare_approved_assets(
+            root=root,
+            requests=(
+                asset_close.AssetRequest(
+                    resource_id=resource_id,
+                    expected_sha256=_digest(source.read_bytes()),
+                    downloads_file="approved.png",
+                ),
+            ),
+            downloads_dir=downloads,
+            bindings=(binding,),
+            candidate_relative_path=Path("content/candidates/a1-u2/candidate.json"),
+            resource_root=Path("content/resources/a1-u2"),
+        )
 
 
 def test_readme_map_matches_candidate_and_allows_existing_approved_assets() -> None:

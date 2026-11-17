@@ -134,24 +134,38 @@ def load_binding_map(root: Path = ROOT) -> tuple[ResourceBinding, ...]:
 def validate_binding_inventory(
     root: Path,
     bindings: tuple[ResourceBinding, ...],
+    *,
+    candidate_relative_path: Path = CANDIDATE_RELATIVE_PATH,
+    resource_root: Path = RESOURCE_ROOT,
+    expected_binding_count: int | None = 18,
+    scope_label: str = "A1-U1",
 ) -> None:
     """Require the README map to cover the exact candidate inventory."""
-    candidate_path = _repository_path(root, CANDIDATE_RELATIVE_PATH)
+    candidate_path = _repository_path(root, candidate_relative_path)
     try:
         candidate = json.loads(candidate_path.read_text(encoding="utf-8"))
         required_resource_ids = tuple(candidate["required_resource_ids"])
     except (OSError, ValueError, KeyError, TypeError) as exc:
-        raise AssetCloseError("A1-U1 candidate resource inventory is invalid") from exc
+        raise AssetCloseError(f"{scope_label} candidate resource inventory is invalid") from exc
 
-    if len(bindings) != 18 or tuple(item.resource_id for item in bindings) != required_resource_ids:
-        raise AssetCloseError("README bindings do not match A1-U1 required_resource_ids")
-    resource_root = _repository_path(root, RESOURCE_ROOT)
+    if (
+        (expected_binding_count is not None and len(bindings) != expected_binding_count)
+        or tuple(item.resource_id for item in bindings) != required_resource_ids
+    ):
+        raise AssetCloseError(
+            f"bindings do not match {scope_label} required_resource_ids"
+        )
+    resolved_resource_root = _repository_path(root, resource_root)
     for binding in bindings:
-        destination = resource_root.joinpath(*binding.relative_path.parts)
+        destination = resolved_resource_root.joinpath(*binding.relative_path.parts)
         try:
-            destination.resolve(strict=False).relative_to(resource_root.resolve(strict=False))
+            destination.resolve(strict=False).relative_to(
+                resolved_resource_root.resolve(strict=False)
+            )
         except ValueError as exc:
-            raise AssetCloseError("resource binding escapes A1-U1 resource root") from exc
+            raise AssetCloseError(
+                f"resource binding escapes {scope_label} resource root"
+            ) from exc
 
 
 def _sha256(path: Path) -> str:
@@ -635,28 +649,49 @@ def _prepare_assets(
     root: Path,
     requests: tuple[AssetRequest, ...],
     downloads_dir: Path,
+    bindings: tuple[ResourceBinding, ...] | None = None,
+    candidate_relative_path: Path = CANDIDATE_RELATIVE_PATH,
+    resource_root: Path = RESOURCE_ROOT,
+    expected_binding_count: int | None = 18,
+    scope_label: str = "A1-U1",
+    assert_no_unmapped_assets: bool = True,
 ) -> tuple[PreparedAsset, ...]:
     if not requests:
         raise AssetCloseError("at least one approved asset request is required")
     if len({request.resource_id for request in requests}) != len(requests):
         raise AssetCloseError("asset request resource_id values must be unique")
-    bindings = load_binding_map(root)
-    validate_binding_inventory(root, bindings)
-    _assert_no_unmapped_assets(root, bindings)
+    if bindings is None:
+        bindings = load_binding_map(root)
+        validate_binding_inventory(root, bindings)
+    else:
+        validate_binding_inventory(
+            root,
+            bindings,
+            candidate_relative_path=candidate_relative_path,
+            resource_root=resource_root,
+            expected_binding_count=expected_binding_count,
+            scope_label=scope_label,
+        )
+    if assert_no_unmapped_assets:
+        _assert_no_unmapped_assets(root, bindings)
     binding_by_id = {binding.resource_id: binding for binding in bindings}
     prepared: list[PreparedAsset] = []
     destinations: set[Path] = set()
-    resource_root = _repository_path(root, RESOURCE_ROOT)
+    resolved_resource_root = _repository_path(root, resource_root)
     for request in requests:
         expected_sha256 = _validate_sha256(request.expected_sha256)
         binding = binding_by_id.get(request.resource_id)
         if binding is None:
-            raise AssetCloseError("resource_id is not an A1-U1 binding")
-        destination = resource_root / binding.relative_path
+            raise AssetCloseError(f"resource_id is not a {scope_label} binding")
+        destination = resolved_resource_root / binding.relative_path
         try:
-            destination.resolve(strict=False).relative_to(resource_root.resolve(strict=False))
+            destination.resolve(strict=False).relative_to(
+                resolved_resource_root.resolve(strict=False)
+            )
         except ValueError as exc:
-            raise AssetCloseError("mapped destination escapes A1-U1 resource root") from exc
+            raise AssetCloseError(
+                f"mapped destination escapes {scope_label} resource root"
+            ) from exc
         if destination in destinations:
             raise AssetCloseError("batch manifest destinations must be unique")
         destinations.add(destination)
@@ -677,6 +712,30 @@ def _prepare_assets(
             )
         )
     return tuple(prepared)
+
+
+def prepare_approved_assets(
+    *,
+    root: Path,
+    requests: tuple[AssetRequest, ...],
+    downloads_dir: Path,
+    bindings: tuple[ResourceBinding, ...],
+    candidate_relative_path: Path,
+    resource_root: Path,
+) -> tuple[PreparedAsset, ...]:
+    """Perform the existing approval, SHA, and no-overwrite checks without I/O writes."""
+
+    return _prepare_assets(
+        root=root.resolve(strict=True),
+        requests=requests,
+        downloads_dir=downloads_dir,
+        bindings=bindings,
+        candidate_relative_path=candidate_relative_path,
+        resource_root=resource_root,
+        expected_binding_count=None,
+        scope_label="configured unit",
+        assert_no_unmapped_assets=False,
+    )
 
 
 def close_approved_assets(

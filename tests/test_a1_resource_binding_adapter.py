@@ -95,6 +95,24 @@ def test_real_a1_map_returns_exact_ordered_absolute_b48_bindings() -> None:
     )
 
 
+def test_generic_adapter_accepts_an_in_memory_mb1_map_without_resource_io() -> None:
+    resource_id = "visual.a1-u2-l1.station-restroom-help.v1"
+
+    result = adapter.build_resource_binding_collection(
+        ROOT,
+        _coverage(resource_id),
+        resource_root=Path("content/resources/a1-u2"),
+        bindings=(
+            _relative_binding(resource_id, "visual/station-restroom-help.png"),
+        ),
+    )
+
+    assert tuple(binding.resource_id for binding in result.bindings) == (resource_id,)
+    assert result.bindings[0].resource_path == (
+        ROOT / "content/resources/a1-u2/visual/station-restroom-help.png"
+    )
+
+
 def test_rejects_relative_missing_and_non_directory_roots(
     tmp_path: Path,
 ) -> None:

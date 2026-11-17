@@ -26,15 +26,34 @@ def build_a1_resource_binding_collection(
     """Resolve the canonical A1 map and delegate exact-domain checks to B48."""
 
     root = _validate_repository_root(repository_root)
-    resource_root = _resolve_resource_root(root)
-    relative_bindings = load_binding_map(root)
+    return build_resource_binding_collection(
+        root,
+        expected_resource_coverage_verification,
+        resource_root=RESOURCE_ROOT,
+        bindings=load_binding_map(root),
+    )
+
+
+def build_resource_binding_collection(
+    repository_root: Path,
+    expected_resource_coverage_verification: (
+        ActiveCandidateSourceExpectedResourceCoverageVerification
+    ),
+    *,
+    resource_root: Path,
+    bindings: tuple[A1RelativeResourceBinding, ...],
+) -> ActiveCandidateSourceResourceBindingCollection:
+    """Adapt one explicit local map into the existing B48 boundary."""
+
+    root = _validate_repository_root(repository_root)
+    resolved_resource_root = _resolve_resource_root(root, resource_root)
     resource_bindings = tuple(
         _resolve_binding(
             root=root,
-            resource_root=resource_root,
+            resource_root=resolved_resource_root,
             relative_binding=relative_binding,
         )
-        for relative_binding in relative_bindings
+        for relative_binding in bindings
     )
     return build_active_candidate_source_resource_binding_collection(
         expected_resource_coverage_verification,
@@ -52,8 +71,15 @@ def _validate_repository_root(repository_root: Path) -> Path:
     return repository_root.resolve(strict=True)
 
 
-def _resolve_resource_root(repository_root: Path) -> Path:
-    resource_root = (repository_root / RESOURCE_ROOT).resolve(strict=False)
+def _resolve_resource_root(repository_root: Path, relative_root: Path) -> Path:
+    if (
+        not isinstance(relative_root, Path)
+        or relative_root.is_absolute()
+        or not relative_root.parts
+        or ".." in relative_root.parts
+    ):
+        raise ValueError("resource root must remain relative")
+    resource_root = (repository_root / relative_root).resolve(strict=False)
     try:
         resource_root.relative_to(repository_root)
     except ValueError as error:
