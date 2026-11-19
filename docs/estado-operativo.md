@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-11-17T10:18:47+01:00
-Baseline Git previa a este checkpoint: 7b39108ac87e5272b1dc2f461de8a25bddd0d4d4
+Actualizado: 2026-11-19T13:32:09+01:00
+Baseline Git previa a este checkpoint: 144439487b24361e94df33703a26b21f8c8cd1a6
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -111,7 +111,7 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = escritorio de Estación APPROVED / HUMAN 2026-11-17; pendiente responsive, WCAG AA, secuencia funcional audio-first, revisión de Inicio y cuatro diferencias históricas respaldadas. MB1 DRAFT, sin admisión ni activación.
+NEXT = ventana estrecha de Estación (~850 px) APPROVED / HUMAN 2026-11-19; pendientes WCAG AA, ventanas menores, audio-first funcional, revisión de Inicio y cuatro diferencias históricas. MB1 DRAFT, sin admisión ni activación.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 
