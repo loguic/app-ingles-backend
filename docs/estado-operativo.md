@@ -24,16 +24,13 @@ El postflight final acreditó **19 PASS / 5 skipped**, `git diff --check` PASS, 
 
 `Mission Control V2` queda **CLOSED / PUBLISHED / SYNCED**: `loguic.py progress` es read-only sobre matriz V0 de 24 entregables y 8 resultados; MVP sigue **NO MEDIBLE**, sin acreditación pedagógica nueva. Evidencia: 10 tests focales PASS y `git diff --check` PASS; NEXT del Constructor IA se conserva.
 
-La consolidación documental de decisiones iniciales del MVP Pre-A1 + A1 quedó
-publicada y sincronizada en `d10a99a9f17ffc29fe34308b0398975096b04a88`.
+La consolidación documental de decisiones iniciales del MVP Pre-A1 + A1 quedó publicada y sincronizada en `d10a99a9f17ffc29fe34308b0398975096b04a88`.
 
-La publicación de BASELINE V0 quedó recuperada y sincronizada en
-`90bf9e780124b2dc1ffc43c4526e83aedf215af4`. La ejecución original del Closure
+La publicación de BASELINE V0 quedó recuperada y sincronizada en `90bf9e780124b2dc1ffc43c4526e83aedf215af4`. La ejecución original del Closure
 Gate falló durante `git_close` al hacer push por error DNS de resolución de
 `github.com`, después de crear el commit local. Posteriormente se publicó el
 commit existente con `git push origin master` y
-`conversation_checkpoint.py prepare` terminó PASS, CLEAN y SYNCED. Esto no
-reclasifica retrospectivamente la ejecución original como Closure Gate PASS.
+`conversation_checkpoint.py prepare` terminó PASS, CLEAN y SYNCED. Esto no reclasifica retrospectivamente la ejecución original como Closure Gate PASS.
 
 ## Bloque activo
 Reconciliación documental 2026-11-22: **LOCAL / NOT CLOSED / NOT PUBLISHED**. F0 publicado en BE; ISSUE_2 V3 publicado en FE. A1 v4 conserva cambios locales pendientes de revisión. Estación NOT CLOSED; MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE. Sin autorización de nuevos incrementos.
@@ -115,7 +112,7 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = obtener postflight independiente PASS de las correcciones documentales del 2026-11-22 y solicitar autorización humana para cierre Git de los cuatro documentos. Tras publicación y checkpoint PASS, retomar F1 y A1 v4 sin repetir pruebas.
+NEXT = F1 Estación V1 y continuidad A1 v4 después del Closure Gate documental y checkpoint prepare PASS; sin repetir pruebas existentes. Estación NOT CLOSED; MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 
