@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-11-22T00:49:39+01:00
-Baseline Git previa a este checkpoint: d362350bc5ee984fe770cd7b319c4ee75b4a7bdb
+Actualizado: 2026-11-22T13:36:58+01:00
+Baseline Git previa a este checkpoint: f4cd7acafc92090c05a58f5a70fef99897281de2
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
