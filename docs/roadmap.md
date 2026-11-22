@@ -20,6 +20,55 @@ El historial técnico conservado en este roadmap continúa siendo válido como t
 
 Todo trabajo nuevo deberá partir de una capacidad observable del estudiante y justificar su contribución directa al puerto de llegada.
 
+## Marco operativo integral hasta el primer MVP — Vista F0 (aprobada; cierre condicionado a Git y checkpoint)
+
+**Propósito y separación de autoridades.** Esta vista ejecutiva organiza el trabajo
+existente hasta un MVP **Pre-A1 + A1 inicial** verificable. No sustituye el
+`docs/modelo-pedagogico-maestro.md` (cuatro **fases pedagógicas**), la
+Accreditation Matrix V1 (24 criterios en ocho resultados), el método de ingeniería
+ni `docs/estado-operativo.md` (estado semántico vivo). Las fases F0–F8 siguientes
+son **fases operativas de entrega**, no nuevos niveles curriculares ni permisos
+para iniciar incrementos. `F8` es posterior al primer MVP, no condición de éste.
+
+**Estado de referencia (snapshot, no autorización):** Backend `d362350` limpio y
+sin desfase upstream en la captura recibida; Frontend `1094812` con siete rutas
+modificadas/no rastreadas en la captura recibida. `ISSUE_2` del audio tiene V3
+local con 18 pruebas PASS, pero **sin postflight independiente PASS acreditado**.
+Estación sigue **NOT CLOSED**; MB1 sigue **DRAFT / NOT ACTIVE**; el MVP sigue
+**NO MEDIBLE**. Los HEAD son evidencias fechadas y nunca sustituyen inspección
+Git read-only al ejecutar un cierre. No existe autorización implícita para
+commits, activaciones, publicaciones, B181, loaders ni cambio de currículo.
+
+| Fase operativa | Resultado observable | Gate de salida (PASS, o BLOCKED con decisión explícita) |
+|---|---|---|
+| **F0 — Control del proyecto** | Plan y autoridades reconciliados, dependencias y cambios locales inventariados | Aprobación humana del plan, integración validada en roadmap y registro del estado; `ISSUE_2` sigue abierto en F1 |
+| **F1 — Estación utilizable** | Inicio→Estación→escuchar/grabar/repetir funciona realmente | `ISSUE_2` con postflight PASS y cierre autorizado; demo en plataforma objetivo, audio-first, viewport menor, WCAG AA y revisión humana |
+| **F2 — MB1 integrado** | Una misión completa pasa Flutter↔FastAPI y registra evidencia | Contrato, IDs y persistencia E2E; revisión pedagógica; admisión/activación solo mediante su Human Gate |
+| **F3 — Núcleo conversacional** | Diagnóstico, audio/STT, feedback, tutor y turnos conectados interoperan | Demostración real y fallos técnicos controlados; B181/IA solo tras autorización específica |
+| **F4 — Aprendizaje medible** | Transferencia, recuperación diferida y evidencias revisables | Protocolos, rúbricas, muestras y responsables nominales; aplicar 24 criterios sin porcentajes inventados |
+| **F5 — Calidad y privacidad** | MVP accesible, seguro, reproducible y recuperable | QA/accesibilidad/privacidad/retención/borrado + fallos adversariales + postflight PASS |
+| **F6 — Piloto** | Personas reales prueban y pueden completar el recorrido | Participantes, consentimiento, observación y soporte; decisión GO/NO-GO documentada |
+| **F7 — Entrega del MVP** | Release instalable/ejecutable con soporte y rollback | Artefacto reproducible, smoke, rollback, lanzamiento humano autorizado y cierre Git/checkpoint |
+| **F8 — Evolución posterior** | Crecimiento curricular y casos profesionales | Nueva priorización basada en evidencias y Human Gate propio; no bloquear F7 |
+
+**Camino crítico:** F0 → F1 → F2 → F3 → F4 → F5 → F6 → F7. Una sola meta
+activa de producto, conforme a Weekly Goals v1; ningún inicio técnico sin Gate
+humano aplicable. Fechas, esfuerzo, presupuesto y progreso acreditado permanecen
+**NO ESTIMADOS / NO MEDIBLES** hasta disponer de evidencia. No convertir pruebas
+unitarias, demos o documentación en acreditación de aprendizaje.
+
+**Criterio de cierre por incremento:** requisitos observables → compatibilidad,
+fallos y pruebas adversariales definidos antes de codificar → implementación →
+pruebas focales/regresiones pertinentes → revisión independiente → aprobación
+humana → documentación → commit autorizado → Git verificado → checkpoint PASS.
+Si dos intervenciones de IA no producen avance funcional, **STOP** y revisar
+fricción/diseño en lugar de encadenar parches.
+
+**NEXT único tras aprobar y materializar este marco:** resolver el postflight
+independiente de `ISSUE_2` sobre V3 y decidir su cierre, sin iniciar trabajo
+ajeno a Estación. Si falla, decidir arquitectura y contrato antes de implementar.
+
+
 ## MVP Pre-A1 + A1 — consolidación documental
 
 El primer MVP queda encuadrado provisionalmente en **Pre-A1 + A1 inicial**,
@@ -29,10 +78,11 @@ un nivel curricular independiente aprobado definitivamente.
 La matriz provisional es: Pre-A1 y diagnóstico 15 %; experiencias pedagógicas
 A1 20 %; escucha, habla y pronunciación 15 %; tutor adaptativo 15 %; feedback
 10 %; transferencia y retención 10 %; experiencia y accesibilidad 10 %;
-preparación para lanzamiento 5 %. Siguen pendientes de validación humana el
-desglose provisional de 24 entregables, criterios de aceptación, horas y
-costes, escenarios comerciales y precios, auditoría de reutilización técnica y
-recomendaciones condicionadas sobre repositorios existentes.
+preparación para lanzamiento 5 %. Los 24 criterios y ocho distribuciones de la Accreditation Matrix V1 fueron
+aprobados humanamente con posterioridad a esta propuesta histórica; **no hay
+acreditación individual ni porcentaje de progreso**. Siguen pendientes los
+protocolos de evaluación, responsables nominales, muestras representativas,
+horas y costes, escenarios comerciales y precios, y auditoría de reutilización.
 
 Por decisión humana confirmada, la prioridad operativa pasa a materializar la
 experiencia pedagógica renovada del MVP Pre-A1 + A1 inicial conforme al Modelo
@@ -41,12 +91,11 @@ oral, feedback útil, interacción, transferencia y recuperación como
 capacidades observables. Accreditation Matrix V1 permanece vigente como
 instrumento de verificación y no desplaza la construcción del producto.
 
-El siguiente objetivo documentado es preparar el primer macrobloque pedagógico
-completo: recuperar las capacidades, decisiones y dependencias existentes para
-definir bajo Gate 1 la fase, problema del estudiante, capacidad observable,
-método, experiencia, evidencia, transferencia, alcance y exclusiones. Esta
-preparación no autoriza código, activación, loader, runtime pointer, B181,
-progreso, mastery ni completion.
+La preparación inicial de MB1 y su Human Gate 1 se completaron; el candidato
+permanece DRAFT y sin activación. El siguiente objetivo de ejecución es cerrar
+la experiencia Estación V1 mediante las garantías de audio, UX y accesibilidad
+antes de iniciar integraciones ajenas a su alcance. Ningún avance del roadmap
+autoriza por sí solo loader, runtime pointer, B181, progreso, mastery o completion.
 
 ### MB1 — Comprender y expresar una necesidad
 

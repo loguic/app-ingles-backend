@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-11-19T13:32:09+01:00
-Baseline Git previa a este checkpoint: 144439487b24361e94df33703a26b21f8c8cd1a6
+Actualizado: 2026-11-22T00:49:39+01:00
+Baseline Git previa a este checkpoint: d362350bc5ee984fe770cd7b319c4ee75b4a7bdb
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -33,6 +33,7 @@ commit existente con `git push origin master` y
 reclasifica retrospectivamente la ejecución original como Closure Gate PASS.
 
 ## Bloque activo
+F0 — Plan Operativo Maestro Integral **APPROVED / HUMAN (2026-11-22)**, **GIT_CLOSURE_AUTHORIZED / POSTFLIGHT_PASS / CHECKPOINT_PENDING**. La vista ejecutiva F0–F8 se integra en `docs/roadmap.md` sin reemplazar el Modelo Pedagógico Maestro, Accreditation Matrix V1 ni el método vigente. Alcance de aprobación: planificación, no autorización de implementación, commit, push ni activación. Human Gate, revisión y validación PASS; cierre F0 condicionado a Git limpio/sincronizado y checkpoint PASS. Tras cierre F0, NEXT de producto: F1 Estación V1; ISSUE_2 V3: 18 pruebas locales PASS, postflight independiente pendiente; Estación NOT CLOSED, MB1 DRAFT/NOT ACTIVE y MVP NO MEDIBLE.
 
 BASELINE V0 del MVP: **PUBLISHED / SYNCED** tras recuperación de publicación.
 Measurement V1 está documentada y sus cinco decisiones metodológicas fueron

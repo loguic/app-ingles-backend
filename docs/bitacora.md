@@ -5603,3 +5603,19 @@ Human Authority aprobó el diseño visual de la pantalla Estación para escritor
 ## UI/UX Estación — Human Review Gate ventana estrecha 2026-11-19
 
 Aprobación humana opción 1, 2026-11-19, aplicando la skill `loguic-uiux-design-review`. Captura de LOGUIC English Flutter en Ubuntu con ventana aproximadamente 850 px de ancho: título, instrucciones, ilustración, botones Escuchar y Grabar legibles, sin recortes ni overflow horizontal observados. Botón Grabar próximo al borde inferior: en alturas menores puede requerir desplazamiento. **APPROVED / HUMAN solo para el tamaño examinado**, no aprobación responsive general. No se modificó código ni se repitieron pruebas; la aprobación previa de escritorio y sus 8 tests focalizados permanecen intactos. Frontend evidencia documental commit `10948122358c2bf2109a9375ee3cea3aadb6d68e`. Pendientes: tamaños menores, WCAG AA medida, teclado/semántica, secuencia funcional audio-first, recorrido integral e Inicio. Cuatro diferencias históricas preservadas siguen pendientes. MB1 DRAFT, sin admisión ni activación.
+
+## F0 — Human Gate del Plan Operativo Maestro Integral, 2026-11-22
+
+Human Authority seleccionó la opción **1 / APPROVED** para la vista ejecutiva
+F0–F8 del MVP Pre-A1 + A1 inicial integrada localmente en `docs/roadmap.md`.
+El alcance aprobado es **planificación y continuación del Closure Gate F0**,
+no la autorización automática de código, commits, push, activación curricular
+ni publicación. Se preservan el Modelo Pedagógico Maestro, la Accreditation
+Matrix V1 (24 entregables / ocho resultados), las autoridades canónicas y
+los bloqueos: Estación **NOT CLOSED**, ISSUE_2 **POSTFLIGHT PENDIENTE** (V3,
+18 pruebas locales PASS), MB1 **DRAFT / NOT ACTIVE**, MVP **NO MEDIBLE**.
+Validación previa observada: `F0_ROADMAP_INTEGRATION_PASS` y diff de solo
+`docs/roadmap.md`; aún falta verificación posterior de este registro,
+postflight documental, autorización de commit/publicación si aplica,
+Git limpio/sincronizado y `conversation_checkpoint.py prepare` PASS.
+No iniciar F1 hasta el cierre canónico F0.
