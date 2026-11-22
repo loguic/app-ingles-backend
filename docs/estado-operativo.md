@@ -13,6 +13,9 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
+F0 — Plan Operativo Maestro Integral: **CLOSED / PUBLISHED / SYNCED** en BE `fb9b0a9a09510a206c8cd8d67919f44b90d18e63`. Checkpoint resume PASS, Git CLEAN y sincronizado antes de esta reconciliación documental.
+
+
 `A1-V4-REAL-VERTICAL-SLICE`: **CLOSED / PUBLISHED / SYNCED** por este Closure Gate. El milestone de tres turnos —producción propia de agua → agua con menor apoyo → transferencia cercana a comida— queda satisfecho y publicado en backend y frontend; el frontend se publicó en `36f12735006db893a701a10825edc8281dc617fa`.
 
 El postflight final acreditó **19 PASS / 5 skipped**, `git diff --check` PASS, estado operativo PASS, checkpoint PASS y `UNEXPECTED_FILES = NONE`. Qwen runtime/provenance `qwen3:8b` permanece evidencia PASS existente, sin repetición. Loader/runtime pointer/B181/mastery/progreso/completion y cambios a `content/content_tree.json` siguen no autorizados.
@@ -33,7 +36,7 @@ commit existente con `git push origin master` y
 reclasifica retrospectivamente la ejecución original como Closure Gate PASS.
 
 ## Bloque activo
-F0 — Plan Operativo Maestro Integral **APPROVED / HUMAN (2026-11-22)**, **GIT_CLOSURE_AUTHORIZED / POSTFLIGHT_PASS / CHECKPOINT_PENDING**. La vista ejecutiva F0–F8 se integra en `docs/roadmap.md` sin reemplazar el Modelo Pedagógico Maestro, Accreditation Matrix V1 ni el método vigente. Alcance de aprobación: planificación, no autorización de implementación, commit, push ni activación. Human Gate, revisión y validación PASS; cierre F0 condicionado a Git limpio/sincronizado y checkpoint PASS. Tras cierre F0, NEXT de producto: F1 Estación V1; ISSUE_2 V3: 18 pruebas locales PASS, postflight independiente pendiente; Estación NOT CLOSED, MB1 DRAFT/NOT ACTIVE y MVP NO MEDIBLE.
+Reconciliación documental 2026-11-22: **LOCAL / NOT CLOSED / NOT PUBLISHED**. F0 publicado en BE; ISSUE_2 V3 publicado en FE. A1 v4 conserva cambios locales pendientes de revisión. Estación NOT CLOSED; MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE. Sin autorización de nuevos incrementos.
 
 BASELINE V0 del MVP: **PUBLISHED / SYNCED** tras recuperación de publicación.
 Measurement V1 está documentada y sus cinco decisiones metodológicas fueron
@@ -112,7 +115,7 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = ventana estrecha de Estación (~850 px) APPROVED / HUMAN 2026-11-19; pendientes WCAG AA, ventanas menores, audio-first funcional, revisión de Inicio y cuatro diferencias históricas. MB1 DRAFT, sin admisión ni activación.
+NEXT = obtener postflight independiente PASS de las correcciones documentales del 2026-11-22 y solicitar autorización humana para cierre Git de los cuatro documentos. Tras publicación y checkpoint PASS, retomar F1 y A1 v4 sin repetir pruebas.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 

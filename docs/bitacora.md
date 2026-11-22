@@ -5619,3 +5619,47 @@ Validación previa observada: `F0_ROADMAP_INTEGRATION_PASS` y diff de solo
 postflight documental, autorización de commit/publicación si aplica,
 Git limpio/sincronizado y `conversation_checkpoint.py prepare` PASS.
 No iniciar F1 hasta el cierre canónico F0.
+
+## Reconciliación documental — 2026-11-22
+
+Referencia consolidada:
+`docs/LOGUIC-English-Registro-Consolidado-2026-11-22-V2.md`.
+
+### FE — ISSUE_2 V3
+
+Implementación de sesiones independientes de reproducción,
+validación focal de concurrencia e interrupciones y postflight
+independiente focalizado PASS.
+
+Cierre Git publicado y sincronizado:
+`c431c3534f34307726ecdf3f4e77da15541befbd`.
+
+Los cambios locales A1 v4 fueron preservados y restaurados
+con comprobación SHA-256 PASS.
+
+### FE/BE — A1 v4 y evaluación oral
+
+Se recupera la prueba de voz del 21/11/2026:
+respuesta recordada por el usuario: kneed water.
+Transcripción STT registrada: I knee the water.
+Qwen devolvió orientación hacia I need water.
+
+Se detectó contradicción entre la corrección y Great job!.
+Posteriormente se implementaron mejoras locales de continuidad
+pedagógica en Flutter, pendientes de revisión humana y publicación.
+
+No está acreditada la integración GOP/WavLM ni la corrección
+gramatical estructurada en este ejercicio.
+
+### Estado y límites
+
+F0 publicado en Backend.
+ISSUE_2 V3 publicado en Frontend.
+A1 v4 conserva cambios locales sin publicar.
+Estación permanece NOT CLOSED.
+MB1 permanece DRAFT / NOT ACTIVE.
+MVP permanece NO MEDIBLE.
+
+El registro consolidado es evidencia de recuperación y
+requiere reconciliación con roadmap y estado operativo.
+No autoriza activación curricular ni nuevos incrementos.

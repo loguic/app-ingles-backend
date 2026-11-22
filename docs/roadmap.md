@@ -20,7 +20,7 @@ El historial técnico conservado en este roadmap continúa siendo válido como t
 
 Todo trabajo nuevo deberá partir de una capacidad observable del estudiante y justificar su contribución directa al puerto de llegada.
 
-## Marco operativo integral hasta el primer MVP — Vista F0 (aprobada; cierre condicionado a Git y checkpoint)
+## Marco operativo integral hasta el primer MVP — Vista F0 (snapshot histórico anterior al cierre)
 
 **Propósito y separación de autoridades.** Esta vista ejecutiva organiza el trabajo
 existente hasta un MVP **Pre-A1 + A1 inicial** verificable. No sustituye el
@@ -30,7 +30,7 @@ ni `docs/estado-operativo.md` (estado semántico vivo). Las fases F0–F8 siguie
 son **fases operativas de entrega**, no nuevos niveles curriculares ni permisos
 para iniciar incrementos. `F8` es posterior al primer MVP, no condición de éste.
 
-**Estado de referencia (snapshot, no autorización):** Backend `d362350` limpio y
+**Estado histórico anterior al cierre de F0 e ISSUE_2 (no vigente ni autorización):** Backend `d362350` limpio y
 sin desfase upstream en la captura recibida; Frontend `1094812` con siete rutas
 modificadas/no rastreadas en la captura recibida. `ISSUE_2` del audio tiene V3
 local con 18 pruebas PASS, pero **sin postflight independiente PASS acreditado**.
@@ -64,7 +64,7 @@ humana → documentación → commit autorizado → Git verificado → checkpoin
 Si dos intervenciones de IA no producen avance funcional, **STOP** y revisar
 fricción/diseño en lugar de encadenar parches.
 
-**NEXT único tras aprobar y materializar este marco:** resolver el postflight
+**NEXT histórico de F0 (ya superado; conservar para trazabilidad):** resolver el postflight
 independiente de `ISSUE_2` sobre V3 y decidir su cierre, sin iniciar trabajo
 ajeno a Estación. Si falla, decidir arquitectura y contrato antes de implementar.
 
@@ -1699,3 +1699,34 @@ Aprobación humana limitada al diseño de escritorio. Ajuste visual frontend pub
 ## V1 UI/UX Estación — ventana estrecha 2026-11-19
 
 Human Review Gate **APPROVED únicamente para la ventana examinada** (~850 px; captura 2026-11-19). Evidencia en frontend commit `10948122358c2bf2109a9375ee3cea3aadb6d68e`. Sin cambios Flutter ni nuevas pruebas. El hito de entrega V1 todavía requiere comprobación de accesibilidad WCAG AA y secuencia funcional audio-first; ventanas inferiores y revisión de Inicio también pendientes. No convertir la aprobación limitada en aceptación integral. MB1 DRAFT, sin activar.
+
+## Reconciliación de continuidad — 2026-11-22
+
+Registro de recuperación:
+`docs/LOGUIC-English-Registro-Consolidado-2026-11-22-V2.md`.
+
+Esta sección actualiza el estado posterior a los snapshots
+históricos F0–F8, sin sustituir el Modelo Pedagógico Maestro.
+
+- F0: CLOSED / PUBLISHED / SYNCED en Backend,
+  commit `fb9b0a9a09510a206c8cd8d67919f44b90d18e63`.
+- ISSUE_2 V3: implementación y postflight focalizado PASS;
+  cierre Git Frontend publicado y sincronizado en
+  `c431c3534f34307726ecdf3f4e77da15541befbd`.
+- A1 v4: implementación local de continuidad pedagógica
+  preservada. Dos archivos modificados y un documento
+  nuevo en Frontend; revisión y cierre pendientes.
+- La prueba oral recuperada distingue la respuesta recordada
+  por el usuario, kneed water, de la transcripción STT
+  registrada, I knee the water. Qwen proporcionó orientación
+  hacia I need water.
+- No está acreditada la evaluación fonética GOP/WavLM
+  ni una corrección gramatical estructurada en esa pantalla.
+- Estación permanece NOT CLOSED.
+- MB1 permanece DRAFT / NOT ACTIVE.
+- MVP permanece NO MEDIBLE.
+
+NEXT documental: completar validación independiente,
+reconciliación Git y checkpoint de esta actualización.
+No ejecutar nuevas pruebas de audio sin causa concreta.
+No activar currículo ni publicar código por esta actualización.
