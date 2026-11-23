@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-11-22T13:36:58+01:00
-Baseline Git previa a este checkpoint: f4cd7acafc92090c05a58f5a70fef99897281de2
+Actualizado: 2026-11-23T01:02:15+01:00
+Baseline Git previa a este checkpoint: 74a6f018eaf102ce0d0e99ab7167782fa517115c
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -33,7 +33,7 @@ commit existente con `git push origin master` y
 `conversation_checkpoint.py prepare` terminó PASS, CLEAN y SYNCED. Esto no reclasifica retrospectivamente la ejecución original como Closure Gate PASS.
 
 ## Bloque activo
-Reconciliación documental 2026-11-22: **LOCAL / NOT CLOSED / NOT PUBLISHED**. F0 publicado en BE; ISSUE_2 V3 publicado en FE. A1 v4 conserva cambios locales pendientes de revisión. Estación NOT CLOSED; MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE. Sin autorización de nuevos incrementos.
+Reconciliación documental 2026-11-22: **LOCAL / NOT CLOSED / NOT PUBLISHED**. F0 publicado en BE; ISSUE_2 V3 publicado en FE. A1 v4 conserva cambios locales pendientes de revisión. Estación NOT CLOSED; MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE. Sin autorización de nuevos incrementos. Actualización A1 v4 2026-11-23: LOCAL / NOT CLOSED / NOT PUBLISHED; BE `app/services/spoken_turn_evaluation_service.py`, `tests/test_spoken_turn_evaluation_service.py`; documentación `docs/estado-operativo.md`. Primera transición anchors → initial_word validada con Flutter/BE/Qwen; 14 PASS / 5 skipped. Segunda producción, transferencia y cierre pendientes; sin acreditación curricular ni mastery/completion.
 
 BASELINE V0 del MVP: **PUBLISHED / SYNCED** tras recuperación de publicación.
 Measurement V1 está documentada y sus cinco decisiones metodológicas fueron
@@ -107,12 +107,12 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Fronteras obligatorias
 
-- La baseline previa no es HEAD actual; evidencia no equivale a progreso, mastery ni finalización curricular.
+- La baseline Git debe corresponder al contrato del checkpoint según el estado local; evidencia no equivale a progreso, mastery ni finalización curricular.
 - No iniciar human review, adjudicación, B52, loader, runtime o B181 sin autorización y evidencia específicas.
 
 ## Próximo objetivo
 
-NEXT = F1 Estación V1 y continuidad A1 v4 después del Closure Gate documental y checkpoint prepare PASS; sin repetir pruebas existentes. Estación NOT CLOSED; MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE.
+NEXT = cierre canónico de correcciones adaptativas A1 v4 BE/FE con validaciones existentes y sin repetir audio. Estación NOT CLOSED; MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE. Mejora para LOGUIC OS PENDIENTE DE TRASLADO: preflight integral de rutas Git, límite documental, baseline, estados y NEXT; sin implementación transversal en este cierre.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 

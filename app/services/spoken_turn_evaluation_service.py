@@ -181,17 +181,20 @@ def _cross_field_error(
 
 def _apply_pedagogical_transition_guard(
     output: _ModelSpokenTurnOutput,
+    request: SpokenTurnEvaluationRequest,
 ) -> _ModelSpokenTurnOutput:
     """Prevent unsafe support reduction without altering model semantics."""
-    if (
-        output.semantic_evaluation.status != "adequate"
-        and output.next_turn.action == "reduce_support"
-    ):
+    if output.semantic_evaluation.status == "needs_repair":
         return output.model_copy(
             update={
+                "conversational_feedback": "Try again using the available support.",
                 "next_turn": _ModelNextTurnDecision(
                     action="retry_with_support",
-                    support_level=output.next_turn.support_level,
+                    support_level=(
+                        output.next_turn.support_level
+                        if output.next_turn.support_level != "none"
+                        else "anchors"
+                    ),
                     reason=(
                         "Current semantic evaluation needs repair; retry with "
                         "the available support."
@@ -199,6 +202,28 @@ def _apply_pedagogical_transition_guard(
                 )
             }
         )
+    levels = ("model", "anchors", "initial_word", "none")
+    if output.next_turn.action == "reduce_support":
+        current_index = levels.index(request.current_turn.support_level)
+        if current_index == len(levels) - 1:
+            return output.model_copy(update={
+                "conversational_feedback": "Practise again with the current support.",
+                "next_turn": _ModelNextTurnDecision(
+                    action="retry_with_support",
+                    support_level=request.current_turn.support_level,
+                    reason="Support cannot be reduced further.",
+                ),
+            })
+        next_level = levels[current_index + 1]
+        if output.next_turn.support_level != next_level:
+            return output.model_copy(update={
+                "conversational_feedback": "Try the next activity with less support.",
+                "next_turn": _ModelNextTurnDecision(
+                    action="reduce_support",
+                    support_level=next_level,
+                    reason="Try the next activity with one level less support.",
+                ),
+            })
     return output
 
 
@@ -279,7 +304,7 @@ def evaluate_spoken_turn(
                 "Ollama spoken-turn evaluation remained logically inconsistent: "
                 + error
             )
-    output = _apply_pedagogical_transition_guard(output)
+    output = _apply_pedagogical_transition_guard(output, request)
     return SpokenTurnEvaluationResponse(
         semantic_evaluation=SpokenSemanticEvaluation(
             **output.semantic_evaluation.model_dump()

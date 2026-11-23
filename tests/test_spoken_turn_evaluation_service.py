@@ -204,7 +204,70 @@ def test_needs_repair_cannot_reduce_support_without_rewriting_semantics():
     )
     assert result.next_turn.action == "retry_with_support"
     assert result.next_turn.support_level == "initial_word"
-    assert result.conversational_feedback == "Good. Your request is clear."
+    assert result.conversational_feedback == "Try again using the available support."
+
+
+@pytest.mark.parametrize(
+    ("action", "proposed_support"),
+    [
+        ("continue", "initial_word"),
+        ("reduce_support", "none"),
+        ("retry_with_support", "anchors"),
+    ],
+)
+def test_needs_repair_always_retries_with_support_and_safe_feedback(
+    action, proposed_support
+):
+    output = _model_output("needs_repair")
+    output["next_turn"].update(action=action, support_level=proposed_support)
+    output["conversational_feedback"] = "Excellent, continue!"
+    def handler(_request):
+        return httpx.Response(200, json={"response": json.dumps(output)})
+    result = evaluate_spoken_turn(_request(), evaluator=_evaluator(handler))
+    assert result.next_turn.action == "retry_with_support"
+    assert result.next_turn.support_level == (
+        proposed_support if proposed_support != "none" else "anchors"
+    )
+    assert result.conversational_feedback == "Try again using the available support."
+
+
+def test_adequate_continue_preserves_model_decision_and_feedback():
+    output = _model_output()
+    def handler(_request):
+        return httpx.Response(200, json={"response": json.dumps(output)})
+    result = evaluate_spoken_turn(_request(), evaluator=_evaluator(handler))
+    assert result.next_turn.action == "continue"
+    assert result.next_turn.support_level == "anchors"
+    assert result.conversational_feedback == output["conversational_feedback"]
+
+
+@pytest.mark.parametrize(
+    "current,proposed,expected_action,expected_level",
+    [
+        ("anchors", "initial_word", "reduce_support", "initial_word"),
+        ("anchors", "anchors", "reduce_support", "initial_word"),
+        ("model", "none", "reduce_support", "anchors"),
+        ("none", "none", "retry_with_support", "none"),
+    ],
+)
+def test_support_reduction_requires_lower_level(current, proposed, expected_action, expected_level):
+    output = _model_output()
+    output["next_turn"].update(action="reduce_support", support_level=proposed)
+    def handler(_request):
+        return httpx.Response(200, json={"response": json.dumps(output)})
+    result = evaluate_spoken_turn(
+        _request(current_turn={"turn_id": "t", "support_level": current, "visible_support": []}),
+        evaluator=_evaluator(handler),
+    )
+    assert result.next_turn.action == expected_action
+    assert result.next_turn.support_level == expected_level
+    assert result.mastery_awarded is False
+    if current != "none" and proposed != expected_level:
+        assert result.conversational_feedback == "Try the next activity with less support."
+        assert result.next_turn.reason == "Try the next activity with one level less support."
+    elif proposed == expected_level and current != "none":
+        assert result.conversational_feedback == output["conversational_feedback"]
+        assert result.next_turn.reason == output["next_turn"]["reason"]
 
 
 @pytest.mark.skipif(
