@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-11-23T16:11:50+01:00
-Baseline Git previa a este checkpoint: 3cb77a2c37c8f0eddb0f727243ba8a8be259aacf
+Actualizado: 2026-11-23T19:53:38+01:00
+Baseline Git previa a este checkpoint: 53de563e040f540b3e5ce721e179c5a5a135adae
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -13,7 +13,7 @@ Formato: checkpoint operativo compacto
 
 ## Último bloque cerrado
 
-F0 — Plan Operativo Maestro Integral: **CLOSED / PUBLISHED / SYNCED** en BE `fb9b0a9a09510a206c8cd8d67919f44b90d18e63`. Checkpoint resume PASS, Git CLEAN y sincronizado antes de esta reconciliación documental.
+Último cierre técnico acreditado: RECOVERY-IDLE-FAIL-CLOSED-2026-11-23 — CLOSED / PUBLISHED / SYNCED. F0 conserva su cierre histórico en el roadmap.
 
 
 `A1-V4-REAL-VERTICAL-SLICE`: **CLOSED / PUBLISHED / SYNCED** por este Closure Gate. El milestone de tres turnos —producción propia de agua → agua con menor apoyo → transferencia cercana a comida— queda satisfecho y publicado en backend y frontend; el frontend se publicó en `36f12735006db893a701a10825edc8281dc617fa`.
@@ -34,7 +34,7 @@ commit existente con `git push origin master` y
 
 ## Bloque activo
 Sin incremento técnico abierto. Corrección adaptativa A1 v4: **CLOSED / PUBLISHED / SYNCED**. BE `3a0a666c793ebbee6d5f65804ad55152ed460846`; FE `092b575ee61e8977bc5b314f9aecbac1467bce78`. Primera transición anchors → initial_word validada en Flutter con BE y Qwen. Documentos de cierre: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`. A1 v4 sigue siendo demo no curricular. A1-V4-PRACTICE-PERSISTENCE-2026-11-23: **CLOSED / PUBLISHED / SYNCED** (BE `222d7d20a7e6a748fd90f23c733619c63fbef5bb`, FE `232be242703b366ff3d4c415ac4dc68bc0072fb0`); persistencia PostgreSQL, tres WAV, concurrencia y validación Flutter PASS; sin mastery/completion. Estación NOT CLOSED; MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE.
-Dirty backend reconocido: `docs/bitacora.md`, `docs/estado-operativo.md`, `docs/roadmap.md`, `scripts/engineering/loguic.py`, `tests/test_loguic.py`.
+Reconciliación documental F1 publicada en 53de563e; Git CLEAN / SYNCED. Checkpoint prepare pendiente; F1 integral NOT CLOSED.
 BASELINE V0 del MVP: **PUBLISHED / SYNCED** tras recuperación de publicación.
 Measurement V1 está documentada y sus cinco decisiones metodológicas fueron
 aprobadas humanamente. La Accreditation Matrix V1 queda aprobada humanamente
@@ -112,7 +112,7 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = Verificar cierre RECOVERY-IDLE-FAIL-CLOSED mediante Git CLEAN/SYNCED y checkpoint prepare PASS; si se confirma, recuperar roadmap y solicitar autorización humana para el siguiente hito pedagógico. MB1 DRAFT / NOT ACTIVE; sin activación curricular automática.
+NEXT = Completar Closure Gate documental F1; después continuar exclusivamente con evidencia pendiente de Estación, sin repetir actividades aprobadas. MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE. Ningún incremento técnico autorizado.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 
