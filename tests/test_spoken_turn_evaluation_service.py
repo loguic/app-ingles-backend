@@ -247,7 +247,7 @@ def test_adequate_continue_preserves_model_decision_and_feedback():
         ("anchors", "initial_word", "reduce_support", "initial_word"),
         ("anchors", "anchors", "reduce_support", "initial_word"),
         ("model", "none", "reduce_support", "anchors"),
-        ("none", "none", "retry_with_support", "none"),
+        ("none", "none", "continue", "none"),
     ],
 )
 def test_support_reduction_requires_lower_level(current, proposed, expected_action, expected_level):
@@ -268,6 +268,27 @@ def test_support_reduction_requires_lower_level(current, proposed, expected_acti
     elif proposed == expected_level and current != "none":
         assert result.conversational_feedback == output["conversational_feedback"]
         assert result.next_turn.reason == output["next_turn"]["reason"]
+
+
+def test_adequate_no_support_terminal_reduction_becomes_continue():
+    output = _model_output()
+    output["next_turn"].update(action="reduce_support", support_level="none")
+
+    def handler(_request):
+        return httpx.Response(200, json={"response": json.dumps(output)})
+
+    result = evaluate_spoken_turn(
+        _request(
+            transcript="I need foods.",
+            current_turn={"turn_id": "t", "support_level": "none", "visible_support": []},
+        ),
+        evaluator=_evaluator(handler),
+    )
+
+    assert result.semantic_evaluation.status == "adequate"
+    assert result.next_turn.action == "continue"
+    assert result.next_turn.support_level == "none"
+    assert result.mastery_awarded is False
 
 
 @pytest.mark.skipif(

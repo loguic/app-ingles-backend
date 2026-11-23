@@ -207,11 +207,10 @@ def _apply_pedagogical_transition_guard(
         current_index = levels.index(request.current_turn.support_level)
         if current_index == len(levels) - 1:
             return output.model_copy(update={
-                "conversational_feedback": "Practise again with the current support.",
                 "next_turn": _ModelNextTurnDecision(
-                    action="retry_with_support",
+                    action="continue",
                     support_level=request.current_turn.support_level,
-                    reason="Support cannot be reduced further.",
+                    reason="The practice already uses the least support.",
                 ),
             })
         next_level = levels[current_index + 1]

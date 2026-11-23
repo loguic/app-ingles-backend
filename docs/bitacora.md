@@ -5669,3 +5669,73 @@ No autoriza activación curricular ni nuevos incrementos.
 Corrección adaptativa de la primera transición: **CLOSED / PUBLISHED / SYNCED**. BE `3a0a666c793ebbee6d5f65804ad55152ed460846`; FE `092b575ee61e8977bc5b314f9aecbac1467bce78`. Pruebas focales BE 14 PASS / 5 omitidas; FE 7 PASS; evaluación BE/Qwen HTTP 200; desbloqueo anchors → initial_word observado en Flutter. Checkpoint BE prepare PASS, Git BE/FE CLEAN/SYNCED. Alcance exclusivo: corrección técnica de la primera transición; no cierre pedagógico integral, mastery ni completion.
 
 NEXT: validar Your own way y transferencia A1 v4. Mejora preventiva transversal del preflight pendiente de traslado a LOGUIC OS.
+
+## A1-V4-PRACTICE-PERSISTENCE-2026-11-23
+
+### Alcance y causa
+
+Corrección integral del guardado de la demostración A1 v4.
+El flujo anterior utilizaba identificadores sintéticos
+incompatibles con la persistencia curricular y produjo HTTP 400.
+
+Se implementaron sesiones de práctica independientes,
+protegidas por token y sin acreditación curricular.
+
+Actividades:
+- own-production: I need water.
+- lower-support-own-production: I need water.
+- nearby-transfer-food: I need food.
+
+### Implementación
+
+Backend: API de creación, subida WAV, guardado y consulta;
+modelos SQLAlchemy, esquemas, servicio protegido y migración
+Alembic e1844e9f2a31.
+
+Frontend: integración de sesiones protegidas, recuperación
+de creación fallida, reintento de subida sin perder el WAV
+ni el feedback, validación estricta de la respuesta de
+guardado y errores diferenciados.
+
+Se conserva la corrección adaptativa anterior, ya publicada.
+
+### Evidencias verificadas el 2026-11-23
+
+- Migración PostgreSQL: e1844e9f2a31 (head), PASS.
+- API runtime: cuatro endpoints disponibles, PASS.
+- HTTP real: create, tres uploads, save y read, PASS.
+- PostgreSQL: tres producciones y referencias propias, PASS.
+- Concurrencia real idéntica: HTTP 200/200, PASS.
+- Concurrencia real diferente: HTTP 200/409, PASS.
+- Flutter analyze: PASS.
+- Flutter tests focales: 20 PASS.
+- Git diff --check Backend y Frontend: PASS.
+- Revisión estática del paquete final: sin nuevos
+  defectos bloqueantes confirmados.
+- Paquete final: 3007 líneas;
+  SHA-256 d1b06123df42cfa33b357db2a674af9033d86df339d5f808e2affe69a2c29164.
+- Audio real: tres WAV localizados en almacenamiento
+  privado ext4, permisos adecuados, PASS.
+- Validación completa desde Flutter: PASS comunicado
+  expresamente por el usuario en el paso 164.
+- Human Approval Gate: APPROVED en el paso 165.
+
+Respaldo PostgreSQL anterior a las migraciones:
+~/Downloads/loguic-english-pre-a1v4-20261123T051355Z.dump.
+Formato pg_dump comprobado mediante pg_restore --list;
+no se ha acreditado una restauración completa.
+
+### Fronteras y cierre
+
+Este incremento no concede mastery, completion, progreso
+curricular, activación MB1 ni acreditación pedagógica.
+
+MB1 permanece DRAFT / NOT ACTIVE.
+Estación permanece NOT CLOSED.
+MVP permanece NO MEDIBLE.
+
+Estado de este incremento al registrar la evidencia:
+HUMAN APPROVED / DOCUMENTATION IN PROGRESS / NOT CLOSED.
+
+Pendientes: cierre documental, commits y sincronización Git,
+verificación de repositorios y checkpoint prepare PASS.

@@ -1736,3 +1736,25 @@ No activar currículo ni publicar código por esta actualización.
 Corrección adaptativa de la primera transición: **CLOSED / PUBLISHED / SYNCED**. BE `3a0a666c793ebbee6d5f65804ad55152ed460846`; FE `092b575ee61e8977bc5b314f9aecbac1467bce78`. Pruebas focales BE 14 PASS / 5 omitidas; FE 7 PASS; evaluación BE/Qwen HTTP 200; desbloqueo anchors → initial_word observado en Flutter. Checkpoint BE prepare PASS, Git BE/FE CLEAN/SYNCED. Alcance exclusivo: corrección técnica de la primera transición; no cierre pedagógico integral, mastery ni completion.
 
 NEXT: validar Your own way y transferencia A1 v4. Mejora preventiva transversal del preflight pendiente de traslado a LOGUIC OS.
+
+## A1-V4-PRACTICE-PERSISTENCE-2026-11-23
+
+Hito: demostrar el recorrido A1 v4 de tres producciones
+orales con guardado protegido y recuperable, sin utilizar
+identificadores curriculares sintéticos.
+
+IMPLEMENTED / TESTED / REVIEWED / HUMAN APPROVED.
+Persistencia PostgreSQL, concurrencia, almacenamiento WAV
+y pruebas Flutter: PASS.
+
+Validación manual integral desde Flutter: PASS comunicado
+por el usuario el 2026-11-23.
+
+Closure Gate documental y Git: NOT CLOSED.
+
+No implica activación MB1, mastery, completion ni
+acreditación curricular. MVP sigue NO MEDIBLE.
+
+NEXT: completar cierre canónico de ambos repositorios,
+verificar Git CLEAN/SYNCED y ejecutar checkpoint prepare.
+No iniciar otro incremento antes de cerrar este.

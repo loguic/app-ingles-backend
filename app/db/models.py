@@ -34,6 +34,50 @@ class UserProgress(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 
+class A1V4PracticeSession(Base):
+    """Isolated demo practice; deliberately unrelated to curriculum progress."""
+
+    __tablename__ = "a1_v4_practice_sessions"
+
+    session_id = Column(String, primary_key=True)
+    declared_user_id = Column(String, nullable=False)
+    token_hash = Column(String(64), nullable=False)
+    content_hash = Column(String(64), nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    saved_at = Column(DateTime(timezone=True), nullable=True)
+
+
+class A1V4PracticeAudio(Base):
+    __tablename__ = "a1_v4_practice_audios"
+
+    audio_reference = Column(String, primary_key=True)
+    session_id = Column(
+        String,
+        ForeignKey("a1_v4_practice_sessions.session_id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+
+
+class A1V4PracticeProduction(Base):
+    __tablename__ = "a1_v4_practice_productions"
+    __table_args__ = (
+        UniqueConstraint("session_id", "activity_id", name="uq_a1_v4_practice_activity"),
+    )
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(
+        String,
+        ForeignKey("a1_v4_practice_sessions.session_id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    activity_id = Column(String, nullable=False)
+    audio_reference = Column(String, nullable=False)
+    transcript = Column(Text, nullable=False)
+    client_evaluation = Column(JSON, nullable=True)
+
+
 class ConversationAttempt(Base):
     __tablename__ = "conversation_attempts"
     __table_args__ = (
