@@ -1750,11 +1750,9 @@ y pruebas Flutter: PASS.
 Validación manual integral desde Flutter: PASS comunicado
 por el usuario el 2026-11-23.
 
-Closure Gate documental y Git: NOT CLOSED.
+Closure Gate técnico y Git: CLOSED / PUBLISHED / SYNCED. BE `222d7d20a7e6a748fd90f23c733619c63fbef5bb`; FE `232be242703b366ff3d4c415ac4dc68bc0072fb0`. Reconciliación documental final mediante helper canónico.
 
 No implica activación MB1, mastery, completion ni
 acreditación curricular. MVP sigue NO MEDIBLE.
 
-NEXT: completar cierre canónico de ambos repositorios,
-verificar Git CLEAN/SYNCED y ejecutar checkpoint prepare.
-No iniciar otro incremento antes de cerrar este.
+NEXT: reanudar mediante Startup Gate y checkpoint resume en la siguiente conversación. Consultar el roadmap antes de autorizar otro incremento. MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE.

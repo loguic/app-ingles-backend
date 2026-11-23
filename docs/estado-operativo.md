@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-11-23T14:37:33+01:00
-Baseline Git previa a este checkpoint: c8a8ea34be99f0315374bec5127d32f446f87eea
+Actualizado: 2026-11-23T14:51:07+01:00
+Baseline Git previa a este checkpoint: 222d7d20a7e6a748fd90f23c733619c63fbef5bb
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -33,7 +33,7 @@ commit existente con `git push origin master` y
 `conversation_checkpoint.py prepare` terminó PASS, CLEAN y SYNCED. Esto no reclasifica retrospectivamente la ejecución original como Closure Gate PASS.
 
 ## Bloque activo
-Corrección adaptativa A1 v4: **CLOSED / PUBLISHED / SYNCED**. BE `3a0a666c793ebbee6d5f65804ad55152ed460846`; FE `092b575ee61e8977bc5b314f9aecbac1467bce78`. Primera transición anchors → initial_word validada en Flutter con BE y Qwen. Documentos de cierre: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`. A1 v4 sigue siendo demo no curricular. A1-V4-PRACTICE-PERSISTENCE-2026-11-23: HUMAN APPROVED / NOT CLOSED; persistencia PostgreSQL, tres WAV, concurrencia y validación Flutter PASS; sin mastery/completion. Estación NOT CLOSED; MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE.
+Sin incremento técnico abierto. Corrección adaptativa A1 v4: **CLOSED / PUBLISHED / SYNCED**. BE `3a0a666c793ebbee6d5f65804ad55152ed460846`; FE `092b575ee61e8977bc5b314f9aecbac1467bce78`. Primera transición anchors → initial_word validada en Flutter con BE y Qwen. Documentos de cierre: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`. A1 v4 sigue siendo demo no curricular. A1-V4-PRACTICE-PERSISTENCE-2026-11-23: **CLOSED / PUBLISHED / SYNCED** (BE `222d7d20a7e6a748fd90f23c733619c63fbef5bb`, FE `232be242703b366ff3d4c415ac4dc68bc0072fb0`); persistencia PostgreSQL, tres WAV, concurrencia y validación Flutter PASS; sin mastery/completion. Estación NOT CLOSED; MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE.
 Archivos técnicos BE locales pendientes de commit: `alembic/versions/e1844e9f2a31_add_a1_v4_practice_sessions.py`, `app/api/v1/endpoints/a1_v4_practice_sessions.py`, `app/api/v1/router.py`, `app/db/models.py`, `app/schemas/a1_v4_practice_session.py`, `app/services/a1_v4_practice_session_service.py`, `app/services/spoken_turn_evaluation_service.py`, `tests/test_a1_v4_practice_sessions.py`, `tests/test_spoken_turn_evaluation_service.py`.
 BASELINE V0 del MVP: **PUBLISHED / SYNCED** tras recuperación de publicación.
 Measurement V1 está documentada y sus cinco decisiones metodológicas fueron
@@ -112,7 +112,7 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = cerrar A1-V4-PRACTICE-PERSISTENCE-2026-11-23 mediante revisión documental, helper Git canónico para Backend y Frontend, comprobación CLEAN/SYNCED y conversation_checkpoint.py prepare PASS. No iniciar incrementos nuevos ni activar currículo. La mejora transversal del preflight corresponde a LOGUIC OS.
+NEXT = cambiar de conversación mediante Startup Gate canónico y conversation_checkpoint.py resume; recuperar roadmap y priorizar siguiente hito de producto con autorización humana. MB1 DRAFT / NOT ACTIVE; sin activación curricular ni nuevo incremento automático.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 
