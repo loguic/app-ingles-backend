@@ -5741,3 +5741,12 @@ Pendientes: cierre documental, commits y sincronización Git,
 verificación de repositorios y checkpoint prepare PASS.
 
 Cierre técnico y Git del incremento: Backend `222d7d20a7e6a748fd90f23c733619c63fbef5bb`; Frontend `232be242703b366ff3d4c415ac4dc68bc0072fb0`. Ambos helpers finalizaron PASS. Checkpoint Backend posterior: PASS, CLEAN/SYNCED. La presente reconciliación documental se publica mediante un último Closure Gate canónico; su commit definitivo queda identificado por Git. Fricciones preventivas: límite de 140 líneas, fecha posterior al baseline y trazabilidad de rutas locales. Su automatización transversal corresponde a LOGUIC OS, sin modificar herramientas en este incremento.
+
+
+## RECOVERY-IDLE-FAIL-CLOSED-2026-11-23
+Corrección de recuperación IDLE y FAIL-CLOSED.
+Evidencia: 14 pruebas PASS; recuperación BE/FE PASS.
+Human Gate funcional APPROVED.
+Postflight previo FAIL; corrección aplicada y validada.
+Revisión independiente original FAIL; hallazgo corregido, 14 tests PASS y verificación adversarial PASS. Remediación aceptada por Human Gate; no existe nuevo dictamen independiente PASS.
+Estado al preparar publicación: IMPLEMENTED / LOCAL / NOT CLOSED. Cierre efectivo sujeto a Git CLEAN/SYNCED y checkpoint prepare PASS.

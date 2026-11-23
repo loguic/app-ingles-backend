@@ -101,7 +101,15 @@ def _active_increment(active_block: str) -> str:
         body_end = headings[index + 1].start() if index + 1 < len(headings) else len(active_block)
         if _LOCAL_INCREMENT_STATUS.search(active_block[heading.end():body_end]):
             candidates.append(heading.group(1))
+    declares_idle = bool(re.match(
+        r"^Sin incremento técnico abierto\.(?:\s|$)",
+        active_block.lstrip(),
+    ))
+    if declares_idle and candidates:
+        raise ValueError("canonical state declares both idle and an active increment")
     if not candidates:
+        if declares_idle:
+            return "NONE"
         raise ValueError("canonical state has no active local increment")
     if len(candidates) != 1:
         raise ValueError("canonical state has ambiguous active increments")
@@ -128,6 +136,16 @@ def resume(*, root: Path = ROOT, frontend_root: Path) -> tuple[str, int]:
         active_increment = _active_increment(supervisor.active_block)
     except ValueError as error:
         return _blocked_output(str(error)), 1
+
+    if supervisor.supervisor_status != "PASS" and not supervisor.error:
+        issues = (
+            *supervisor.unexpected_backend_dirty_paths,
+            *supervisor.unexpected_frontend_dirty_paths,
+        )
+        detail = "supervisor status=" + supervisor.supervisor_status
+        if issues:
+            detail += "; unexpected dirty paths=" + ", ".join(issues)
+        return _blocked_output(detail), 1
 
     lines = (
         "CHECKPOINT=PASS",

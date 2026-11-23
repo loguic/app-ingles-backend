@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import subprocess
+from dataclasses import replace
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -169,6 +170,89 @@ def test_resume_rejects_ambiguous_active_increment(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="ambiguous active increments"):
         loguic._active_increment(active_block)
+
+
+
+def test_resume_accepts_explicit_idle_without_writing(tmp_path: Path) -> None:
+    backend, frontend = fixture(tmp_path)
+    state_path = backend / "docs" / "estado-operativo.md"
+    previous = git(backend, "rev-parse", "HEAD^")
+    current = git(backend, "rev-parse", "HEAD")
+    document = state_path.read_text(encoding="utf-8")
+
+    assert f"Baseline Git previa a este checkpoint: {previous}" in document
+    document = document.replace(
+        f"Baseline Git previa a este checkpoint: {previous}",
+        f"Baseline Git previa a este checkpoint: {current}",
+    ).replace(
+        "BASELINE V0 is historical.\n\n### AI CONSTRUCTOR INTEGRATION V1",
+        "Sin incremento técnico abierto.\n\nBASELINE V0 is historical.",
+    ).replace(
+        "Estado: IMPLEMENTED / LOCAL / NOT CLOSED / NOT PUBLISHED.",
+        "Dirty backend reconocido: `docs/estado-operativo.md`.",
+    )
+    assert "### AI CONSTRUCTOR INTEGRATION V1" not in document
+    state_path.write_text(document, encoding="utf-8")
+    before = git(backend, "status", "--porcelain=v1", "-z")
+
+    output, exit_code = loguic.resume(root=backend, frontend_root=frontend)
+
+    assert exit_code == 0, output
+    assert "CHECKPOINT=PASS" in output
+    assert "ACTIVE_INCREMENT=NONE" in output
+    assert "FRONTEND=HEAD=" in output
+    assert "RECOMMENDED_ACTOR=HUMAN" in output
+    assert git(backend, "status", "--porcelain=v1", "-z") == before
+
+
+def test_active_increment_rejects_undeclared_idle() -> None:
+    with pytest.raises(ValueError, match="no active local increment"):
+        loguic._active_increment("Historical closure only.")
+
+
+def test_active_increment_rejects_idle_active_conflict() -> None:
+    active_block = (
+        "Sin incremento técnico abierto.\n\n"
+        "### CONFLICTING INCREMENT\n\n"
+        "Estado: IMPLEMENTED / LOCAL.\n"
+    )
+    with pytest.raises(ValueError, match="both idle and an active increment"):
+        loguic._active_increment(active_block)
+
+
+
+def test_resume_blocks_reconciliation_without_supervisor_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    backend, frontend = fixture(tmp_path)
+
+    original = loguic.development_supervisor.build_supervisor(
+        root=backend, frontend_root=frontend
+    )
+    assert original.supervisor_status == "PASS"
+
+    inconsistent = replace(
+        original,
+        supervisor_status="RECONCILIATION_REQUIRED",
+        unexpected_backend_dirty_paths=("unexpected.txt",),
+        continuity_safe=False,
+        error=None,
+    )
+
+    monkeypatch.setattr(
+        loguic.development_supervisor,
+        "build_supervisor",
+        lambda **kwargs: inconsistent,
+    )
+
+    output, exit_code = loguic.resume(
+        root=backend, frontend_root=frontend
+    )
+
+    assert exit_code == 1
+    assert "CHECKPOINT=BLOCKED" in output
+    assert "supervisor status=RECONCILIATION_REQUIRED" in output
+    assert "unexpected.txt" in output
 
 
 def test_parser_uses_project_relative_frontend_default() -> None:

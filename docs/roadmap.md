@@ -1756,3 +1756,12 @@ No implica activación MB1, mastery, completion ni
 acreditación curricular. MVP sigue NO MEDIBLE.
 
 NEXT: reanudar mediante Startup Gate y checkpoint resume en la siguiente conversación. Consultar el roadmap antes de autorizar otro incremento. MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE.
+
+
+## RECOVERY-IDLE-FAIL-CLOSED-2026-11-23
+Continuidad canónica: recuperación IDLE implementada.
+FAIL-CLOSED reforzado; 14 pruebas PASS.
+Revisión independiente efectuada (FAIL histórico); único hallazgo remediado y aceptado humanamente. Pendiente Closure Gate; sin nuevo postflight PASS.
+LOGUIC OS backlog: estados estructurados, validación semántica, baseline, NEXT y preflight integrado.
+No iniciar MB1 ni otro incremento automáticamente.
+Estado al preparar publicación: NOT CLOSED / NOT PUBLISHED. Cierre efectivo acreditable mediante Git y checkpoint posterior.
