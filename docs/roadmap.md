@@ -1765,3 +1765,24 @@ Revisión independiente efectuada (FAIL histórico); único hallazgo remediado y
 LOGUIC OS backlog: estados estructurados, validación semántica, baseline, NEXT y preflight integrado.
 No iniciar MB1 ni otro incremento automáticamente.
 Estado al preparar publicación: NOT CLOSED / NOT PUBLISHED. Cierre efectivo acreditable mediante Git y checkpoint posterior.
+
+## F1 — Reconciliación documental del trabajo ya realizado (2026-11-23)
+
+**Alcance:** esta actualización clasifica tareas según la evidencia histórica y las aprobaciones humanas previas. NO constituye un Closure Gate ni publica cambios en el repositorio local. No se reejecutaron pruebas ni se solicitaron nuevas capturas.
+
+| Actividad | Estado documental reconciliado | Frontera |
+| --- | --- | --- |
+| Inicio: revisión UI/UX | REVISIÓN REALIZADA; conservar sin cambios | No es validación de comprensión con principiantes. No repetir captura. |
+| Estación: escritorio | REVISIÓN APROBADA EN SU ALCANCE | Ajuste frontend publicado 17/11; 8 tests focales y Flutter analyze PASS. |
+| Estación: ancho ~850 px | REVISIÓN APROBADA EN SU ALCANCE | Human Review Gate 19/11; no acredita anchos menores. |
+| ISSUE_2 audio | CLOSED / PUBLISHED / SYNCED | Evidencia de postflight y Git frontend. No repetir sin una incidencia nueva. |
+| A1 v4: tres producciones orales y persistencia | CLOSED / PUBLISHED / SYNCED | PostgreSQL, 3 WAV, concurrencia y recorrido manual Flutter PASS; no equivale al cierre integral de Estación V1. |
+| Accesibilidad Estación WCAG AA | PENDIENTE DE EVIDENCIA INTEGRAL | Examinar evidencia canónica existente antes de cualquier nueva prueba. |
+| Recorrido integral Inicio → Estación audio-first | NO ACREDITADO COMO CIERRE INTEGRAL | La demo A1 v4 y ISSUE_2 no sustituyen una aceptación de Estación V1. |
+| Ventanas inferiores a ~850 px; ilustración de segunda situación | PENDIENTES SEGÚN ROADMAP | Verificar si son bloqueantes y no volver a revisar el alcance ya aprobado. |
+
+**Estado:** F1 OPEN / NOT CLOSED. MB1 DRAFT / NOT ACTIVE. MVP NO MEDIBLE. Incremento técnico activo NONE.
+
+**NEXT único:** recuperar de las fuentes ya existentes solo la evidencia aún no acreditada del gate F1 (accesibilidad y experiencia integral de Estación), determinar el bloqueo mínimo real y preparar su resolución si hace falta. No repetir Inicio, escritorio, ~850 px, ISSUE_2 o A1 v4. Ninguna activación curricular ni incremento técnico sin autorización humana específica.
+
+**Mejora transversal diferida a LOGUIC OS:** sincronizar `loguic.py progress` con último cierre/NEXT y agrupar recuperación canónica existente sin duplicar scripts.
