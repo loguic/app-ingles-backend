@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-11-23T01:02:15+01:00
-Baseline Git previa a este checkpoint: 74a6f018eaf102ce0d0e99ab7167782fa517115c
+Actualizado: 2026-11-23T02:06:39+01:00
+Baseline Git previa a este checkpoint: 3a0a666c793ebbee6d5f65804ad55152ed460846
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -33,7 +33,7 @@ commit existente con `git push origin master` y
 `conversation_checkpoint.py prepare` terminó PASS, CLEAN y SYNCED. Esto no reclasifica retrospectivamente la ejecución original como Closure Gate PASS.
 
 ## Bloque activo
-Reconciliación documental 2026-11-22: **LOCAL / NOT CLOSED / NOT PUBLISHED**. F0 publicado en BE; ISSUE_2 V3 publicado en FE. A1 v4 conserva cambios locales pendientes de revisión. Estación NOT CLOSED; MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE. Sin autorización de nuevos incrementos. Actualización A1 v4 2026-11-23: LOCAL / NOT CLOSED / NOT PUBLISHED; BE `app/services/spoken_turn_evaluation_service.py`, `tests/test_spoken_turn_evaluation_service.py`; documentación `docs/estado-operativo.md`. Primera transición anchors → initial_word validada con Flutter/BE/Qwen; 14 PASS / 5 skipped. Segunda producción, transferencia y cierre pendientes; sin acreditación curricular ni mastery/completion.
+Corrección adaptativa A1 v4: **CLOSED / PUBLISHED / SYNCED**. BE `3a0a666c793ebbee6d5f65804ad55152ed460846`; FE `092b575ee61e8977bc5b314f9aecbac1467bce78`. Primera transición anchors → initial_word validada en Flutter con BE y Qwen. Documentos de cierre: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`. A1 v4 sigue siendo demo histórica: segunda producción y transferencia pendientes de validación integral; sin mastery/completion. Estación NOT CLOSED; MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE.
 
 BASELINE V0 del MVP: **PUBLISHED / SYNCED** tras recuperación de publicación.
 Measurement V1 está documentada y sus cinco decisiones metodológicas fueron
@@ -112,7 +112,7 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = cierre canónico de correcciones adaptativas A1 v4 BE/FE con validaciones existentes y sin repetir audio. Estación NOT CLOSED; MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE. Mejora para LOGUIC OS PENDIENTE DE TRASLADO: preflight integral de rutas Git, límite documental, baseline, estados y NEXT; sin implementación transversal en este cierre.
+NEXT = continuar Niveles A1 v4 desde Your own way y verificar después la transferencia, sin repetir las pruebas de la primera transición. Mejora transversal del preflight pendiente de traslado a LOGUIC OS; no implementarla en este incremento.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 

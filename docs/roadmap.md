@@ -1730,3 +1730,9 @@ NEXT documental: completar validación independiente,
 reconciliación Git y checkpoint de esta actualización.
 No ejecutar nuevas pruebas de audio sin causa concreta.
 No activar currículo ni publicar código por esta actualización.
+
+## A1-V4-ADAPTIVE-CORRECTION-CLOSURE-2026-11-23
+
+Corrección adaptativa de la primera transición: **CLOSED / PUBLISHED / SYNCED**. BE `3a0a666c793ebbee6d5f65804ad55152ed460846`; FE `092b575ee61e8977bc5b314f9aecbac1467bce78`. Pruebas focales BE 14 PASS / 5 omitidas; FE 7 PASS; evaluación BE/Qwen HTTP 200; desbloqueo anchors → initial_word observado en Flutter. Checkpoint BE prepare PASS, Git BE/FE CLEAN/SYNCED. Alcance exclusivo: corrección técnica de la primera transición; no cierre pedagógico integral, mastery ni completion.
+
+NEXT: validar Your own way y transferencia A1 v4. Mejora preventiva transversal del preflight pendiente de traslado a LOGUIC OS.
