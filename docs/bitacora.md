@@ -5771,3 +5771,7 @@ Frontend CLOSED / PUBLISHED / SYNCED en `2435a6f2`.
 ## F1-KEYBOARD-ACCESSIBILITY-2026-11-24
 
 Validación humana focal PASS: Tab, Shift+Tab, foco visible, Enter, Espacio y repetición. Sin cambios de código ni repetición de pruebas. WCAG AA integral pendiente.
+
+## F1-TEXT-SCALING-2026-11-24
+
+Validación humana focal PASS: escalado de texto del sistema GNOME al 200 %, sin cortes ni desbordamientos reportados en la comprobación visual. Configuración restaurada y verificada al 100 %. Sin cambios de código ni repetición de pruebas. No acredita WCAG AA integral.
