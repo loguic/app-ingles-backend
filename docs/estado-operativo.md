@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-11-23T19:53:38+01:00
-Baseline Git previa a este checkpoint: 53de563e040f540b3e5ce721e179c5a5a135adae
+Actualizado: 2026-11-24T01:15:55+01:00
+Baseline Git previa a este checkpoint: 8f2bdfaffc6f893775611ea9892b9ab9b5992b8f
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -33,7 +33,7 @@ commit existente con `git push origin master` y
 `conversation_checkpoint.py prepare` terminó PASS, CLEAN y SYNCED. Esto no reclasifica retrospectivamente la ejecución original como Closure Gate PASS.
 
 ## Bloque activo
-Sin incremento técnico abierto. Corrección adaptativa A1 v4: **CLOSED / PUBLISHED / SYNCED**. BE `3a0a666c793ebbee6d5f65804ad55152ed460846`; FE `092b575ee61e8977bc5b314f9aecbac1467bce78`. Primera transición anchors → initial_word validada en Flutter con BE y Qwen. Documentos de cierre: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`. A1 v4 sigue siendo demo no curricular. A1-V4-PRACTICE-PERSISTENCE-2026-11-23: **CLOSED / PUBLISHED / SYNCED** (BE `222d7d20a7e6a748fd90f23c733619c63fbef5bb`, FE `232be242703b366ff3d4c415ac4dc68bc0072fb0`); persistencia PostgreSQL, tres WAV, concurrencia y validación Flutter PASS; sin mastery/completion. Estación NOT CLOSED; MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE.
+Sin incremento técnico abierto. STARTUP_RULE=LOGUIC-COMPACT-STARTUP-GATE-2026-11-24 (STATUS/DETAIL/NEXT; COPY START/END; logs locales; no repetir evidencias; método canónico). Corrección adaptativa A1 v4: **CLOSED / PUBLISHED / SYNCED**. BE `3a0a666c793ebbee6d5f65804ad55152ed460846`; FE `092b575ee61e8977bc5b314f9aecbac1467bce78`. Primera transición anchors → initial_word validada en Flutter con BE y Qwen. Documentos de cierre: `docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`. A1 v4 sigue siendo demo no curricular. A1-V4-PRACTICE-PERSISTENCE-2026-11-23: **CLOSED / PUBLISHED / SYNCED** (BE `222d7d20a7e6a748fd90f23c733619c63fbef5bb`, FE `232be242703b366ff3d4c415ac4dc68bc0072fb0`); persistencia PostgreSQL, tres WAV, concurrencia y validación Flutter PASS; sin mastery/completion. Estación NOT CLOSED; MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE.
 Reconciliación documental F1 publicada en 53de563e; Git CLEAN / SYNCED. Checkpoint prepare pendiente; F1 integral NOT CLOSED.
 BASELINE V0 del MVP: **PUBLISHED / SYNCED** tras recuperación de publicación.
 Measurement V1 está documentada y sus cinco decisiones metodológicas fueron
@@ -112,7 +112,7 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = Completar Closure Gate documental F1; después continuar exclusivamente con evidencia pendiente de Estación, sin repetir actividades aprobadas. MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE. Ningún incremento técnico autorizado.
+NEXT = Completar F1 exclusivamente con requisitos integrales aun no acreditados, reutilizando evidencias existentes; despues F2 mediante Human Gate. Startup compact integrado en resume; verificar aplicacion al cambiar de conversacion. MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 
@@ -137,4 +137,4 @@ humano.
 
 ## Archivos clave
 
-`docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`, `scripts/engineering/operational_state.py`, `scripts/engineering/validation_recipe.py` y `scripts/engineering/conversation_checkpoint.py`.
+`docs/estado-operativo.md`, `docs/bitacora.md`, `docs/roadmap.md`, `scripts/engineering/operational_state.py`, `scripts/engineering/validation_recipe.py` y `scripts/engineering/conversation_checkpoint.py`; `docs/loguic-engineering-operating-method-v1.md`.

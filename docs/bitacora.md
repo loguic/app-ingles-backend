@@ -5750,3 +5750,20 @@ Human Gate funcional APPROVED.
 Postflight previo FAIL; corrección aplicada y validada.
 Revisión independiente original FAIL; hallazgo corregido, 14 tests PASS y verificación adversarial PASS. Remediación aceptada por Human Gate; no existe nuevo dictamen independiente PASS.
 Estado al preparar publicación: IMPLEMENTED / LOCAL / NOT CLOSED. Cierre efectivo sujeto a Git CLEAN/SYNCED y checkpoint prepare PASS.
+
+## F1-ACCESSIBILITY-TEST-2026-11-24
+
+Se incorporo un test focalizado de accesibilidad
+en test/station_journey_screen_test.dart.
+
+La primera ejecucion fallo por liberacion tardia
+del SemanticsHandle en el test propuesto.
+Se corrigio exclusivamente esa limpieza.
+
+Evidencia final comunicada por Human Authority:
+STATUS=PASS; TEST=F1_ACCESSIBILITY;
+NEXT=DOCUMENTAR_EVIDENCIA.
+
+No se repitieron pruebas responsive ni de audio.
+No se declara certificacion WCAG AA integral.
+Frontend CLOSED / PUBLISHED / SYNCED en `2435a6f2`.

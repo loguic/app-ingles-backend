@@ -1786,3 +1786,22 @@ Estado al preparar publicación: NOT CLOSED / NOT PUBLISHED. Cierre efectivo acr
 **NEXT único:** recuperar de las fuentes ya existentes solo la evidencia aún no acreditada del gate F1 (accesibilidad y experiencia integral de Estación), determinar el bloqueo mínimo real y preparar su resolución si hace falta. No repetir Inicio, escritorio, ~850 px, ISSUE_2 o A1 v4. Ninguna activación curricular ni incremento técnico sin autorización humana específica.
 
 **Mejora transversal diferida a LOGUIC OS:** sincronizar `loguic.py progress` con último cierre/NEXT y agrupar recuperación canónica existente sin duplicar scripts.
+
+## F1-ACCESSIBILITY-TEST-2026-11-24
+
+Estado: TEST FOCAL PASS / CIERRE INTEGRAL F1 PENDIENTE.
+
+Frontend: test/station_journey_screen_test.dart. Commit `2435a6f2` CLOSED / PUBLISHED / SYNCED.
+Prueba: station meets basic accessibility guidelines.
+Evidencia humana comunicada: STATUS=PASS.
+
+Cobertura focal: etiqueta semantica de imagen,
+etiquetas de controles, areas tactiles y contraste
+mediante herramientas de Flutter.
+
+Cobertura responsive preexistente: 390, 700 y 1280 px.
+No repetir pruebas acreditadas sin incidencia nueva.
+
+WCAG AA integral, navegacion por teclado y escalado
+de texto: no acreditados por este test.
+F1 permanece NOT CLOSED. MB1 DRAFT / NOT ACTIVE.

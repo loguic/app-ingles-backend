@@ -217,3 +217,28 @@ Un bloque no está cerrado hasta disponer, cuando aplique, de:
 - `conversation_checkpoint.py prepare` post-cierre PASS sin cambios posteriores.
 
 Un contrato publicado no equivale a implementación publicada. Tests positivos no equivalen por sí solos a cierre documental o Git. Active source integrity no equivale a loader readiness. El checkpoint debe reflejar siempre el estado real, incluidos cambios locales aún no publicados.
+
+## LOGUIC-COMPACT-STARTUP-GATE-2026-11-24
+
+Regla obligatoria desde la primera intervencion
+posterior a cualquier cambio de conversacion:
+
+1. Ejecutar el Startup Gate y recuperar autoridades,
+   estado, evidencias acreditadas, restricciones y NEXT.
+2. Reutilizar herramientas canonicas antes de crear
+   comandos o procedimientos adicionales.
+3. Conservar logs extensos localmente.
+4. Mostrar solamente STATUS, DETAIL y NEXT,
+   con delimitadores COPY START / COPY END
+   identificados como TERMINAL o CODEX.
+5. No solicitar logs completos ni repetir pruebas
+   acreditadas sin una incidencia concreta.
+6. Distinguir trabajo cerrado, evidencia no localizada,
+   pendiente real y bloqueo.
+7. Documentar cada resultado antes del Closure Gate.
+8. Si el handoff no recupera esta norma, tratarlo
+   como defecto de continuidad pendiente de resolver.
+
+Esta norma debe ser recuperada por el mecanismo
+canonico de reanudacion. Su incorporacion documental
+no demuestra por si sola que el handoff ya la entregue.
