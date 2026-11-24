@@ -5767,3 +5767,7 @@ NEXT=DOCUMENTAR_EVIDENCIA.
 No se repitieron pruebas responsive ni de audio.
 No se declara certificacion WCAG AA integral.
 Frontend CLOSED / PUBLISHED / SYNCED en `2435a6f2`.
+
+## F1-KEYBOARD-ACCESSIBILITY-2026-11-24
+
+Validación humana focal PASS: Tab, Shift+Tab, foco visible, Enter, Espacio y repetición. Sin cambios de código ni repetición de pruebas. WCAG AA integral pendiente.

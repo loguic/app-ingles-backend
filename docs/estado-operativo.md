@@ -1,7 +1,7 @@
 # Estado operativo — LOGUIC English
 
-Actualizado: 2026-11-24T01:15:55+01:00
-Baseline Git previa a este checkpoint: 8f2bdfaffc6f893775611ea9892b9ab9b5992b8f
+Actualizado: 2026-11-24T02:58:46+01:00
+Baseline Git previa a este checkpoint: 1d9a5dc9cc920220e1268de9b0bf5c8c33f0903f
 Formato: checkpoint operativo compacto
 
 ## Dirección vigente
@@ -112,7 +112,7 @@ Git real es autoridad exclusiva para hechos vivos; este documento conserva conti
 
 ## Próximo objetivo
 
-NEXT = Completar F1 exclusivamente con requisitos integrales aun no acreditados, reutilizando evidencias existentes; despues F2 mediante Human Gate. Startup compact integrado en resume; verificar aplicacion al cambiar de conversacion. MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE.
+NEXT = F1: teclado PASS (F1-KEYBOARD-ACCESSIBILITY-2026-11-24); siguiente requisito: escalado de texto. Completar restantes requisitos integrales sin repetir evidencia; F2 mediante Human Gate. MB1 DRAFT / NOT ACTIVE; MVP NO MEDIBLE.
 
 ## Decisiones pedagógicas y comerciales consolidadas
 

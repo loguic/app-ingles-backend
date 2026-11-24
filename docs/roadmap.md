@@ -1805,3 +1805,7 @@ No repetir pruebas acreditadas sin incidencia nueva.
 WCAG AA integral, navegacion por teclado y escalado
 de texto: no acreditados por este test.
 F1 permanece NOT CLOSED. MB1 DRAFT / NOT ACTIVE.
+
+## F1-KEYBOARD-ACCESSIBILITY-2026-11-24
+
+Validación humana focal PASS: Tab, Shift+Tab, foco visible, Enter, Espacio y repetición. Sin cambios de código ni repetición de pruebas. WCAG AA integral pendiente.
